@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>메이플 키우기 - 정식 출시 버전 (안정화)</title>
+    <title>메이플 키우기 - 정식 출시 버전 (안정화 & UI개선)</title>
     <style>
         :root {
             --panel-bg: #181824;
@@ -63,15 +63,30 @@
             align-items: center; cursor: pointer; transition: background 0.5s ease;
         }
 
-        .stage-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 14px 18px 0 18px; z-index: 10; }
-        .stage-title {
-            background: rgba(15, 15, 25, 0.8); padding: 8px 18px; border-radius: 20px;
-            font-size: 14px; font-weight: bold; color: #fff; border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(6px); box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        .stage-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 14px 16px 0 16px; z-index: 10; gap: 8px; }
+        
+        /* 🗺️ 스테이지 네비게이션 개선 */
+        .stage-nav-container { 
+            display: flex; align-items: center; background: rgba(15, 15, 25, 0.85); 
+            border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.15); 
+            backdrop-filter: blur(6px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); flex: 1;
+        }
+        .stage-arrow { 
+            background: transparent; border: none; color: var(--main-yellow); padding: 8px 14px; 
+            font-size: 14px; cursor: pointer; transition: background 0.2s; 
+        }
+        .stage-arrow:first-child { border-radius: 20px 0 0 20px; border-right: 1px solid rgba(255,255,255,0.1); }
+        .stage-arrow:last-child { border-radius: 0 20px 20px 0; border-left: 1px solid rgba(255,255,255,0.1); }
+        .stage-arrow:active { background: rgba(255, 255, 255, 0.15); }
+        .stage-title { 
+            flex: 1; padding: 8px 4px; font-size: 13px; font-weight: bold; color: #fff; 
+            text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
         }
 
         .btn-autohunt {
             background: linear-gradient(135deg, #ff4757, #ff6b81); color: white; border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(255,71,87,0.4); transition: all 0.2s;
+            padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(255,71,87,0.4); transition: all 0.2s;
+            white-space: nowrap;
         }
         .btn-autohunt.active { background: linear-gradient(135deg, #2ed573, #26af5f); box-shadow: 0 4px 15px rgba(46,213,115,0.5); }
 
@@ -162,7 +177,7 @@
         .btn-upgrade:active { transform: translateY(2px); box-shadow: 0 2px 6px rgba(211,84,0,0.4); }
         .btn-upgrade:disabled { background: #4b4b60; box-shadow: none; color: #888; cursor: not-allowed; }
         .system-btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
-        .btn-system { background: linear-gradient(135deg, #34495e, #2c3e50); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: transform 0.1s; }
+        .btn-system { background: linear-gradient(135deg, #34495e, #2c3e50); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(255,71,87,0.4); transition: all 0.2s; }
         .btn-system:active { transform: translateY(2px); }
         .btn-admin { background: linear-gradient(135deg, #9b59b6, #8e44ad); border: 1px solid #b19cd9; color: #f1c40f; box-shadow: 0 4px 15px rgba(142,68,173,0.4); }
         .btn-danger { background: linear-gradient(135deg, #ff4757, #c0392b); box-shadow: 0 4px 12px rgba(231,76,60,0.4); }
@@ -204,7 +219,12 @@
 
     <div id="battlefield" onclick="manualAttack(event)">
         <div class="stage-header">
-            <div class="stage-title" id="stage-name">STAGE 1 : 푸른 언덕 초원</div>
+            <!-- 🗺️ 개선된 스테이지 네비게이션 창 -->
+            <div class="stage-nav-container">
+                <button type="button" class="stage-arrow" onclick="prevStage(event)">◀</button>
+                <div class="stage-title" id="stage-name">STAGE 1 : 푸른 언덕 초원</div>
+                <button type="button" class="stage-arrow" onclick="nextStage(event)">▶</button>
+            </div>
             <button type="button" id="btn-autohunt" class="btn-autohunt active" onclick="toggleAutoHunt(event)">⚔️ 자동사냥: ON</button>
         </div>
         <div class="battle-area">
@@ -275,7 +295,7 @@
                 <div class="upgrade-info">
                     <h4 id="wing-name-desc" style="color: #f1c40f;">날개 없음 (Lv. 1)</h4>
                     <p>추가 타격력: +<span id="wing-atk-bonus">0</span><br>
-                    <small>※ 10레벨 단위 날개 진화 (Max 100)</small></p>
+                    <small>※ 10레벨 단위 고화질 HD 날개 진화 (Max 100)</small></p>
                 </div>
                 <button type="button" class="btn-upgrade" id="btn-up-wing" onclick="upgradeWing()">날개 강화<br><small id="cost-wing">500 Gold</small></button>
             </div>
@@ -313,10 +333,8 @@
             <div class="upgrade-card">
                 <div class="upgrade-info">
                     <h4>현재 스테이지 정보</h4>
-                    <p id="stage-desc">진행 정보 표시</p>
+                    <p id="stage-desc-info">진행 정보 표시</p>
                 </div>
-                <!-- 다음 스테이지 버튼 복구 완료 -->
-                <button type="button" class="btn-upgrade" onclick="nextStage()">다음 스테이지 ▶</button>
             </div>
 
             <div class="system-btn-group">
@@ -383,7 +401,7 @@
 </div>
 
 <script>
-    const SAVE_KEY = "maple_idle_web_final_v35";
+    const SAVE_KEY = "maple_idle_web_final_v36";
     let audioCtx;
 
     function playSound(freq, type, duration) {
@@ -410,6 +428,10 @@
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 15px %23ff00ff)"><path d="M 20 34 L 10 16 L 20 12 L 16 0 L 24 6 L 32 0 L 28 12 L 38 16 L 28 34 Z" fill="%23111" stroke="%23ff9ff3" stroke-width="2.5"/><polygon points="4,34 44,34 34,40 14,40" fill="%236c5ce7" stroke="%23ff00ff" stroke-width="1.5"/><rect x="20" y="40" width="8" height="8" fill="%232f3640"/><circle cx="24" cy="20" r="3" fill="%2300d2d3"/></g></svg>`
     ];
 
+    const WEAPONS_KNIGHT = [
+        { name: "초보자의 대검", bonus: 0, cost: 200, icon: WEAPON_ICONS_KNIGHT[0] }, { name: "용병의 철검", bonus: 15, cost: 800, icon: WEAPON_ICONS_KNIGHT[1] }, { name: "피빛 톱날검", bonus: 50, cost: 3000, icon: WEAPON_ICONS_KNIGHT[2] }, { name: "초승달 굽은검", bonus: 150, cost: 12000, icon: WEAPON_ICONS_KNIGHT[3] }, { name: "드래곤 투스", bonus: 500, cost: 50000, icon: WEAPON_ICONS_KNIGHT[4] }, { name: "화염의 광검", bonus: 1500, cost: 200000, icon: WEAPON_ICONS_KNIGHT[5] }, { name: "흑요석 파괴검", bonus: 4500, cost: 800000, icon: WEAPON_ICONS_KNIGHT[6] }, { name: "폭풍의 환도", bonus: 15000, cost: 3500000, icon: WEAPON_ICONS_KNIGHT[7] }, { name: "지옥염룡검", bonus: 50000, cost: 15000000, icon: WEAPON_ICONS_KNIGHT[8] }, { name: "창세의 마왕검", bonus: 200000, cost: 80000000, icon: WEAPON_ICONS_KNIGHT[9] }
+    ];
+
     const WEAPON_ICONS_MAGE = [
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 5px %232ecc71)"><line x1="24" y1="40" x2="24" y2="12" stroke="%238e5123" stroke-width="4"/><circle cx="24" cy="8" r="4" fill="%232ecc71"/></g></svg>`,
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 6px %23fd79a8)"><line x1="24" y1="40" x2="24" y2="12" stroke="%23b8e994" stroke-width="4"/><path d="M 24 0 L 28 8 L 24 16 L 20 8 Z" fill="%23fd79a8" stroke="%23fff" stroke-width="1"/></g></svg>`,
@@ -423,8 +445,9 @@
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 18px %23f1c40f)"><line x1="24" y1="40" x2="24" y2="16" stroke="%23f39c12" stroke-width="6"/><polygon points="18,16 24,10 30,16 24,22" fill="%23fff" stroke="%23f1c40f" stroke-width="2"/><circle cx="24" cy="4" r="5" fill="%2300d2d3" stroke="%23fff" stroke-width="1.5"/><circle cx="24" cy="-4" r="2" fill="%23ff9ff3"/></g></svg>`
     ];
 
-    const WEAPONS_KNIGHT = [ { name: "초보자의 대검", bonus: 0, cost: 200, icon: WEAPON_ICONS_KNIGHT[0] }, { name: "용병의 철검", bonus: 15, cost: 800, icon: WEAPON_ICONS_KNIGHT[1] }, { name: "피빛 톱날검", bonus: 50, cost: 3000, icon: WEAPON_ICONS_KNIGHT[2] }, { name: "초승달 굽은검", bonus: 150, cost: 12000, icon: WEAPON_ICONS_KNIGHT[3] }, { name: "드래곤 투스", bonus: 500, cost: 50000, icon: WEAPON_ICONS_KNIGHT[4] }, { name: "화염의 광검", bonus: 1500, cost: 200000, icon: WEAPON_ICONS_KNIGHT[5] }, { name: "흑요석 파괴검", bonus: 4500, cost: 800000, icon: WEAPON_ICONS_KNIGHT[6] }, { name: "폭풍의 환도", bonus: 15000, cost: 3500000, icon: WEAPON_ICONS_KNIGHT[7] }, { name: "지옥염룡검", bonus: 50000, cost: 15000000, icon: WEAPON_ICONS_KNIGHT[8] }, { name: "창세의 마왕검", bonus: 200000, cost: 80000000, icon: WEAPON_ICONS_KNIGHT[9] } ];
-    const WEAPONS_MAGE = [ { name: "초보자의 나무 지팡이", bonus: 0, cost: 200, icon: WEAPON_ICONS_MAGE[0] }, { name: "분홍수정 덩굴 지팡이", bonus: 15, cost: 800, icon: WEAPON_ICONS_MAGE[1] }, { name: "황금 태양의 로드", bonus: 50, cost: 3000, icon: WEAPON_ICONS_MAGE[2] }, { name: "푸른 물방울 스태프", bonus: 150, cost: 12000, icon: WEAPON_ICONS_MAGE[3] }, { name: "별빛 요정의 스틱", bonus: 500, cost: 50000, icon: WEAPON_ICONS_MAGE[4] }, { name: "보랏빛 초승달 지팡이", bonus: 1500, cost: 200000, icon: WEAPON_ICONS_MAGE[5] }, { name: "벚꽃 환상곡 스태프", bonus: 4500, cost: 800000, icon: WEAPON_ICONS_MAGE[6] }, { name: "창공의 크리스탈 로드", bonus: 15000, cost: 3500000, icon: WEAPON_ICONS_MAGE[7] }, { name: "심연의 흑마법 지팡이", bonus: 50000, cost: 15000000, icon: WEAPON_ICONS_MAGE[8] }, { name: "창세의 에테르 로드", bonus: 200000, cost: 80000000, icon: WEAPON_ICONS_MAGE[9] } ];
+    const WEAPONS_MAGE = [
+        { name: "초보자의 나무 지팡이", bonus: 0, cost: 200, icon: WEAPON_ICONS_MAGE[0] }, { name: "분홍수정 덩굴 지팡이", bonus: 15, cost: 800, icon: WEAPON_ICONS_MAGE[1] }, { name: "황금 태양의 로드", bonus: 50, cost: 3000, icon: WEAPON_ICONS_MAGE[2] }, { name: "푸른 물방울 스태프", bonus: 150, cost: 12000, icon: WEAPON_ICONS_MAGE[3] }, { name: "별빛 요정의 스틱", bonus: 500, cost: 50000, icon: WEAPON_ICONS_MAGE[4] }, { name: "보랏빛 초승달 지팡이", bonus: 1500, cost: 200000, icon: WEAPON_ICONS_MAGE[5] }, { name: "벚꽃 환상곡 스태프", bonus: 4500, cost: 800000, icon: WEAPON_ICONS_MAGE[6] }, { name: "창공의 크리스탈 로드", bonus: 15000, cost: 3500000, icon: WEAPON_ICONS_MAGE[7] }, { name: "심연의 흑마법 지팡이", bonus: 50000, cost: 15000000, icon: WEAPON_ICONS_MAGE[8] }, { name: "창세의 에테르 로드", bonus: 200000, cost: 80000000, icon: WEAPON_ICONS_MAGE[9] }
+    ];
 
     function getKnightSprite(level, wingLvl, isAttacking) {
         const charTier = Math.min(10, Math.floor(level / 10)); const wingTier = Math.min(10, Math.floor(wingLvl / 10));
@@ -750,7 +773,21 @@
     function upgradeWeapon() { const w = getActiveWeapons(); const n = game.weaponTier + 1; if (n < w.length && game.meso >= w[n].cost) { game.meso -= w[n].cost; game.weaponTier = n; updateUI(); } }
     function changePet() { game.petIdx = (game.petIdx + 1) % PET_SPRITES.length; updateUI(); }
     function upgradePet() { const c = game.petLvl * 300; if (game.meso >= c) { game.meso -= c; game.petLvl++; updateUI(); } }
-    function nextStage() { game.stageIdx = (game.stageIdx + 1) % STAGES.length; game.monsterHp = STAGES[game.stageIdx].hp; updateUI(); checkStageEffects(); }
+    
+    // 🗺️ 스테이지 좌/우 이동 기능 추가
+    function nextStage(e) { 
+        if(e) e.stopPropagation(); 
+        game.stageIdx = (game.stageIdx + 1) % STAGES.length; 
+        game.monsterHp = STAGES[game.stageIdx].hp; 
+        updateUI(); checkStageEffects(); 
+    }
+    function prevStage(e) { 
+        if(e) e.stopPropagation(); 
+        game.stageIdx = (game.stageIdx - 1 + STAGES.length) % STAGES.length; 
+        game.monsterHp = STAGES[game.stageIdx].hp; 
+        updateUI(); checkStageEffects(); 
+    }
+
     function updateMonsterHPUI() { document.getElementById("monster-hp-fill").style.width = Math.max(0, (game.monsterHp / STAGES[game.stageIdx].hp) * 100) + "%"; }
     function formatNumber(num) { if (num >= 1000000) return (num / 1000000).toFixed(1) + "M"; if (num >= 10000) return (num / 1000).toFixed(1) + "K"; return num.toLocaleString(); }
 
@@ -778,7 +815,10 @@
         document.getElementById("exp-fill").style.width = expPct + "%"; document.getElementById("exp-text").innerText = `${game.exp} / ${game.maxExp} (${expPct}%)`;
         document.getElementById("battlefield").style.backgroundImage = `url('${stage.bg}')`;
         document.getElementById("ground-bar").style.backgroundColor = stage.groundColor; document.getElementById("ground-bar").style.borderTopColor = stage.groundBorder;
+        
+        // 메인 화면 및 설정 탭 스테이지 이름 업데이트
         document.getElementById("stage-name").innerText = stage.name; 
+        document.getElementById("stage-desc-info").innerText = `${stage.name}\n${stage.monster} 출현중 (경험치: ${formatNumber(stage.exp)}, 메소: ${formatNumber(stage.meso)})`;
         
         const monsterSprite = document.getElementById("monster-sprite");
         monsterSprite.style.backgroundImage = `url('${stage.sprite}')`;
@@ -813,7 +853,6 @@
         document.getElementById("weapon-icon").style.backgroundImage = `url('${curW.icon}')`; document.getElementById("weapon-name").innerText = `${curW.name} (Tier ${game.weaponTier + 1})`; document.getElementById("weapon-bonus").innerText = curW.bonus;
         if (nextW) { document.getElementById("cost-weapon").innerText = formatNumber(nextW.cost) + " Gold"; document.getElementById("btn-up-weapon").disabled = game.meso < nextW.cost; } else { document.getElementById("cost-weapon").innerText = "최고 등급"; document.getElementById("btn-up-weapon").disabled = true; }
 
-        document.getElementById("stage-desc").innerText = `${stage.monster} 출현중 (경험치: ${formatNumber(stage.exp)}, 메소: ${formatNumber(stage.meso)})`;
         updateMonsterHPUI();
     }
 
