@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>메이플 키우기 - 정식 출시 버전 (안정화 & UI개선)</title>
+    <title>메이플 키우기 - Triple Heroes (소드전사 참전)</title>
     <style>
         :root {
             --panel-bg: #181824;
@@ -65,7 +65,6 @@
 
         .stage-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 14px 16px 0 16px; z-index: 10; gap: 8px; }
         
-        /* 🗺️ 스테이지 네비게이션 개선 */
         .stage-nav-container { 
             display: flex; align-items: center; background: rgba(15, 15, 25, 0.85); 
             border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.15); 
@@ -112,24 +111,36 @@
         }
         .character.attacking .character-weapon { transform: rotate(50deg) scale(1.4) translateX(15px) translateY(-5px); }
 
+        /* 이펙트: 마법사 에너지 볼트 */
         .energy-bolt {
             position: absolute; width: 80px; height: 30px; z-index: 35; pointer-events: none;
             transform: translate(-50%, -50%) rotate(var(--angle, 0deg));
             animation: shootEnergyDynamic 0.15s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
         }
         .bolt-core {
-            position: absolute; right: 0; top: 50%; transform: translateY(-50%);
-            width: 28px; height: 28px; border-radius: 50%;
+            position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 50%;
             background: radial-gradient(circle, #ffffff 20%, #00d2d3 60%, #a29bfe 100%); box-shadow: 0 0 15px #fff, 0 0 30px #00d2d3, 0 0 50px #a29bfe;
         }
         .bolt-trail {
-            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-            width: 60px; height: 12px; border-radius: 50px 0 0 50px;
+            position: absolute; right: 14px; top: 50%; transform: translateY(-50%); width: 60px; height: 12px; border-radius: 50px 0 0 50px;
             background: linear-gradient(90deg, transparent, rgba(162, 155, 254, 0.8), #00d2d3); filter: blur(2px);
         }
         @keyframes shootEnergyDynamic {
             0% { transform: translate(-50%, -50%) rotate(var(--angle)) scale(0.5); opacity: 0.8; filter: hue-rotate(0deg); }
             100% { transform: translate(calc(-50% + var(--target-x)), calc(-50% + var(--target-y))) rotate(var(--angle)) scale(1.5); opacity: 1; filter: hue-rotate(270deg); }
+        }
+
+        /* 이펙트: 소드전사 검기 (Crescent Slash) */
+        .sword-slash {
+            position: absolute; width: 90px; height: 90px; z-index: 35; pointer-events: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 50 A40 40 0 0 1 90 50 A50 50 0 0 0 10 50 Z" fill="url(%23glow)"/><defs><linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%23f1c40f"/><stop offset="50%" stop-color="%23ffffff"/><stop offset="100%" stop-color="%23e74c3c"/></linearGradient></defs></svg>');
+            background-size: contain; background-repeat: no-repeat;
+            animation: slashAnim 0.2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        }
+        @keyframes slashAnim {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5) rotate(-45deg); filter: drop-shadow(0 0 10px #f1c40f); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.5) rotate(15deg); filter: drop-shadow(0 0 20px #e74c3c); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(2.0) rotate(45deg); }
         }
 
         .pet { position: absolute; left: 6%; bottom: 55px; width: 45px; height: 45px; background-size: contain; background-repeat: no-repeat; z-index: 6; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.4)); animation: petFloat 1.8s ease-in-out infinite alternate; }
@@ -177,7 +188,7 @@
         .btn-upgrade:active { transform: translateY(2px); box-shadow: 0 2px 6px rgba(211,84,0,0.4); }
         .btn-upgrade:disabled { background: #4b4b60; box-shadow: none; color: #888; cursor: not-allowed; }
         .system-btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
-        .btn-system { background: linear-gradient(135deg, #34495e, #2c3e50); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(255,71,87,0.4); transition: all 0.2s; }
+        .btn-system { background: linear-gradient(135deg, #34495e, #2c3e50); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: transform 0.1s; }
         .btn-system:active { transform: translateY(2px); }
         .btn-admin { background: linear-gradient(135deg, #9b59b6, #8e44ad); border: 1px solid #b19cd9; color: #f1c40f; box-shadow: 0 4px 15px rgba(142,68,173,0.4); }
         .btn-danger { background: linear-gradient(135deg, #ff4757, #c0392b); box-shadow: 0 4px 12px rgba(231,76,60,0.4); }
@@ -198,9 +209,11 @@
         .btn-confirm-danger { background: linear-gradient(135deg, #ff4757, #c0392b); color: white; }
         .btn-cancel { background: linear-gradient(135deg, #7f8c8d, #636e72); color: white; }
 
-        .char-select-btn { width: 100%; padding: 18px; margin-bottom: 14px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.15); background: linear-gradient(135deg, #1e1e2d, #181824); color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 6px 20px rgba(0,0,0,0.4); text-align: left; display: flex; align-items: center; gap: 14px; }
+        .char-select-btn { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.15); background: linear-gradient(135deg, #1e1e2d, #181824); color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 6px 20px rgba(0,0,0,0.4); text-align: left; display: flex; align-items: center; gap: 14px; }
         .char-select-btn:hover, .char-select-btn:active { border-color: #f1c40f; transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
-        .char-knight { border-left: 6px solid #e74c3c; } .char-mage { border-left: 6px solid #00d2d3; }
+        .char-knight { border-left: 6px solid #e74c3c; } 
+        .char-mage { border-left: 6px solid #00d2d3; }
+        .char-sword { border-left: 6px solid #f39c12; }
     </style>
 </head>
 <body>
@@ -219,7 +232,6 @@
 
     <div id="battlefield" onclick="manualAttack(event)">
         <div class="stage-header">
-            <!-- 🗺️ 개선된 스테이지 네비게이션 창 -->
             <div class="stage-nav-container">
                 <button type="button" class="stage-arrow" onclick="prevStage(event)">◀</button>
                 <div class="stage-title" id="stage-name">STAGE 1 : 푸른 언덕 초원</div>
@@ -247,7 +259,7 @@
         <nav class="nav-tabs">
             <button type="button" class="tab-btn active" onclick="switchTab('stat', event)">스탯</button>
             <button type="button" class="tab-btn" onclick="switchTab('weapon', event)">장비</button>
-            <button type="button" class="tab-btn" onclick="switchTab('wing', event)">날개 🪽</button>
+            <button type="button" class="tab-btn" onclick="switchTab('wing', event)">등장식 🪽</button>
             <button type="button" class="tab-btn" onclick="switchTab('pet', event)">펫 🐾</button>
             <button type="button" class="tab-btn" onclick="switchTab('system', event)">설정</button>
         </nav>
@@ -293,11 +305,11 @@
         <div id="tab-wing" class="tab-content">
             <div class="upgrade-card">
                 <div class="upgrade-info">
-                    <h4 id="wing-name-desc" style="color: #f1c40f;">날개 없음 (Lv. 1)</h4>
+                    <h4 id="wing-name-desc" style="color: #f1c40f;">장착 없음 (Lv. 1)</h4>
                     <p>추가 타격력: +<span id="wing-atk-bonus">0</span><br>
-                    <small>※ 10레벨 단위 고화질 HD 날개 진화 (Max 100)</small></p>
+                    <small>※ 10레벨 단위 고화질 HD 외형 진화 (Max 100)</small></p>
                 </div>
-                <button type="button" class="btn-upgrade" id="btn-up-wing" onclick="upgradeWing()">날개 강화<br><small id="cost-wing">500 Gold</small></button>
+                <button type="button" class="btn-upgrade" id="btn-up-wing" onclick="upgradeWing()">장식 강화<br><small id="cost-wing">500 Gold</small></button>
             </div>
         </div>
 
@@ -348,19 +360,28 @@
     <div id="char-select-modal" class="modal-overlay" style="display: flex;">
         <div class="modal-card" style="border-color: #f1c40f;">
             <h3>⚔️ 새로운 모험의 시작</h3>
-            <p style="margin-bottom: 20px;">플레이할 영웅의 직업을 선택하세요.</p>
+            <p style="margin-bottom: 14px;">플레이할 영웅의 직업을 선택하세요.</p>
+            
             <button type="button" class="char-select-btn char-knight" onclick="selectCharacter('knight')">
                 <span style="font-size: 24px;">🐉</span>
                 <div>
-                    <div style="font-size: 16px; color: #fff; margin-bottom: 3px;">드래곤 기사</div>
-                    <div style="font-size: 12px; color: #a4b0be; font-weight: normal;">근접 거대검 / 화염 & 드래곤 날개</div>
+                    <div style="font-size: 15px; color: #fff; margin-bottom: 3px;">드래곤 기사</div>
+                    <div style="font-size: 11px; color: #a4b0be; font-weight: normal;">근접 거대검 / 화염 & 드래곤 날개</div>
                 </div>
             </button>
             <button type="button" class="char-select-btn char-mage" onclick="selectCharacter('mage')">
                 <span style="font-size: 24px;">❄️</span>
                 <div>
-                    <div style="font-size: 16px; color: #fff; margin-bottom: 3px;">천사 마법사</div>
-                    <div style="font-size: 12px; color: #a4b0be; font-weight: normal;">마력 에너지 볼트 / 순백 천사 날개</div>
+                    <div style="font-size: 15px; color: #fff; margin-bottom: 3px;">천사 마법사</div>
+                    <div style="font-size: 11px; color: #a4b0be; font-weight: normal;">마력 에너지 볼트 / 순백 천사 날개</div>
+                </div>
+            </button>
+            <!-- ⚔️ 신규 직업: 소드전사 -->
+            <button type="button" class="char-select-btn char-sword" onclick="selectCharacter('sword')">
+                <span style="font-size: 24px;">⚔️</span>
+                <div>
+                    <div style="font-size: 15px; color: #fff; margin-bottom: 3px;">소드 전사 (NEW)</div>
+                    <div style="font-size: 11px; color: #a4b0be; font-weight: normal;">초승달 검기 / 화려한 검기 오라</div>
                 </div>
             </button>
         </div>
@@ -401,7 +422,7 @@
 </div>
 
 <script>
-    const SAVE_KEY = "maple_idle_web_final_v36";
+    const SAVE_KEY = "maple_idle_web_final_v40"; // 완전 초기화를 위한 새 키
     let audioCtx;
 
     function playSound(freq, type, duration) {
@@ -415,6 +436,7 @@
         } catch(e) {}
     }
 
+    // ⚔️ 1. 기사 무기 (기존 동일)
     const WEAPON_ICONS_KNIGHT = [
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 4px %23bdc3c7)"><path d="M 18 36 L 18 10 L 24 4 L 30 10 L 30 36 Z" fill="%237f8c8d" stroke="%23ecf0f1" stroke-width="1.5"/><rect x="12" y="36" width="24" height="4" fill="%232c3e50"/><rect x="20" y="40" width="8" height="6" fill="%238e5123"/></g></svg>`,
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 5px %233498db)"><path d="M 20 34 L 16 12 L 24 2 L 32 12 L 28 34 Z" fill="%232980b9" stroke="%2300d2d3" stroke-width="1.5"/><polygon points="12,34 36,34 24,38" fill="%231abc9c"/><rect x="22" y="38" width="4" height="8" fill="%2334495e"/></g></svg>`,
@@ -428,10 +450,7 @@
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 15px %23ff00ff)"><path d="M 20 34 L 10 16 L 20 12 L 16 0 L 24 6 L 32 0 L 28 12 L 38 16 L 28 34 Z" fill="%23111" stroke="%23ff9ff3" stroke-width="2.5"/><polygon points="4,34 44,34 34,40 14,40" fill="%236c5ce7" stroke="%23ff00ff" stroke-width="1.5"/><rect x="20" y="40" width="8" height="8" fill="%232f3640"/><circle cx="24" cy="20" r="3" fill="%2300d2d3"/></g></svg>`
     ];
 
-    const WEAPONS_KNIGHT = [
-        { name: "초보자의 대검", bonus: 0, cost: 200, icon: WEAPON_ICONS_KNIGHT[0] }, { name: "용병의 철검", bonus: 15, cost: 800, icon: WEAPON_ICONS_KNIGHT[1] }, { name: "피빛 톱날검", bonus: 50, cost: 3000, icon: WEAPON_ICONS_KNIGHT[2] }, { name: "초승달 굽은검", bonus: 150, cost: 12000, icon: WEAPON_ICONS_KNIGHT[3] }, { name: "드래곤 투스", bonus: 500, cost: 50000, icon: WEAPON_ICONS_KNIGHT[4] }, { name: "화염의 광검", bonus: 1500, cost: 200000, icon: WEAPON_ICONS_KNIGHT[5] }, { name: "흑요석 파괴검", bonus: 4500, cost: 800000, icon: WEAPON_ICONS_KNIGHT[6] }, { name: "폭풍의 환도", bonus: 15000, cost: 3500000, icon: WEAPON_ICONS_KNIGHT[7] }, { name: "지옥염룡검", bonus: 50000, cost: 15000000, icon: WEAPON_ICONS_KNIGHT[8] }, { name: "창세의 마왕검", bonus: 200000, cost: 80000000, icon: WEAPON_ICONS_KNIGHT[9] }
-    ];
-
+    // 🔮 2. 마법사 무기 (기존 동일)
     const WEAPON_ICONS_MAGE = [
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 5px %232ecc71)"><line x1="24" y1="40" x2="24" y2="12" stroke="%238e5123" stroke-width="4"/><circle cx="24" cy="8" r="4" fill="%232ecc71"/></g></svg>`,
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 6px %23fd79a8)"><line x1="24" y1="40" x2="24" y2="12" stroke="%23b8e994" stroke-width="4"/><path d="M 24 0 L 28 8 L 24 16 L 20 8 Z" fill="%23fd79a8" stroke="%23fff" stroke-width="1"/></g></svg>`,
@@ -445,8 +464,41 @@
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 18px %23f1c40f)"><line x1="24" y1="40" x2="24" y2="16" stroke="%23f39c12" stroke-width="6"/><polygon points="18,16 24,10 30,16 24,22" fill="%23fff" stroke="%23f1c40f" stroke-width="2"/><circle cx="24" cy="4" r="5" fill="%2300d2d3" stroke="%23fff" stroke-width="1.5"/><circle cx="24" cy="-4" r="2" fill="%23ff9ff3"/></g></svg>`
     ];
 
+    // ⚔️ 3. 소드전사 무기 (제공된 이미지 기반 10종 고화질 SVG 구현)
+    const WEAPON_ICONS_SWORD = [
+        /* T1: 회색 검신, 황금 가드, 파란 보석 (기본 철검) */
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 5px %237f8c8d)"><path d="M 24 2 L 28 16 L 24 32 L 20 16 Z" fill="%2395a5a6" stroke="%23bdc3c7" stroke-width="1.5"/><rect x="16" y="28" width="16" height="4" fill="%23f1c40f"/><circle cx="24" cy="30" r="3" fill="%233498db"/><rect x="22" y="32" width="4" height="12" fill="%238e5123"/><circle cx="24" cy="44" r="2" fill="%23f1c40f"/></g></svg>`,
+        /* T2: 넓은 푸른 검신, 곡선 가드 (서리 검) */
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 6px %233498db)"><path d="M 24 2 L 30 18 L 28 30 L 20 30 L 18 18 Z" fill="%2381ecec" stroke="%230984e3" stroke-width="1.5"/><path d="M 14 26 C 14 36, 34 36, 34 26" fill="none" stroke="%2374b9ff" stroke-width="3"/><circle cx="24" cy="30" r="4" fill="%2300cec9"/><rect x="22" y="32" width="4" height="10" fill="%232c3e50"/></g></svg>`,
+        /* T3: 직선형 청록색 검신 (아쿠아마린) */
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 7px %2300d2d3)"><polygon points="24,2 28,12 28,28 20,28 20,12" fill="%2300d2d3" stroke="%23fff" stroke-width="1.5"/><polygon points="24,4 26,12 26,26 22,26 22,12" fill="%2348dbfb"/><polygon points="16,28 32,28 28,32 20,32" fill="%230984e3"/><rect x="22" y="32" width="4" height="10" fill="%232c3e50"/></g></svg>`,
+        /* T4: 어두운 적색 코어 검 (다크 파이어) */
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 8px %23ff4757)"><path d="M 24 2 L 28 10 L 26 28 L 22 28 L 20 10 Z" fill="%23c0392b" stroke="%23ff7675" stroke-width="1.5"/><polygon points="24,6 25,12 25,26 23,26 23,12" fill="%23f1c40f"/><polygon points="16,26 32,26 24,32" fill="%232d3436"/><rect x="22" y="32" width="4" height="10" fill="%23111"/></g></svg>`,
+        /* T5: 속이 빈 검신 (할로우 소드) */
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 9px %2374b9ff)"><path d="M 24 2 L 30 18 L 24 30 L 18 18 Z M 24 10 L 26 18 L 24 24 L 22 18 Z" fill="%23dfe6e9" stroke="%230984e3" stroke-width="1.5" fill-rule="evenodd"/><polygon points="16,30 32,30 24,34" fill="%2374b9ff"/><rect x="22" y="34" width="4" height="10" fill="%238e5123"/></g></svg>`,
+        /* T6: 황금빛 중앙이 빈 검 (홀리 엑스칼리버) */
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 10px %23f1c40f)"><path d="M 24 2 L 30 14 L 28 28 L 20 28 L 18 14 Z M 24 8 L 26 14 L 26 24 L 22 24 L 22 14 Z" fill="%23f39c12" stroke="%23f1c40f" stroke-width="1.5" fill-rule="evenodd"/><rect x="16" y="26" width="16" height="4" fill="%23e67e22"/><circle cx="24" cy="28" r="3" fill="%233498db"/><rect x="22" y="30" width="4" height="12" fill="%232c3e50"/><circle cx="24" cy="42" r="2" fill="%23f1c40f"/></g></svg>`,
+        /* T7: 거친 브론즈 클리버 (야만전사의 검) */
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 10px %23d35400)"><path d="M 24 2 L 30 10 L 26 16 L 30 22 L 26 28 L 22 28 L 18 22 L 22 16 L 18 10 Z" fill="%23cd6133" stroke="%23843c0c" stroke-width="1.5"/><rect x="16" y="28" width="16" height="6" fill="%23f1c40f" rx="2"/><circle cx="24" cy="31" r="3" fill="%2300d2d3"/><rect x="21" y="34" width="6" height="10" fill="%235c3a21"/></g></svg>`,
+        /* T8: 검붉은 암흑 검 (블러드 엣지) */
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 12px %23c0392b)"><path d="M 24 2 L 28 10 L 28 28 L 20 28 L 20 10 Z" fill="%232d3436" stroke="%23ff4757" stroke-width="1.5"/><line x1="24" y1="6" x2="24" y2="26" stroke="%23ff6b81" stroke-width="2"/><path d="M 14 26 L 34 26 L 28 32 L 20 32 Z" fill="%23111" stroke="%23ff4757" stroke-width="1"/><rect x="22" y="32" width="4" height="10" fill="%23111"/><circle cx="24" cy="30" r="2" fill="%23ff4757"/></g></svg>`,
+        /* T9: 거대한 은빛/붉은 파괴검 (기간틱 크래셔) */
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 14px %23ff3838)"><polygon points="24,0 30,12 30,28 18,28 18,12" fill="%23b2bec3" stroke="%23ff3838" stroke-width="1.5"/><polygon points="24,4 26,14 26,26 22,26 22,14" fill="%23ff4757"/><path d="M 12 28 Q 24 20 36 28 L 24 34 Z" fill="%232d3436" stroke="%23ff3838" stroke-width="1.5"/><rect x="21" y="34" width="6" height="10" fill="%23111"/></g></svg>`,
+        /* T10: 궁극의 지옥 화염검 (인페르노 엑스칼리버) */
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 18px %23f39c12)"><path d="M 24 0 Q 34 16 28 30 L 20 30 Q 14 16 24 0 Z" fill="%23ff4757" stroke="%23f1c40f" stroke-width="2"/><path d="M 24 4 Q 28 16 25 28 L 23 28 Q 20 16 24 4 Z" fill="%23f1c40f"/><path d="M 12 28 L 36 28 L 36 32 L 28 34 L 20 34 L 12 32 Z" fill="%23111" stroke="%236c5ce7" stroke-width="1.5"/><rect x="21" y="34" width="6" height="10" fill="%232f3640"/><circle cx="24" cy="30" r="3" fill="%2300d2d3"/><circle cx="24" cy="44" r="2" fill="%23ff9ff3"/></g></svg>`
+    ];
+
+    const WEAPONS_KNIGHT = [
+        { name: "초보자의 대검", bonus: 0, cost: 200, icon: WEAPON_ICONS_KNIGHT[0] }, { name: "용병의 철검", bonus: 15, cost: 800, icon: WEAPON_ICONS_KNIGHT[1] }, { name: "피빛 톱날검", bonus: 50, cost: 3000, icon: WEAPON_ICONS_KNIGHT[2] }, { name: "초승달 굽은검", bonus: 150, cost: 12000, icon: WEAPON_ICONS_KNIGHT[3] }, { name: "드래곤 투스", bonus: 500, cost: 50000, icon: WEAPON_ICONS_KNIGHT[4] }, { name: "화염의 광검", bonus: 1500, cost: 200000, icon: WEAPON_ICONS_KNIGHT[5] }, { name: "흑요석 파괴검", bonus: 4500, cost: 800000, icon: WEAPON_ICONS_KNIGHT[6] }, { name: "폭풍의 환도", bonus: 15000, cost: 3500000, icon: WEAPON_ICONS_KNIGHT[7] }, { name: "지옥염룡검", bonus: 50000, cost: 15000000, icon: WEAPON_ICONS_KNIGHT[8] }, { name: "창세의 마왕검", bonus: 200000, cost: 80000000, icon: WEAPON_ICONS_KNIGHT[9] }
+    ];
+
     const WEAPONS_MAGE = [
         { name: "초보자의 나무 지팡이", bonus: 0, cost: 200, icon: WEAPON_ICONS_MAGE[0] }, { name: "분홍수정 덩굴 지팡이", bonus: 15, cost: 800, icon: WEAPON_ICONS_MAGE[1] }, { name: "황금 태양의 로드", bonus: 50, cost: 3000, icon: WEAPON_ICONS_MAGE[2] }, { name: "푸른 물방울 스태프", bonus: 150, cost: 12000, icon: WEAPON_ICONS_MAGE[3] }, { name: "별빛 요정의 스틱", bonus: 500, cost: 50000, icon: WEAPON_ICONS_MAGE[4] }, { name: "보랏빛 초승달 지팡이", bonus: 1500, cost: 200000, icon: WEAPON_ICONS_MAGE[5] }, { name: "벚꽃 환상곡 스태프", bonus: 4500, cost: 800000, icon: WEAPON_ICONS_MAGE[6] }, { name: "창공의 크리스탈 로드", bonus: 15000, cost: 3500000, icon: WEAPON_ICONS_MAGE[7] }, { name: "심연의 흑마법 지팡이", bonus: 50000, cost: 15000000, icon: WEAPON_ICONS_MAGE[8] }, { name: "창세의 에테르 로드", bonus: 200000, cost: 80000000, icon: WEAPON_ICONS_MAGE[9] }
+    ];
+
+    // ⚔️ 소드전사 전용 무기 스펙
+    const WEAPONS_SWORD = [
+        { name: "초보자의 장검", bonus: 0, cost: 200, icon: WEAPON_ICONS_SWORD[0] }, { name: "서리의 검", bonus: 15, cost: 800, icon: WEAPON_ICONS_SWORD[1] }, { name: "아쿠아마린 소드", bonus: 50, cost: 3000, icon: WEAPON_ICONS_SWORD[2] }, { name: "다크 파이어 블레이드", bonus: 150, cost: 12000, icon: WEAPON_ICONS_SWORD[3] }, { name: "할로우 스피릿 소드", bonus: 500, cost: 50000, icon: WEAPON_ICONS_SWORD[4] }, { name: "홀리 엑스칼리버", bonus: 1500, cost: 200000, icon: WEAPON_ICONS_SWORD[5] }, { name: "야만전사의 클리버", bonus: 4500, cost: 800000, icon: WEAPON_ICONS_SWORD[6] }, { name: "블러드 엣지", bonus: 15000, cost: 3500000, icon: WEAPON_ICONS_SWORD[7] }, { name: "기간틱 크래셔", bonus: 50000, cost: 15000000, icon: WEAPON_ICONS_SWORD[8] }, { name: "인페르노 엑스칼리버", bonus: 200000, cost: 80000000, icon: WEAPON_ICONS_SWORD[9] }
     ];
 
     function getKnightSprite(level, wingLvl, isAttacking) {
@@ -470,7 +522,6 @@
             const c = [{ main: "#2c3e50", trim: "#e74c3c" }, { main: "#c0392b", trim: "#78281f" }, { main: "#7f8c8d", trim: "#34495e" }, { main: "#bdc3c7", trim: "#2c3e50" }, { main: "#f1c40f", trim: "#d35400" }, { main: "#16a085", trim: "#117864" }, { main: "#922b21", trim: "#641e16" }, { main: "#1a252f", trim: "#111111" }, { main: "#6c5ce7", trim: "#4834d4" }, { main: "#111111", trim: "#e74c3c" }, { main: "#000000", trim: "#f1c40f" }][charTier];
             svg += `<rect x="${cx-10}" y="${cy}" width="20" height="16" rx="3" fill="${c.main}"/><rect x="${cx-6}" y="${cy+2}" width="12" height="12" rx="2" fill="${c.trim}"/><rect x="${cx-12}" y="${cy-26}" width="24" height="22" rx="5" fill="${c.main}"/><rect x="${cx-10}" y="${cy-24}" width="20" height="9" rx="2" fill="${c.trim}"/><rect x="${cx-8}" y="${cy-14}" width="16" height="10" rx="3" fill="#ffcc99"/><rect x="${cx-4}" y="${cy-10}" width="3" height="4" fill="#2c3e50"/><rect x="${cx+1}" y="${cy-10}" width="3" height="4" fill="#2c3e50"/><rect x="${cx-8}" y="${cy+16}" width="6" height="10" rx="3" fill="#34495e"/><rect x="${cx+2}" y="${cy+16}" width="6" height="10" rx="3" fill="#34495e"/>`;
             if (isAtk) svg += `<rect x="${cx+10}" y="${cy+4}" width="16" height="6" rx="2" fill="${c.main}"/>`;
-            if (wingTier >= 10) { svg += `<circle cx="${cx-2}" cy="${cy-15}" r="2" fill="#f1c40f"><animate attributeName="opacity" values="0;1;0" dur="0.9s" repeatCount="indefinite"/></circle><circle cx="${cx+6}" cy="${cy+8}" r="2" fill="#f1c40f"><animate attributeName="opacity" values="1;0;1" dur="1.1s" repeatCount="indefinite"/></circle>`; }
             return svg;
         }
         return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200" shape-rendering="geometricPrecision">${drawFrame(100, 140, false)} ${drawFrame(300, 138, isAttacking)}</svg>`);
@@ -504,6 +555,39 @@
             return svg;
         }
         return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200" shape-rendering="geometricPrecision"><defs><radialGradient id="goldAura" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f1c40f" stop-opacity="0.8"/><stop offset="60%" stop-color="#f1c40f" stop-opacity="0.3"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient></defs>${drawFrame(100, 140, false)} ${drawFrame(300, 138, isAttacking)}</svg>`);
+    }
+
+    // ⚔️ 소드전사 렌더링 (환영검 오라 효과 적용)
+    function getSwordSprite(level, wingLvl, isAttacking) {
+        const charTier = Math.min(10, Math.floor(level / 10)); const auraTier = Math.min(10, Math.floor(wingLvl / 10));
+        function drawFrame(cx, cy, isAtk) {
+            let svg = "";
+            if (auraTier > 0) {
+                let auraColors = ["", "#3498db", "#00d2d3", "#9b59b6", "#f1c40f", "#e67e22", "#e74c3c", "#c0392b", "#111111", "#ff9f43", "#ff0000"];
+                let aCol = auraColors[auraTier];
+                let swordAura = `<path d="M 0 -30 L 5 -10 L 0 20 L -5 -10 Z" fill="${aCol}" opacity="0.6"/><path d="M 0 -25 L 2 -10 L 0 15 L -2 -10 Z" fill="#ffffff" opacity="0.8"/>`;
+                
+                let auraSet = "";
+                if(auraTier <= 3) {
+                    auraSet = `<g transform="translate(0, -10) scale(1.5)">${swordAura}</g>`;
+                } else if(auraTier <= 6) {
+                    auraSet = `<g transform="translate(-15, -5) rotate(-20) scale(1.3)">${swordAura}</g><g transform="translate(15, -5) rotate(20) scale(1.3)">${swordAura}</g><g transform="translate(0, -15) scale(1.6)">${swordAura}</g>`;
+                } else if(auraTier <= 9) {
+                    auraSet = `<g transform="translate(-25, 10) rotate(-35) scale(1.2)">${swordAura}</g><g transform="translate(25, 10) rotate(35) scale(1.2)">${swordAura}</g><g transform="translate(-15, -10) rotate(-15) scale(1.5)">${swordAura}</g><g transform="translate(15, -10) rotate(15) scale(1.5)">${swordAura}</g><g transform="translate(0, -25) scale(1.8)">${swordAura}</g>`;
+                } else {
+                    auraSet = `<circle cx="0" cy="-10" r="40" fill="url(#swordGlow)" opacity="0.5"/><g transform="translate(-35, 15) rotate(-45) scale(1.2)">${swordAura}</g><g transform="translate(35, 15) rotate(45) scale(1.2)">${swordAura}</g><g transform="translate(-25, -5) rotate(-25) scale(1.5)">${swordAura}</g><g transform="translate(25, -5) rotate(25) scale(1.5)">${swordAura}</g><g transform="translate(-10, -25) rotate(-10) scale(1.8)">${swordAura}</g><g transform="translate(10, -25) rotate(10) scale(1.8)">${swordAura}</g><g transform="translate(0, -35) scale(2.2)">${swordAura}</g>`;
+                }
+                svg += `<g transform="translate(${cx}, ${cy-20})" style="filter:drop-shadow(0 0 10px ${aCol})">${auraSet}</g>`;
+            }
+
+            const c = [{ main: "#95a5a6", trim: "#7f8c8d" }, { main: "#34495e", trim: "#2c3e50" }, { main: "#16a085", trim: "#1abc9c" }, { main: "#2980b9", trim: "#3498db" }, { main: "#8e44ad", trim: "#9b59b6" }, { main: "#d35400", trim: "#e67e22" }, { main: "#c0392b", trim: "#e74c3c" }, { main: "#2d3436", trim: "#636e72" }, { main: "#111111", trim: "#d63031" }, { main: "#ff9f43", trim: "#feca57" }, { main: "#000000", trim: "#ff3838" }][charTier];
+            
+            // 전사 외형 (날렵한 갑옷)
+            svg += `<rect x="${cx-8}" y="${cy}" width="16" height="18" rx="2" fill="${c.main}"/><rect x="${cx-4}" y="${cy+2}" width="8" height="14" rx="1" fill="${c.trim}"/><rect x="${cx-10}" y="${cy-22}" width="20" height="22" rx="4" fill="${c.main}"/><rect x="${cx-8}" y="${cy-20}" width="16" height="8" rx="1" fill="${c.trim}"/><rect x="${cx-6}" y="${cy-12}" width="12" height="8" rx="2" fill="#ffcc99"/><rect x="${cx-3}" y="${cy-10}" width="2" height="3" fill="#2c3e50"/><rect x="${cx+1}" y="${cy-10}" width="2" height="3" fill="#2c3e50"/><rect x="${cx-12}" y="${cy-22}" width="4" height="10" rx="2" fill="${c.trim}"/><rect x="${cx+8}" y="${cy-22}" width="4" height="10" rx="2" fill="${c.trim}"/><rect x="${cx-6}" y="${cy+18}" width="5" height="10" rx="2" fill="#2d3436"/><rect x="${cx+1}" y="${cy+18}" width="5" height="10" rx="2" fill="#2d3436"/>`;
+            if (isAtk) svg += `<rect x="${cx+8}" y="${cy+2}" width="14" height="5" rx="1" fill="${c.main}"/>`;
+            return svg;
+        }
+        return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200" shape-rendering="geometricPrecision"><defs><radialGradient id="swordGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ff3838" stop-opacity="0.8"/><stop offset="100%" stop-color="#ff3838" stop-opacity="0"/></radialGradient></defs>${drawFrame(100, 140, false)} ${drawFrame(300, 138, isAttacking)}</svg>`);
     }
 
     const PET_SPRITES = [ { name: "요정 🧚‍♀️", atkName: "번개 공격", prefix: "⚡ ", sprite: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="8" fill="%23f1c40f"/><path d="M4 10 Q14 2 14 18 Z" fill="%2374b9ff" opacity="0.8"/><path d="M32 10 Q22 2 22 18 Z" fill="%2374b9ff" opacity="0.8"/><circle cx="15" cy="17" r="1.5" fill="%232c3e50"/><circle cx="21" cy="17" r="1.5" fill="%232c3e50"/></svg>` }, { name: "강아지 🐶", atkName: "몸통박치기", prefix: "💥 ", sprite: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"><rect x="10" y="12" width="16" height="16" rx="4" fill="%23e67e22"/><rect x="6" y="12" width="5" height="10" fill="%23d35400"/><rect x="25" y="12" width="5" height="10" fill="%23d35400"/><circle cx="14" cy="18" r="1.5" fill="%23000"/><circle cx="22" cy="18" r="1.5" fill="%23000"/><ellipse cx="18" cy="22" rx="2" ry="1.5" fill="%23000"/></svg>` }, { name: "고양이 🐱", atkName: "할퀴기 공격", prefix: "🐾 ", sprite: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"><rect x="10" y="12" width="16" height="16" rx="4" fill="%23bdc3c7"/><polygon points="10,12 6,4 14,10" fill="%237f8c8d"/><polygon points="26,12 30,4 22,10" fill="%237f8c8d"/><circle cx="14" cy="18" r="1.5" fill="%232ecc71"/><circle cx="22" cy="18" r="1.5" fill="%232ecc71"/><polygon points="18,21 16,23 20,23" fill="%23e74c3c"/></svg>` } ];
@@ -646,7 +730,12 @@
         bf.appendChild(el); setTimeout(() => el.remove(), 500);
     }
 
-    function getActiveWeapons() { return game.charType === "mage" ? WEAPONS_MAGE : WEAPONS_KNIGHT; }
+    function getActiveWeapons() { 
+        if (game.charType === "mage") return WEAPONS_MAGE;
+        if (game.charType === "sword") return WEAPONS_SWORD;
+        return WEAPONS_KNIGHT; 
+    }
+    
     function getAtkPower() { return 10 + (game.atkLvl - 1) * 5 + getActiveWeapons()[game.weaponTier].bonus + (game.wingLvl * 35); }
     function getAtkInterval() { return Math.max(200, 1000 - (game.spdLvl - 1) * 80); }
     function getCritRate() { return Math.min(80, 5 + (game.critLvl - 1) * 3); }
@@ -669,7 +758,10 @@
         const dmg = Math.floor(isCrit ? atk * 2.0 : atk * (0.9 + Math.random() * 0.2));
 
         const char = document.getElementById("character");
-        const getSprite = game.charType === "mage" ? getMageSprite : getKnightSprite;
+        let getSprite = getKnightSprite;
+        if (game.charType === "mage") getSprite = getMageSprite;
+        if (game.charType === "sword") getSprite = getSwordSprite;
+
         char.style.backgroundImage = `url('${getSprite(game.level, game.wingLvl, true)}')`;
         char.classList.add("attacking");
         setTimeout(() => { char.classList.remove("attacking"); char.style.backgroundImage = `url('${getSprite(game.level, game.wingLvl, false)}')`; }, 150);
@@ -708,6 +800,19 @@
 
             battleArea.appendChild(proj); setTimeout(() => proj.remove(), 250);
             setTimeout(executeHit, 150);
+        } else if (game.charType === "sword") {
+            // 소드전사 전용 이펙트 (초승달 검기)
+            const slash = document.createElement("div");
+            slash.className = "sword-slash";
+            const battleArea = document.querySelector(".battle-area");
+            const mRect = document.getElementById("monster-box").getBoundingClientRect();
+            const bRect = battleArea.getBoundingClientRect();
+            
+            slash.style.left = ((mRect.left - bRect.left) + (mRect.width / 2)) + "px";
+            slash.style.top = ((mRect.top - bRect.top) + (mRect.height / 2)) + "px";
+            
+            battleArea.appendChild(slash); setTimeout(() => slash.remove(), 200);
+            executeHit();
         } else {
             executeHit();
         }
@@ -774,7 +879,6 @@
     function changePet() { game.petIdx = (game.petIdx + 1) % PET_SPRITES.length; updateUI(); }
     function upgradePet() { const c = game.petLvl * 300; if (game.meso >= c) { game.meso -= c; game.petLvl++; updateUI(); } }
     
-    // 🗺️ 스테이지 좌/우 이동 기능 추가
     function nextStage(e) { 
         if(e) e.stopPropagation(); 
         game.stageIdx = (game.stageIdx + 1) % STAGES.length; 
@@ -802,13 +906,26 @@
         if (!game.charType) return;
         const stage = STAGES[game.stageIdx];
         const charTierNames = ["초보", "견습", "숙련", "정예", "마스터", "영웅", "전설", "신화", "불멸", "초월", "절대자"];
-        document.getElementById("player-level").innerText = `Lv. ${game.level} ${charTierNames[Math.min(10, Math.floor(game.level / 10))]} ${game.charType === "mage" ? "마법사" : "기사"}`;
         
-        const knightWingNames = ["날개 없음", "다크 페더", "크림슨 배트", "드래곤 윙", "블러드 다크", "타락천사", "크림슨 스파이크", "용암 갑주", "레드 드래곤", "지옥불 마왕", "창세의 붉은 용신"];
-        const mageWingNames = ["날개 없음", "하얀 천사 날개", "대형 천사 날개", "핑크 나비 요정", "환상 나비 날개", "비행 에테리얼", "푸른빛 회색 천사", "성스러운 대천사", "세라핌 4중 날개", "고위 세라핌", "금빛 아우라 대천사"];
-        const wingTierNames = game.charType === "mage" ? mageWingNames : knightWingNames;
+        let cName = "기사";
+        if (game.charType === "mage") cName = "마법사";
+        if (game.charType === "sword") cName = "소드전사";
+
+        document.getElementById("player-level").innerText = `Lv. ${game.level} ${charTierNames[Math.min(10, Math.floor(game.level / 10))]} ${cName}`;
         
-        document.getElementById("character").style.backgroundImage = `url('${(game.charType === "mage" ? getMageSprite : getKnightSprite)(game.level, game.wingLvl, false)}')`;
+        const knightWingNames = ["장착 없음", "다크 페더", "크림슨 배트", "드래곤 윙", "블러드 다크", "타락천사", "크림슨 스파이크", "용암 갑주", "레드 드래곤", "지옥불 마왕", "창세의 붉은 용신"];
+        const mageWingNames = ["장착 없음", "하얀 천사 날개", "대형 천사 날개", "핑크 나비 요정", "환상 나비 날개", "비행 에테리얼", "푸른빛 회색 천사", "성스러운 대천사", "세라핌 4중 날개", "고위 세라핌", "금빛 아우라 대천사"];
+        const swordAuraNames = ["장착 없음", "푸른빛 검기", "청명한 얼음 검기", "보랏빛 환영검", "황금빛 환영검", "작열하는 붉은 오라", "폭주하는 핏빛 오라", "검붉은 파괴 오라", "심연의 흑염 오라", "작열하는 태양 오라", "초월자의 무한 환영검"];
+        
+        let wingTierNames = knightWingNames;
+        if (game.charType === "mage") wingTierNames = mageWingNames;
+        if (game.charType === "sword") wingTierNames = swordAuraNames;
+        
+        let getSprite = getKnightSprite;
+        if (game.charType === "mage") getSprite = getMageSprite;
+        if (game.charType === "sword") getSprite = getSwordSprite;
+
+        document.getElementById("character").style.backgroundImage = `url('${getSprite(game.level, game.wingLvl, false)}')`;
         document.getElementById("player-meso").innerText = game.meso.toLocaleString();
 
         const expPct = Math.min(100, Math.floor((game.exp / game.maxExp) * 100));
@@ -816,7 +933,6 @@
         document.getElementById("battlefield").style.backgroundImage = `url('${stage.bg}')`;
         document.getElementById("ground-bar").style.backgroundColor = stage.groundColor; document.getElementById("ground-bar").style.borderTopColor = stage.groundBorder;
         
-        // 메인 화면 및 설정 탭 스테이지 이름 업데이트
         document.getElementById("stage-name").innerText = stage.name; 
         document.getElementById("stage-desc-info").innerText = `${stage.name}\n${stage.monster} 출현중 (경험치: ${formatNumber(stage.exp)}, 메소: ${formatNumber(stage.meso)})`;
         
@@ -864,7 +980,7 @@
         if (document.getElementById("admin-pw-input").value === "0000") {
             const weapons = getActiveWeapons();
             game.meso = 999999999; game.atkLvl = 999; game.spdLvl = 10; game.critLvl = 25; game.petLvl = 50; game.wingLvl = 100; game.weaponTier = weapons.length - 1; game.level = 100; game.stageIdx = 49;
-            restartAutoAttack(); startPetAttackLoop(); updateUI(); checkStageEffects(); saveGame(false); closeAdminModal(); alert("🔓 [관리자 승인 성공]\n\n- 최종 보스(50 Stage) 개방!\n- 모든 스탯 & 날개 레벨 MAX(100) 설정 완료!\n- 999,999,999 Gold 지급!");
+            restartAutoAttack(); startPetAttackLoop(); updateUI(); checkStageEffects(); saveGame(false); closeAdminModal(); alert("🔓 [관리자 승인 성공]\n\n- 최종 보스(50 Stage) 개방!\n- 모든 스탯 & 장식 레벨 MAX(100) 설정 완료!\n- 999,999,999 Gold 지급!");
         } else alert("❌ 비밀번호가 올바르지 않습니다. (기본: 0000)");
     }
 
