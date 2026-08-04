@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>메이플 키우기 - Boss Raid & 50 Stages</title>
+    <title>메이플 키우기 - 50 Stages & Final Boss</title>
     <style>
         :root {
             --panel-bg: #181824;
@@ -20,67 +20,69 @@
             font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
+        /* 📱 최신 스마트폰 해상도 최적화: 가득 차는 레이아웃 */
         body {
             background-color: #0b0b10; color: var(--text-light); display: flex;
             justify-content: center; align-items: center; min-height: 100vh; min-height: 100dvh; overflow: hidden;
         }
 
         #game-container {
-            width: 100%; max-width: 480px; height: 100vh; height: 100dvh;
+            width: 100%; max-width: 500px; height: 100vh; height: 100dvh;
             background: linear-gradient(180deg, #1e1e2d 0%, #12121a 100%);
             display: flex; flex-direction: column; position: relative; box-shadow: 0 0 40px rgba(0,0,0,0.95); overflow: hidden;
         }
 
         header {
             background: linear-gradient(180deg, rgba(25,25,38,0.9), rgba(18,18,26,0.9));
-            backdrop-filter: blur(8px); padding: 12px 16px; border-bottom: 2px solid rgba(255,255,255,0.08);
-            display: flex; flex-direction: column; gap: 8px; z-index: 10;
+            backdrop-filter: blur(8px); padding: 14px 16px; border-bottom: 2px solid rgba(255,255,255,0.08);
+            display: flex; flex-direction: column; gap: 10px; z-index: 10;
         }
 
         .user-info { display: flex; justify-content: space-between; align-items: center; }
         .level-badge {
-            background: linear-gradient(135deg, #f39c12, #d35400); color: #fff; padding: 5px 14px;
-            border-radius: 14px; font-weight: bold; font-size: 13px; box-shadow: 0 4px 10px rgba(230,126,34,0.4);
+            background: linear-gradient(135deg, #f39c12, #d35400); color: #fff; padding: 6px 16px;
+            border-radius: 16px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 10px rgba(230,126,34,0.4);
         }
         .meso-box {
             display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.4);
-            padding: 5px 14px; border-radius: 14px; border: 1px solid rgba(241,196,15,0.4);
-            color: var(--main-yellow); font-weight: bold; font-size: 15px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            padding: 6px 16px; border-radius: 16px; border: 1px solid rgba(241,196,15,0.4);
+            color: var(--main-yellow); font-weight: bold; font-size: 16px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
         }
 
         .exp-bar-container {
-            width: 100%; height: 12px; background: rgba(0,0,0,0.6); border-radius: 6px;
+            width: 100%; height: 14px; background: rgba(0,0,0,0.6); border-radius: 7px;
             overflow: hidden; border: 1px solid rgba(255,255,255,0.1); position: relative;
         }
         .exp-bar-fill { height: 100%; background: linear-gradient(90deg, #2ecc71, #00d2d3); width: 0%; transition: width 0.3s ease; box-shadow: 0 0 10px rgba(46,204,113,0.5); }
-        .exp-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 9px; font-weight: bold; text-shadow: 1px 1px 2px #000; }
+        .exp-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; text-shadow: 1px 1px 2px #000; }
 
+        /* ⚔️ 전투 필드 유연한 확장 (최신 폰 대응 flex: 1.2) */
         #battlefield {
-            flex: 1; position: relative; background-size: cover; background-position: center;
+            flex: 1.2; position: relative; background-size: cover; background-position: center;
             overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;
             align-items: center; cursor: pointer; transition: background 0.5s ease;
         }
 
-        .stage-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 12px 16px 0 16px; z-index: 10; }
+        .stage-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 14px 18px 0 18px; z-index: 10; }
         .stage-title {
-            background: rgba(15, 15, 25, 0.75); padding: 7px 16px; border-radius: 20px;
-            font-size: 13px; font-weight: bold; color: #fff; border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(6px); box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            background: rgba(15, 15, 25, 0.8); padding: 8px 18px; border-radius: 20px;
+            font-size: 14px; font-weight: bold; color: #fff; border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(6px); box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
         .btn-autohunt {
             background: linear-gradient(135deg, #ff4757, #ff6b81); color: white; border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 7px 16px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(255,71,87,0.4); transition: all 0.2s;
+            padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(255,71,87,0.4); transition: all 0.2s;
         }
         .btn-autohunt.active { background: linear-gradient(135deg, #2ed573, #26af5f); box-shadow: 0 4px 15px rgba(46,213,115,0.5); }
 
-        .battle-area { position: relative; width: 100%; height: 260px; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 22px; }
+        .battle-area { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 22px; }
         .ground {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 28px;
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 32px;
             background-color: var(--ground-color, #27ae60); border-top: 4px solid rgba(255,255,255,0.25); box-shadow: inset 0 4px 8px rgba(0,0,0,0.3); transition: background 0.4s;
         }
 
         .character {
-            position: absolute; left: 30%; bottom: 25px; transform: translateX(-50%);
+            position: absolute; left: 30%; bottom: 28px; transform: translateX(-50%);
             width: 140px; height: 140px; background-size: 280px 140px; background-repeat: no-repeat;
             z-index: 5; pointer-events: none; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.5));
             transition: filter 0.1s ease, transform 0.1s ease; animation: spriteIdleLarge 0.8s steps(1) infinite;
@@ -88,7 +90,6 @@
         @keyframes spriteIdleLarge { 0% { background-position: 0px 0px; } 50% { background-position: -140px 0px; } 100% { background-position: 0px 0px; } }
         .character.attacking { transform: translateX(-50%) scale(1.05); }
 
-        /* 무기 렌더링 영역 */
         .character-weapon {
             position: absolute; left: 75px; top: 60px; width: 50px; height: 50px;
             background-size: contain; background-repeat: no-repeat; transition: transform 0.15s ease;
@@ -96,7 +97,6 @@
         }
         .character.attacking .character-weapon { transform: rotate(50deg) scale(1.4) translateX(15px) translateY(-5px); }
 
-        /* 에너지 볼트 이펙트 */
         .energy-bolt {
             position: absolute; width: 80px; height: 30px; z-index: 35; pointer-events: none;
             transform: translate(-50%, -50%) rotate(var(--angle, 0deg));
@@ -105,8 +105,7 @@
         .bolt-core {
             position: absolute; right: 0; top: 50%; transform: translateY(-50%);
             width: 28px; height: 28px; border-radius: 50%;
-            background: radial-gradient(circle, #ffffff 20%, #00d2d3 60%, #a29bfe 100%);
-            box-shadow: 0 0 15px #fff, 0 0 30px #00d2d3, 0 0 50px #a29bfe;
+            background: radial-gradient(circle, #ffffff 20%, #00d2d3 60%, #a29bfe 100%); box-shadow: 0 0 15px #fff, 0 0 30px #00d2d3, 0 0 50px #a29bfe;
         }
         .bolt-trail {
             position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
@@ -118,68 +117,78 @@
             100% { transform: translate(calc(-50% + var(--target-x)), calc(-50% + var(--target-y))) rotate(var(--angle)) scale(1.5); opacity: 1; filter: hue-rotate(270deg); }
         }
 
-        .pet { position: absolute; left: 6%; bottom: 45px; width: 40px; height: 40px; background-size: contain; background-repeat: no-repeat; z-index: 6; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.4)); animation: petFloat 1.8s ease-in-out infinite alternate; }
+        .pet { position: absolute; left: 6%; bottom: 55px; width: 45px; height: 45px; background-size: contain; background-repeat: no-repeat; z-index: 6; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.4)); animation: petFloat 1.8s ease-in-out infinite alternate; }
         @keyframes petFloat { 0% { transform: translateY(0px); } 100% { transform: translateY(-10px); } }
         .pet.tackling { animation: petTackle 0.35s cubic-bezier(0.1,0.9,0.2,1) !important; }
         @keyframes petTackle { 0% { transform: translate(0, 0) scale(1); } 40% { transform: translate(190px, 15px) scale(1.35); } 100% { transform: translate(0, 0) scale(1); } }
 
-        .lightning-bolt { position: absolute; top: 0; right: 22%; width: 36px; height: 190px; background: linear-gradient(180deg, #f1c40f, #ffffff, #e67e22); clip-path: polygon(40% 0%, 70% 0%, 30% 40%, 80% 40%, 10% 100%, 40% 50%, 0% 50%); z-index: 30; opacity: 0; pointer-events: none; filter: drop-shadow(0 0 12px #f1c40f); }
+        .lightning-bolt { position: absolute; top: 0; right: 22%; width: 40px; height: 220px; background: linear-gradient(180deg, #f1c40f, #ffffff, #e67e22); clip-path: polygon(40% 0%, 70% 0%, 30% 40%, 80% 40%, 10% 100%, 40% 50%, 0% 50%); z-index: 30; opacity: 0; pointer-events: none; filter: drop-shadow(0 0 12px #f1c40f); }
         .lightning-bolt.active { animation: lightningFlash 0.35s ease-out; }
         @keyframes lightningFlash { 0% { opacity: 0; transform: scaleY(0); } 30% { opacity: 1; transform: scaleY(1); } 70% { opacity: 1; transform: scaleY(1); } 100% { opacity: 0; transform: scaleY(1); } }
 
-        .scratch-effect { position: absolute; right: 20%; bottom: 25px; width: 70px; height: 70px; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><line x1="8" y1="12" x2="52" y2="52" stroke="%23ff3838" stroke-width="6" stroke-linecap="round"/><line x1="20" y1="8" x2="60" y2="44" stroke="%23ff3838" stroke-width="6" stroke-linecap="round"/><line x1="6" y1="24" x2="44" y2="60" stroke="%23ff3838" stroke-width="6" stroke-linecap="round"/></svg>'); background-size: contain; background-repeat: no-repeat; z-index: 25; opacity: 0; pointer-events: none; }
+        .scratch-effect { position: absolute; right: 20%; bottom: 28px; width: 80px; height: 80px; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><line x1="8" y1="12" x2="52" y2="52" stroke="%23ff3838" stroke-width="6" stroke-linecap="round"/><line x1="20" y1="8" x2="60" y2="44" stroke="%23ff3838" stroke-width="6" stroke-linecap="round"/><line x1="6" y1="24" x2="44" y2="60" stroke="%23ff3838" stroke-width="6" stroke-linecap="round"/></svg>'); background-size: contain; background-repeat: no-repeat; z-index: 25; opacity: 0; pointer-events: none; }
         .scratch-effect.active { animation: scratchSlash 0.3s cubic-bezier(0.1,0.9,0.2,1); }
         @keyframes scratchSlash { 0% { opacity: 0; transform: scale(0.6) rotate(-15deg); } 40% { opacity: 1; transform: scale(1.25) rotate(0deg); filter: drop-shadow(0 0 12px #ff3838); } 100% { opacity: 0; transform: scale(1) rotate(10deg); } }
 
-        .monster-container { position: absolute; right: 15%; bottom: 25px; display: flex; flex-direction: column; align-items: center; z-index: 5; pointer-events: none; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.4)); }
-        .monster-hp-bar { width: 76px; height: 9px; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.4); border-radius: 5px; overflow: hidden; margin-bottom: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .monster-container { position: absolute; right: 15%; bottom: 28px; display: flex; flex-direction: column; align-items: center; z-index: 5; pointer-events: none; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.4)); }
+        .monster-hp-bar { width: 80px; height: 10px; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.4); border-radius: 5px; overflow: hidden; margin-bottom: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
         .monster-hp-fill { height: 100%; background: linear-gradient(90deg, #ff4757, #ff6b81); width: 100%; transition: width 0.1s linear; }
-        .monster-sprite { width: 72px; height: 72px; background-size: cover; background-repeat: no-repeat; }
+        .monster-sprite { width: 80px; height: 80px; background-size: cover; background-repeat: no-repeat; transition: transform 0.2s ease, filter 0.2s ease; }
 
-        .damage-text { position: absolute; font-size: 26px; font-weight: 900; color: #f1c40f; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 10px rgba(241,196,15,0.6); pointer-events: none; animation: floatDamage 0.65s cubic-bezier(0.1,0.9,0.2,1) forwards; z-index: 20; transform: translate(-50%, 0); }
-        .damage-text.crit { color: #ff3838; font-size: 32px; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 0 0 15px rgba(255,56,56,0.8); }
-        .damage-text.pet-dmg { color: #00d2d3; font-size: 28px; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 0 0 15px rgba(0,210,211,0.8); }
-        .damage-text.char-dmg { color: #ff4757; font-size: 24px; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 0 0 15px rgba(255,71,87,0.8); }
-        @keyframes floatDamage { 0% { opacity: 1; transform: translate(-50%, 0) scale(0.8); } 50% { opacity: 1; transform: translate(-50%, -35px) scale(1.25); } 100% { opacity: 0; transform: translate(-50%, -60px) scale(1); } }
+        .damage-text { position: absolute; font-size: 28px; font-weight: 900; color: #f1c40f; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 10px rgba(241,196,15,0.6); pointer-events: none; animation: floatDamage 0.65s cubic-bezier(0.1,0.9,0.2,1) forwards; z-index: 20; transform: translate(-50%, 0); }
+        .damage-text.crit { color: #ff3838; font-size: 34px; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 0 0 15px rgba(255,56,56,0.8); }
+        .damage-text.pet-dmg { color: #00d2d3; font-size: 30px; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 0 0 15px rgba(0,210,211,0.8); }
+        
+        /* 🔥 보스 피격 데미지 이펙트 (-1 코인) */
+        .damage-text.char-dmg { color: #ff4757; font-size: 26px; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 0 0 15px rgba(255,71,87,0.8); z-index: 40; }
 
-        #bottom-panel { height: 46%; background-color: var(--panel-bg); display: flex; flex-direction: column; border-top: 2px solid rgba(255,255,255,0.08); box-shadow: 0 -10px 30px rgba(0,0,0,0.5); }
+        @keyframes floatDamage {
+            0% { opacity: 1; transform: translate(-50%, 0) scale(0.8); }
+            50% { opacity: 1; transform: translate(-50%, -40px) scale(1.25); }
+            100% { opacity: 0; transform: translate(-50%, -70px) scale(1); }
+        }
+
+        /* 📋 하단 패널 반응형 조정 (flex: 1) */
+        #bottom-panel { flex: 1; min-height: 40%; max-height: 55vh; background-color: var(--panel-bg); display: flex; flex-direction: column; border-top: 2px solid rgba(255,255,255,0.08); box-shadow: 0 -10px 30px rgba(0,0,0,0.5); z-index: 20; }
         .nav-tabs { display: flex; background: #12121a; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        .tab-btn { flex: 1; padding: 12px 0; background: none; border: none; color: #7f8c8d; font-weight: bold; font-size: 13px; cursor: pointer; white-space: nowrap; transition: color 0.2s; }
+        .tab-btn { flex: 1; padding: 14px 0; background: none; border: none; color: #7f8c8d; font-weight: bold; font-size: 14px; cursor: pointer; white-space: nowrap; transition: color 0.2s; }
         .tab-btn.active { color: var(--main-yellow); border-bottom: 3px solid var(--main-yellow); background: rgba(241, 196, 15, 0.05); }
-        .tab-content { flex: 1; padding: 14px; overflow-y: auto; display: none; }
+        .tab-content { flex: 1; padding: 16px; overflow-y: auto; display: none; }
         .tab-content.active { display: block; }
-        .upgrade-card { background: var(--panel-card); border-radius: 12px; padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        
+        .upgrade-card { background: var(--panel-card); border-radius: 12px; padding: 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .upgrade-info h4 { font-size: 15px; color: #fff; margin-bottom: 4px; font-weight: 700; }
-        .upgrade-info p { font-size: 12px; color: #a4b0be; line-height: 1.4; }
+        .upgrade-info p { font-size: 13px; color: #a4b0be; line-height: 1.4; }
         .btn-group-atk { display: flex; gap: 6px; }
-        .btn-upgrade { background: linear-gradient(135deg, #f39c12, #d35400); border: none; color: #fff; padding: 9px 14px; border-radius: 9px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(211,84,0,0.4); transition: transform 0.1s; }
-        .btn-upgrade.btn-sm { padding: 6px 9px; font-size: 11px; min-width: 58px; text-align: center; }
+        .btn-upgrade { background: linear-gradient(135deg, #f39c12, #d35400); border: none; color: #fff; padding: 10px 14px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(211,84,0,0.4); transition: transform 0.1s; }
+        .btn-upgrade.btn-sm { padding: 6px 10px; font-size: 12px; min-width: 60px; text-align: center; }
         .btn-upgrade:active { transform: translateY(2px); box-shadow: 0 2px 6px rgba(211,84,0,0.4); }
         .btn-upgrade:disabled { background: #4b4b60; box-shadow: none; color: #888; cursor: not-allowed; }
         .system-btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
-        .btn-system { background: linear-gradient(135deg, #34495e, #2c3e50); color: white; border: none; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: transform 0.1s; }
+        .btn-system { background: linear-gradient(135deg, #34495e, #2c3e50); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: transform 0.1s; }
         .btn-system:active { transform: translateY(2px); }
         .btn-admin { background: linear-gradient(135deg, #9b59b6, #8e44ad); border: 1px solid #b19cd9; color: #f1c40f; box-shadow: 0 4px 15px rgba(142,68,173,0.4); }
         .btn-danger { background: linear-gradient(135deg, #ff4757, #c0392b); box-shadow: 0 4px 12px rgba(231,76,60,0.4); }
-        .tap-hint { position: absolute; bottom: 32px; font-size: 11px; color: rgba(255,255,255,0.9); background: rgba(15,15,25,0.7); backdrop-filter: blur(4px); padding: 4px 12px; border-radius: 12px; z-index: 10; pointer-events: none; border: 1px solid rgba(255,255,255,0.1); }
+
+        .tap-hint { position: absolute; bottom: 32px; font-size: 12px; color: rgba(255,255,255,0.9); background: rgba(15,15,25,0.7); backdrop-filter: blur(4px); padding: 6px 14px; border-radius: 14px; z-index: 10; pointer-events: none; border: 1px solid rgba(255,255,255,0.1); }
 
         /* 모달 디자인 */
         .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 11, 16, 0.85); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(8px); }
-        .modal-card { background: #232336; border: 2px solid rgba(155,89,182,0.6); border-radius: 16px; padding: 24px; width: 88%; max-width: 340px; text-align: center; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8); }
-        .modal-card h3 { color: #f1c40f; margin-bottom: 10px; font-size: 20px; font-weight: 800; }
-        .modal-card p { color: #b2bec3; font-size: 13px; margin-bottom: 16px; line-height: 1.5; }
-        .modal-card input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: #181824; color: #fff; font-size: 16px; text-align: center; outline: none; margin-bottom: 16px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); }
+        .modal-card { background: #232336; border: 2px solid rgba(155,89,182,0.6); border-radius: 16px; padding: 24px; width: 88%; max-width: 360px; text-align: center; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8); }
+        .modal-card h3 { color: #f1c40f; margin-bottom: 12px; font-size: 22px; font-weight: 800; }
+        .modal-card p { color: #b2bec3; font-size: 14px; margin-bottom: 18px; line-height: 1.5; }
+        .modal-card input { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: #181824; color: #fff; font-size: 16px; text-align: center; outline: none; margin-bottom: 18px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); }
         .modal-card input:focus { border-color: #f1c40f; }
         .modal-btns { display: flex; gap: 10px; }
-        .modal-btns button { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.1s; }
+        .modal-btns button { flex: 1; padding: 14px; border: none; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.1s; }
         .modal-btns button:active { transform: translateY(2px); }
         .btn-confirm { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; }
         .btn-confirm-danger { background: linear-gradient(135deg, #ff4757, #c0392b); color: white; }
         .btn-cancel { background: linear-gradient(135deg, #7f8c8d, #636e72); color: white; }
 
-        .char-select-btn { width: 100%; padding: 16px; margin-bottom: 12px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.15); background: linear-gradient(135deg, #1e1e2d, #181824); color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 6px 20px rgba(0,0,0,0.4); text-align: left; display: flex; align-items: center; gap: 12px; }
-        .char-select-btn:hover, .char-select-btn:active { border-color: #f1c40f; transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.6); }
-        .char-knight { border-left: 5px solid #e74c3c; } .char-mage { border-left: 5px solid #00d2d3; }
+        .char-select-btn { width: 100%; padding: 18px; margin-bottom: 14px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.15); background: linear-gradient(135deg, #1e1e2d, #181824); color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 6px 20px rgba(0,0,0,0.4); text-align: left; display: flex; align-items: center; gap: 14px; }
+        .char-select-btn:hover, .char-select-btn:active { border-color: #f1c40f; transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        .char-knight { border-left: 6px solid #e74c3c; } .char-mage { border-left: 6px solid #00d2d3; }
     </style>
 </head>
 <body>
@@ -299,16 +308,17 @@
                     <p>코드를 입력하여 특별한 보상을 받으세요. ('1' 또는 '2' 입력)</p>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <input type="text" id="event-code-input" placeholder="코드 번호 입력 (예: 1, 2)" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #555; background: #181824; color: #fff; font-size: 14px; outline: none;">
+                    <input type="text" id="event-code-input" placeholder="코드 번호 입력" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #555; background: #181824; color: #fff; font-size: 14px; outline: none;">
                     <button class="btn-system" style="margin: 0; padding: 10px 16px; background: linear-gradient(135deg, #2ed573, #26af5f);" onclick="submitEventCode()">보상 받기</button>
                 </div>
             </div>
             <div class="upgrade-card">
                 <div class="upgrade-info">
                     <h4>현재 스테이지 정보</h4>
-                    <p id="stage-desc">푸른 언덕 초원 (슬라임)</p>
+                    <p id="stage-desc">진행 정보 표시</p>
                 </div>
-                <button class="btn-upgrade" onclick="nextStage()">다음 스테이지 ▶</button>
+                <!-- 다음 스테이지 버튼은 디버깅용이므로 숨김 혹은 개발자 모드로 유지 -->
+                <!-- <button class="btn-upgrade" onclick="nextStage()">다음 스테이지 ▶</button> -->
             </div>
             <div class="system-btn-group">
                 <button class="btn-system btn-admin" onclick="openAdminModal()">🔑 관리자 모드 접속</button>
@@ -379,16 +389,14 @@
     function playSound(freq, type, duration) {
         if (audioCtx.state === 'suspended') audioCtx.resume();
         try {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
             osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + duration);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + duration);
         } catch(e) {}
     }
 
+    // ⚔️ 기사 대검 10종
     const WEAPON_ICONS_KNIGHT = [
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 4px %23bdc3c7)"><path d="M 18 36 L 18 10 L 24 4 L 30 10 L 30 36 Z" fill="%237f8c8d" stroke="%23ecf0f1" stroke-width="1.5"/><rect x="12" y="36" width="24" height="4" fill="%232c3e50"/><rect x="20" y="40" width="8" height="6" fill="%238e5123"/></g></svg>`,
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 5px %233498db)"><path d="M 20 34 L 16 12 L 24 2 L 32 12 L 28 34 Z" fill="%232980b9" stroke="%2300d2d3" stroke-width="1.5"/><polygon points="12,34 36,34 24,38" fill="%231abc9c"/><rect x="22" y="38" width="4" height="8" fill="%2334495e"/></g></svg>`,
@@ -401,20 +409,9 @@
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 12px %23f39c12)"><path d="M 18 36 L 12 24 L 20 18 L 14 6 L 24 0 L 34 6 L 28 18 L 36 24 L 30 36 Z" fill="%23c0392b" stroke="%23f1c40f" stroke-width="2"/><polygon points="8,36 40,36 24,42" fill="%238e44ad" stroke="%23f39c12" stroke-width="1.5"/><rect x="20" y="42" width="8" height="6" fill="%232c3e50"/></g></svg>`,
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 15px %23ff00ff)"><path d="M 20 34 L 10 16 L 20 12 L 16 0 L 24 6 L 32 0 L 28 12 L 38 16 L 28 34 Z" fill="%23111" stroke="%23ff9ff3" stroke-width="2.5"/><polygon points="4,34 44,34 34,40 14,40" fill="%236c5ce7" stroke="%23ff00ff" stroke-width="1.5"/><rect x="20" y="40" width="8" height="8" fill="%232f3640"/><circle cx="24" cy="20" r="3" fill="%2300d2d3"/></g></svg>`
     ];
+    const WEAPONS_KNIGHT = [ { name: "초보자의 대검", bonus: 0, cost: 200, icon: WEAPON_ICONS_KNIGHT[0] }, { name: "용병의 철검", bonus: 15, cost: 800, icon: WEAPON_ICONS_KNIGHT[1] }, { name: "피빛 톱날검", bonus: 50, cost: 3000, icon: WEAPON_ICONS_KNIGHT[2] }, { name: "초승달 굽은검", bonus: 150, cost: 12000, icon: WEAPON_ICONS_KNIGHT[3] }, { name: "드래곤 투스", bonus: 500, cost: 50000, icon: WEAPON_ICONS_KNIGHT[4] }, { name: "화염의 광검", bonus: 1500, cost: 200000, icon: WEAPON_ICONS_KNIGHT[5] }, { name: "흑요석 파괴검", bonus: 4500, cost: 800000, icon: WEAPON_ICONS_KNIGHT[6] }, { name: "폭풍의 환도", bonus: 15000, cost: 3500000, icon: WEAPON_ICONS_KNIGHT[7] }, { name: "지옥염룡검", bonus: 50000, cost: 15000000, icon: WEAPON_ICONS_KNIGHT[8] }, { name: "창세의 마왕검", bonus: 200000, cost: 80000000, icon: WEAPON_ICONS_KNIGHT[9] } ];
 
-    const WEAPONS_KNIGHT = [
-        { name: "초보자의 대검", bonus: 0, cost: 200, icon: WEAPON_ICONS_KNIGHT[0] },
-        { name: "용병의 철검", bonus: 15, cost: 800, icon: WEAPON_ICONS_KNIGHT[1] },
-        { name: "피빛 톱날검", bonus: 50, cost: 3000, icon: WEAPON_ICONS_KNIGHT[2] },
-        { name: "초승달 굽은검", bonus: 150, cost: 12000, icon: WEAPON_ICONS_KNIGHT[3] },
-        { name: "드래곤 투스", bonus: 500, cost: 50000, icon: WEAPON_ICONS_KNIGHT[4] },
-        { name: "화염의 광검", bonus: 1500, cost: 200000, icon: WEAPON_ICONS_KNIGHT[5] },
-        { name: "흑요석 파괴검", bonus: 4500, cost: 800000, icon: WEAPON_ICONS_KNIGHT[6] },
-        { name: "폭풍의 환도", bonus: 15000, cost: 3500000, icon: WEAPON_ICONS_KNIGHT[7] },
-        { name: "지옥염룡검", bonus: 50000, cost: 15000000, icon: WEAPON_ICONS_KNIGHT[8] },
-        { name: "창세의 마왕검", bonus: 200000, cost: 80000000, icon: WEAPON_ICONS_KNIGHT[9] }
-    ];
-
+    // 🔮 마법사 지팡이 10종
     const WEAPON_ICONS_MAGE = [
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 5px %232ecc71)"><line x1="24" y1="40" x2="24" y2="12" stroke="%238e5123" stroke-width="4"/><circle cx="24" cy="8" r="4" fill="%232ecc71"/></g></svg>`,
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 6px %23fd79a8)"><line x1="24" y1="40" x2="24" y2="12" stroke="%23b8e994" stroke-width="4"/><path d="M 24 0 L 28 8 L 24 16 L 20 8 Z" fill="%23fd79a8" stroke="%23fff" stroke-width="1"/></g></svg>`,
@@ -427,24 +424,10 @@
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 14px %23ff4757)"><path d="M 22 40 Q 28 20 24 14" stroke="%232d3436" stroke-width="5" fill="none"/><circle cx="24" cy="8" r="7" fill="%23ff4757" stroke="%23ff9ff3" stroke-width="2"/><circle cx="24" cy="8" r="3" fill="%23111"/></g></svg>`,
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 18px %23f1c40f)"><line x1="24" y1="40" x2="24" y2="16" stroke="%23f39c12" stroke-width="6"/><polygon points="18,16 24,10 30,16 24,22" fill="%23fff" stroke="%23f1c40f" stroke-width="2"/><circle cx="24" cy="4" r="5" fill="%2300d2d3" stroke="%23fff" stroke-width="1.5"/><circle cx="24" cy="-4" r="2" fill="%23ff9ff3"/></g></svg>`
     ];
-
-    const WEAPONS_MAGE = [
-        { name: "초보자의 나무 지팡이", bonus: 0, cost: 200, icon: WEAPON_ICONS_MAGE[0] },
-        { name: "분홍수정 덩굴 지팡이", bonus: 15, cost: 800, icon: WEAPON_ICONS_MAGE[1] },
-        { name: "황금 태양의 로드", bonus: 50, cost: 3000, icon: WEAPON_ICONS_MAGE[2] },
-        { name: "푸른 물방울 스태프", bonus: 150, cost: 12000, icon: WEAPON_ICONS_MAGE[3] },
-        { name: "별빛 요정의 스틱", bonus: 500, cost: 50000, icon: WEAPON_ICONS_MAGE[4] },
-        { name: "보랏빛 초승달 지팡이", bonus: 1500, cost: 200000, icon: WEAPON_ICONS_MAGE[5] },
-        { name: "벚꽃 환상곡 스태프", bonus: 4500, cost: 800000, icon: WEAPON_ICONS_MAGE[6] },
-        { name: "창공의 크리스탈 로드", bonus: 15000, cost: 3500000, icon: WEAPON_ICONS_MAGE[7] },
-        { name: "심연의 흑마법 지팡이", bonus: 50000, cost: 15000000, icon: WEAPON_ICONS_MAGE[8] },
-        { name: "창세의 에테르 로드", bonus: 200000, cost: 80000000, icon: WEAPON_ICONS_MAGE[9] }
-    ];
+    const WEAPONS_MAGE = [ { name: "초보자의 나무 지팡이", bonus: 0, cost: 200, icon: WEAPON_ICONS_MAGE[0] }, { name: "분홍수정 덩굴 지팡이", bonus: 15, cost: 800, icon: WEAPON_ICONS_MAGE[1] }, { name: "황금 태양의 로드", bonus: 50, cost: 3000, icon: WEAPON_ICONS_MAGE[2] }, { name: "푸른 물방울 스태프", bonus: 150, cost: 12000, icon: WEAPON_ICONS_MAGE[3] }, { name: "별빛 요정의 스틱", bonus: 500, cost: 50000, icon: WEAPON_ICONS_MAGE[4] }, { name: "보랏빛 초승달 지팡이", bonus: 1500, cost: 200000, icon: WEAPON_ICONS_MAGE[5] }, { name: "벚꽃 환상곡 스태프", bonus: 4500, cost: 800000, icon: WEAPON_ICONS_MAGE[6] }, { name: "창공의 크리스탈 로드", bonus: 15000, cost: 3500000, icon: WEAPON_ICONS_MAGE[7] }, { name: "심연의 흑마법 지팡이", bonus: 50000, cost: 15000000, icon: WEAPON_ICONS_MAGE[8] }, { name: "창세의 에테르 로드", bonus: 200000, cost: 80000000, icon: WEAPON_ICONS_MAGE[9] } ];
 
     function getKnightSprite(level, wingLvl, isAttacking) {
-        const charTier = Math.min(10, Math.floor(level / 10));
-        const wingTier = Math.min(10, Math.floor(wingLvl / 10));
-
+        const charTier = Math.min(10, Math.floor(level / 10)); const wingTier = Math.min(10, Math.floor(wingLvl / 10));
         function drawFrame(cx, cy, isAtk) {
             let svg = "";
             if (wingTier > 0) {
@@ -458,58 +441,24 @@
                 else if (wingTier === 7) lw = `<g style="filter:drop-shadow(0 0 12px #ff4757)"><path d="M 0 0 C -80 -115 -160 -70 -180 -40 C -130 65 -50 75 0 40 Z" fill="#120606" stroke="#ff4757" stroke-width="3.5"/><path d="M -35 -70 C -95 -95 -140 -60 -155 -25 C -105 50 -50 55 0 30 Z" fill="#ff3838"/></g>`;
                 else if (wingTier === 8) lw = `<g style="filter:drop-shadow(0 0 15px #f39c12)"><path d="M 0 0 C -90 -130 -180 -80 -200 -45 C -145 75 -55 85 0 45 Z" fill="#0f0303" stroke="#f39c12" stroke-width="4"/><path d="M 0 0 C -60 -100 -120 -70 -130 -25 C -90 40 -40 45 0 30 Z" fill="#ff9f1a"/></g>`;
                 else if (wingTier === 9) lw = `<g style="filter:drop-shadow(0 0 18px #ff3838)"><path d="M 0 0 C -100 -150 -200 -90 -220 -50 C -160 85 -60 95 0 50 Z" fill="#080101" stroke="#ff3838" stroke-width="4.5"/><path d="M 0 0 C -70 -120 -140 -80 -150 -30 C -100 50 -45 55 0 35 Z" fill="#ff4757"/></g>`;
-                else if (wingTier >= 10) { 
-                    lw = `<g style="filter:drop-shadow(0 0 22px #ff3838)">
-                            <path d="M 0 0 C -110 -170 -220 -100 -240 -60 C -170 100 -70 110 0 55 Z" fill="#050000" stroke="#f1c40f" stroke-width="5"/>
-                            <path d="M 0 0 C -80 -130 -160 -90 -170 -35 C -110 60 -50 65 0 40 Z" fill="#ff3838" stroke="#ffffff" stroke-width="2"/>
-                            <circle cx="-120" cy="-60" r="4" fill="#f1c40f"><animate attributeName="opacity" values="0.2;1;0.2" dur="1s" repeatCount="indefinite"/></circle>
-                            <circle cx="-160" cy="-20" r="5" fill="#f1c40f"><animate attributeName="opacity" values="1;0.2;1" dur="0.8s" repeatCount="indefinite"/></circle>
-                            <circle cx="-80" cy="-90" r="3.5" fill="#ffffff"><animate attributeName="opacity" values="0.3;1;0.3" dur="1.2s" repeatCount="indefinite"/></circle>
-                          </g>`;
-                }
-                
-                const wScale = 0.42;
-                svg += `<g transform="translate(${cx}, ${cy-5})"><g transform="scale(${wScale})">${lw}<g transform="scale(-1, 1)">${lw}</g></g></g>`;
+                else if (wingTier >= 10) { lw = `<g style="filter:drop-shadow(0 0 22px #ff3838)"><path d="M 0 0 C -110 -170 -220 -100 -240 -60 C -170 100 -70 110 0 55 Z" fill="#050000" stroke="#f1c40f" stroke-width="5"/><path d="M 0 0 C -80 -130 -160 -90 -170 -35 C -110 60 -50 65 0 40 Z" fill="#ff3838" stroke="#ffffff" stroke-width="2"/><circle cx="-120" cy="-60" r="4" fill="#f1c40f"><animate attributeName="opacity" values="0.2;1;0.2" dur="1s" repeatCount="indefinite"/></circle><circle cx="-160" cy="-20" r="5" fill="#f1c40f"><animate attributeName="opacity" values="1;0.2;1" dur="0.8s" repeatCount="indefinite"/></circle><circle cx="-80" cy="-90" r="3.5" fill="#ffffff"><animate attributeName="opacity" values="0.3;1;0.3" dur="1.2s" repeatCount="indefinite"/></circle></g>`; }
+                svg += `<g transform="translate(${cx}, ${cy-5})"><g transform="scale(0.42)">${lw}<g transform="scale(-1, 1)">${lw}</g></g></g>`;
             }
-
-            const armorColors = [
-                { main: "#2c3e50", trim: "#e74c3c" }, { main: "#c0392b", trim: "#78281f" }, { main: "#7f8c8d", trim: "#34495e" }, { main: "#bdc3c7", trim: "#2c3e50" }, { main: "#f1c40f", trim: "#d35400" }, { main: "#16a085", trim: "#117864" }, { main: "#922b21", trim: "#641e16" }, { main: "#1a252f", trim: "#111111" }, { main: "#6c5ce7", trim: "#4834d4" }, { main: "#111111", trim: "#e74c3c" }, { main: "#000000", trim: "#f1c40f" }
-            ];
-            const c = armorColors[charTier];
-
-            svg += `<rect x="${cx-10}" y="${cy}" width="20" height="16" rx="3" fill="${c.main}"/>`;
-            svg += `<rect x="${cx-6}" y="${cy+2}" width="12" height="12" rx="2" fill="${c.trim}"/>`;
-            svg += `<rect x="${cx-12}" y="${cy-26}" width="24" height="22" rx="5" fill="${c.main}"/>`;
-            svg += `<rect x="${cx-10}" y="${cy-24}" width="20" height="9" rx="2" fill="${c.trim}"/>`;
-            svg += `<rect x="${cx-8}" y="${cy-14}" width="16" height="10" rx="3" fill="#ffcc99"/>`;
-            svg += `<rect x="${cx-4}" y="${cy-10}" width="3" height="4" fill="#2c3e50"/>`;
-            svg += `<rect x="${cx+1}" y="${cy-10}" width="3" height="4" fill="#2c3e50"/>`;
-            svg += `<rect x="${cx-8}" y="${cy+16}" width="6" height="10" rx="3" fill="#34495e"/>`;
-            svg += `<rect x="${cx+2}" y="${cy+16}" width="6" height="10" rx="3" fill="#34495e"/>`;
+            const c = [{ main: "#2c3e50", trim: "#e74c3c" }, { main: "#c0392b", trim: "#78281f" }, { main: "#7f8c8d", trim: "#34495e" }, { main: "#bdc3c7", trim: "#2c3e50" }, { main: "#f1c40f", trim: "#d35400" }, { main: "#16a085", trim: "#117864" }, { main: "#922b21", trim: "#641e16" }, { main: "#1a252f", trim: "#111111" }, { main: "#6c5ce7", trim: "#4834d4" }, { main: "#111111", trim: "#e74c3c" }, { main: "#000000", trim: "#f1c40f" }][charTier];
+            svg += `<rect x="${cx-10}" y="${cy}" width="20" height="16" rx="3" fill="${c.main}"/><rect x="${cx-6}" y="${cy+2}" width="12" height="12" rx="2" fill="${c.trim}"/><rect x="${cx-12}" y="${cy-26}" width="24" height="22" rx="5" fill="${c.main}"/><rect x="${cx-10}" y="${cy-24}" width="20" height="9" rx="2" fill="${c.trim}"/><rect x="${cx-8}" y="${cy-14}" width="16" height="10" rx="3" fill="#ffcc99"/><rect x="${cx-4}" y="${cy-10}" width="3" height="4" fill="#2c3e50"/><rect x="${cx+1}" y="${cy-10}" width="3" height="4" fill="#2c3e50"/><rect x="${cx-8}" y="${cy+16}" width="6" height="10" rx="3" fill="#34495e"/><rect x="${cx+2}" y="${cy+16}" width="6" height="10" rx="3" fill="#34495e"/>`;
             if (isAtk) svg += `<rect x="${cx+10}" y="${cy+4}" width="16" height="6" rx="2" fill="${c.main}"/>`;
-
-            if (wingTier >= 10) {
-                svg += `<circle cx="${cx-2}" cy="${cy-15}" r="2" fill="#f1c40f"><animate attributeName="opacity" values="0;1;0" dur="0.9s" repeatCount="indefinite"/></circle>`;
-                svg += `<circle cx="${cx+6}" cy="${cy+8}" r="2" fill="#f1c40f"><animate attributeName="opacity" values="1;0;1" dur="1.1s" repeatCount="indefinite"/></circle>`;
-            }
-
+            if (wingTier >= 10) { svg += `<circle cx="${cx-2}" cy="${cy-15}" r="2" fill="#f1c40f"><animate attributeName="opacity" values="0;1;0" dur="0.9s" repeatCount="indefinite"/></circle><circle cx="${cx+6}" cy="${cy+8}" r="2" fill="#f1c40f"><animate attributeName="opacity" values="1;0;1" dur="1.1s" repeatCount="indefinite"/></circle>`; }
             return svg;
         }
-
-        const f1 = drawFrame(100, 140, false);
-        const f2 = drawFrame(300, 138, isAttacking);
-        return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200" shape-rendering="geometricPrecision">${f1} ${f2}</svg>`);
+        return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200" shape-rendering="geometricPrecision">${drawFrame(100, 140, false)} ${drawFrame(300, 138, isAttacking)}</svg>`);
     }
 
     function getMageSprite(level, wingLvl, isAttacking) {
-        const charTier = Math.min(10, Math.floor(level / 10));
-        const wingTier = Math.min(10, Math.floor(wingLvl / 10));
-
+        const charTier = Math.min(10, Math.floor(level / 10)); const wingTier = Math.min(10, Math.floor(wingLvl / 10));
         function drawFrame(cx, cy, isAtk) {
             let svg = "";
             if (wingTier > 0) {
-                let lw = "";
-                let aura = "";
+                let lw = ""; let aura = "";
                 if (wingTier === 1) lw = `<path d="M 0 0 Q -25 -35 -45 10 Q -20 20 0 10 Z" fill="#ffffff" fill-opacity="0.9" stroke="#bdc3c7" stroke-width="1.5"/><path d="M 0 0 Q -15 -20 -30 0 Q -10 10 0 5 Z" fill="#f1f2f6" fill-opacity="0.85"/>`;
                 else if (wingTier === 2) lw = `<path d="M 0 0 Q -35 -55 -70 20 Q -35 30 0 10 Z" fill="#ffffff" fill-opacity="0.9" stroke="#d2dae2" stroke-width="2"/><path d="M 0 0 Q -20 -30 -45 10 Q -10 15 0 5 Z" fill="#f1f2f6" fill-opacity="0.85"/>`;
                 else if (wingTier === 3) lw = `<path d="M 0 0 C -35 -70 -90 -70 -100 -10 C -60 -10 -25 -10 0 5 Z" fill="#ffb8b8" fill-opacity="0.85" stroke="#fd79a8" stroke-width="2"/><path d="M 0 5 C -25 45 -65 65 -75 35 C -55 25 -25 15 0 5 Z" fill="#ffb8b8" fill-opacity="0.85" stroke="#fd79a8" stroke-width="2"/>`;
@@ -521,47 +470,20 @@
                 else if (wingTier === 9) lw = `<g style="filter:drop-shadow(0 0 12px #f1c40f)"><path d="M 0 0 C -90 -150 -190 -100 -210 -30 C -130 80 -90 130 0 90 Z" fill="#ffffff" fill-opacity="0.9" stroke="#f39c12" stroke-width="4"/><path d="M 0 5 C -80 70 -150 90 -170 120 C -110 60 -50 25 0 20 Z" fill="#ffffff" fill-opacity="0.9" stroke="#f39c12" stroke-width="3"/></g>`;
                 else if (wingTier >= 10) { 
                     aura = `<circle cx="0" cy="0" r="160" fill="url(#goldAura)" opacity="0.6"/>`;
-                    lw = `<g style="filter:drop-shadow(0 0 18px #f1c40f)">
-                            <path d="M 0 0 C -100 -170 -200 -120 -220 -20 C -140 80 -90 130 0 90 Z" fill="#ffffff" fill-opacity="0.85" stroke="#f39c12" stroke-width="5"/>
-                            <path d="M 0 5 C -90 80 -170 100 -190 140 C -120 70 -50 30 0 20 Z" fill="#ffffff" fill-opacity="0.85" stroke="#f39c12" stroke-width="4"/>
-                            <path d="M 0 0 C -110 -60 -220 -30 -240 60 C -140 30 -80 15 0 15 Z" fill="#ffffff" fill-opacity="0.8" stroke="#f39c12" stroke-width="4"/>
-                          </g>`;
+                    lw = `<g style="filter:drop-shadow(0 0 18px #f1c40f)"><path d="M 0 0 C -100 -170 -200 -120 -220 -20 C -140 80 -90 130 0 90 Z" fill="#ffffff" fill-opacity="0.85" stroke="#f39c12" stroke-width="5"/><path d="M 0 5 C -90 80 -170 100 -190 140 C -120 70 -50 30 0 20 Z" fill="#ffffff" fill-opacity="0.85" stroke="#f39c12" stroke-width="4"/><path d="M 0 0 C -110 -60 -220 -30 -240 60 C -140 30 -80 15 0 15 Z" fill="#ffffff" fill-opacity="0.8" stroke="#f39c12" stroke-width="4"/></g>`;
                 }
-                
-                const wingScales = [0, 1.1, 0.8, 0.55, 0.40, 0.6, 0.45, 0.35, 0.25, 0.22, 0.20];
-                let wScale = wingScales[Math.min(10, wingTier)];
+                const wScale = [0, 1.1, 0.8, 0.55, 0.40, 0.6, 0.45, 0.35, 0.25, 0.22, 0.20][Math.min(10, wingTier)];
                 svg += `<g transform="translate(${cx}, ${cy-10})">${aura}<g transform="scale(${wScale})">${lw}<g transform="scale(-1, 1)">${lw}</g></g></g>`;
             }
-
-            const mageColors = [
-                { main: "#74b9ff", trim: "#ffffff" }, { main: "#0984e3", trim: "#74b9ff" }, { main: "#00cec9", trim: "#81ecec" }, { main: "#00b894", trim: "#55efc4" }, { main: "#a29bfe", trim: "#dfe6e9" }, { main: "#6c5ce7", trim: "#a29bfe" }, { main: "#fd79a8", trim: "#fab1a0" }, { main: "#e84393", trim: "#fd79a8" }, { main: "#f1f2f6", trim: "#f1c40f" }, { main: "#dcdde1", trim: "#e1b12c" }, { main: "#ffffff", trim: "#f1c40f" }
-            ];
-            const c = mageColors[charTier];
-
-            svg += `<path d="M ${cx-10} ${cy} L ${cx+10} ${cy} L ${cx+12} ${cy+20} L ${cx-12} ${cy+20} Z" fill="${c.main}"/>`;
-            svg += `<path d="M ${cx-4} ${cy} L ${cx+4} ${cy} L ${cx+6} ${cy+20} L ${cx-6} ${cy+20} Z" fill="${c.trim}" opacity="0.6"/>`;
-            svg += `<rect x="${cx-10}" y="${cy-22}" width="20" height="20" rx="10" fill="${c.main}"/>`;
-            svg += `<rect x="${cx-8}" y="${cy-14}" width="16" height="10" rx="4" fill="#ffeaa7"/>`;
-            svg += `<rect x="${cx-4}" y="${cy-10}" width="3" height="4" fill="#000"/>`;
-            svg += `<rect x="${cx+1}" y="${cy-10}" width="3" height="4" fill="#000"/>`;
-            svg += `<rect x="${cx-6}" y="${cy+20}" width="4" height="6" rx="2" fill="#2d3436"/>`;
-            svg += `<rect x="${cx+2}" y="${cy+20}" width="4" height="6" rx="2" fill="#2d3436"/>`;
+            const c = [{ main: "#74b9ff", trim: "#ffffff" }, { main: "#0984e3", trim: "#74b9ff" }, { main: "#00cec9", trim: "#81ecec" }, { main: "#00b894", trim: "#55efc4" }, { main: "#a29bfe", trim: "#dfe6e9" }, { main: "#6c5ce7", trim: "#a29bfe" }, { main: "#fd79a8", trim: "#fab1a0" }, { main: "#e84393", trim: "#fd79a8" }, { main: "#f1f2f6", trim: "#f1c40f" }, { main: "#dcdde1", trim: "#e1b12c" }, { main: "#ffffff", trim: "#f1c40f" }][charTier];
+            svg += `<path d="M ${cx-10} ${cy} L ${cx+10} ${cy} L ${cx+12} ${cy+20} L ${cx-12} ${cy+20} Z" fill="${c.main}"/><path d="M ${cx-4} ${cy} L ${cx+4} ${cy} L ${cx+6} ${cy+20} L ${cx-6} ${cy+20} Z" fill="${c.trim}" opacity="0.6"/><rect x="${cx-10}" y="${cy-22}" width="20" height="20" rx="10" fill="${c.main}"/><rect x="${cx-8}" y="${cy-14}" width="16" height="10" rx="4" fill="#ffeaa7"/><rect x="${cx-4}" y="${cy-10}" width="3" height="4" fill="#000"/><rect x="${cx+1}" y="${cy-10}" width="3" height="4" fill="#000"/><rect x="${cx-6}" y="${cy+20}" width="4" height="6" rx="2" fill="#2d3436"/><rect x="${cx+2}" y="${cy+20}" width="4" height="6" rx="2" fill="#2d3436"/>`;
             if (isAtk) svg += `<rect x="${cx+8}" y="${cy+4}" width="14" height="5" rx="2" fill="${c.main}"/>`;
-
             return svg;
         }
-
-        const f1 = drawFrame(100, 140, false);
-        const f2 = drawFrame(300, 138, isAttacking);
-        return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200" shape-rendering="geometricPrecision"><defs><radialGradient id="goldAura" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f1c40f" stop-opacity="0.8"/><stop offset="60%" stop-color="#f1c40f" stop-opacity="0.3"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient></defs>${f1} ${f2}</svg>`);
+        return "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200" shape-rendering="geometricPrecision"><defs><radialGradient id="goldAura" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#f1c40f" stop-opacity="0.8"/><stop offset="60%" stop-color="#f1c40f" stop-opacity="0.3"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient></defs>${drawFrame(100, 140, false)} ${drawFrame(300, 138, isAttacking)}</svg>`);
     }
 
-    const PET_SPRITES = [
-        { name: "요정 🧚‍♀️", atkName: "번개 공격", prefix: "⚡ ", sprite: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="8" fill="%23f1c40f"/><path d="M4 10 Q14 2 14 18 Z" fill="%2374b9ff" opacity="0.8"/><path d="M32 10 Q22 2 22 18 Z" fill="%2374b9ff" opacity="0.8"/><circle cx="15" cy="17" r="1.5" fill="%232c3e50"/><circle cx="21" cy="17" r="1.5" fill="%232c3e50"/></svg>` },
-        { name: "강아지 🐶", atkName: "몸통박치기", prefix: "💥 ", sprite: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"><rect x="10" y="12" width="16" height="16" rx="4" fill="%23e67e22"/><rect x="6" y="12" width="5" height="10" fill="%23d35400"/><rect x="25" y="12" width="5" height="10" fill="%23d35400"/><circle cx="14" cy="18" r="1.5" fill="%23000"/><circle cx="22" cy="18" r="1.5" fill="%23000"/><ellipse cx="18" cy="22" rx="2" ry="1.5" fill="%23000"/></svg>` },
-        { name: "고양이 🐱", atkName: "할퀴기 공격", prefix: "🐾 ", sprite: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"><rect x="10" y="12" width="16" height="16" rx="4" fill="%23bdc3c7"/><polygon points="10,12 6,4 14,10" fill="%237f8c8d"/><polygon points="26,12 30,4 22,10" fill="%237f8c8d"/><circle cx="14" cy="18" r="1.5" fill="%232ecc71"/><circle cx="22" cy="18" r="1.5" fill="%232ecc71"/><polygon points="18,21 16,23 20,23" fill="%23e74c3c"/></svg>` }
-    ];
-
+    const PET_SPRITES = [ { name: "요정 🧚‍♀️", atkName: "번개 공격", prefix: "⚡ ", sprite: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="8" fill="%23f1c40f"/><path d="M4 10 Q14 2 14 18 Z" fill="%2374b9ff" opacity="0.8"/><path d="M32 10 Q22 2 22 18 Z" fill="%2374b9ff" opacity="0.8"/><circle cx="15" cy="17" r="1.5" fill="%232c3e50"/><circle cx="21" cy="17" r="1.5" fill="%232c3e50"/></svg>` }, { name: "강아지 🐶", atkName: "몸통박치기", prefix: "💥 ", sprite: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"><rect x="10" y="12" width="16" height="16" rx="4" fill="%23e67e22"/><rect x="6" y="12" width="5" height="10" fill="%23d35400"/><rect x="25" y="12" width="5" height="10" fill="%23d35400"/><circle cx="14" cy="18" r="1.5" fill="%23000"/><circle cx="22" cy="18" r="1.5" fill="%23000"/><ellipse cx="18" cy="22" rx="2" ry="1.5" fill="%23000"/></svg>` }, { name: "고양이 🐱", atkName: "할퀴기 공격", prefix: "🐾 ", sprite: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"><rect x="10" y="12" width="16" height="16" rx="4" fill="%23bdc3c7"/><polygon points="10,12 6,4 14,10" fill="%237f8c8d"/><polygon points="26,12 30,4 22,10" fill="%237f8c8d"/><circle cx="14" cy="18" r="1.5" fill="%232ecc71"/><circle cx="22" cy="18" r="1.5" fill="%232ecc71"/><polygon points="18,21 16,23 20,23" fill="%23e74c3c"/></svg>` } ];
     const MONSTER_SPRITES = {
         slime: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="64" viewBox="0 0 128 64" shape-rendering="geometricPrecision"><rect x="14" y="20" width="36" height="32" rx="10" fill="%232ecc71"/><rect x="18" y="16" width="28" height="36" fill="%232ecc71"/><rect x="22" y="28" width="4" height="8" fill="%231e8449"/><rect x="38" y="28" width="4" height="8" fill="%231e8449"/><rect x="18" y="36" width="4" height="4" fill="%23ff7675"/><rect x="42" y="36" width="4" height="4" fill="%23ff7675"/><circle cx="22" cy="22" r="3" fill="%23a3e4d7"/><rect x="78" y="24" width="36" height="28" rx="10" fill="%232ecc71"/><rect x="82" y="20" width="28" height="32" fill="%232ecc71"/><rect x="86" y="30" width="4" height="8" fill="%231e8449"/><rect x="102" y="30" width="4" height="8" fill="%231e8449"/><rect x="82" y="38" width="4" height="4" fill="%23ff7675"/><rect x="106" y="38" width="4" height="4" fill="%23ff7675"/><circle cx="86" cy="24" r="3" fill="%23a3e4d7"/></svg>`,
         mushroom: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="64" viewBox="0 0 128 64" shape-rendering="geometricPrecision"><rect x="22" y="32" width="20" height="24" fill="%23f5e6d3"/><rect x="25" y="38" width="3" height="8" fill="%232c3e50"/><rect x="36" y="38" width="3" height="8" fill="%232c3e50"/><ellipse cx="32" cy="24" rx="26" ry="16" fill="%23e67e22"/><ellipse cx="20" cy="20" rx="4" ry="3" fill="%23ffffff"/><ellipse cx="42" cy="18" rx="5" ry="4" fill="%23ffffff"/><rect x="86" y="34" width="20" height="22" fill="%23f5e6d3"/><rect x="89" y="40" width="3" height="8" fill="%232c3e50"/><rect x="100" y="40" width="3" height="8" fill="%232c3e50"/><ellipse cx="96" cy="26" rx="26" ry="16" fill="%23e67e22"/><ellipse cx="84" cy="22" rx="4" ry="3" fill="%23ffffff"/><ellipse cx="106" cy="20" rx="5" ry="4" fill="%23ffffff"/></svg>`,
@@ -585,21 +507,45 @@
     ];
 
     const STAGES = [];
-    const STAGE_NAMES = ["푸른 언덕 초원", "노을빛 버섯 숲", "신비로운 이끼 숲", "설원의 얼음 골짜기", "심해의 아쿠아로드", "황금빛 오아시스 사막", "유령의 밤 시계탑", "저주받은 화산 지대"];
-    const MONSTER_NAMES = ["슬라임", "주황버섯", "스텀프", "눈사람", "심해 해파리", "사막 전갈", "유령 꼬마", "화염 마귀"];
-    const SPRITE_KEYS = ['slime', 'mushroom', 'stump', 'snowman', 'jellyfish', 'scorpion', 'ghost', 'balrog'];
-    
-    for (let i = 0; i < 49; i++) {
-        let tIdx = i % 8;
+    const T_NAMES = ["헤네시스 초원", "노을빛 버섯 숲", "페리온 바위산", "엘나스 설원", "아쿠아로드 심해", "니할 사막", "루디브리엄 시계탑"];
+    const M_NAMES = ["슬라임", "버섯", "스텀프", "예티", "해파리", "전갈", "레이스"];
+    const M_KEYS = ['slime', 'mushroom', 'stump', 'snowman', 'jellyfish', 'scorpion', 'ghost'];
+    const PREFIXES = ["초보", "수습", "숙련된", "난폭한", "강력한", "정예", "수문장"];
+    const HUES = [0, 45, 90, 150, 210, 270, 320];
+    const SCALES = [0.8, 0.9, 1.0, 1.1, 1.25, 1.4, 1.6];
+
+    for(let i=0; i<49; i++) {
+        let themeIdx = Math.floor(i / 7);
+        let variantIdx = i % 7;
+        
         STAGES.push({
-            name: `STAGE ${i+1} : ${STAGE_NAMES[tIdx]}`,
-            monster: `${MONSTER_NAMES[tIdx]} (Lv.${i+1})`,
-            hp: Math.floor(30 * Math.pow(1.3, i)), exp: Math.floor(15 * Math.pow(1.2, i)), meso: Math.floor(10 * Math.pow(1.15, i)),
-            bg: STAGE_BACKGROUNDS[tIdx], groundColor: ["#388e3c", "#8d6e63", "#1b4332", "#dff9fb", "#1e3799", "#f6b93b", "#2c2c54", "#212121"][tIdx], groundBorder: ["#1b5e20", "#4e342e", "#081c15", "#c7ecee", "#0c2461", "#e67e22", "#130f40", "#ff3838"][tIdx],
-            sprite: MONSTER_SPRITES[SPRITE_KEYS[tIdx]], isFinalBoss: false
+            name: `STAGE ${i+1} : ${T_NAMES[themeIdx]} ${variantIdx+1}구역`,
+            monster: `${PREFIXES[variantIdx]} ${M_NAMES[themeIdx]} (Lv.${i+1})`,
+            hp: Math.floor(30 * Math.pow(1.35, i)),
+            exp: Math.floor(20 * Math.pow(1.32, i)),
+            meso: Math.floor(10 * Math.pow(1.25, i)),
+            bg: STAGE_BACKGROUNDS[themeIdx],
+            groundColor: ["#388e3c", "#8d6e63", "#1b4332", "#dff9fb", "#1e3799", "#f6b93b", "#2c2c54"][themeIdx],
+            groundBorder: ["#1b5e20", "#4e342e", "#081c15", "#c7ecee", "#0c2461", "#e67e22", "#130f40"][themeIdx],
+            sprite: MONSTER_SPRITES[M_KEYS[themeIdx]],
+            filter: `hue-rotate(${HUES[variantIdx]}deg) brightness(${variantIdx===6? 0.7 : 1})`,
+            scale: SCALES[variantIdx],
+            isFinalBoss: false
         });
     }
-    STAGES.push({ name: `STAGE 50 : 🌋 최종 보스 진·발록의 둥지`, monster: "진·발록 (최종 보스)", hp: 5000000000, exp: 10000000, meso: 5000000, bg: STAGE_BACKGROUNDS[7], groundColor: "#111111", groundBorder: "#ff0000", sprite: MONSTER_SPRITES.balrog, isFinalBoss: true });
+    
+    STAGES.push({
+        name: `STAGE 50 : 🌋 저주받은 화산지대 (최종 보스)`,
+        monster: "진·발록 (Lv.MAX)",
+        hp: Math.floor(30 * Math.pow(1.35, 49)) * 2,
+        exp: Math.floor(20 * Math.pow(1.32, 49)) * 5,
+        meso: Math.floor(10 * Math.pow(1.25, 49)) * 5,
+        bg: STAGE_BACKGROUNDS[7],
+        groundColor: "#111111", groundBorder: "#ff0000",
+        sprite: MONSTER_SPRITES.balrog,
+        filter: "hue-rotate(0deg)", scale: 2.2,
+        isFinalBoss: true
+    });
 
     let game = {
         charType: null, level: 1, exp: 0, maxExp: 50, meso: 0,
@@ -610,7 +556,7 @@
     let bossAttackTimer = null;
 
     function init() {
-        const saved = localStorage.getItem("maple_idle_web_v30");
+        const saved = localStorage.getItem("maple_idle_web_v32");
         if (saved) { try { game = JSON.parse(saved); } catch(e){} }
         
         if (game.stageIdx >= STAGES.length) game.stageIdx = 0;
@@ -771,7 +717,7 @@
 
     function closeOfflineModal() { document.getElementById("offline-modal").style.display = "none"; }
     function manualAttack(e) { attackTarget(true); }
-    function addExp(amount) { game.exp += amount; while (game.exp >= game.maxExp) { game.exp -= game.maxExp; game.level++; game.maxExp = Math.floor(game.maxExp * 1.20); playSound(880, 'triangle', 0.3); } }
+    function addExp(amount) { game.exp += amount; while (game.exp >= game.maxExp) { game.exp -= game.maxExp; game.level++; game.maxExp = Math.floor(game.maxExp * 1.18); playSound(880, 'triangle', 0.3); } }
     
     function showDamage(dmg, isCrit, isPet = false, petPrefix = "⚡ ") {
         const bf = document.getElementById("battlefield"); const el = document.createElement("div");
@@ -822,7 +768,12 @@
         document.getElementById("exp-fill").style.width = expPct + "%"; document.getElementById("exp-text").innerText = `${game.exp} / ${game.maxExp} (${expPct}%)`;
         document.getElementById("battlefield").style.backgroundImage = `url('${stage.bg}')`;
         document.getElementById("ground-bar").style.backgroundColor = stage.groundColor; document.getElementById("ground-bar").style.borderTopColor = stage.groundBorder;
-        document.getElementById("stage-name").innerText = stage.name; document.getElementById("monster-sprite").style.backgroundImage = `url('${stage.sprite}')`;
+        document.getElementById("stage-name").innerText = stage.name; 
+        
+        const monsterSprite = document.getElementById("monster-sprite");
+        monsterSprite.style.backgroundImage = `url('${stage.sprite}')`;
+        monsterSprite.style.filter = `${stage.filter}`;
+        monsterSprite.style.transform = `scale(${stage.scale})`;
 
         const wingBonusAtk = game.wingLvl * 35; const wingCost = (game.wingLvl + 1) * 500;
         document.getElementById("wing-name-desc").innerText = `${wingTierNames[Math.min(10, Math.floor(game.wingLvl / 10))]} (Lv. ${game.wingLvl})`;
@@ -852,7 +803,7 @@
         document.getElementById("weapon-icon").style.backgroundImage = `url('${curW.icon}')`; document.getElementById("weapon-name").innerText = `${curW.name} (Tier ${game.weaponTier + 1})`; document.getElementById("weapon-bonus").innerText = curW.bonus;
         if (nextW) { document.getElementById("cost-weapon").innerText = formatNumber(nextW.cost) + " Gold"; document.getElementById("btn-up-weapon").disabled = game.meso < nextW.cost; } else { document.getElementById("cost-weapon").innerText = "최고 등급"; document.getElementById("btn-up-weapon").disabled = true; }
 
-        document.getElementById("stage-desc").innerText = `${stage.monster} 출현중 (경험치: ${stage.exp}, 메소: ${stage.meso})`;
+        document.getElementById("stage-desc").innerText = `${stage.monster} 출현중 (경험치: ${formatNumber(stage.exp)}, 메소: ${formatNumber(stage.meso)})`;
         updateMonsterHPUI();
     }
 
@@ -870,8 +821,8 @@
 
     function openResetModal() { document.getElementById("reset-modal").style.display = "flex"; }
     function closeResetModal() { document.getElementById("reset-modal").style.display = "none"; }
-    function confirmReset() { localStorage.removeItem("maple_idle_web_v30"); localStorage.removeItem("maple_idle_web_v29"); closeResetModal(); location.reload(); }
-    function saveGame(alertUser = false) { if (!game.charType) return; localStorage.setItem("maple_idle_web_v30", JSON.stringify(game)); if (alertUser) alert("게임 데이터가 저장되었습니다!"); }
+    function confirmReset() { localStorage.removeItem("maple_idle_web_v32"); localStorage.removeItem("maple_idle_web_v30"); closeResetModal(); location.reload(); }
+    function saveGame(alertUser = false) { if (!game.charType) return; localStorage.setItem("maple_idle_web_v32", JSON.stringify(game)); if (alertUser) alert("게임 데이터가 저장되었습니다!"); }
     setInterval(() => saveGame(false), 10000); window.onload = init;
 </script>
 </body>
