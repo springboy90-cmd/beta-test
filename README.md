@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>메이플 키우기 - Ultimate Mage Edition</title>
+    <title>메이플 키우기 - 50 Stages & Boss Raid</title>
     <style>
         :root {
             --panel-bg: #181824;
@@ -83,7 +83,7 @@
             position: absolute; left: 30%; bottom: 25px; transform: translateX(-50%);
             width: 140px; height: 140px; background-size: 280px 140px; background-repeat: no-repeat;
             z-index: 5; pointer-events: none; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.5));
-            transition: transform 0.1s ease; animation: spriteIdleLarge 0.8s steps(1) infinite;
+            transition: filter 0.1s ease, transform 0.1s ease; animation: spriteIdleLarge 0.8s steps(1) infinite;
         }
         @keyframes spriteIdleLarge { 0% { background-position: 0px 0px; } 50% { background-position: -140px 0px; } 100% { background-position: 0px 0px; } }
         .character.attacking { transform: translateX(-50%) scale(1.05); }
@@ -95,7 +95,6 @@
         }
         .character.attacking .character-weapon { transform: rotate(50deg) scale(1.4) translateX(15px) translateY(-5px); }
 
-        /* 🔮 에너지 볼트 및 마력 잔상 이펙트 (마법사 전용) */
         .energy-bolt {
             position: absolute; width: 80px; height: 30px; z-index: 35; pointer-events: none;
             transform: translate(-50%, -50%) rotate(var(--angle, 0deg));
@@ -110,8 +109,7 @@
         .bolt-trail {
             position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
             width: 60px; height: 12px; border-radius: 50px 0 0 50px;
-            background: linear-gradient(90deg, transparent, rgba(162, 155, 254, 0.8), #00d2d3);
-            filter: blur(2px);
+            background: linear-gradient(90deg, transparent, rgba(162, 155, 254, 0.8), #00d2d3); filter: blur(2px);
         }
         @keyframes shootEnergyDynamic {
             0% { transform: translate(-50%, -50%) rotate(var(--angle)) scale(0.5); opacity: 0.8; filter: hue-rotate(0deg); }
@@ -136,10 +134,16 @@
         .monster-hp-fill { height: 100%; background: linear-gradient(90deg, #ff4757, #ff6b81); width: 100%; transition: width 0.1s linear; }
         .monster-sprite { width: 72px; height: 72px; background-size: cover; background-repeat: no-repeat; }
 
-        .damage-text { position: absolute; font-size: 26px; font-weight: 900; color: #f1c40f; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 10px rgba(241,196,15,0.6); pointer-events: none; animation: floatDamage 0.65s cubic-bezier(0.1,0.9,0.2,1) forwards; z-index: 20; }
+        .damage-text { position: absolute; font-size: 26px; font-weight: 900; color: #f1c40f; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 10px rgba(241,196,15,0.6); pointer-events: none; animation: floatDamage 0.65s cubic-bezier(0.1,0.9,0.2,1) forwards; z-index: 20; transform: translate(-50%, 0); }
         .damage-text.crit { color: #ff3838; font-size: 32px; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 0 0 15px rgba(255,56,56,0.8); }
         .damage-text.pet-dmg { color: #00d2d3; font-size: 28px; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 0 0 15px rgba(0,210,211,0.8); }
-        @keyframes floatDamage { 0% { opacity: 1; transform: translateY(0) scale(0.8); } 50% { opacity: 1; transform: translateY(-35px) scale(1.25); } 100% { opacity: 0; transform: translateY(-60px) scale(1); } }
+        .damage-text.char-dmg { color: #ff4757; font-size: 24px; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 0 0 15px rgba(255,71,87,0.8); }
+
+        @keyframes floatDamage {
+            0% { opacity: 1; transform: translate(-50%, 0) scale(0.8); }
+            50% { opacity: 1; transform: translate(-50%, -35px) scale(1.25); }
+            100% { opacity: 0; transform: translate(-50%, -60px) scale(1); }
+        }
 
         #bottom-panel { height: 46%; background-color: var(--panel-bg); display: flex; flex-direction: column; border-top: 2px solid rgba(255,255,255,0.08); box-shadow: 0 -10px 30px rgba(0,0,0,0.5); }
         .nav-tabs { display: flex; background: #12121a; border-bottom: 1px solid rgba(255,255,255,0.06); }
@@ -427,7 +431,7 @@
     ];
 
     const WEAPONS_MAGE = [
-        { name: "초보자의 지팡이", bonus: 0, cost: 200, icon: WEAPON_ICONS_MAGE[0] },
+        { name: "초보자의 나무 지팡이", bonus: 0, cost: 200, icon: WEAPON_ICONS_MAGE[0] },
         { name: "분홍수정 덩굴 지팡이", bonus: 15, cost: 800, icon: WEAPON_ICONS_MAGE[1] },
         { name: "황금 태양의 로드", bonus: 50, cost: 3000, icon: WEAPON_ICONS_MAGE[2] },
         { name: "푸른 물방울 스태프", bonus: 150, cost: 12000, icon: WEAPON_ICONS_MAGE[3] },
@@ -506,7 +510,8 @@
         function drawFrame(cx, cy, isAtk) {
             let svg = "";
             if (wingTier > 0) {
-                let lw = ""; let aura = "";
+                let lw = "";
+                let aura = "";
                 if (wingTier === 1) lw = `<path d="M 0 0 Q -25 -35 -45 10 Q -20 20 0 10 Z" fill="#ffffff" fill-opacity="0.9" stroke="#bdc3c7" stroke-width="1.5"/><path d="M 0 0 Q -15 -20 -30 0 Q -10 10 0 5 Z" fill="#f1f2f6" fill-opacity="0.85"/>`;
                 else if (wingTier === 2) lw = `<path d="M 0 0 Q -35 -55 -70 20 Q -35 30 0 10 Z" fill="#ffffff" fill-opacity="0.9" stroke="#d2dae2" stroke-width="2"/><path d="M 0 0 Q -20 -30 -45 10 Q -10 15 0 5 Z" fill="#f1f2f6" fill-opacity="0.85"/>`;
                 else if (wingTier === 3) lw = `<path d="M 0 0 C -35 -70 -90 -70 -100 -10 C -60 -10 -25 -10 0 5 Z" fill="#ffb8b8" fill-opacity="0.85" stroke="#fd79a8" stroke-width="2"/><path d="M 0 5 C -25 45 -65 65 -75 35 C -55 25 -25 15 0 5 Z" fill="#ffb8b8" fill-opacity="0.85" stroke="#fd79a8" stroke-width="2"/>`;
@@ -600,7 +605,7 @@
     let isAutoHunt = true; let autoAttackTimer = null; let petAttackTimer = null; let lastActiveTime = Date.now();
 
     function init() {
-        const saved = localStorage.getItem("maple_idle_web_v27");
+        const saved = localStorage.getItem("maple_idle_web_v28");
         if (saved) { try { game = JSON.parse(saved); } catch(e){} }
         game.monsterHp = STAGES[game.stageIdx].hp;
         if (game.wingLvl === undefined) game.wingLvl = 0;
@@ -641,7 +646,6 @@
         else { btn.classList.remove("active"); btn.innerText = "⚔️ 자동사냥: OFF"; clearInterval(autoAttackTimer); clearInterval(petAttackTimer); }
     }
 
-    // ⚔️ 마법사 - 에너지 볼트 생성 및 타격 시스템 연동
     function attackTarget(isManual = false) {
         const stage = STAGES[game.stageIdx];
         const atk = getAtkPower();
@@ -694,10 +698,8 @@
             battleArea.appendChild(proj);
             setTimeout(() => proj.remove(), 250);
 
-            // 마법 발사체가 도착하는 시간과 타격 데미지를 동기화 (150ms 지연)
             setTimeout(executeHit, 150);
         } else {
-            // 근접 기사의 경우 즉시 타격
             executeHit();
         }
     }
@@ -829,8 +831,8 @@
 
     function openResetModal() { document.getElementById("reset-modal").style.display = "flex"; }
     function closeResetModal() { document.getElementById("reset-modal").style.display = "none"; }
-    function confirmReset() { localStorage.removeItem("maple_idle_web_v27"); localStorage.removeItem("maple_idle_web_v26"); closeResetModal(); location.reload(); }
-    function saveGame(alertUser = false) { if (!game.charType) return; localStorage.setItem("maple_idle_web_v27", JSON.stringify(game)); if (alertUser) alert("게임 데이터가 저장되었습니다!"); }
+    function confirmReset() { localStorage.removeItem("maple_idle_web_v28"); localStorage.removeItem("maple_idle_web_v27"); closeResetModal(); location.reload(); }
+    function saveGame(alertUser = false) { if (!game.charType) return; localStorage.setItem("maple_idle_web_v28", JSON.stringify(game)); if (alertUser) alert("게임 데이터가 저장되었습니다!"); }
     setInterval(() => saveGame(false), 10000); window.onload = init;
 </script>
 </body>
