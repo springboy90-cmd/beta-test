@@ -24,7 +24,7 @@
         body {
             background-color: #0b0b10; color: var(--text-light); display: flex;
             justify-content: center; align-items: center; min-height: 100vh; min-height: 100dvh; overflow: hidden;
-            width: 100vw; margin: 0; /* 불필요한 마진 제거 */
+            width: 100vw; margin: 0;
         }
 
         #game-container {
@@ -328,6 +328,8 @@
                     <h4>현재 스테이지 정보</h4>
                     <p id="stage-desc">진행 정보 표시</p>
                 </div>
+                <!-- 다음 스테이지 버튼 복구 -->
+                <button class="btn-upgrade" onclick="nextStage()">다음 스테이지 ▶</button>
             </div>
 
             <div class="system-btn-group">
@@ -587,7 +589,7 @@
     let bossAttackTimer = null;
 
     function init() {
-        const saved = localStorage.getItem("maple_idle_web_vRelease_final");
+        const saved = localStorage.getItem("maple_idle_web_vRelease");
         if (saved) { try { game = JSON.parse(saved); } catch(e){} }
         
         if (game.stageIdx >= STAGES.length) game.stageIdx = 0;
