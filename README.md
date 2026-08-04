@@ -137,6 +137,8 @@
         .damage-text { position: absolute; font-size: 26px; font-weight: 900; color: #f1c40f; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 10px rgba(241,196,15,0.6); pointer-events: none; animation: floatDamage 0.65s cubic-bezier(0.1,0.9,0.2,1) forwards; z-index: 20; transform: translate(-50%, 0); }
         .damage-text.crit { color: #ff3838; font-size: 32px; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 0 0 15px rgba(255,56,56,0.8); }
         .damage-text.pet-dmg { color: #00d2d3; font-size: 28px; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 0 0 15px rgba(0,210,211,0.8); }
+        
+        /* 캐릭터 피격 데미지 이펙트 */
         .damage-text.char-dmg { color: #ff4757; font-size: 24px; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 0 0 15px rgba(255,71,87,0.8); }
 
         @keyframes floatDamage {
@@ -575,27 +577,22 @@
         balrog: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="64" viewBox="0 0 128 64" shape-rendering="geometricPrecision"><polygon points="12,16 4,4 20,12" fill="%23e74c3c"/><polygon points="52,16 60,4 44,12" fill="%23e74c3c"/><polygon points="4,24 0,36 16,28" fill="%2334495e"/><polygon points="60,24 64,36 48,28" fill="%2334495e"/><rect x="14" y="14" width="36" height="42" fill="%232c3e50"/><rect x="20" y="22" width="6" height="6" fill="%23e74c3c"/><rect x="38" y="22" width="6" height="6" fill="%23e74c3c"/><rect x="24" y="36" width="16" height="4" fill="%23c0392b"/><polygon points="76,18 68,6 84,14" fill="%23e74c3c"/><polygon points="116,18 124,6 108,14" fill="%23e74c3c"/><polygon points="68,26 64,38 80,30" fill="%2334495e"/><polygon points="124,26 128,38 112,30" fill="%2334495e"/><rect x="78" y="16" width="36" height="40" fill="%232c3e50"/><rect x="84" y="24" width="6" height="6" fill="%23e74c3c"/><rect x="102" y="24" width="6" height="6" fill="%23e74c3c"/><rect x="88" y="38" width="16" height="4" fill="%23c0392b"/></svg>`
     };
 
-    const STAGE_BACKGROUNDS = [
-        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%235ac8fa"/><stop offset="100%" stop-color="%23d0f0fd"/></linearGradient></defs><rect width="480" height="220" fill="url(%23sky1)"/><path d="M40 40 Q55 20 75 25 Q90 10 115 20 Q130 25 125 40 Z" fill="%23ffffff" opacity="0.85"/><path d="M-20 180 Q100 110 220 160 T460 140 L500 220 L-20 220 Z" fill="%2381c784"/><path d="M80 180 Q220 120 360 170 T500 150 L500 220 L80 220 Z" fill="%234caf50"/></svg>`,
-        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%232c1654"/><stop offset="50%" stop-color="%23f368e0"/><stop offset="100%" stop-color="%23ff9f43"/></linearGradient></defs><rect width="480" height="220" fill="url(%23sky2)"/><path d="M50 120 Q50 60 90 60 Q130 60 130 120 Z" fill="%23ee5253"/><rect x="82" y="115" width="16" height="50" fill="%23ffdd59"/><path d="M-10 170 Q140 120 280 160 T500 140 L500 220 L-10 220 Z" fill="%235758bb" opacity="0.7"/></svg>`,
-        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="sky3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%2305131d"/><stop offset="100%" stop-color="%230d3b46"/></linearGradient></defs><rect width="480" height="220" fill="url(%23sky3)"/><rect x="30" y="20" width="35" height="180" fill="%231b2a32"/><circle cx="150" cy="80" r="3" fill="%2354a0ff" opacity="0.8"/><path d="M-10 175 Q150 140 300 170 T500 160 L500 220 L-10 220 Z" fill="%230c4236"/></svg>`,
-        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="skySnow" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%2382ccdd"/><stop offset="100%" stop-color="%23f8a5c2"/></linearGradient></defs><rect width="480" height="220" fill="url(%23skySnow)"/><polygon points="0,220 80,110 180,220" fill="%23ffffff" opacity="0.9"/><path d="M-10 180 Q120 140 250 175 T500 160 L500 220 L-10 220 Z" fill="%23f1f2f6"/></svg>`,
-        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="skyOcean" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%2300d2d3"/><stop offset="100%" stop-color="%2301a3a4"/></linearGradient></defs><rect width="480" height="220" fill="url(%23skyOcean)"/><circle cx="120" cy="150" r="8" fill="%23ffffff" opacity="0.3"/><path d="M-10 180 Q150 150 290 180 T500 165 L500 220 L-10 220 Z" fill="%232e86de"/></svg>`,
-        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="skyDesert" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%23f6b93b"/><stop offset="100%" stop-color="%23eccc68"/></linearGradient></defs><rect width="480" height="220" fill="url(%23skyDesert)"/><circle cx="400" cy="50" r="25" fill="%23f1c40f" opacity="0.85"/><path d="M-10 160 Q120 120 260 160 T500 150 L500 220 L-10 220 Z" fill="%23f0932b"/></svg>`,
-        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="skyTower" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%23130f40"/><stop offset="100%" stop-color="%2330336b"/></linearGradient></defs><rect width="480" height="220" fill="url(%23skyTower)"/><circle cx="80" cy="50" r="22" fill="%23f5cd79" opacity="0.9"/><path d="M-10 185 Q150 160 300 185 T500 175 L500 220 L-10 220 Z" fill="%232f3542"/></svg>`,
-        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="sky4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%23120606"/><stop offset="100%" stop-color="%233a0d0d"/></linearGradient><linearGradient id="magma" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="%23ff3838"/><stop offset="100%" stop-color="%23ff9f1a"/></linearGradient></defs><rect width="480" height="220" fill="url(%23sky4)"/><path d="M20 180 Q80 170 140 185 T300 175 T460 190" stroke="url(%23magma)" stroke-width="4" fill="none"/></svg>`
-    ];
-
-    const STAGES = [
-        { name: "STAGE 1 : 푸른 언덕 초원", monster: "슬라임", hp: 30, exp: 12, meso: 8, bg: STAGE_BACKGROUNDS[0], groundColor: "#388e3c", groundBorder: "#1b5e20", sprite: MONSTER_SPRITES.slime },
-        { name: "STAGE 2 : 노을빛 버섯 숲", monster: "주황버섯", hp: 100, exp: 35, meso: 25, bg: STAGE_BACKGROUNDS[1], groundColor: "#8d6e63", groundBorder: "#4e342e", sprite: MONSTER_SPRITES.mushroom },
-        { name: "STAGE 3 : 신비로운 이끼 숲", monster: "스텀프", hp: 350, exp: 100, meso: 80, bg: STAGE_BACKGROUNDS[2], groundColor: "#1b4332", groundBorder: "#081c15", sprite: MONSTER_SPRITES.stump },
-        { name: "STAGE 4 : 설원의 얼음 골짜기", monster: "눈사람", hp: 1000, exp: 250, meso: 180, bg: STAGE_BACKGROUNDS[3], groundColor: "#dff9fb", groundBorder: "#c7ecee", sprite: MONSTER_SPRITES.snowman },
-        { name: "STAGE 5 : 심해의 아쿠아로드", monster: "심해 해파리", hp: 2800, exp: 650, meso: 400, bg: STAGE_BACKGROUNDS[4], groundColor: "#1e3799", groundBorder: "#0c2461", sprite: MONSTER_SPRITES.jellyfish },
-        { name: "STAGE 6 : 황금빛 오아시스 사막", monster: "사막 전갈", hp: 7500, exp: 1500, meso: 950, bg: STAGE_BACKGROUNDS[5], groundColor: "#f6b93b", groundBorder: "#e67e22", sprite: MONSTER_SPRITES.scorpion },
-        { name: "STAGE 7 : 유령의 밤 시계탑", monster: "유령 꼬마", hp: 20000, exp: 4000, meso: 2200, bg: STAGE_BACKGROUNDS[6], groundColor: "#2c2c54", groundBorder: "#130f40", sprite: MONSTER_SPRITES.ghost },
-        { name: "STAGE 8 : 보스 용암 동굴", monster: "발록 (BOSS)", hp: 60000, exp: 12000, meso: 6500, bg: STAGE_BACKGROUNDS[7], groundColor: "#212121", groundBorder: "#ff3838", sprite: MONSTER_SPRITES.balrog }
-    ];
+    const STAGES = [];
+    const STAGE_NAMES = ["푸른 언덕 초원", "노을빛 버섯 숲", "신비로운 이끼 숲", "설원의 얼음 골짜기", "심해의 아쿠아로드", "황금빛 오아시스 사막", "유령의 밤 시계탑", "저주받은 화산 지대"];
+    const MONSTER_NAMES = ["슬라임", "주황버섯", "스텀프", "눈사람", "심해 해파리", "사막 전갈", "유령 꼬마", "화염 마귀"];
+    const SPRITE_KEYS = ['slime', 'mushroom', 'stump', 'snowman', 'jellyfish', 'scorpion', 'ghost', 'balrog'];
+    
+    for (let i = 0; i < 49; i++) {
+        let tIdx = i % 8;
+        STAGES.push({
+            name: `STAGE ${i+1} : ${STAGE_NAMES[tIdx]}`,
+            monster: `${MONSTER_NAMES[tIdx]} (Lv.${i+1})`,
+            hp: Math.floor(30 * Math.pow(1.3, i)), exp: Math.floor(15 * Math.pow(1.2, i)), meso: Math.floor(10 * Math.pow(1.15, i)),
+            bg: STAGE_BACKGROUNDS[tIdx], groundColor: ["#388e3c", "#8d6e63", "#1b4332", "#dff9fb", "#1e3799", "#f6b93b", "#2c2c54", "#212121"][tIdx], groundBorder: ["#1b5e20", "#4e342e", "#081c15", "#c7ecee", "#0c2461", "#e67e22", "#130f40", "#ff3838"][tIdx],
+            sprite: MONSTER_SPRITES[SPRITE_KEYS[tIdx]], isFinalBoss: false
+        });
+    }
+    STAGES.push({ name: `STAGE 50 : 🌋 최종 보스 진·발록의 둥지`, monster: "진·발록 (최종 보스)", hp: 5000000000, exp: 10000000, meso: 5000000, bg: STAGE_BACKGROUNDS[7], groundColor: "#111111", groundBorder: "#ff0000", sprite: MONSTER_SPRITES.balrog, isFinalBoss: true });
 
     let game = {
         charType: null, level: 1, exp: 0, maxExp: 50, meso: 0,
@@ -603,9 +600,10 @@
     };
 
     let isAutoHunt = true; let autoAttackTimer = null; let petAttackTimer = null; let lastActiveTime = Date.now();
+    let bossAttackTimer = null;
 
     function init() {
-        const saved = localStorage.getItem("maple_idle_web_v28");
+        const saved = localStorage.getItem("maple_idle_web_v29");
         if (saved) { try { game = JSON.parse(saved); } catch(e){} }
         game.monsterHp = STAGES[game.stageIdx].hp;
         if (game.wingLvl === undefined) game.wingLvl = 0;
@@ -621,7 +619,7 @@
 
     function startGameplay() {
         game.monsterHp = STAGES[game.stageIdx].hp;
-        updateUI(); restartAutoAttack(); startPetAttackLoop();
+        updateUI(); restartAutoAttack(); startPetAttackLoop(); checkStageEffects();
         document.addEventListener("visibilitychange", () => {
             if (document.hidden) { lastActiveTime = Date.now(); } else {
                 const ms = Date.now() - lastActiveTime;
@@ -629,6 +627,23 @@
                 lastActiveTime = Date.now();
             }
         });
+    }
+
+    function checkStageEffects() {
+        if (bossAttackTimer) { clearInterval(bossAttackTimer); bossAttackTimer = null; }
+        const stage = STAGES[game.stageIdx];
+        if (stage.isFinalBoss) {
+            bossAttackTimer = setInterval(() => {
+                if (game.meso > 0) {
+                    game.meso--;
+                    document.getElementById("player-meso").innerText = game.meso.toLocaleString();
+                    showPlayerDamage(1);
+                    const char = document.getElementById("character");
+                    char.style.filter = "brightness(0.5) sepia(1) hue-rotate(-50deg) saturate(5) drop-shadow(0 8px 12px rgba(0,0,0,0.5))";
+                    setTimeout(() => { char.style.filter = ""; }, 150);
+                }
+            }, 400);
+        }
     }
 
     function getActiveWeapons() { return game.charType === "mage" ? WEAPONS_MAGE : WEAPONS_KNIGHT; }
@@ -676,7 +691,6 @@
             const proj = document.createElement("div");
             proj.className = "energy-bolt";
             proj.innerHTML = `<div class="bolt-trail"></div><div class="bolt-core"></div>`;
-            
             const battleArea = document.querySelector(".battle-area");
             const wRect = document.getElementById("weapon-icon").getBoundingClientRect();
             const mRect = document.getElementById("monster-box").getBoundingClientRect();
@@ -687,17 +701,11 @@
             const endX = (mRect.left - bRect.left) + (mRect.width / 2);
             const endY = (mRect.top - bRect.top) + (mRect.height / 2);
 
-            proj.style.left = startX + "px";
-            proj.style.top = startY + "px";
-            proj.style.setProperty('--target-x', (endX - startX) + "px");
-            proj.style.setProperty('--target-y', (endY - startY) + "px");
+            proj.style.left = startX + "px"; proj.style.top = startY + "px";
+            proj.style.setProperty('--target-x', (endX - startX) + "px"); proj.style.setProperty('--target-y', (endY - startY) + "px");
+            proj.style.setProperty('--angle', (Math.atan2(endY - startY, endX - startX) * 180 / Math.PI) + "deg");
 
-            const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
-            proj.style.setProperty('--angle', angle + "deg");
-
-            battleArea.appendChild(proj);
-            setTimeout(() => proj.remove(), 250);
-
+            battleArea.appendChild(proj); setTimeout(() => proj.remove(), 250);
             setTimeout(executeHit, 150);
         } else {
             executeHit();
@@ -727,22 +735,31 @@
         const tDps = ((getAtkPower() * (1 + (getCritRate() / 100))) / (getAtkInterval() / 1000)) + ((getAtkPower() * getPetRatio()) / 5);
         const kills = Math.floor((tDps * secs) / stg.hp);
         const gMeso = kills * stg.meso; const gExp = kills * stg.exp;
-        game.meso += gMeso; addExp(gExp); updateUI(); saveGame(false);
-        document.getElementById("offline-desc").innerHTML = `<b>[ ${secs}초 ]</b> 동안 백그라운드 사냥 진행!<br><br>⚔️ 정벌: <b>${kills.toLocaleString()}마리</b><br>🪙 메소: <b>+${gMeso.toLocaleString()} Gold</b><br>✨ 경험치: <b>+${gExp.toLocaleString()} EXP</b>`;
+        game.meso = Math.max(0, game.meso + (stg.isFinalBoss ? -secs * 2 : gMeso)); addExp(gExp); updateUI(); saveGame(false);
+        document.getElementById("offline-desc").innerHTML = `<b>[ ${secs}초 ]</b> 동안 백그라운드 사냥 진행!<br><br>⚔️ 정벌: <b>${kills.toLocaleString()}마리</b><br>🪙 메소: <b>${stg.isFinalBoss ? '-' : '+'}${Math.abs(gMeso).toLocaleString()} Gold</b><br>✨ 경험치: <b>+${gExp.toLocaleString()} EXP</b>`;
         document.getElementById("offline-modal").style.display = "flex";
     }
 
     function closeOfflineModal() { document.getElementById("offline-modal").style.display = "none"; }
     function manualAttack(e) { attackTarget(true); }
-    function addExp(amount) { game.exp += amount; while (game.exp >= game.maxExp) { game.exp -= game.maxExp; game.level++; game.maxExp = Math.floor(game.maxExp * 1.35); playSound(880, 'triangle', 0.3); } }
+    function addExp(amount) { game.exp += amount; while (game.exp >= game.maxExp) { game.exp -= game.maxExp; game.level++; game.maxExp = Math.floor(game.maxExp * 1.20); playSound(880, 'triangle', 0.3); } }
+    
+    function showPlayerDamage(dmg) {
+        const bf = document.getElementById("battlefield"); const el = document.createElement("div");
+        el.className = "damage-text char-dmg"; el.innerText = `-${dmg}🪙`;
+        const charRect = document.getElementById("character").getBoundingClientRect(); const bfRect = bf.getBoundingClientRect();
+        el.style.left = ((charRect.left - bfRect.left) + charRect.width/2 + Math.random() * 20 - 10) + "px"; el.style.top = ((charRect.top - bfRect.top) - 10) + "px";
+        bf.appendChild(el); setTimeout(() => el.remove(), 500);
+    }
+
     function showDamage(dmg, isCrit, isPet = false, petPrefix = "⚡ ") {
         const bf = document.getElementById("battlefield"); const el = document.createElement("div");
-        el.className = "damage-text" + (isCrit ? " crit" : "") + (isPet ? " pet-dmg" : "");
-        el.innerText = (isPet ? petPrefix : (isCrit ? "CRITICAL! " : "")) + "-" + dmg;
+        el.className = "damage-text" + (isCrit ? " crit" : "") + (isPet ? " pet-dmg" : ""); el.innerText = (isPet ? petPrefix : (isCrit ? "CRITICAL! " : "")) + "-" + dmg;
         const rect = document.getElementById("monster-sprite").getBoundingClientRect(); const bfRect = bf.getBoundingClientRect();
         el.style.left = ((rect.left - bfRect.left) + Math.random() * 20 - 10) + "px"; el.style.top = ((rect.top - bfRect.top) - 20) + "px";
         bf.appendChild(el); setTimeout(() => el.remove(), 650);
     }
+    
     function restartAutoAttack() { if (autoAttackTimer) clearInterval(autoAttackTimer); if (isAutoHunt) autoAttackTimer = setInterval(() => attackTarget(false), getAtkInterval()); }
 
     function upgradeStat(type, amount = 1) {
@@ -756,7 +773,7 @@
     function upgradeWeapon() { const w = getActiveWeapons(); const n = game.weaponTier + 1; if (n < w.length && game.meso >= w[n].cost) { game.meso -= w[n].cost; game.weaponTier = n; updateUI(); } }
     function changePet() { game.petIdx = (game.petIdx + 1) % PET_SPRITES.length; updateUI(); }
     function upgradePet() { const c = game.petLvl * 300; if (game.meso >= c) { game.meso -= c; game.petLvl++; updateUI(); } }
-    function nextStage() { game.stageIdx = (game.stageIdx + 1) % STAGES.length; game.monsterHp = STAGES[game.stageIdx].hp; updateUI(); }
+    function nextStage() { game.stageIdx = (game.stageIdx + 1) % STAGES.length; game.monsterHp = STAGES[game.stageIdx].hp; updateUI(); checkStageEffects(); }
     function updateMonsterHPUI() { document.getElementById("monster-hp-fill").style.width = Math.max(0, (game.monsterHp / STAGES[game.stageIdx].hp) * 100) + "%"; }
     function formatNumber(num) { if (num >= 1000000) return (num / 1000000).toFixed(1) + "M"; if (num >= 10000) return (num / 1000).toFixed(1) + "K"; return num.toLocaleString(); }
 
@@ -824,15 +841,15 @@
     function submitAdminPw() {
         if (document.getElementById("admin-pw-input").value === "0000") {
             const weapons = getActiveWeapons();
-            game.meso = 999999999; game.atkLvl = 999; game.spdLvl = 10; game.critLvl = 25; game.petLvl = 50; game.wingLvl = 100; game.weaponTier = weapons.length - 1; game.level = 100;
-            restartAutoAttack(); startPetAttackLoop(); updateUI(); saveGame(false); closeAdminModal(); alert("🔓 [관리자 승인 성공]\n\n- 최종 장비 10단계 개방!\n- 모든 스탯 & 날개 레벨 MAX(100) 설정 완료!\n- 999,999,999 Gold 지급!");
+            game.meso = 999999999; game.atkLvl = 999; game.spdLvl = 10; game.critLvl = 25; game.petLvl = 50; game.wingLvl = 100; game.weaponTier = weapons.length - 1; game.level = 100; game.stageIdx = 49;
+            restartAutoAttack(); startPetAttackLoop(); updateUI(); checkStageEffects(); saveGame(false); closeAdminModal(); alert("🔓 [관리자 승인 성공]\n\n- 최종 보스(50 Stage) 개방!\n- 모든 스탯 & 날개 레벨 MAX(100) 설정 완료!\n- 999,999,999 Gold 지급!");
         } else alert("❌ 비밀번호가 올바르지 않습니다. (기본: 0000)");
     }
 
     function openResetModal() { document.getElementById("reset-modal").style.display = "flex"; }
     function closeResetModal() { document.getElementById("reset-modal").style.display = "none"; }
-    function confirmReset() { localStorage.removeItem("maple_idle_web_v28"); localStorage.removeItem("maple_idle_web_v27"); closeResetModal(); location.reload(); }
-    function saveGame(alertUser = false) { if (!game.charType) return; localStorage.setItem("maple_idle_web_v28", JSON.stringify(game)); if (alertUser) alert("게임 데이터가 저장되었습니다!"); }
+    function confirmReset() { localStorage.removeItem("maple_idle_web_v29"); localStorage.removeItem("maple_idle_web_v28"); closeResetModal(); location.reload(); }
+    function saveGame(alertUser = false) { if (!game.charType) return; localStorage.setItem("maple_idle_web_v29", JSON.stringify(game)); if (alertUser) alert("게임 데이터가 저장되었습니다!"); }
     setInterval(() => saveGame(false), 10000); window.onload = init;
 </script>
 </body>
