@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>메이플 키우기 - 50 Stages & Boss Raid</title>
+    <title>메이플 키우기 - Boss Raid & 50 Stages</title>
     <style>
         :root {
             --panel-bg: #181824;
@@ -88,6 +88,7 @@
         @keyframes spriteIdleLarge { 0% { background-position: 0px 0px; } 50% { background-position: -140px 0px; } 100% { background-position: 0px 0px; } }
         .character.attacking { transform: translateX(-50%) scale(1.05); }
 
+        /* 무기 렌더링 영역 */
         .character-weapon {
             position: absolute; left: 75px; top: 60px; width: 50px; height: 50px;
             background-size: contain; background-repeat: no-repeat; transition: transform 0.15s ease;
@@ -95,6 +96,7 @@
         }
         .character.attacking .character-weapon { transform: rotate(50deg) scale(1.4) translateX(15px) translateY(-5px); }
 
+        /* 에너지 볼트 이펙트 */
         .energy-bolt {
             position: absolute; width: 80px; height: 30px; z-index: 35; pointer-events: none;
             transform: translate(-50%, -50%) rotate(var(--angle, 0deg));
@@ -137,15 +139,8 @@
         .damage-text { position: absolute; font-size: 26px; font-weight: 900; color: #f1c40f; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 10px rgba(241,196,15,0.6); pointer-events: none; animation: floatDamage 0.65s cubic-bezier(0.1,0.9,0.2,1) forwards; z-index: 20; transform: translate(-50%, 0); }
         .damage-text.crit { color: #ff3838; font-size: 32px; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 0 0 15px rgba(255,56,56,0.8); }
         .damage-text.pet-dmg { color: #00d2d3; font-size: 28px; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 0 0 15px rgba(0,210,211,0.8); }
-        
-        /* 캐릭터 피격 데미지 이펙트 */
         .damage-text.char-dmg { color: #ff4757; font-size: 24px; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 0 0 15px rgba(255,71,87,0.8); }
-
-        @keyframes floatDamage {
-            0% { opacity: 1; transform: translate(-50%, 0) scale(0.8); }
-            50% { opacity: 1; transform: translate(-50%, -35px) scale(1.25); }
-            100% { opacity: 0; transform: translate(-50%, -60px) scale(1); }
-        }
+        @keyframes floatDamage { 0% { opacity: 1; transform: translate(-50%, 0) scale(0.8); } 50% { opacity: 1; transform: translate(-50%, -35px) scale(1.25); } 100% { opacity: 0; transform: translate(-50%, -60px) scale(1); } }
 
         #bottom-panel { height: 46%; background-color: var(--panel-bg); display: flex; flex-direction: column; border-top: 2px solid rgba(255,255,255,0.08); box-shadow: 0 -10px 30px rgba(0,0,0,0.5); }
         .nav-tabs { display: flex; background: #12121a; border-bottom: 1px solid rgba(255,255,255,0.06); }
@@ -168,6 +163,7 @@
         .btn-danger { background: linear-gradient(135deg, #ff4757, #c0392b); box-shadow: 0 4px 12px rgba(231,76,60,0.4); }
         .tap-hint { position: absolute; bottom: 32px; font-size: 11px; color: rgba(255,255,255,0.9); background: rgba(15,15,25,0.7); backdrop-filter: blur(4px); padding: 4px 12px; border-radius: 12px; z-index: 10; pointer-events: none; border: 1px solid rgba(255,255,255,0.1); }
 
+        /* 모달 디자인 */
         .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 11, 16, 0.85); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(8px); }
         .modal-card { background: #232336; border: 2px solid rgba(155,89,182,0.6); border-radius: 16px; padding: 24px; width: 88%; max-width: 340px; text-align: center; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8); }
         .modal-card h3 { color: #f1c40f; margin-bottom: 10px; font-size: 20px; font-weight: 800; }
@@ -577,6 +573,17 @@
         balrog: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="64" viewBox="0 0 128 64" shape-rendering="geometricPrecision"><polygon points="12,16 4,4 20,12" fill="%23e74c3c"/><polygon points="52,16 60,4 44,12" fill="%23e74c3c"/><polygon points="4,24 0,36 16,28" fill="%2334495e"/><polygon points="60,24 64,36 48,28" fill="%2334495e"/><rect x="14" y="14" width="36" height="42" fill="%232c3e50"/><rect x="20" y="22" width="6" height="6" fill="%23e74c3c"/><rect x="38" y="22" width="6" height="6" fill="%23e74c3c"/><rect x="24" y="36" width="16" height="4" fill="%23c0392b"/><polygon points="76,18 68,6 84,14" fill="%23e74c3c"/><polygon points="116,18 124,6 108,14" fill="%23e74c3c"/><polygon points="68,26 64,38 80,30" fill="%2334495e"/><polygon points="124,26 128,38 112,30" fill="%2334495e"/><rect x="78" y="16" width="36" height="40" fill="%232c3e50"/><rect x="84" y="24" width="6" height="6" fill="%23e74c3c"/><rect x="102" y="24" width="6" height="6" fill="%23e74c3c"/><rect x="88" y="38" width="16" height="4" fill="%23c0392b"/></svg>`
     };
 
+    const STAGE_BACKGROUNDS = [
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%235ac8fa"/><stop offset="100%" stop-color="%23d0f0fd"/></linearGradient></defs><rect width="480" height="220" fill="url(%23sky1)"/><path d="M40 40 Q55 20 75 25 Q90 10 115 20 Q130 25 125 40 Z" fill="%23ffffff" opacity="0.85"/><path d="M-20 180 Q100 110 220 160 T460 140 L500 220 L-20 220 Z" fill="%2381c784"/><path d="M80 180 Q220 120 360 170 T500 150 L500 220 L80 220 Z" fill="%234caf50"/></svg>`,
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%232c1654"/><stop offset="50%" stop-color="%23f368e0"/><stop offset="100%" stop-color="%23ff9f43"/></linearGradient></defs><rect width="480" height="220" fill="url(%23sky2)"/><path d="M50 120 Q50 60 90 60 Q130 60 130 120 Z" fill="%23ee5253"/><rect x="82" y="115" width="16" height="50" fill="%23ffdd59"/><path d="M-10 170 Q140 120 280 160 T500 140 L500 220 L-10 220 Z" fill="%235758bb" opacity="0.7"/></svg>`,
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="sky3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%2305131d"/><stop offset="100%" stop-color="%230d3b46"/></linearGradient></defs><rect width="480" height="220" fill="url(%23sky3)"/><rect x="30" y="20" width="35" height="180" fill="%231b2a32"/><circle cx="150" cy="80" r="3" fill="%2354a0ff" opacity="0.8"/><path d="M-10 175 Q150 140 300 170 T500 160 L500 220 L-10 220 Z" fill="%230c4236"/></svg>`,
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="skySnow" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%2382ccdd"/><stop offset="100%" stop-color="%23f8a5c2"/></linearGradient></defs><rect width="480" height="220" fill="url(%23skySnow)"/><polygon points="0,220 80,110 180,220" fill="%23ffffff" opacity="0.9"/><path d="M-10 180 Q120 140 250 175 T500 160 L500 220 L-10 220 Z" fill="%23f1f2f6"/></svg>`,
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="skyOcean" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%2300d2d3"/><stop offset="100%" stop-color="%2301a3a4"/></linearGradient></defs><rect width="480" height="220" fill="url(%23skyOcean)"/><circle cx="120" cy="150" r="8" fill="%23ffffff" opacity="0.3"/><path d="M-10 180 Q150 150 290 180 T500 165 L500 220 L-10 220 Z" fill="%232e86de"/></svg>`,
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="skyDesert" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%23f6b93b"/><stop offset="100%" stop-color="%23eccc68"/></linearGradient></defs><rect width="480" height="220" fill="url(%23skyDesert)"/><circle cx="400" cy="50" r="25" fill="%23f1c40f" opacity="0.85"/><path d="M-10 160 Q120 120 260 160 T500 150 L500 220 L-10 220 Z" fill="%23f0932b"/></svg>`,
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="skyTower" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%23130f40"/><stop offset="100%" stop-color="%2330336b"/></linearGradient></defs><rect width="480" height="220" fill="url(%23skyTower)"/><circle cx="80" cy="50" r="22" fill="%23f5cd79" opacity="0.9"/><path d="M-10 185 Q150 160 300 185 T500 175 L500 220 L-10 220 Z" fill="%232f3542"/></svg>`,
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="sky4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%23120606"/><stop offset="100%" stop-color="%233a0d0d"/></linearGradient><linearGradient id="magma" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="%23ff3838"/><stop offset="100%" stop-color="%23ff9f1a"/></linearGradient></defs><rect width="480" height="220" fill="url(%23sky4)"/><path d="M20 180 Q80 170 140 185 T300 175 T460 190" stroke="url(%23magma)" stroke-width="4" fill="none"/></svg>`
+    ];
+
     const STAGES = [];
     const STAGE_NAMES = ["푸른 언덕 초원", "노을빛 버섯 숲", "신비로운 이끼 숲", "설원의 얼음 골짜기", "심해의 아쿠아로드", "황금빛 오아시스 사막", "유령의 밤 시계탑", "저주받은 화산 지대"];
     const MONSTER_NAMES = ["슬라임", "주황버섯", "스텀프", "눈사람", "심해 해파리", "사막 전갈", "유령 꼬마", "화염 마귀"];
@@ -603,11 +610,17 @@
     let bossAttackTimer = null;
 
     function init() {
-        const saved = localStorage.getItem("maple_idle_web_v29");
+        const saved = localStorage.getItem("maple_idle_web_v30");
         if (saved) { try { game = JSON.parse(saved); } catch(e){} }
+        
+        if (game.stageIdx >= STAGES.length) game.stageIdx = 0;
         game.monsterHp = STAGES[game.stageIdx].hp;
         if (game.wingLvl === undefined) game.wingLvl = 0;
-        if (!game.charType) { document.getElementById("char-select-modal").style.display = "flex"; return; }
+        
+        if (!game.charType) { 
+            document.getElementById("char-select-modal").style.display = "flex"; 
+            return; 
+        }
         startGameplay();
     }
 
@@ -640,10 +653,21 @@
                     showPlayerDamage(1);
                     const char = document.getElementById("character");
                     char.style.filter = "brightness(0.5) sepia(1) hue-rotate(-50deg) saturate(5) drop-shadow(0 8px 12px rgba(0,0,0,0.5))";
-                    setTimeout(() => { char.style.filter = ""; }, 150);
+                    setTimeout(() => { char.style.filter = "drop-shadow(0 8px 12px rgba(0,0,0,0.5))"; }, 150);
                 }
             }, 400);
         }
+    }
+
+    function showPlayerDamage(dmg) {
+        const bf = document.getElementById("battlefield"); 
+        const el = document.createElement("div");
+        el.className = "damage-text char-dmg"; el.innerText = `-${dmg}🪙`;
+        const charRect = document.getElementById("character").getBoundingClientRect(); 
+        const bfRect = bf.getBoundingClientRect();
+        el.style.left = ((charRect.left - bfRect.left) + charRect.width/2 + Math.random() * 20 - 10) + "px"; 
+        el.style.top = ((charRect.top - bfRect.top) - 10) + "px";
+        bf.appendChild(el); setTimeout(() => el.remove(), 500);
     }
 
     function getActiveWeapons() { return game.charType === "mage" ? WEAPONS_MAGE : WEAPONS_KNIGHT; }
@@ -730,13 +754,18 @@
     }
 
     function startPetAttackLoop() { if (petAttackTimer) clearInterval(petAttackTimer); if (isAutoHunt) petAttackTimer = setInterval(() => triggerPetAttack(), 5000); }
+    
     function processOfflineProgress(ms) {
         const secs = Math.floor(ms / 1000); const stg = STAGES[game.stageIdx];
         const tDps = ((getAtkPower() * (1 + (getCritRate() / 100))) / (getAtkInterval() / 1000)) + ((getAtkPower() * getPetRatio()) / 5);
         const kills = Math.floor((tDps * secs) / stg.hp);
         const gMeso = kills * stg.meso; const gExp = kills * stg.exp;
-        game.meso = Math.max(0, game.meso + (stg.isFinalBoss ? -secs * 2 : gMeso)); addExp(gExp); updateUI(); saveGame(false);
-        document.getElementById("offline-desc").innerHTML = `<b>[ ${secs}초 ]</b> 동안 백그라운드 사냥 진행!<br><br>⚔️ 정벌: <b>${kills.toLocaleString()}마리</b><br>🪙 메소: <b>${stg.isFinalBoss ? '-' : '+'}${Math.abs(gMeso).toLocaleString()} Gold</b><br>✨ 경험치: <b>+${gExp.toLocaleString()} EXP</b>`;
+        
+        game.meso = Math.max(0, game.meso + (stg.isFinalBoss ? -Math.floor(secs / 0.4) : gMeso)); 
+        addExp(gExp); updateUI(); saveGame(false);
+        
+        let mesoText = stg.isFinalBoss ? `-${Math.floor(secs / 0.4).toLocaleString()} Gold (보스 공격)` : `+${gMeso.toLocaleString()} Gold`;
+        document.getElementById("offline-desc").innerHTML = `<b>[ ${secs}초 ]</b> 동안 백그라운드 사냥 진행!<br><br>⚔️ 정벌: <b>${kills.toLocaleString()}마리</b><br>🪙 메소: <b>${mesoText}</b><br>✨ 경험치: <b>+${gExp.toLocaleString()} EXP</b>`;
         document.getElementById("offline-modal").style.display = "flex";
     }
 
@@ -744,22 +773,15 @@
     function manualAttack(e) { attackTarget(true); }
     function addExp(amount) { game.exp += amount; while (game.exp >= game.maxExp) { game.exp -= game.maxExp; game.level++; game.maxExp = Math.floor(game.maxExp * 1.20); playSound(880, 'triangle', 0.3); } }
     
-    function showPlayerDamage(dmg) {
-        const bf = document.getElementById("battlefield"); const el = document.createElement("div");
-        el.className = "damage-text char-dmg"; el.innerText = `-${dmg}🪙`;
-        const charRect = document.getElementById("character").getBoundingClientRect(); const bfRect = bf.getBoundingClientRect();
-        el.style.left = ((charRect.left - bfRect.left) + charRect.width/2 + Math.random() * 20 - 10) + "px"; el.style.top = ((charRect.top - bfRect.top) - 10) + "px";
-        bf.appendChild(el); setTimeout(() => el.remove(), 500);
-    }
-
     function showDamage(dmg, isCrit, isPet = false, petPrefix = "⚡ ") {
         const bf = document.getElementById("battlefield"); const el = document.createElement("div");
-        el.className = "damage-text" + (isCrit ? " crit" : "") + (isPet ? " pet-dmg" : ""); el.innerText = (isPet ? petPrefix : (isCrit ? "CRITICAL! " : "")) + "-" + dmg;
+        el.className = "damage-text" + (isCrit ? " crit" : "") + (isPet ? " pet-dmg" : "");
+        el.innerText = (isPet ? petPrefix : (isCrit ? "CRITICAL! " : "")) + "-" + dmg;
         const rect = document.getElementById("monster-sprite").getBoundingClientRect(); const bfRect = bf.getBoundingClientRect();
         el.style.left = ((rect.left - bfRect.left) + Math.random() * 20 - 10) + "px"; el.style.top = ((rect.top - bfRect.top) - 20) + "px";
         bf.appendChild(el); setTimeout(() => el.remove(), 650);
     }
-    
+
     function restartAutoAttack() { if (autoAttackTimer) clearInterval(autoAttackTimer); if (isAutoHunt) autoAttackTimer = setInterval(() => attackTarget(false), getAtkInterval()); }
 
     function upgradeStat(type, amount = 1) {
@@ -848,8 +870,8 @@
 
     function openResetModal() { document.getElementById("reset-modal").style.display = "flex"; }
     function closeResetModal() { document.getElementById("reset-modal").style.display = "none"; }
-    function confirmReset() { localStorage.removeItem("maple_idle_web_v29"); localStorage.removeItem("maple_idle_web_v28"); closeResetModal(); location.reload(); }
-    function saveGame(alertUser = false) { if (!game.charType) return; localStorage.setItem("maple_idle_web_v29", JSON.stringify(game)); if (alertUser) alert("게임 데이터가 저장되었습니다!"); }
+    function confirmReset() { localStorage.removeItem("maple_idle_web_v30"); localStorage.removeItem("maple_idle_web_v29"); closeResetModal(); location.reload(); }
+    function saveGame(alertUser = false) { if (!game.charType) return; localStorage.setItem("maple_idle_web_v30", JSON.stringify(game)); if (alertUser) alert("게임 데이터가 저장되었습니다!"); }
     setInterval(() => saveGame(false), 10000); window.onload = init;
 </script>
 </body>
