@@ -491,7 +491,7 @@
     <div id="admin-modal" class="modal-overlay">
         <div class="modal-card" onclick="event.stopPropagation()">
             <h3>🔑 마스터 인증</h3>
-            <p>보안 코드를 입력하십시오. (0000)</p>
+            <p>보안 코드를 입력하십시오. </p>
             <input type="password" id="admin-pw-input" placeholder="코드 입력" maxlength="4">
             <div class="modal-btns">
                 <button type="button" class="btn-confirm" onclick="submitAdminPw()">승인</button>
@@ -523,7 +523,7 @@
 </div>
 
 <script>
-    const SAVE_KEY = "maple_idle_web_v3d_v51"; 
+    const SAVE_KEY = "maple_idle_web_v3d_v53"; 
     let audioCtx;
 
     function playSound(freq, type, duration) {
@@ -575,7 +575,7 @@
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 6px %233498db)"><path d="M 24 2 L 30 18 L 28 30 L 20 30 L 18 18 Z" fill="%2381ecec" stroke="%230984e3" stroke-width="1.5"/><path d="M 14 26 C 14 36, 34 36, 34 26" fill="none" stroke="%2374b9ff" stroke-width="3"/><circle cx="24" cy="30" r="4" fill="%2300cec9"/><rect x="22" y="32" width="4" height="10" fill="%232c3e50"/></g></svg>`,
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 7px %2300d2d3)"><polygon points="24,2 28,12 28,28 20,28 20,12" fill="%2300d2d3" stroke="%23fff" stroke-width="1.5"/><polygon points="24,4 26,12 26,26 22,26 22,12" fill="%2348dbfb"/><polygon points="16,28 32,28 28,32 20,32" fill="%230984e3"/><rect x="22" y="32" width="4" height="10" fill="%232c3e50"/></g></svg>`,
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 8px %23ff4757)"><path d="M 24 2 L 28 10 L 26 28 L 22 28 L 20 10 Z" fill="%23c0392b" stroke="%23ff7675" stroke-width="1.5"/><polygon points="24,6 25,12 25,26 23,26 23,12" fill="%23f1c40f"/><polygon points="16,26 32,26 24,32" fill="%232d3436"/><rect x="22" y="32" width="4" height="10" fill="%23111"/></g></svg>`,
-        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 9px %2374b9ff)"><path d="M 24 2 L 30 18 L 24 30 L 18 18 Z M 24 10 L 26 18 L 24 26 L 22 18 Z" fill="%23dfe6e9" stroke="%230984e3" stroke-width="1.5" fill-rule="evenodd"/><polygon points="16,30 32,30 24,34" fill="%2374b9ff"/><rect x="22" y="34" width="4" height="10" fill="%238e5123"/></g></svg>`,
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 9px %2374b9ff)"><path d="M 24 2 L 30 18 L 24 30 L 18 18 Z M 24 10 L 26 18 L 24 24 L 22 18 Z" fill="%23dfe6e9" stroke="%230984e3" stroke-width="1.5" fill-rule="evenodd"/><polygon points="16,30 32,30 24,34" fill="%2374b9ff"/><rect x="22" y="34" width="4" height="10" fill="%238e5123"/></g></svg>`,
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 10px %23f1c40f)"><path d="M 24 2 L 30 14 L 28 28 L 20 28 L 18 14 Z M 24 8 L 26 14 L 26 24 L 22 24 L 22 14 Z" fill="%23f39c12" stroke="%23f1c40f" stroke-width="1.5" fill-rule="evenodd"/><rect x="16" y="26" width="16" height="4" fill="%23e67e22"/><circle cx="24" cy="28" r="3" fill="%233498db"/><rect x="22" y="30" width="4" height="12" fill="%232c3e50"/><circle cx="24" cy="42" r="2" fill="%23f1c40f"/></g></svg>`,
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 10px %23d35400)"><path d="M 24 2 L 30 10 L 26 16 L 30 22 L 26 28 L 22 28 L 18 22 L 22 16 L 18 10 Z" fill="%23cd6133" stroke="%23843c0c" stroke-width="1.5"/><rect x="16" y="28" width="16" height="6" fill="%23f1c40f" rx="2"/><circle cx="24" cy="31" r="3" fill="%2300d2d3"/><rect x="21" y="34" width="6" height="10" fill="%235c3a21"/></g></svg>`,
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 12px %23c0392b)"><path d="M 24 2 L 28 10 L 28 28 L 20 28 L 20 10 Z" fill="%232d3436" stroke="%23ff4757" stroke-width="1.5"/><line x1="24" y1="6" x2="24" y2="26" stroke="%23ff6b81" stroke-width="2"/><path d="M 14 26 L 34 26 L 28 32 L 20 32 Z" fill="%23111" stroke="%23ff4757" stroke-width="1"/><rect x="22" y="32" width="4" height="10" fill="%23111"/><circle cx="24" cy="30" r="2" fill="%23ff4757"/></g></svg>`,
@@ -585,7 +585,7 @@
         `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><g transform="translate(24,24) rotate(45) translate(-24,-24)" style="filter:drop-shadow(0 0 25px %23ffffff)"><path d="M 24 0 L 32 8 L 30 32 L 18 32 L 16 8 Z" fill="%23fff" stroke="%23f1c40f" stroke-width="2"/><polygon points="24,6 26,14 26,28 22,28 22,14" fill="%2374b9ff"/><polygon points="10,32 38,32 34,36 24,40 14,36" fill="%23fff" stroke="%230984e3" stroke-width="2"/><rect x="22" y="40" width="4" height="8" fill="%23000"/><circle cx="24" cy="35" r="4" fill="%23f1c40f"/></g></svg>`
     ];
 
-    // 무기 객체 안전 매핑 (WEAPON_ICONS_KNIGHT 정확 참조)
+    // 무기 객체 일괄 매핑 객체 안전 생성
     const WEAPONS_KNIGHT_OBJ = WEAPON_ICONS_KNIGHT.map((icon, i) => ({ name: `기사 대검 ${i+1}단계`, bonus: i===0? 0 : Math.floor(15 * Math.pow(1.8, i-1)), cost: i===0? 200 : Math.floor(800 * Math.pow(2.2, i-1)), icon: icon }));
     const WEAPONS_MAGE_OBJ = WEAPON_ICONS_MAGE.map((icon, i) => ({ name: `마법 지팡이 ${i+1}단계`, bonus: i===0? 0 : Math.floor(15 * Math.pow(1.8, i-1)), cost: i===0? 200 : Math.floor(800 * Math.pow(2.2, i-1)), icon: icon }));
     const WEAPONS_SWORD_OBJ = WEAPON_ICONS_SWORD.map((icon, i) => ({ name: `환영검 ${i+1}단계`, bonus: i===0? 0 : Math.floor(15 * Math.pow(1.8, i-1)), cost: i===0? 200 : Math.floor(800 * Math.pow(2.2, i-1)), icon: icon }));
@@ -690,6 +690,65 @@
         ghost: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="64" viewBox="0 0 128 64" shape-rendering="geometricPrecision"><path d="M16 16 Q32 -4 48 16 L48 50 L40 40 L32 50 L24 40 L16 50 Z" fill="%23f5f6fa" opacity="0.85"/><circle cx="26" cy="24" r="3" fill="%23e74c3c"/><circle cx="38" cy="24" r="3" fill="%23e74c3c"/><path d="M80 18 Q96 -2 112 18 L112 52 L104 42 L96 52 L88 42 L80 52 Z" fill="%23f5f6fa" opacity="0.85"/><circle cx="90" cy="26" r="3" fill="%23e74c3c"/><circle cx="102" cy="26" r="3" fill="%23e74c3c"/></svg>`,
         balrog: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="64" viewBox="0 0 128 64" shape-rendering="geometricPrecision"><defs><radialGradient id="bg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="%23e74c3c"/><stop offset="100%" stop-color="%232c3e50"/></radialGradient></defs><polygon points="12,14 2,2 20,10" fill="%23c0392b"/><polygon points="52,14 62,2 44,10" fill="%23c0392b"/><polygon points="4,24 0,38 16,28" fill="%231a252f"/><polygon points="60,24 64,38 48,28" fill="%231a252f"/><rect x="14" y="12" width="36" height="44" rx="10" fill="url(%23bg)"/><circle cx="23" cy="22" r="4" fill="%23f1c40f"/><circle cx="41" cy="22" r="4" fill="%23f1c40f"/><path d="M 24 38 Q 32 44 40 38" fill="none" stroke="%23ff9f43" stroke-width="3"/><polygon points="76,16 66,4 84,12" fill="%23c0392b"/><polygon points="116,16 126,4 108,12" fill="%23c0392b"/><polygon points="68,26 64,40 80,30" fill="%231a252f"/><polygon points="124,26 128,40 112,30" fill="%231a252f"/><rect x="78" y="14" width="36" height="42" rx="10" fill="url(%23bg)"/><circle cx="87" cy="24" r="4" fill="%23f1c40f"/><circle cx="105" cy="24" r="4" fill="%23f1c40f"/><path d="M 88 40 Q 96 46 104 40" fill="none" stroke="%23ff9f43" stroke-width="3"/></svg>`
     };
+
+    const STAGE_BACKGROUNDS = [
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%235ac8fa"/><stop offset="100%" stop-color="%23d0f0fd"/></linearGradient></defs><rect width="480" height="220" fill="url(%23sky1)"/><path d="M40 40 Q55 20 75 25 Q90 10 115 20 Q130 25 125 40 Z" fill="%23ffffff" opacity="0.85"/><path d="M-20 180 Q100 110 220 160 T460 140 L500 220 L-20 220 Z" fill="%2381c784"/><path d="M80 180 Q220 120 360 170 T500 150 L500 220 L80 220 Z" fill="%234caf50"/></svg>`,
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%232c1654"/><stop offset="50%" stop-color="%23f368e0"/><stop offset="100%" stop-color="%23ff9f43"/></linearGradient></defs><rect width="480" height="220" fill="url(%23sky2)"/><path d="M50 120 Q50 60 90 60 Q130 60 130 120 Z" fill="%23ee5253"/><rect x="82" y="115" width="16" height="50" fill="%23ffdd59"/><path d="M-10 170 Q140 120 280 160 T500 140 L500 220 L-10 220 Z" fill="%235758bb" opacity="0.7"/></svg>`,
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="sky3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%2305131d"/><stop offset="100%" stop-color="%230d3b46"/></linearGradient></defs><rect width="480" height="220" fill="url(%23sky3)"/><rect x="30" y="20" width="35" height="180" fill="%231b2a32"/><circle cx="150" cy="80" r="3" fill="%2354a0ff" opacity="0.8"/><path d="M-10 175 Q150 140 300 170 T500 160 L500 220 L-10 220 Z" fill="%230c4236"/></svg>`,
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="skySnow" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%2382ccdd"/><stop offset="100%" stop-color="%23f8a5c2"/></linearGradient></defs><rect width="480" height="220" fill="url(%23skySnow)"/><polygon points="0,220 80,110 180,220" fill="%23ffffff" opacity="0.9"/><path d="M-10 180 Q120 140 250 175 T500 160 L500 220 L-10 220 Z" fill="%23f1f2f6"/></svg>`,
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="skyOcean" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%2300d2d3"/><stop offset="100%" stop-color="%2301a3a4"/></linearGradient></defs><rect width="480" height="220" fill="url(%23skyOcean)"/><circle cx="120" cy="150" r="8" fill="%23ffffff" opacity="0.3"/><path d="M-10 180 Q150 150 290 180 T500 165 L500 220 L-10 220 Z" fill="%232e86de"/></svg>`,
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="skyDesert" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%23f6b93b"/><stop offset="100%" stop-color="%23eccc68"/></linearGradient></defs><rect width="480" height="220" fill="url(%23skyDesert)"/><circle cx="400" cy="50" r="25" fill="%23f1c40f" opacity="0.85"/><path d="M-10 160 Q120 120 260 160 T500 150 L500 220 L-10 220 Z" fill="%23f0932b"/></svg>`,
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="skyTower" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%23130f40"/><stop offset="100%" stop-color="%2330336b"/></linearGradient></defs><rect width="480" height="220" fill="url(%23skyTower)"/><circle cx="80" cy="50" r="22" fill="%23f5cd79" opacity="0.9"/><path d="M-10 185 Q150 160 300 185 T500 175 L500 220 L-10 220 Z" fill="%232f3542"/></svg>`,
+        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="480" height="220" viewBox="0 0 480 220"><defs><linearGradient id="sky4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%23120606"/><stop offset="100%" stop-color="%233a0d0d"/></linearGradient><linearGradient id="magma" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="%23ff3838"/><stop offset="100%" stop-color="%23ff9f1a"/></linearGradient></defs><rect width="480" height="220" fill="url(%23sky4)"/><path d="M20 180 Q80 170 140 185 T300 175 T460 190" stroke="url(%23magma)" stroke-width="4" fill="none"/></svg>`
+    ];
+
+    const STAGES = [];
+    const T_NAMES = ["헤네시스 초원", "노을빛 버섯 숲", "페리온 바위산", "엘나스 설원", "아쿠아로드 심해", "니할 사막", "루디브리엄 시계탑"];
+    const M_NAMES = ["슬라임", "버섯", "스텀프", "예티", "해파리", "전갈", "레이스"];
+    const M_KEYS = ['slime', 'mushroom', 'stump', 'snowman', 'jellyfish', 'scorpion', 'ghost'];
+    const PREFIXES = ["초보", "수습", "숙련된", "난폭한", "강력한", "정예", "수문장"];
+    const HUES = [0, 45, 90, 150, 210, 270, 320];
+    const SCALES = [0.85, 0.95, 1.05, 1.15, 1.3, 1.45, 1.65];
+
+    for(let i=0; i<49; i++) {
+        let themeIdx = Math.floor(i / 7) % 7; 
+        let variantIdx = i % 7;
+        STAGES.push({
+            name: `STAGE ${i+1} : ${T_NAMES[themeIdx]} ${variantIdx+1}구역`,
+            monster: `${PREFIXES[variantIdx]} ${M_NAMES[themeIdx]} (Lv.${i+1})`,
+            hp: Math.floor(30 * Math.pow(1.35, i)),
+            exp: Math.floor(20 * Math.pow(1.32, i)),
+            meso: Math.floor(10 * Math.pow(1.25, i)),
+            bg: STAGE_BACKGROUNDS[themeIdx],
+            groundColor: ["#2ecc71", "#8d6e63", "#1b4332", "#dff9fb", "#1e3799", "#f6b93b", "#2c2c54"][themeIdx],
+            groundBorder: ["#27ae60", "#4e342e", "#081c15", "#c7ecee", "#0c2461", "#e67e22", "#130f40"][themeIdx],
+            sprite: MONSTER_SPRITES[M_KEYS[themeIdx]],
+            filter: `hue-rotate(${HUES[variantIdx]}deg) brightness(${variantIdx===6? 0.7 : 1.1}) drop-shadow(0 8px 12px rgba(0,0,0,0.6))`,
+            scale: SCALES[variantIdx],
+            isFinalBoss: false
+        });
+    }
+    
+    STAGES.push({
+        name: `STAGE 50 : 🌋 저주받은 화산지대 (최종 보스)`,
+        monster: "진·발록 (Lv.MAX)",
+        hp: Math.floor(30 * Math.pow(1.35, 49)) * 2,
+        exp: Math.floor(20 * Math.pow(1.32, 49)) * 5,
+        meso: Math.floor(10 * Math.pow(1.25, 49)) * 5,
+        bg: STAGE_BACKGROUNDS[7],
+        groundColor: "#111111", groundBorder: "#ff0000",
+        sprite: MONSTER_SPRITES.balrog,
+        filter: "hue-rotate(0deg) drop-shadow(0 0 20px rgba(231,76,60,0.9))", scale: 2.3,
+        isFinalBoss: true
+    });
+
+    let game = {
+        charType: null, level: 1, exp: 0, maxExp: 50, meso: 0,
+        atkLvl: 1, spdLvl: 1, critLvl: 1, wingLvl: 0, weaponTier: 0, petIdx: 0, petLvl: 1, stageIdx: 0, monsterHp: 30
+    };
+
+    let isAutoHunt = true; let autoAttackTimer = null; let petAttackTimer = null; let lastActiveTime = Date.now();
+    let bossAttackTimer = null;
 
     function init() {
         let saved = localStorage.getItem(SAVE_KEY);
@@ -1008,9 +1067,9 @@
     function submitAdminPw() {
         if (document.getElementById("admin-pw-input").value === "0000") {
             const weapons = getActiveWeapons();
-            game.meso = 999999999; game.atkLvl = 999; game.spdLvl = 10; game.critLvl = 25; game.petLvl = 50; game.wingLvl = 100; game.weaponTier = weapons.length - 1; game.level = 100; game.stageIdx = 49;
+            game.meso = 999999999; game.atkLvl = 9999; game.spdLvl = 10; game.critLvl = 25; game.petLvl = 999; game.wingLvl = 100; game.weaponTier = weapons.length - 1; game.level = 100; game.stageIdx = 49;
             restartAutoAttack(); startPetAttackLoop(); updateUI(); checkStageEffects(); saveGame(false); closeAdminModal(); alert("🔓 [관리자 승인 성공]\n\n- 최종 보스(50 Stage) 개방!\n- 모든 스탯 & 장식 레벨 MAX(100) 설정 완료!\n- 999,999,999 Gold 지급!");
-        } else alert("❌ 코드가 올바르지 않습니다. (기본: 0000)");
+        } else alert("❌ 코드가 올바르지 않습니다.");
     }
 
     function openResetModal() { document.getElementById("reset-modal").style.display = "flex"; }
