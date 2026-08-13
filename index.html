@@ -216,6 +216,13 @@
     .btn-skill-s2_2 { bottom: 65px; right: 65px; background: linear-gradient(135deg, #fb8c00, #f57c00); }
     .btn-skill-s2_3 { bottom: 10px; right: 78px; background: linear-gradient(135deg, #8e24aa, #7b1fa2); }
 
+    .skill-btn-name { display:inline-block; white-space:nowrap; font-size:8px; font-weight:700; text-shadow:0 1px 2px rgba(0,0,0,.8); }
+    .skill-cd { display:none; position:absolute; inset:0; align-items:center; justify-content:center; border-radius:50%; background:rgba(0,0,0,.62); color:#fff; font-size:12px; font-weight:800; z-index:2; }
+    .skill-cd.active { display:flex; }
+    .skill-cooldown-check { margin:6px 0 10px; width:100%; padding:7px 10px; border:1px solid #555; border-radius:6px; background:#242424; color:#ddd; font-size:12px; cursor:pointer; }
+    .skill-cooldown-panel { margin:0 0 10px; padding:8px 10px; border-radius:6px; background:#181818; border:1px solid #333; font-size:12px; line-height:1.7; display:none; }
+    .skill-cooldown-panel.show { display:block; }
+
     #nametag-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 25; }
     .goonzu-nametag { position: absolute; transform: translate(-50%, -100%); text-align: center; font-size: 11px; }
     .tag-title { color: #8e24aa; font-weight: bold; font-size: 10px; }
@@ -645,9 +652,9 @@
       <div class="action-btn btn-target" id="btn-target" onclick="targetNearestMonster()">🎯</div>
       <div class="action-btn btn-attack" id="btn-attack" onclick="triggerAttackBtn()">⚔️</div>
 
-      <div class="action-btn btn-skill-slot btn-skill-s2_1" id="btn-skill-s2_1" onclick="useActiveSkill('s2_1')">⚡<br>단일</div>
-      <div class="action-btn btn-skill-slot btn-skill-s2_2" id="btn-skill-s2_2" onclick="useActiveSkill('s2_2')">🌀<br>범위1</div>
-      <div class="action-btn btn-skill-slot btn-skill-s2_3" id="btn-skill-s2_3" onclick="useActiveSkill('s2_3')">💥<br>범위2</div>
+      <div class="action-btn btn-skill-slot btn-skill-s2_1" id="btn-skill-s2_1" onclick="useActiveSkill('s2_1')">⚡<br><span class="skill-btn-name">뇌전참</span><span class="skill-cd"></span></div>
+      <div class="action-btn btn-skill-slot btn-skill-s2_2" id="btn-skill-s2_2" onclick="useActiveSkill('s2_2')">🌀<br><span class="skill-btn-name">회풍참</span><span class="skill-cd"></span></div>
+      <div class="action-btn btn-skill-slot btn-skill-s2_3" id="btn-skill-s2_3" onclick="useActiveSkill('s2_3')">💥<br><span class="skill-btn-name">천검난무</span><span class="skill-cd"></span></div>
     </div>
   </div>
 
@@ -3991,13 +3998,30 @@
       `;
       container.appendChild(firstSkillCard);
 
+      const cooldownCheckBtn = document.createElement('button');
+      cooldownCheckBtn.className = 'skill-cooldown-check';
+      cooldownCheckBtn.type = 'button';
+      cooldownCheckBtn.innerText = '⏱ 스킬 쿨타임 확인';
+      cooldownCheckBtn.onclick = toggleSkillCooldownPanel;
+      container.appendChild(cooldownCheckBtn);
+
+      const cooldownPanel = document.createElement('div');
+      cooldownPanel.id = 'skill-cooldown-panel';
+      cooldownPanel.className = 'skill-cooldown-panel';
+      container.appendChild(cooldownPanel);
+
       const j2Title = document.createElement('div'); j2Title.className = 'skill-section-title'; j2Title.innerText = '🔥 2차 전직 전용 스킬 (단일 1개 / 범위 2개)';
       container.appendChild(j2Title);
 
-      const j2Skills = [
-        { id: 's2_1', name: '오의: 뇌전참 (단일)', desc: '단일 대상에게 3.0배의 뇌전 데미지를 입힙니다. (MP 15)', price: 10000, reqTier: 3, maxLv: 1 },
-        { id: 's2_2', name: '회풍참 (범위 1)', desc: '주변 6m 이내의 모든 적에게 범위 데미지. (MP 15)', price: 15000, reqTier: 3, maxLv: 5 },
-        { id: 's2_3', name: '폭열천상 (범위 2)', desc: '넓은 지역에 화염 폭발 범위 데미지를 가합니다. (MP 15)', price: 20000, reqTier: 3, maxLv: 5 }
+      const isDaedosa = ['주술사', '대도사'].includes(playerState.job);
+      const j2Skills = isDaedosa ? [
+        { id: 's2_1', name: '멸천화 (단일)', desc: '단일 대상에게 450~500% 화염 마법 데미지. 사거리 8m / MP 50 / 재사용 5초', price: 10000, reqTier: 3, maxLv: 1 },
+        { id: 's2_2', name: '화염폭우 (범위 1)', desc: '지정 위치 8m 원형 범위에 화염 운석 공격. MP 40 / 재사용 5초', price: 15000, reqTier: 3, maxLv: 5 },
+        { id: 's2_3', name: '천지개벽 (범위 2)', desc: '12m 대형 원형 범위에 강력한 광역 폭발. MP 70 / 재사용 10초', price: 20000, reqTier: 3, maxLv: 5 }
+      ] : [
+        { id: 's2_1', name: '오의: 뇌전참 (단일)', desc: '단일 대상에게 350~400% 뇌전 검격. 사거리 3m / MP 30 / 재사용 3초', price: 10000, reqTier: 3, maxLv: 1 },
+        { id: 's2_2', name: '회풍참 (범위 1)', desc: '주변 6m 이내 모든 적에게 180~220% 회전 검기. MP 25 / 재사용 4초', price: 15000, reqTier: 3, maxLv: 5 },
+        { id: 's2_3', name: '천검난무 (범위 2)', desc: '전방 8m 부채꼴에 250~300% 다중 검기. MP 40 / 재사용 7초', price: 20000, reqTier: 3, maxLv: 5 }
       ];
 
       j2Skills.forEach(sk => {
@@ -4130,18 +4154,95 @@
       return true;
     }
 
+    const SECOND_JOB_SKILL_CONFIG = {
+      fighter: {
+        s2_1: { name: '오의: 뇌전참', icon: '⚡', cooldownMs: 3000, mp: 30 },
+        s2_2: { name: '회풍참', icon: '🌀', cooldownMs: 4000, mp: 25 },
+        s2_3: { name: '천검난무', icon: '⚔️', cooldownMs: 7000, mp: 40 }
+      },
+      shaman: {
+        s2_1: { name: '멸천화', icon: '🔥', cooldownMs: 5000, mp: 50 },
+        s2_2: { name: '화염폭우', icon: '☄️', cooldownMs: 5000, mp: 40 },
+        s2_3: { name: '천지개벽', icon: '✨', cooldownMs: 10000, mp: 70 }
+      }
+    };
+
+    function getSecondJobSkillConfig(skillId) {
+      const group = ['주술사', '대도사'].includes(playerState.job) ? 'shaman' : 'fighter';
+      return SECOND_JOB_SKILL_CONFIG[group]?.[skillId] || null;
+    }
+
+    function refreshSecondSkillButtons() {
+      const ids = ['s2_1', 's2_2', 's2_3'];
+      ids.forEach(id => {
+        const btn = document.getElementById(`btn-skill-${id}`);
+        const cfg = getSecondJobSkillConfig(id);
+        if (!btn || !cfg) return;
+        const nameEl = btn.querySelector('.skill-btn-name');
+        if (nameEl) nameEl.textContent = cfg.name;
+        const cdEl = btn.querySelector('.skill-cd');
+        if (cdEl) cdEl.textContent = '';
+        btn.title = `${cfg.name} · MP ${cfg.mp} · 재사용 ${cfg.cooldownMs / 1000}초`;
+      });
+    }
+
+    function toggleSkillCooldownPanel() {
+      const panel = document.getElementById('skill-cooldown-panel');
+      if (!panel) return;
+      panel.classList.toggle('show');
+      if (panel.classList.contains('show')) updateSkillCooldownPanel();
+    }
+
+    function updateSkillCooldownPanel() {
+      const panel = document.getElementById('skill-cooldown-panel');
+      if (!panel) return;
+      const ids = ['s2_1', 's2_2', 's2_3'];
+      panel.innerHTML = ids.map(id => {
+        const cfg = getSecondJobSkillConfig(id);
+        const last = Number(playerState.skillCooldowns?.[id] || 0);
+        const remain = Math.max(0, cfg.cooldownMs - (Date.now() - last));
+        const status = remain > 0 ? `${(remain / 1000).toFixed(1)}초 남음` : '사용 가능';
+        return `<div><b>${cfg.icon} ${cfg.name}</b> — ${status} · 쿨타임 ${cfg.cooldownMs / 1000}초 · MP ${cfg.mp}</div>`;
+      }).join('');
+    }
+
+    function updateSkillCooldownOverlays() {
+      ['s2_1', 's2_2', 's2_3'].forEach(id => {
+        const cfg = getSecondJobSkillConfig(id);
+        const btn = document.getElementById(`btn-skill-${id}`);
+        if (!cfg || !btn) return;
+        const cdEl = btn.querySelector('.skill-cd');
+        if (!cdEl) return;
+        const last = Number(playerState.skillCooldowns?.[id] || 0);
+        const remain = Math.max(0, cfg.cooldownMs - (Date.now() - last));
+        if (remain > 0) {
+          cdEl.textContent = `${(remain / 1000).toFixed(1)}`;
+          cdEl.classList.add('active');
+          btn.style.pointerEvents = 'none';
+        } else {
+          cdEl.textContent = '';
+          cdEl.classList.remove('active');
+          btn.style.pointerEvents = '';
+        }
+      });
+      const panel = document.getElementById('skill-cooldown-panel');
+      if (panel?.classList.contains('show')) updateSkillCooldownPanel();
+    }
+
     function useActiveSkill(skillId) {
       const now = Date.now();
-      if (playerState.skillCooldowns[skillId] && now - playerState.skillCooldowns[skillId] < 3000) {
-        return;
-      }
+      const cfg = getSecondJobSkillConfig(skillId);
+      if (!cfg) return;
+
+      const lastUse = Number(playerState.skillCooldowns?.[skillId] || 0);
+      if (lastUse && now - lastUse < cfg.cooldownMs) return;
 
       if (!playerState.skillsLearned.includes(skillId)) {
         alert("스킬 수련원에서 먼저 스킬을 배워야 합니다!");
         return;
       }
 
-      if (!consumeSkillMp(15)) return;
+      if (!consumeSkillMp(cfg.mp)) return;
 
       playerState.skillCooldowns[skillId] = now;
 
@@ -5488,6 +5589,7 @@
     }
 
     function updateUI() {
+      refreshSecondSkillButtons();
       document.getElementById('player-name').innerText = playerState.name;
       document.getElementById('player-lv').innerText = playerState.level >= playerState.maxLevel ? `Lv.${playerState.maxLevel} (MAX)` : `Lv.${playerState.level}`;
       document.getElementById('player-job').innerText = playerState.job;
@@ -6089,5 +6191,9 @@
     updateUI();
     onWindowResize();
     animate();
-  </script>
+  
+    setInterval(() => {
+      updateSkillCooldownOverlays();
+    }, 100);
+</script>
 </body>
