@@ -330,17 +330,9 @@
     .stage-card.hadum-locked { background: #eeeeee; border-color: #bdbdbd; cursor: not-allowed; opacity: 0.75; }
     .stage-divider { font-size: 11px; font-weight: bold; color: #b71c1c; text-align: center; margin: 10px 0 4px; letter-spacing: 1px; }
     .btn-exp-dungeon { background: linear-gradient(135deg, #7e57c2, #512da8); border-color: #4527a0; color: #fff; font-weight: bold; }
-    .exp-dungeon-hud { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 120; display:none; align-items:center; justify-content:center; gap:5px; min-width:0; width:max-content; max-width:88vw; padding:4px 6px 4px 8px; border-radius:8px; background:rgba(28,20,48,.92); color:#fff; border:1px solid #9575cd; text-align:center; font-weight:800; font-size:9px; line-height:1.1; box-shadow:0 2px 8px rgba(0,0,0,.28); white-space:nowrap; pointer-events:auto; }
-    .exp-dungeon-exit-btn { border:1px solid #ef9a9a; background:#ffebee; color:#c62828; border-radius:6px; padding:2px 6px; font-size:8px; font-weight:900; line-height:1.1; cursor:pointer; }
-    .exp-dungeon-exit-btn:active { transform:scale(.96); }
-    .exp-dungeon-hud .timer { color:#ffd54f; font-size:12px; margin-left:4px; }
-    .exp-dungeon-hud .count { color:#ce93d8; font-size:8px; margin-left:4px; }
-    @media (max-width: 600px) {
-      .exp-dungeon-hud { top: 7px; padding:3px 5px 3px 7px; border-radius:7px; font-size:8px; gap:4px; }
-      .exp-dungeon-hud .timer { font-size:11px; margin-left:3px; }
-      .exp-dungeon-hud .count { font-size:7px; margin-left:2px; }
-      .exp-dungeon-exit-btn { padding:2px 5px; font-size:7px; border-radius:5px; }
-    }
+    .exp-dungeon-hud { position: fixed; top: 76px; left: 50%; transform: translateX(-50%); z-index: 50; display:none; min-width:210px; padding:7px 12px; border-radius:12px; background:rgba(28,20,48,.92); color:#fff; border:2px solid #9575cd; text-align:center; font-weight:800; box-shadow:0 3px 12px rgba(0,0,0,.35); }
+    .exp-dungeon-hud .timer { color:#ffd54f; font-size:16px; margin-left:8px; }
+    .exp-dungeon-hud .count { color:#ce93d8; font-size:11px; margin-left:8px; }
     .exp-dungeon-info { margin:0 0 10px; padding:9px; border-radius:10px; background:#f3e5f5; border:1px solid #ce93d8; color:#4a148c; font-size:11px; line-height:1.55; }
     .exp-dungeon-locked { opacity:.55; cursor:not-allowed; }
 
@@ -916,7 +908,7 @@
   <div id="nametag-layer"></div>
 
   <div id="ui-layer">
-    <div id="exp-dungeon-hud" class="exp-dungeon-hud">📕 경험의 서고 <span class="timer" id="exp-dungeon-timer">03:00</span><span class="count" id="exp-dungeon-kills">0마리</span><button id="exp-dungeon-exit-btn" class="exp-dungeon-exit-btn" onclick="manualExitExperienceDungeon()">나가기</button></div>
+    <div id="exp-dungeon-hud" class="exp-dungeon-hud">📕 경험의 서고 <span class="timer" id="exp-dungeon-timer">03:00</span><span class="count" id="exp-dungeon-kills">0마리</span></div>
     <div style="display: flex; justify-content: space-between; width: 100%;">
       <div class="status-panel interactive">
         <div class="character-info">
@@ -1054,6 +1046,20 @@
     <div class="stage-cards" id="exp-dungeon-cards"></div>
     <div style="text-align:center; margin-top:10px;">
       <button class="btn-small" onclick="closeExpDungeonModal()">창 닫기</button>
+    </div>
+  </div>
+
+  <!-- Experience Dungeon Death Modal: 저레벨로 경험의 서고에서 몬스터에게 반복해서 죽을 때
+       매번 alert()가 뜨면서 자동사냥이 계속 죽음을 유발해 alert가 쌓여 화면이 막히는 문제를 막기 위한 전용 팝업.
+       alert 대신 이 모달을 띄우고, 떠 있는 동안은 자동사냥/전투를 일시정지시킨다. -->
+  <div class="modal interactive" id="exp-dungeon-death-modal" style="max-width:340px; text-align:center;">
+    <div class="modal-title">💀 쓰러졌습니다</div>
+    <div style="font-size:13px; line-height:1.6; margin-bottom:14px;" id="exp-dungeon-death-msg">
+      경험의 서고에서 몬스터의 공격에 쓰러졌습니다.<br>계속 진행하시겠습니까?
+    </div>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <button class="btn-small" style="background:#e8f5e9; border-color:#81c784; color:#2e7d32; padding:10px;" onclick="continueExperienceDungeonAfterDeath()">▶️ 계속 진행하기</button>
+      <button class="btn-small" style="background:#ffebee; border-color:#e57373; color:#c62828; padding:10px;" onclick="exitExperienceDungeonAfterDeath()">🚪 일반 필드로 나가기</button>
     </div>
   </div>
 
@@ -1230,8 +1236,12 @@
     let experienceDungeonKills = 0;
     let experienceDungeonReturnStage = 1;
     let experienceDungeonReturnHadum = false;
-    // 입장 시 실제로 소모한 자원을 기록해 수동 나가기 시 원상복구한다.
-    let experienceDungeonEntryMode = null; // 'free' | 'ticket'
+    // 입장 시 어떤 방식으로 횟수를 소모했는지 기억해둔다.
+    // 사망 후 "일반 필드로 나가기"를 선택하면, 이 정보를 이용해 소모했던 횟수를 정확히 복구한다.
+    let experienceDungeonEntryUsedFreeCount = false;
+    let experienceDungeonEntryUsedTicket = false;
+    let experienceDungeonDeathModalOpen = false;
+    let experienceDungeonDeathPrevAutoHunt = true;
     const EXPERIENCE_DUNGEON_DAILY_LIMIT = 3;
     const EXPERIENCE_DUNGEON_DURATION = 180000;
     const EXPERIENCE_DUNGEON_STATS = {
@@ -1405,8 +1415,18 @@
     function processPowerSaveGameTick() {
       if (!isPowerSaveMode) return;
       const now = Date.now();
-      const delta = powerSaveLastTick > 0 ? Math.min(0.5, Math.max(0.05, (now - powerSaveLastTick) / 1000)) : 0.25;
+      const rawElapsedSec = powerSaveLastTick > 0 ? (now - powerSaveLastTick) / 1000 : 0.25;
+      const delta = powerSaveLastTick > 0 ? Math.min(0.5, Math.max(0.05, rawElapsedSec)) : 0.25;
       powerSaveLastTick = now;
+
+      // 절전 모드 중 브라우저가 탭/화면을 스로틀링하면 이 인터벌이 몇 초~몇 분 단위로 건너뛰어 실행될 수 있다.
+      // delta는 한 틱당 최대 0.5초로 클램프되어 있어 실제 경과시간을 그대로 반영하지 못하므로,
+      // 그 사이 몬스터의 roamTimer가 갱신되지 않아 우연히 바깥쪽을 향하던 방향 그대로 벽에 눌려있게 된다.
+      // 실제 경과시간이 비정상적으로 크면(5초 이상) 모든 몬스터의 roamTimer를 강제로 만료시켜
+      // 다음 processMonsterAI 호출에서 새 방향을 즉시 재설정하도록 한다.
+      if (rawElapsedSec >= 5) {
+        monsters.forEach(m => { if (m.alive) m.roamTimer = 0; });
+      }
 
       const beforeExp = playerState.exp;
       const beforeLevel = playerState.level;
@@ -1414,6 +1434,9 @@
       processHeroAI(delta, now);
       processProjectilesAndVfx(delta);
       processPlayerMovement(delta, now);
+      // animate() 루프는 절전 모드에서 렌더링을 건너뛰기 때문에 미니맵이 여기서도 갱신되지 않으면
+      // 절전 모드 진입 직전 프레임에 박제된 좌표(구석에 몰린 몬스터 등)가 계속 표시된다.
+      renderMinimap();
 
       if (playerState.level > beforeLevel) {
         // 레벨업 직후 EXP가 다시 0으로 바뀌는 현재 시스템을 고려해 최소한의 누적량을 보정한다.
@@ -1447,17 +1470,13 @@
       document.getElementById('btn-powersave-off').classList.toggle('active', !on);
 
       if (on) {
-        // 절전 모드에서는 유저와 소환영웅 모두 자동사냥을 강제로 활성화한다.
+        // 절전 모드에서는 유저 캐릭터만 자동사냥을 강제로 활성화한다.
+        // 소환영웅은 화면을 안 보는 동안에도 유저와 함께 같은 자리에서 사냥하도록,
+        // 자율사냥(필드 전체를 돌아다니며 개별 행동)은 강제로 켜지 않고 기존 설정을 그대로 둔다.
         isAutoHunt = true;
-        heroAutoHunt = true;
 
         const autoBtn = document.getElementById('btn-auto');
         if (autoBtn) autoBtn.innerHTML = 'AUTO<br>ON';
-        const heroAutoBtn = document.getElementById('btn-hero-auto');
-        if (heroAutoBtn) {
-          heroAutoBtn.innerText = '영웅 자율사냥: ON';
-          heroAutoBtn.style.background = '#ffe082';
-        }
 
         if (!siriTarget || !siriTarget.alive) siriTarget = null;
         if (!janggeumTarget || !janggeumTarget.alive) janggeumTarget = null;
@@ -1476,6 +1495,12 @@
         if (powerSaveClockTimer) { clearInterval(powerSaveClockTimer); powerSaveClockTimer = null; }
         if (powerSaveGameTimer) { clearInterval(powerSaveGameTimer); powerSaveGameTimer = null; }
         powerSaveLastTick = 0;
+
+        // 절전 모드 중 브라우저가 탭/화면을 스로틀링하면 processPowerSaveGameTick(250ms 인터벌) 자체가
+        // 오랫동안 거의 실행되지 못해, 그 사이 몬스터가 벽에 눌린 상태로 갱신이 멈춰있을 수 있다.
+        // 해제 직후 렌더 루프가 정상 프레임으로 재개되기 전에 모든 몬스터의 roamTimer를 강제로 만료시켜,
+        // 다음 프레임부터 즉시 새 방향(및 벽 반사 로직)이 적용되도록 한다.
+        monsters.forEach(m => { if (m.alive) m.roamTimer = 0; });
       }
     }
 
@@ -3897,7 +3922,7 @@
           attackRange: 2.0, attackSpeed: 1500,
           lastAttackTime: 0, alive: true, destroyed: false, roamDir: new THREE.Vector3(), roamTimer: 0
         });
-        createNametagElement(`monster_${i}`, '', `Lv.1 ${mName}`, true);
+        createNametagElement(`monster_${i}`, '', `${mName}`, true);
       }
 
       const kingMushroomSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: createPixelSpriteTexture('boss_king_mushroom') }));
@@ -3960,7 +3985,7 @@
           attackRange: 2.2, attackSpeed: 1400,
           lastAttackTime: 0, alive: true, destroyed: false, roamDir: new THREE.Vector3(), roamTimer: 0
         });
-        createNametagElement(`monster_${i}`, '', `Lv.5 ${mName}`, true);
+        createNametagElement(`monster_${i}`, '', `${mName}`, true);
       }
 
       const bossSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: createPixelSpriteTexture('boss_tank') }));
@@ -4020,7 +4045,7 @@
           attackRange: 2.5, attackSpeed: 1200,
           lastAttackTime: 0, alive: true, destroyed: false, roamDir: new THREE.Vector3(), roamTimer: 0
         });
-        createNametagElement(`monster_${i}`, '', `Lv.40 ${mName}`, true);
+        createNametagElement(`monster_${i}`, '', `${mName}`, true);
       }
 
       const madaepoBoss = new THREE.Sprite(new THREE.SpriteMaterial({ map: createPixelSpriteTexture('madaepo') }));
@@ -4087,7 +4112,7 @@
         scene.add(sprite);
         const mShadow=createShadowDisk(2.7,1.4);
         monsters.push({id:`monster_${i}`,stageId:4,sprite,shadowDisk:mShadow,type:names[type],tier:4,isBoss:false,isHadum,hp:isHadum?HADUM_NORMAL_STATS[4].hp:5400,maxHp:isHadum?HADUM_NORMAL_STATS[4].hp:5400,goldReward:1200,attackPower:isHadum?HADUM_NORMAL_STATS[4].atkMin:108,attackPowerMin:isHadum?HADUM_NORMAL_STATS[4].atkMin:null,attackPowerMax:isHadum?HADUM_NORMAL_STATS[4].atkMax:null,attackRange:2.6,attackSpeed:1150,lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});
-        createNametagElement(`monster_${i}`,'',`Lv.55 ${names[type]}`,true);
+        createNametagElement(`monster_${i}`,'',`${names[type]}`,true);
       }
 
       // Final boss: purpose-built Ice Queen for the castle finale.
@@ -4201,7 +4226,7 @@
         isBoss:false, isHadum:false, isExperienceDungeon:true, hp:cfg.hp, maxHp:cfg.hp, defense:cfg.def,
         goldReward:0, attackPowerMin:cfg.atkMin, attackPowerMax:cfg.atkMax, attackRange:2.4, attackSpeed:1200,
         lastAttackTime:0, alive:true, destroyed:false, roamDir:new THREE.Vector3(), roamTimer:0 });
-      createNametagElement(id,'',`Lv.${experienceDungeonStage} ${mob.name}`,true);
+      createNametagElement(id,'',`${mob.name}`,true);
     }
 
     function enterExperienceDungeon(stage) {
@@ -4212,13 +4237,16 @@
       }
       const data = getExperienceDungeonDailyData();
       const useFreeEntry = data.count < EXPERIENCE_DUNGEON_DAILY_LIMIT;
-      experienceDungeonEntryMode = useFreeEntry ? 'free' : 'ticket';
+      experienceDungeonEntryUsedFreeCount = false;
+      experienceDungeonEntryUsedTicket = false;
       if (useFreeEntry) {
         data.count++;
         localStorage.setItem(EXPERIENCE_DUNGEON_SAVE_KEY, JSON.stringify(data));
+        experienceDungeonEntryUsedFreeCount = true;
       } else {
         if (getExperienceDungeonTicketCount() <= 0) { alert('기본 입장 횟수를 모두 사용했습니다. 입장권이 필요합니다.'); return; }
         playerState.experienceDungeonTickets--;
+        experienceDungeonEntryUsedTicket = true;
         updateUI();
       }
 
@@ -4267,33 +4295,60 @@
       if (kills) kills.innerText = `${experienceDungeonKills}마리 처치`;
     }
 
-    function manualExitExperienceDungeon() {
+    function exitExperienceDungeon() {
       if (!experienceDungeonActive) return;
-      exitExperienceDungeon(true);
-    }
-
-    function exitExperienceDungeon(refundEntry = false) {
-      if (!experienceDungeonActive) return;
-
-      // 사용자가 직접 나간 경우에만 입장 자원을 복구한다.
-      if (refundEntry) {
-        if (experienceDungeonEntryMode === 'free') {
-          const data = getExperienceDungeonDailyData();
-          data.count = Math.max(0, Number(data.count || 0) - 1);
-          localStorage.setItem(EXPERIENCE_DUNGEON_SAVE_KEY, JSON.stringify(data));
-        } else if (experienceDungeonEntryMode === 'ticket') {
-          playerState.experienceDungeonTickets = (playerState.experienceDungeonTickets || 0) + 1;
-        }
-      }
       experienceDungeonActive = false;
       if (experienceDungeonTimer) { clearInterval(experienceDungeonTimer); experienceDungeonTimer = null; }
       document.getElementById('exp-dungeon-hud').style.display = 'none';
       clearMonsters();
       if (experienceDungeonReturnHadum) selectStage(experienceDungeonReturnStage,true);
       else selectStage(experienceDungeonReturnStage,false);
-      experienceDungeonEntryMode = null;
+      showHealText('📕 경험의 서고 종료 · 일반 필드로 복귀', playerSprite.position);
+    }
+
+    // 경험의 서고에서 몬스터에게 쓰러졌을 때, alert() 대신 이 팝업을 띄운다.
+    // alert는 동기 블로킹이라 자동사냥 중 반복 사망 시 여러 alert가 겹쳐 뜨면서
+    // 사용자가 아무 조작도 못 하고 브라우저를 강제 종료해야 하는 문제가 있었기 때문에,
+    // 팝업이 떠 있는 동안은 오토헌트를 잠시 멈춰 추가 전투/사망이 일어나지 않게 한다.
+    function showExperienceDungeonDeathModal() {
+      if (experienceDungeonDeathModalOpen) return; // 이미 떠 있으면 중복으로 띄우지 않는다.
+      experienceDungeonDeathModalOpen = true;
+      experienceDungeonDeathPrevAutoHunt = isAutoHunt;
+      isAutoHunt = false; // 팝업이 떠 있는 동안 자동사냥을 멈춰 추가 사망을 막는다.
+      const modal = document.getElementById('exp-dungeon-death-modal');
+      if (modal) modal.style.display = 'block';
+    }
+
+    // "계속 진행하기": 팝업만 닫고 서고 입장은 그대로 유지, 오토헌트 상태를 원래대로 복원한다.
+    function continueExperienceDungeonAfterDeath() {
+      const modal = document.getElementById('exp-dungeon-death-modal');
+      if (modal) modal.style.display = 'none';
+      experienceDungeonDeathModalOpen = false;
+      isAutoHunt = experienceDungeonDeathPrevAutoHunt;
+      const autoBtn = document.getElementById('btn-auto');
+      if (autoBtn) autoBtn.innerHTML = isAutoHunt ? 'AUTO<br>ON' : 'AUTO<br>OFF';
+    }
+
+    // "일반 필드로 나가기": 서고를 종료하고, 이번 입장 때 소모했던 횟수(무료 카운트 또는 입장권)를 그대로 되돌린다.
+    function exitExperienceDungeonAfterDeath() {
+      const modal = document.getElementById('exp-dungeon-death-modal');
+      if (modal) modal.style.display = 'none';
+      experienceDungeonDeathModalOpen = false;
+
+      if (experienceDungeonEntryUsedFreeCount) {
+        const data = getExperienceDungeonDailyData();
+        data.count = Math.max(0, data.count - 1);
+        localStorage.setItem(EXPERIENCE_DUNGEON_SAVE_KEY, JSON.stringify(data));
+      } else if (experienceDungeonEntryUsedTicket) {
+        playerState.experienceDungeonTickets = (playerState.experienceDungeonTickets || 0) + 1;
+      }
+      experienceDungeonEntryUsedFreeCount = false;
+      experienceDungeonEntryUsedTicket = false;
+
+      isAutoHunt = experienceDungeonDeathPrevAutoHunt;
+      exitExperienceDungeon();
       updateUI();
-      showHealText(refundEntry ? '📕 경험의 서고 나가기 · 이용 횟수 복구' : '📕 경험의 서고 종료 · 일반 필드로 복귀', playerSprite.position);
+      showHealText('📕 이용 횟수가 복구되었습니다', playerSprite.position);
     }
 
     function openStageModal() {
@@ -6101,6 +6156,19 @@
         const baseY = m.isBoss ? 3.0 : 1.3;
         m.sprite.position.y = baseY + mBounce;
 
+        // 배회(roam) 중 필드 경계에 닿으면 단순히 위치만 클램프하고 끝내지 않고,
+        // 다음 배회 방향을 즉시 안쪽(맵 중앙)으로 재설정한다.
+        // 이렇게 하지 않으면 몬스터가 roamTimer가 다시 만료될 때까지(최대 5초)
+        // 계속 같은 바깥쪽 방향을 향한 채 벽에 눌려있게 되어, 여러 몬스터가 가장자리에 쌓이는 현상이 생긴다.
+        const hitBound = m.sprite.position.x <= -boundLimit || m.sprite.position.x >= boundLimit ||
+                          m.sprite.position.z <= -boundLimit || m.sprite.position.z >= boundLimit;
+        if (hitBound && dist > 7.0) {
+          const towardCenter = new THREE.Vector3(-m.sprite.position.x, 0, -m.sprite.position.z);
+          if (towardCenter.lengthSq() > 0.0001) towardCenter.normalize();
+          m.roamDir.copy(towardCenter);
+          m.roamTimer = 2 + Math.random() * 3;
+        }
+
         m.sprite.position.x = Math.max(-boundLimit, Math.min(boundLimit, m.sprite.position.x));
         m.sprite.position.z = Math.max(-boundLimit, Math.min(boundLimit, m.sprite.position.z));
 
@@ -6111,6 +6179,10 @@
     }
 
     function monsterAttackPlayer(m) {
+      // 경험의 서고 사망 선택 팝업이 떠 있는 동안에는 추가 공격을 무시한다.
+      // 그렇지 않으면 팝업을 띄운 직후에도 다른 몬스터의 공격으로 계속 데미지/사망 처리가 겹쳐 일어날 수 있다.
+      if (experienceDungeonDeathModalOpen) return;
+
       // 공격력 범위(attackPowerMin~attackPowerMax)가 지정된 몬스터는 매 공격마다 랜덤 데미지를 굴린다.
       // 범위가 없는 기존 몬스터/보스는 기존 방식(attackPower 고정값)을 그대로 사용한다.
       const rawAtk = (m.attackPowerMin != null && m.attackPowerMax != null)
@@ -6123,10 +6195,30 @@
       if (playerState.hp <= 0) {
         playerState.hp = playerState.maxHp;
         playerSprite.position.set(0, 1.5, 4);
+
+        // 레벨 100 이상에서 사망 시, 현재 보유 경험치(%)에서 1%p를 직접 차감하는 페널티를 적용한다.
+        // maxExp(다음 레벨업 필요 총량)는 건드리지 않고 exp(보유 경험치) 자체를 깎으며, 죽을 때마다 누적된다.
+        // 0% 밑으로는 내려가지 않는다.
+        let deathPenaltyApplied = false;
+        if (playerState.level >= 100) {
+          const expLoss = Math.round(playerState.maxExp * 0.01);
+          if (expLoss > 0 && playerState.exp > 0) {
+            playerState.exp = Math.max(0, playerState.exp - expLoss);
+            deathPenaltyApplied = true;
+          }
+        }
+
         if (isPowerSaveMode) {
           showPowerSaveDeathAlert();
+        } else if (experienceDungeonActive) {
+          // 경험의 서고는 저레벨 구간에서 몬스터에게 반복적으로 죽기 쉬워, alert()를 그대로 쓰면
+          // 자동사냥이 계속 죽음을 유발하며 alert가 겹겹이 쌓여 화면이 막히는 문제가 있었다.
+          // alert 대신 "계속 진행 / 일반 필드로 나가기"를 고를 수 있는 팝업을 띄운다.
+          showExperienceDungeonDeathModal();
         } else {
-          alert("몬스터의 공격에 쓰러졌습니다! 부활합니다.");
+          alert(deathPenaltyApplied
+            ? "몬스터의 공격에 쓰러졌습니다! 부활합니다. (경험치 1% 감소)"
+            : "몬스터의 공격에 쓰러졌습니다! 부활합니다.");
         }
       }
       updateUI();
@@ -6136,6 +6228,10 @@
     // 오토헌트 ON 상태에서는 필드(맵) 전체 범위에서 몬스터를 찾아 이동/공격한다 (targetNearestMonster가 몬스터 전체를 탐색).
     // 절전 모드 중에도 이 함수를 호출해 캐릭터가 계속 사냥하도록 한다.
     function processPlayerMovement(delta, now) {
+      // 경험의 서고 사망 선택 팝업이 떠 있는 동안에는 캐릭터를 완전히 정지시켜,
+      // 몬스터 근처로 다시 이동해 추가로 공격받는 상황을 막는다.
+      if (experienceDungeonDeathModalOpen) return;
+
       let moveX = joystickVector.x, moveZ = joystickVector.y;
       if (keys['w'] || keys['arrowup']) moveZ = -1;
       if (keys['s'] || keys['arrowdown']) moveZ = 1;
@@ -6516,15 +6612,15 @@
 
       if (siriSprite) {
         const el = document.getElementById('hero_lv_hero_siri');
-        if (el) el.innerText = siriState.level >= 70 ? 'Lv.70 (MAX)' : `Lv.${siriState.level}`;
+        if (el) el.innerText = siriState.level >= 100 ? 'Lv.100 (MAX)' : `Lv.${siriState.level}`;
       }
       if (janggeumSprite) {
         const el = document.getElementById('hero_lv_hero_janggeum');
-        if (el) el.innerText = janggeumState.level >= 70 ? 'Lv.70 (MAX)' : `Lv.${janggeumState.level}`;
+        if (el) el.innerText = janggeumState.level >= 100 ? 'Lv.100 (MAX)' : `Lv.${janggeumState.level}`;
       }
       if (munyeahanaSprite) {
         const el = document.getElementById('hero_lv_hero_munyeahana');
-        if (el) el.innerText = munyeahanaState.level >= 70 ? 'Lv.70 (MAX)' : `Lv.${munyeahanaState.level}`;
+        if (el) el.innerText = munyeahanaState.level >= 100 ? 'Lv.100 (MAX)' : `Lv.${munyeahanaState.level}`;
       }
 
       const jobBtn = document.getElementById('btn-job-modal');
