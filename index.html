@@ -659,6 +659,20 @@
     overflow: hidden !important;
   }
 
+  /* 사냥터 스테이지 선택 팝업(#stage-modal)은 일반+하둠 스테이지 카드가 늘어날수록
+     내부 개별 스크롤만으로는 하단 콘텐츠(하둠 섹션·닫기 버튼)가 화면에서 잘려 접근이 안 되는 문제가 있어,
+     다른 팝업과 분리해서 팝업 전체가 하나로 자연스럽게 스크롤되도록 한다. */
+  #stage-modal {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+  }
+
+  #stage-modal .stage-cards {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
   #stage-modal,
   #exp-dungeon-modal,
   #shop-modal {
@@ -678,7 +692,6 @@
   }
 
   /* 긴 내용은 팝업 자체가 아니라 내부만 스크롤 */
-  #stage-modal .stage-cards,
   #exp-dungeon-modal .stage-cards,
   #shop-modal #shop-items-container,
   #skill-modal #skill-items-container {
@@ -688,9 +701,13 @@
     touch-action: pan-y !important;
   }
 
-  #stage-modal .stage-cards,
   #exp-dungeon-modal .stage-cards {
     max-height: 51vh !important;
+    margin-bottom: 4px !important;
+    gap: 5px !important;
+  }
+
+  #stage-modal .stage-cards {
     margin-bottom: 4px !important;
     gap: 5px !important;
   }
@@ -979,6 +996,7 @@
       </div>
     </div>
     <div style="margin-bottom: 16px;">
+      <div style="font-weight: bold; margin-bottom: 8px; font-size: 12px; color: #4e342e;">🌙 절전 모드</div>
 
     </div>
     <div style="display:flex; gap:8px; margin-top:12px;">
@@ -1050,6 +1068,13 @@
         <div>
           <div style="font-weight: bold; color: #1565c0; font-size: 13px;">❄️ 4스테이지: 얼음성 (공격력 550~650)</div>
           <div style="font-size: 10px; color: #455a64;">눈토끼, 설녀 및 빙설여왕(보스)</div>
+        </div>
+        <div style="font-size: 12px; font-weight: bold;">이동 ➔</div>
+      </div>
+      <div class="stage-card" id="stage-card-5" onclick="selectStage(5, false)">
+        <div>
+          <div style="font-weight: bold; color: #00838f; font-size: 13px;">🐢 5스테이지: 용궁 (공격력 700~800)</div>
+          <div style="font-size: 10px; color: #455a64;">포졸거북, 인어병사 및 해적상어(보스)</div>
         </div>
         <div style="font-size: 12px; font-weight: bold;">이동 ➔</div>
       </div>
@@ -2383,6 +2408,128 @@
       for(let y=110;y<450;y+=64){ ctx.fillRect(48,y,160,8); }
       ctx.fillStyle='rgba(255,255,255,0.75)'; ctx.fillRect(74,80,20,360);
       const tex=new THREE.CanvasTexture(cvs); tex.colorSpace=THREE.SRGBColorSpace; tex.magFilter=THREE.LinearFilter; tex.minFilter=THREE.LinearMipmapLinearFilter; return tex;
+    }
+
+    /* ==========================================
+       STAGE 5: 용궁 (Dragon Palace) — 스크린샷 참고 텍스처
+       ========================================== */
+    function createDragonPalaceFloorTexture() {
+      const cvs = document.createElement('canvas'); cvs.width = 1024; cvs.height = 1024;
+      const ctx = cvs.getContext('2d');
+      const bg = ctx.createLinearGradient(0,0,1024,1024);
+      bg.addColorStop(0, '#7fd6d4'); bg.addColorStop(0.5, '#4fb8bd'); bg.addColorStop(1, '#2f8fa0');
+      ctx.fillStyle = bg; ctx.fillRect(0,0,1024,1024);
+      // 물결 무늬
+      ctx.strokeStyle = 'rgba(255,255,255,0.28)'; ctx.lineWidth = 4;
+      for (let y=-40; y<1064; y+=48) {
+        ctx.beginPath();
+        for (let x=0; x<=1024; x+=32) { const yy = y + Math.sin(x*0.02)*10; if (x===0) ctx.moveTo(x,yy); else ctx.lineTo(x,yy); }
+        ctx.stroke();
+      }
+      // 산호/바닥 반점
+      for (let i=0;i<70;i++){
+        const x=Math.random()*1024, y=Math.random()*1024, r=8+Math.random()*22;
+        ctx.fillStyle = Math.random()<0.5 ? 'rgba(255,183,197,0.35)' : 'rgba(255,255,255,0.18)';
+        ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+      }
+      const tex = new THREE.CanvasTexture(cvs);
+      tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(3,3);
+      tex.colorSpace = THREE.SRGBColorSpace; tex.magFilter = THREE.LinearFilter; tex.minFilter = THREE.LinearMipmapLinearFilter; tex.generateMipmaps = true;
+      return tex;
+    }
+
+    function createDragonPalaceWallTexture() {
+      const cvs = document.createElement('canvas'); cvs.width = 512; cvs.height = 512;
+      const ctx = cvs.getContext('2d');
+      const g = ctx.createLinearGradient(0,0,512,512); g.addColorStop(0,'#5fd0c8'); g.addColorStop(0.5,'#2e9a9f'); g.addColorStop(1,'#1c6d78');
+      ctx.fillStyle=g; ctx.fillRect(0,0,512,512);
+      ctx.strokeStyle='rgba(255,225,160,0.55)'; ctx.lineWidth=4;
+      for(let y=0;y<512;y+=48){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(512,y); ctx.stroke(); }
+      for(let x=0;x<512;x+=48){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,512); ctx.stroke(); }
+      ctx.fillStyle='rgba(255,183,197,0.4)';
+      for(let i=0;i<20;i++){ const x=Math.random()*512,y=Math.random()*512; ctx.beginPath(); ctx.arc(x,y,10+Math.random()*16,0,Math.PI*2); ctx.fill(); }
+      const tex=new THREE.CanvasTexture(cvs); tex.colorSpace=THREE.SRGBColorSpace; tex.magFilter=THREE.LinearFilter; tex.minFilter=THREE.LinearMipmapLinearFilter; return tex;
+    }
+
+    function createDragonPalacePillarTexture() {
+      const cvs=document.createElement('canvas'); cvs.width=256; cvs.height=512;
+      const ctx=cvs.getContext('2d');
+      const g=ctx.createLinearGradient(0,0,256,0); g.addColorStop(0,'#1c6d78'); g.addColorStop(0.25,'#7fe3da'); g.addColorStop(0.55,'#3fa9a8'); g.addColorStop(0.8,'#8fe8df'); g.addColorStop(1,'#175a63');
+      ctx.fillStyle=g; ctx.fillRect(48,70,160,390);
+      ctx.fillStyle='#ffdca0'; ctx.beginPath(); ctx.moveTo(36,70); ctx.lineTo(220,70); ctx.lineTo(196,30); ctx.lineTo(60,30); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='rgba(20,80,85,0.5)';
+      for(let y=110;y<450;y+=60){ ctx.fillRect(48,y,160,8); }
+      ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.fillRect(74,80,20,360);
+      const tex=new THREE.CanvasTexture(cvs); tex.colorSpace=THREE.SRGBColorSpace; tex.magFilter=THREE.LinearFilter; tex.minFilter=THREE.LinearMipmapLinearFilter; return tex;
+    }
+
+    // 스테이지5(용궁) 몬스터: 포졸거북(초록 갑옷 거북이 병사), 인어병사(문어 투구를 쓴 병사), 해적상어(보스)
+    function createDragonPalaceMonsterTexture(type, isBack=false, attackStage=0) {
+      const cvs=document.createElement('canvas'); cvs.width=512; cvs.height=512;
+      const ctx=cvs.getContext('2d'); ctx.imageSmoothingEnabled=true; ctx.clearRect(0,0,512,512);
+      ctx.save();
+      const bob = attackStage ? Math.sin(attackStage*0.9)*5 : 0;
+      ctx.translate(0,bob);
+      if (type==='turtleguard') {
+        ctx.fillStyle='#2e7d32'; ctx.beginPath(); ctx.ellipse(256,300,128,112,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#4caf50'; ctx.beginPath(); ctx.ellipse(256,300,104,90,0,0,Math.PI*2); ctx.fill();
+        for(let r=0;r<3;r++){ for(let c=0;c<3;c++){
+          ctx.fillStyle='#1b5e20'; ctx.beginPath(); ctx.ellipse(190+c*66,250+r*52,26,20,0,0,Math.PI*2); ctx.fill();
+        }}
+        ctx.fillStyle='#81c784'; ctx.beginPath(); ctx.ellipse(256,178,58,54,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#1b5e20'; ctx.beginPath(); ctx.moveTo(198,158); ctx.quadraticCurveTo(256,110,314,158); ctx.lineTo(304,182); ctx.quadraticCurveTo(256,150,208,182); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#ffca28'; ctx.beginPath(); ctx.ellipse(256,120,10,16,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#1b3a1f'; ctx.beginPath(); ctx.arc(234,180,8,0,Math.PI*2); ctx.arc(278,180,8,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#c8e6c9'; ctx.beginPath(); ctx.ellipse(256,204,20,10,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#66bb6a'; ctx.beginPath(); ctx.ellipse(140,320,30,50,0.3,0,Math.PI*2); ctx.ellipse(372,320,30,50,-0.3,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#388e3c'; ctx.beginPath(); ctx.ellipse(200,410,34,26,0,0,Math.PI*2); ctx.ellipse(312,410,34,26,0,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle='#6d4c25'; ctx.lineWidth=10; ctx.beginPath(); ctx.moveTo(392,120); ctx.lineTo(430,400); ctx.stroke();
+        ctx.fillStyle='#cfd8dc'; ctx.beginPath(); ctx.moveTo(378,90); ctx.lineTo(406,90); ctx.lineTo(392,50); ctx.closePath(); ctx.fill();
+      } else if (type==='merwarrior') {
+        ctx.fillStyle='#3f51b5'; ctx.beginPath(); ctx.moveTo(160,260); ctx.quadraticCurveTo(256,230,352,260); ctx.lineTo(370,420); ctx.quadraticCurveTo(256,460,142,420); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#7986cb'; ctx.beginPath(); ctx.moveTo(180,265); ctx.lineTo(256,320); ctx.lineTo(332,265); ctx.lineTo(350,420); ctx.quadraticCurveTo(256,450,162,420); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#ffe0b2'; ctx.beginPath(); ctx.ellipse(256,196,58,60,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#3e2723'; ctx.beginPath(); ctx.arc(234,196,8,0,Math.PI*2); ctx.arc(278,196,8,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#d38b6a'; ctx.beginPath(); ctx.ellipse(256,220,14,8,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#8e24aa'; ctx.beginPath(); ctx.ellipse(256,124,64,50,0,0,Math.PI*2); ctx.fill();
+        for(let i=0;i<5;i++){
+          const ang = -Math.PI*0.85 + i*(Math.PI*0.42);
+          const x1 = 256+Math.cos(ang)*58, y1 = 130+Math.sin(ang)*30;
+          const x2 = 256+Math.cos(ang)*90, y2 = 130+Math.sin(ang)*70;
+          ctx.strokeStyle='#8e24aa'; ctx.lineWidth=14; ctx.lineCap='round';
+          ctx.beginPath(); ctx.moveTo(x1,y1); ctx.quadraticCurveTo((x1+x2)/2, y2-10, x2, y2); ctx.stroke();
+        }
+        ctx.fillStyle='#ce93d8'; ctx.beginPath(); ctx.ellipse(256,118,40,28,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#5c6bc0'; ctx.beginPath(); ctx.ellipse(160,268,34,26,0,0,Math.PI*2); ctx.ellipse(352,268,34,26,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#ffe0b2'; ctx.beginPath(); ctx.ellipse(150,330,20,44,0.2,0,Math.PI*2); ctx.ellipse(362,330,20,44,-0.2,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle='#8d6e63'; ctx.lineWidth=9; ctx.beginPath(); ctx.moveTo(392,150); ctx.lineTo(414,400); ctx.stroke();
+        ctx.strokeStyle='#b0bec5';
+        ctx.beginPath(); ctx.moveTo(378,110); ctx.lineTo(392,150); ctx.lineTo(406,110); ctx.lineWidth=6; ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(370,95); ctx.lineTo(392,150); ctx.lineTo(414,95); ctx.lineWidth=6; ctx.stroke();
+      } else {
+        ctx.fillStyle='#607d8b'; ctx.beginPath(); ctx.ellipse(256,240,140,120,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#eceff1'; ctx.beginPath(); ctx.ellipse(256,270,110,88,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#607d8b'; ctx.beginPath(); ctx.moveTo(370,150); ctx.lineTo(420,40); ctx.lineTo(400,180); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(120,300); ctx.lineTo(30,260); ctx.lineTo(60,340); ctx.lineTo(30,400); ctx.lineTo(130,360); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#37474f'; ctx.beginPath(); ctx.ellipse(256,340,90,36,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#fafafa';
+        for(let i=0;i<7;i++){ ctx.beginPath(); ctx.moveTo(190+i*20,320); ctx.lineTo(200+i*20,352); ctx.lineTo(210+i*20,320); ctx.closePath(); ctx.fill(); }
+        ctx.fillStyle='#212121'; ctx.beginPath(); ctx.arc(200,220,13,0,Math.PI*2); ctx.arc(312,220,13,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#212121'; ctx.beginPath(); ctx.moveTo(140,140); ctx.quadraticCurveTo(256,60,372,140); ctx.quadraticCurveTo(256,110,140,140); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#fafafa';
+        ctx.beginPath(); ctx.arc(256,108,16,0,Math.PI*2); ctx.fill();
+        ctx.font='bold 22px sans-serif'; ctx.fillStyle='#212121'; ctx.textAlign='center';
+        ctx.fillText('☠', 256, 116);
+        ctx.fillStyle='#78909c'; ctx.beginPath(); ctx.ellipse(120,260,44,20,0.5,0,Math.PI*2); ctx.ellipse(392,260,44,20,-0.5,0,Math.PI*2); ctx.fill();
+      }
+      if(isBack){
+        ctx.globalAlpha=0.92; ctx.fillStyle='rgba(20,70,80,0.55)'; ctx.fillRect(110,120,292,300);
+        ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.beginPath(); ctx.ellipse(256,220,90,115,0,0,Math.PI*2); ctx.fill();
+      }
+      ctx.restore();
+      const tex=new THREE.CanvasTexture(cvs); tex.colorSpace=THREE.SRGBColorSpace; tex.magFilter=THREE.LinearFilter; tex.minFilter=THREE.LinearMipmapLinearFilter; tex.generateMipmaps=true;
+      tex.anisotropy=(typeof renderer!=='undefined'&&renderer.capabilities)?Math.min(renderer.capabilities.getMaxAnisotropy(),8):1;
+      return tex;
     }
 
     function createIceMonsterTexture(type, isBack=false, attackStage=0) {
@@ -3957,6 +4104,75 @@
       createNametagElement('monster_18','얼음성의 여왕','빙설여왕',false,false,true);
     }
 
+    // ==========================================
+    // STAGE 5: 용궁 (일반 전용 · 하둠 영역 없음)
+    // 몹 공격력/방어력/HP/경험치/드랍 비율은 일반4와 하둠1의 중간 수준으로 설계.
+    // ==========================================
+    function buildStage5DragonPalace() {
+      clearStageObjects(); clearMonsters();
+      currentHadum = false;
+      document.body.style.backgroundColor = '#2f8fa0';
+      document.getElementById('stage-badge').innerText = "🐢 용궁 ▾";
+      scene.background = new THREE.Color(0x3fa0ab);
+      scene.fog = new THREE.Fog(0x4fb8bd, 30, 92);
+
+      const floorG = new THREE.PlaneGeometry(floorSize, floorSize);
+      const floorM = new THREE.MeshLambertMaterial({ map: createDragonPalaceFloorTexture() });
+      floorMesh = new THREE.Mesh(floorG, floorM); floorMesh.rotation.x = -Math.PI / 2; floorMesh.receiveShadow = true;
+      scene.add(floorMesh);
+
+      const wallTex = createDragonPalaceWallTexture();
+      const wallMat = new THREE.MeshLambertMaterial({ map: wallTex });
+      const backWall = new THREE.Mesh(new THREE.BoxGeometry(72, 12, 1.6), wallMat);
+      backWall.position.set(0, 6, -34); backWall.castShadow = true; backWall.receiveShadow = true; scene.add(backWall); stageObjects.push(backWall);
+      const sideWall = new THREE.Mesh(new THREE.BoxGeometry(1.6, 12, 72), wallMat);
+      sideWall.position.set(-34, 6, 0); sideWall.castShadow = true; sideWall.receiveShadow = true; scene.add(sideWall); stageObjects.push(sideWall);
+
+      const pillarTex = createDragonPalacePillarTexture();
+      [[-28,-28],[28,-28],[-28,26],[28,26]].forEach(([x,z])=>{
+        const p = new THREE.Mesh(new THREE.CylinderGeometry(1.55,1.9,11,10), new THREE.MeshLambertMaterial({map:pillarTex, transparent:true}));
+        p.position.set(x,5.5,z); p.castShadow=true; p.receiveShadow=true; scene.add(p); stageObjects.push(p);
+      });
+
+      // 물방울 파티클 (기존 눈 파티클 텍스처를 재활용해 물속 느낌의 부유 입자를 표현)
+      const bubbleCount = qualityMode === 'high' ? 150 : 70;
+      const geo = new THREE.BufferGeometry(); const pos = new Float32Array(bubbleCount*3);
+      for(let i=0;i<bubbleCount;i++){ pos[i*3]=(Math.random()-0.5)*68; pos[i*3+1]=Math.random()*16+1; pos[i*3+2]=(Math.random()-0.5)*68; }
+      geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+      const bubbles = new THREE.Points(geo,new THREE.PointsMaterial({map:createIceSnowTexture(),size:0.5,transparent:true,opacity:0.6,depthWrite:false}));
+      scene.add(bubbles); stageObjects.push(bubbles); stage4SnowPoints=bubbles;
+
+      // 일반 몬스터 2종: 포졸거북, 인어병사 (스크린샷 참고)
+      const dpTypes=['turtleguard','merwarrior'];
+      const names={'turtleguard':'포졸거북','merwarrior':'인어병사'};
+      const stage5MobCount = 22;
+      for(let i=0;i<stage5MobCount;i++){
+        const type=dpTypes[i%dpTypes.length];
+        const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createDragonPalaceMonsterTexture(type,false,0),transparent:true}));
+        sprite.scale.set(3.4,3.4,1);
+        sprite.position.set((Math.random()-0.5)*60,1.7,(Math.random()-0.5)*60);
+        scene.add(sprite);
+        const mShadow=createShadowDisk(2.7,1.4);
+        // 일반4(HP 5400, 공격력108, 경험치80, 골드500, 방어력0)와
+        // 하둠1(HP 4000, 공격력285~315, 경험치300, 골드850, 방어력280)의 중간 수준으로 산정.
+        monsters.push({id:`monster_${i}`,stageId:5,sprite,shadowDisk:mShadow,type:names[type],tier:5,isBoss:false,isHadum:false,
+          hp:4700,maxHp:4700,goldReward:675,
+          attackPower:196,attackPowerMin:196,attackPowerMax:212,
+          attackRange:2.6,attackSpeed:1150,lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});
+        createNametagElement(`monster_${i}`,'',`${names[type]}`,true);
+      }
+
+      // 보스: 해적상어 (일반4 보스보다 소폭 강화된 수준)
+      const bossSprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createDragonPalaceMonsterTexture('pirateshark',false,0),transparent:true}));
+      const bossSpritePos5 = getRandomBossSpawnPos(24, 33);
+      bossSprite.scale.set(8.2,8.2,1); bossSprite.position.set(bossSpritePos5.x,4.1,bossSpritePos5.z); scene.add(bossSprite);
+      const bossShadow=createShadowDisk(7.0,3.6);
+      monsters.push({id:'monster_22',stageId:5,sprite:bossSprite,shadowDisk:bossShadow,type:'해적상어',tier:5,isBoss:true,isHadum:false,
+        hp:55000,maxHp:55000,goldReward:22000,attackPower:210,attackRange:4.5,attackSpeed:950,
+        lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});
+      createNametagElement('monster_22','용궁의 습격자','해적상어',false,false,true);
+    }
+
     function getExperienceDungeonDailyData() {
       const today = new Date().toISOString().slice(0,10);
       let data = null;
@@ -4244,6 +4460,7 @@
       else if (stageNum === 2) buildStage2Cave(isHadum);
       else if (stageNum === 3) buildStage3Baduk(isHadum);
       else if (stageNum === 4) buildStage4IceCastle(isHadum);
+      else if (stageNum === 5) buildStage5DragonPalace();
 
       // 스테이지 전환 시 캐릭터를 맵 중앙 스폰 지점으로 되돌린다.
       // (안 그러면 이전 스테이지에서 서 있던 좌표에 그대로 남아, 새 맵의 지형/몬스터와 위치가 어긋나 보인다.)
@@ -6083,6 +6300,7 @@
 
     // 유저 캐릭터 이동 및 자동사냥(오토헌트) 처리.
     // 오토헌트 ON 상태에서는 필드(맵) 전체 범위에서 몬스터를 찾아 이동/공격한다 (targetNearestMonster가 몬스터 전체를 탐색).
+    // 절전 모드 중에도 이 함수를 호출해 캐릭터가 계속 사냥하도록 한다.
     function processPlayerMovement(delta, now) {
       // 경험의 서고 사망 선택 팝업이 떠 있는 동안에는 캐릭터를 완전히 정지시켜,
       // 몬스터 근처로 다시 이동해 추가로 공격받는 상황을 막는다.
@@ -6196,10 +6414,10 @@
        8. EXP CALCULATION & LEVEL UP SYSTEM
        ========================================== */
     // 스테이지별 일반 몬스터 고정 경험치 테이블 (일반: 1~4스테이지, 하둠: 1~4스테이지)
-    const STAGE_NORMAL_EXP = { 1: 20, 2: 40, 3: 60, 4: 80 };
+    const STAGE_NORMAL_EXP = { 1: 20, 2: 40, 3: 60, 4: 80, 5: 190 };
     const STAGE_HADUM_EXP = { 1: 300, 2: 450, 3: 700, 4: 850 };
     const STAGE_BOSS_EXP = {
-      normal: { 1: 1500, 2: 2500, 3: 4000, 4: 6000 },
+      normal: { 1: 1500, 2: 2500, 3: 4000, 4: 6000, 5: 8250 },
       hadum: { 1: 10500, 2: 13500, 3: 16500, 4: 22500 }
     };
 
@@ -6725,6 +6943,9 @@
       } else if (currentHadum && !target.isBoss) {
         const monsterDefense = (HADUM_NORMAL_STATS[currentStage] && HADUM_NORMAL_STATS[currentStage].def) || 120;
         finalDmg = Math.max(1, amount - monsterDefense);
+      } else if (target.stageId === 5 && !target.isBoss && !target.isHadum) {
+        // 5스테이지(용궁) 일반몹: 일반4(방어력 없음)와 하둠1(방어력 280)의 중간 수준인 140을 적용.
+        finalDmg = Math.max(1, amount - 140);
       }
 
       let isCrit = Math.random() < critChance;
@@ -6763,6 +6984,8 @@
           }
         } else if (target.isHadum) {
           rewardGold = 850;
+        } else if (target.stageId === 5) {
+          rewardGold = 675; // 일반4(500)와 하둠1(850)의 중간 수준
         } else if (target.stageId <= 2) {
           rewardGold = 180;
         } else {
@@ -6811,6 +7034,12 @@
             if (Math.random() < 0.30) {
               playerState.talismanLoot += 2;
               showHealText('+2 전리품 획득!', target.sprite.position);
+            }
+          } else if (target.stageId === 5) {
+            // 5스테이지(용궁) 일반몹: 일반4(25%, 1개)와 하둠1(30%, 2개)의 중간 수준.
+            if (Math.random() < 0.28) {
+              playerState.talismanLoot += 1;
+              showHealText('+1 전리품 획득!', target.sprite.position);
             }
           } else {
             if (Math.random() < 0.25) {
