@@ -1039,8 +1039,10 @@
     <div class="exp-dungeon-info">
       단계별 입장 레벨에 맞춰 선택하세요. 입장 시 <b>3분</b> 동안 60마리의 일반 몬스터가 즉시 리젠됩니다.<br>
       기존 일반 필드의 배경과 일반 몬스터 외형을 매 입장마다 랜덤으로 사용합니다.<br>
-      <b>하루 3회</b> 이용 가능하며, 획득 EXP는 해당 단계의 <b>다음 레벨 필요 EXP 비율</b>을 적용합니다.
+      <b>하루 3회</b> 이용 가능하며, 획득 EXP는 해당 단계의 <b>다음 레벨 필요 EXP 비율</b>을 적용합니다.<br>
+      기본 이용 횟수를 모두 사용한 뒤에는 <b>입장권</b>으로 추가 입장할 수 있습니다.
     </div>
+    <div id="exp-dungeon-ticket-shop" style="margin:8px 0 10px; padding:8px; border:2px solid #d1c4e9; border-radius:10px; background:#faf7ff; text-align:center;"></div>
     <div class="stage-cards" id="exp-dungeon-cards"></div>
     <div style="text-align:center; margin-top:10px;">
       <button class="btn-small" onclick="closeExpDungeonModal()">창 닫기</button>
@@ -1239,6 +1241,9 @@
       { type:'snowrabbit', name:'눈토끼', texture:'ice' }, { type:'snowlady', name:'설녀', texture:'ice' }
     ];
     const EXPERIENCE_DUNGEON_SAVE_KEY = 'experienceDungeonDaily';
+    const EXPERIENCE_DUNGEON_TICKET_KEY = 'experienceDungeonTickets';
+    const EXPERIENCE_DUNGEON_TICKET_CORE_COST = 5;
+    const EXPERIENCE_DUNGEON_TICKET_DAILY_BUY_LIMIT = 2;
     const HADUM_MULT = 2; // 하둠 영역 몹 공격력/HP/경험치 배율 (보스에 적용)
     const HADUM_STAGE1_HP_MULT = 1.5; // 하둠 초보자 사냥터(1스테이지) 보스 전용 추가 체력 배율
     const HADUM_HP_EXTRA_MULT = 2; // 하둠 보스 현재 HP 추가 2배
@@ -3423,7 +3428,7 @@
       hp: 100, maxHp: 100, mp: 50, maxMp: 50, exp: 0,
       maxExp: getRequiredExp(1),
       gold: 200, 
-      talismanLoot: 0, enhanceCore: 0,
+      talismanLoot: 0, enhanceCore: 0, experienceDungeonTickets: 0,
       talismanLevel: 0,
       baseAttackSpeed: 1000, attackSpeed: 1000,
       weaponAtk: 0, defensePower: 5, weaponEnhanceLv: 0,
@@ -4096,8 +4101,48 @@
       return Math.max(0, EXPERIENCE_DUNGEON_DAILY_LIMIT - getExperienceDungeonDailyData().count);
     }
 
+    function getExperienceDungeonTicketData() {
+      const today = new Date().toISOString().slice(0,10);
+      let data = null;
+      try { data = JSON.parse(localStorage.getItem(EXPERIENCE_DUNGEON_TICKET_KEY) || 'null'); } catch(e) {}
+      if (!data || data.date !== today) data = { date: today, bought: 0 };
+      return data;
+    }
+
+    function getExperienceDungeonTicketCount() {
+      return Math.max(0, Number(playerState.experienceDungeonTickets || 0));
+    }
+
+    function renderExperienceDungeonTicketShop() {
+      const el = document.getElementById('exp-dungeon-ticket-shop');
+      if (!el) return;
+      const data = getExperienceDungeonTicketData();
+      const remainBuy = Math.max(0, EXPERIENCE_DUNGEON_TICKET_DAILY_BUY_LIMIT - data.bought);
+      const core = Number(playerState.enhanceCore || 0);
+      const canBuy = remainBuy > 0 && core >= EXPERIENCE_DUNGEON_TICKET_CORE_COST;
+      el.innerHTML = `
+        <div style="font-weight:bold;color:#6a1b9a;font-size:12px;margin-bottom:4px;">🎟️ 경험의 서고 입장권</div>
+        <div style="font-size:10px;color:#5e35b1;line-height:1.5;">강화의 핵 5개 → 입장권 1개<br>보유 입장권: <b>${getExperienceDungeonTicketCount()}개</b> · 오늘 구매: <b>${data.bought}/2개</b></div>
+        <button class="btn-small" style="margin-top:5px;min-width:150px;background:#ede7f6;border-color:#9575cd;color:#4527a0;" onclick="buyExperienceDungeonTicket()" ${canBuy ? '' : 'disabled'}>🎟️ 입장권 구매 (핵 5개)</button>`;
+    }
+
+    function buyExperienceDungeonTicket() {
+      const data = getExperienceDungeonTicketData();
+      if (data.bought >= EXPERIENCE_DUNGEON_TICKET_DAILY_BUY_LIMIT) { alert('입장권은 하루 최대 2개까지만 구매할 수 있습니다.'); return; }
+      if ((playerState.enhanceCore || 0) < EXPERIENCE_DUNGEON_TICKET_CORE_COST) { alert('강화의 핵이 부족합니다. (5개 필요)'); return; }
+      playerState.enhanceCore -= EXPERIENCE_DUNGEON_TICKET_CORE_COST;
+      playerState.experienceDungeonTickets = (playerState.experienceDungeonTickets || 0) + 1;
+      data.bought++;
+      localStorage.setItem(EXPERIENCE_DUNGEON_TICKET_KEY, JSON.stringify(data));
+      updateUI();
+      renderExperienceDungeonTicketShop();
+      renderExperienceDungeonCards();
+      showHealText('🎟️ 경험의 서고 입장권 +1', playerSprite.position);
+    }
+
     function openExpDungeonModal() {
       if (experienceDungeonActive) return;
+      renderExperienceDungeonTicketShop();
       renderExperienceDungeonCards();
       document.getElementById('exp-dungeon-modal').style.display = 'flex';
     }
@@ -4109,16 +4154,17 @@
     function renderExperienceDungeonCards() {
       const container = document.getElementById('exp-dungeon-cards');
       const remain = getExperienceDungeonRemaining();
+      const tickets = getExperienceDungeonTicketCount();
       container.innerHTML = Object.entries(EXPERIENCE_DUNGEON_STATS).map(([key, cfg]) => {
         const stage = Number(key);
         const unlocked = playerState.level >= cfg.minLv && playerState.level <= cfg.maxLv;
-        const canEnter = unlocked && remain > 0 && !experienceDungeonActive;
-        const label = unlocked ? (remain > 0 ? '입장 ➔' : '오늘 이용 완료') : `Lv.${cfg.minLv}~${cfg.maxLv}`;
+        const canEnter = unlocked && (remain > 0 || tickets > 0) && !experienceDungeonActive;
+        const label = unlocked ? (remain > 0 ? '입장 ➔' : (tickets > 0 ? '🎟️ 입장권으로 입장 ➔' : '오늘 이용 완료')) : `Lv.${cfg.minLv}~${cfg.maxLv}`;
         return `<div class="stage-card ${canEnter ? '' : 'exp-dungeon-locked'}" ${canEnter ? `onclick="enterExperienceDungeon(${stage})"` : ''}>
           <div><div style="font-weight:bold;color:#6a1b9a;font-size:13px;">📕 서고 ${stage} <span style="font-size:10px;color:#7b1fa2;">(Lv.${cfg.minLv}~${cfg.maxLv})</span></div>
           <div style="font-size:10px;color:#5e35b1;">HP ${cfg.hp.toLocaleString()} · DEF ${cfg.def.toLocaleString()} · ATK ${cfg.atkMin}~${cfg.atkMax} · EXP ${cfg.expRate*100}%</div></div>
           <div style="font-size:11px;font-weight:bold;">${label}</div></div>`;
-      }).join('') + `<div style="text-align:center;font-size:10px;color:#6a1b9a;margin-top:4px;">오늘 남은 입장: <b>${remain}/3회</b></div>`;
+      }).join('') + `<div style="text-align:center;font-size:10px;color:#6a1b9a;margin-top:4px;">오늘 남은 기본 입장: <b>${remain}/3회</b> · 보유 입장권: <b>${tickets}개</b></div>`;
     }
 
     function createExperienceMonsterSprite(mob) {
@@ -4155,9 +4201,15 @@
         alert(`서고 ${stage}는 Lv.${cfg?.minLv}~${cfg?.maxLv}에서 입장할 수 있습니다.`); return;
       }
       const data = getExperienceDungeonDailyData();
-      if (data.count >= EXPERIENCE_DUNGEON_DAILY_LIMIT) { alert('오늘 경험의 서고 이용 횟수를 모두 사용했습니다.'); return; }
-      data.count++;
-      localStorage.setItem(EXPERIENCE_DUNGEON_SAVE_KEY, JSON.stringify(data));
+      const useFreeEntry = data.count < EXPERIENCE_DUNGEON_DAILY_LIMIT;
+      if (useFreeEntry) {
+        data.count++;
+        localStorage.setItem(EXPERIENCE_DUNGEON_SAVE_KEY, JSON.stringify(data));
+      } else {
+        if (getExperienceDungeonTicketCount() <= 0) { alert('기본 입장 횟수를 모두 사용했습니다. 입장권이 필요합니다.'); return; }
+        playerState.experienceDungeonTickets--;
+        updateUI();
+      }
 
       experienceDungeonActive = true;
       experienceDungeonStage = stage;
@@ -5318,8 +5370,8 @@
         { id: 'c1', name: '부적: 필살의 기운', desc: '크리티컬 강화', type: 'talisman' }
       ],
       armor: [
-        { id: 'a1', name: '철갑 도포', desc: '최대 체력 +80, 방어력 +6', price: 500, currency: 'gold', type: 'armor', valHp: 80, valDef: 6 },
-        { id: 'a2', name: '조선 두정갑', desc: '최대 체력 +180, 방어력 +14', price: 1500, currency: 'gold', type: 'armor', valHp: 180, valDef: 14 },
+        { id: 'a1', name: '철갑 도포', desc: '최대 체력 +80, 방어력 +6', price: 5000, currency: 'gold', type: 'armor', valHp: 80, valDef: 6, reqLv: 20 },
+        { id: 'a2', name: '조선 두정갑', desc: '최대 체력 +180, 방어력 +14', price: 15000, currency: 'gold', type: 'armor', valHp: 180, valDef: 14, reqLv: 50 },
         { id: 'mp1', name: '마력 증대 I', desc: '최대 MP +100 (주술사 계열 전용)', price: 1000, currency: 'gold', type: 'maxMp', valMp: 100, reqShaman: true },
         { id: 'mp2', name: '마력 증대 II', desc: '최대 MP +200 (주술사 계열 전용)', price: 1900, currency: 'gold', type: 'maxMp', valMp: 200, reqShaman: true }
       ],
@@ -5410,7 +5462,7 @@
             return;
           }
           const isBought = false;
-          const canAfford = playerState.gold >= item.price;
+          const canAfford = playerState.gold >= item.price && (!item.reqLv || playerState.level >= item.reqLv);
           const priceLabel = `${item.price.toLocaleString()} G`;
 
           card.innerHTML = `
@@ -5422,7 +5474,7 @@
           `;
         } else {
           const isBought = (item.id === 'h1' && playerState.hasSiri) || (item.id === 'h2' && playerState.hasJanggeum) || (item.id === 'h3' && playerState.hasMunyeahana);
-          const canAfford = playerState.gold >= item.price;
+          const canAfford = playerState.gold >= item.price && (!item.reqLv || playerState.level >= item.reqLv);
           const priceLabel = `${item.price.toLocaleString()} G`;
           
           card.innerHTML = `
@@ -5703,6 +5755,10 @@
     function buyShopItem(cat, id) {
       const item = shopCatalog[cat].find(i => i.id === id);
       if (!item || playerState.gold < item.price) return;
+      if (item.reqLv && playerState.level < item.reqLv) {
+        alert(`Lv.${item.reqLv} 이상부터 구매할 수 있습니다.`);
+        return;
+      }
       if (item.reqShaman && !isShamanClass()) {
         alert('주술사 계열 전직 후 구매할 수 있습니다.');
         return;
@@ -6313,7 +6369,7 @@
 
         isLoadingSave = true;
         const p = data.player;
-        const numericFields = ['level','maxLevel','tier','hp','maxHp','mp','maxMp','exp','maxExp','gold','talismanLoot','talismanLevel','enhanceCore','baseAttackSpeed','attackSpeed','weaponAtk','defensePower','weaponEnhanceLv','moveSpeed','attackRange','atkSpeedLv','firstSkillLv','martialTrainingLv','shamanStudyLv','dailyCoreBought','jobChangeCount'];
+        const numericFields = ['level','maxLevel','tier','hp','maxHp','mp','maxMp','exp','maxExp','gold','talismanLoot','talismanLevel','enhanceCore','baseAttackSpeed','attackSpeed','weaponAtk','defensePower','weaponEnhanceLv','moveSpeed','attackRange','atkSpeedLv','firstSkillLv','martialTrainingLv','shamanStudyLv','dailyCoreBought','jobChangeCount','experienceDungeonTickets'];
         numericFields.forEach(k => { if (p[k] !== undefined && Number.isFinite(Number(p[k]))) playerState[k] = Number(p[k]); });
         playerState.maxLevel = 150;
         ['name','title','job','dailyResetDate'].forEach(k => { if (typeof p[k] === 'string') playerState[k] = p[k]; });
