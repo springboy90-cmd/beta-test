@@ -3897,7 +3897,7 @@
       stage1SnowPoints = snowPoints;
 
       const beginnerTypes = ['cat', 'pig', 'mushroom', 'rabbit'];
-      const stage1MobCount = isHadum ? 35 : 20;
+      const stage1MobCount = isHadum ? 45 : 30; // 기존 대비 일반몹 +10
       for (let i = 0; i < stage1MobCount; i++) {
         const type = beginnerTypes[i % beginnerTypes.length];
         const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: createPixelSpriteTexture(type) }));
@@ -3936,12 +3936,12 @@
       const bossShadow = createShadowDisk(4.8, 2.5);
 
       monsters.push({
-        id: `monster_20`, stageId: 1, sprite: kingMushroomSprite, shadowDisk: bossShadow, type: '왕송이모자', tier: 1, isBoss: true, isHadum,
+        id: `monster_${stage1MobCount}`, stageId: 1, sprite: kingMushroomSprite, shadowDisk: bossShadow, type: '왕송이모자', tier: 1, isBoss: true, isHadum,
         hp: isHadum ? Math.round(1500 * HADUM_MULT * HADUM_STAGE1_HP_MULT) * HADUM_HP_EXTRA_MULT : 1500, maxHp: isHadum ? Math.round(1500 * HADUM_MULT * HADUM_STAGE1_HP_MULT) * HADUM_HP_EXTRA_MULT : 1500, goldReward: 1500,
         attackPower: isHadum ? 28 * HADUM_MULT : 28, attackRange: 3.0, attackSpeed: 1300,
         lastAttackTime: 0, alive: true, destroyed: false, roamDir: new THREE.Vector3(), roamTimer: 0
       });
-      createNametagElement(`monster_20`, '대왕', '왕송이모자', false, false, true);
+      createNametagElement(`monster_${stage1MobCount}`, '대왕', '왕송이모자', false, false, true);
     }
 
     function buildStage2Cave(isHadum = false) {
@@ -3964,7 +3964,7 @@
       bearSprite.scale.set(10, 10, 1); bearSprite.position.set(0, 5, -10); scene.add(bearSprite); stageObjects.push(bearSprite);
 
       const caveTypes = ['garlic_king', 'tiger_patient', 'ungyang'];
-      const stage2MobCount = isHadum ? 35 : 18;
+      const stage2MobCount = isHadum ? 45 : 28; // 기존 대비 일반몹 +10
       for (let i = 0; i < stage2MobCount; i++) {
         const type = caveTypes[i % caveTypes.length];
         const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: createPixelSpriteTexture(type) }));
@@ -3999,12 +3999,12 @@
       const bossShadow = createShadowDisk(5.5, 3.0);
 
       monsters.push({
-        id: `monster_18`, stageId: 2, sprite: bossSprite, shadowDisk: bossShadow, type: '마늘장갑차', tier: 2, isBoss: true, isHadum,
+        id: `monster_${stage2MobCount}`, stageId: 2, sprite: bossSprite, shadowDisk: bossShadow, type: '마늘장갑차', tier: 2, isBoss: true, isHadum,
         hp: isHadum ? 5000 * HADUM_MULT * HADUM_HP_EXTRA_MULT : 5000, maxHp: isHadum ? 5000 * HADUM_MULT * HADUM_HP_EXTRA_MULT : 5000, goldReward: 3000,
         attackPower: isHadum ? 55 * HADUM_MULT : 55, attackRange: 3.5, attackSpeed: 1200,
         lastAttackTime: 0, alive: true, destroyed: false, roamDir: new THREE.Vector3(), roamTimer: 0
       });
-      createNametagElement(`monster_18`, '대왕', '마늘장갑차', false, false, true);
+      createNametagElement(`monster_${stage2MobCount}`, '대왕', '마늘장갑차', false, false, true);
     }
 
     function buildStage3Baduk(isHadum = false) {
@@ -4024,7 +4024,7 @@
       badukAltar.position.set(0, 0.2, -6); scene.add(badukAltar); stageObjects.push(badukAltar);
 
       const badukTypes = ['judang', 'palgwang', 'sangdupo'];
-      const stage3MobCount = isHadum ? 35 : 18;
+      const stage3MobCount = isHadum ? 45 : 28; // 기존 대비 일반몹 +10
       for (let i = 0; i < stage3MobCount; i++) {
         const type = badukTypes[i % badukTypes.length];
         const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: createPixelSpriteTexture(type) }));
@@ -4059,12 +4059,12 @@
       const bossShadow = createShadowDisk(6.0, 3.2);
 
       monsters.push({
-        id: `monster_18`, stageId: 3, sprite: madaepoBoss, shadowDisk: bossShadow, type: '마대포', tier: 3, isBoss: true, isHadum,
+        id: `monster_${stage3MobCount}`, stageId: 3, sprite: madaepoBoss, shadowDisk: bossShadow, type: '마대포', tier: 3, isBoss: true, isHadum,
         hp: isHadum ? 15000 * HADUM_MULT * HADUM_HP_EXTRA_MULT : 15000, maxHp: isHadum ? 15000 * HADUM_MULT * HADUM_HP_EXTRA_MULT : 15000, goldReward: 10000,
         attackPower: isHadum ? 90 * HADUM_MULT : 90, attackRange: 4.0, attackSpeed: 1000,
         lastAttackTime: 0, alive: true, destroyed: false, roamDir: new THREE.Vector3(), roamTimer: 0
       });
-      createNametagElement(`monster_18`, '대장군', '마대포', false, false, true);
+      createNametagElement(`monster_${stage3MobCount}`, '대장군', '마대포', false, false, true);
     }
 
     function buildStage4IceCastle(isHadum = false) {
@@ -4105,7 +4105,7 @@
       // Two normal monsters from the supplied screenshots.
       const iceTypes=['snowrabbit','snowlady'];
       const names={'snowrabbit':'눈토끼','snowlady':'설녀'};
-      const stage4MobCount = isHadum ? 35 : 18;
+      const stage4MobCount = isHadum ? 45 : 28; // 기존 대비 일반몹 +10
       for(let i=0;i<stage4MobCount;i++){
         const type=iceTypes[i%iceTypes.length];
         const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createIceMonsterTexture(type,false,0),transparent:true}));
@@ -4122,8 +4122,8 @@
       const bossSpritePos4 = getRandomBossSpawnPos(24, 33);
       bossSprite.scale.set(8.2,8.2,1); bossSprite.position.set(bossSpritePos4.x,4.1,bossSpritePos4.z); scene.add(bossSprite);
       const bossShadow=createShadowDisk(7.0,3.6);
-      monsters.push({id:'monster_18',stageId:4,sprite:bossSprite,shadowDisk:bossShadow,type:'빙설여왕',tier:4,isBoss:true,isHadum,hp:isHadum?36000*HADUM_MULT * HADUM_HP_EXTRA_MULT:36000,maxHp:isHadum?36000*HADUM_MULT * HADUM_HP_EXTRA_MULT:36000,goldReward:18000,attackPower:isHadum?172*HADUM_MULT:172,attackRange:4.5,attackSpeed:950,lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});
-      createNametagElement('monster_18','얼음성의 여왕','빙설여왕',false,false,true);
+      monsters.push({id:`monster_${stage4MobCount}`,stageId:4,sprite:bossSprite,shadowDisk:bossShadow,type:'빙설여왕',tier:4,isBoss:true,isHadum,hp:isHadum?36000*HADUM_MULT * HADUM_HP_EXTRA_MULT:36000,maxHp:isHadum?36000*HADUM_MULT * HADUM_HP_EXTRA_MULT:36000,goldReward:18000,attackPower:isHadum?172*HADUM_MULT:172,attackRange:4.5,attackSpeed:950,lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});
+      createNametagElement(`monster_${stage4MobCount}`,'얼음성의 여왕','빙설여왕',false,false,true);
     }
 
     function getExperienceDungeonDailyData() {
@@ -6151,31 +6151,140 @@
       }
     }
 
+    // 몬스터 AI 개선:
+    // 1) 플레이어를 배회 중심으로 삼지 않고, 각 몬스터의 '귀환 지점(home)'을 기준으로 배회한다.
+    // 2) 플레이어에게 동시에 달려드는 몬스터 수를 제한해 고난도 필드에서 과도한 포위를 방지한다.
+    // 3) 몬스터끼리 너무 겹치면 약하게 서로 밀어내어 한곳에 뭉치는 현상을 줄인다.
+    // 4) home에서 너무 멀어지면 전투를 중단하고 자신의 구역으로 돌아간다.
+    const MONSTER_HOME_LIMIT = 27;
+    const MONSTER_ROAM_RADIUS = 9;
+    const EXP_MONSTER_ROAM_RADIUS = 11;
+    const MONSTER_LEASH_EXTRA = 5;
+    const MAX_ACTIVE_MELEE_ATTACKERS = 3;
+    const MONSTER_SEPARATION_RADIUS = 3.2;
+
+    function ensureMonsterHome(m) {
+      if (m.homePosition) return;
+
+      let hx = m.sprite.position.x;
+      let hz = m.sprite.position.z;
+      const len = Math.hypot(hx, hz);
+      if (len > MONSTER_HOME_LIMIT) {
+        const safeRadius = MONSTER_HOME_LIMIT - 2;
+        hx = (hx / len) * safeRadius;
+        hz = (hz / len) * safeRadius;
+        m.sprite.position.x = hx;
+        m.sprite.position.z = hz;
+      }
+
+      m.homePosition = new THREE.Vector3(hx, 0, hz);
+      m.roamTarget = null;
+      m.roamTimer = 0;
+    }
+
+    function setMonsterRoamTarget(m) {
+      ensureMonsterHome(m);
+      const center = m.homePosition;
+      const roamRadius = m.isExperienceDungeon ? EXP_MONSTER_ROAM_RADIUS : MONSTER_ROAM_RADIUS;
+      const angle = Math.random() * Math.PI * 2;
+      const radius = 2.5 + Math.random() * roamRadius;
+      m.roamTarget = new THREE.Vector3(
+        center.x + Math.cos(angle) * radius,
+        0,
+        center.z + Math.sin(angle) * radius
+      );
+      const dir = m.roamTarget.clone().sub(m.sprite.position);
+      dir.y = 0;
+      if (dir.lengthSq() > 0.01) dir.normalize();
+      m.roamDir.copy(dir);
+      m.roamTimer = 1.8 + Math.random() * 2.2;
+    }
+
+    function getActiveMonsterAttackers() {
+      const candidates = monsters
+        .filter(m => m.alive && !m.destroyed && !m.isBoss)
+        .map(m => ({ m, dist: playerSprite.position.distanceTo(m.sprite.position) }))
+        .filter(o => o.dist <= 7.0)
+        .sort((a, b) => a.dist - b.dist);
+
+      return new Set(candidates.slice(0, MAX_ACTIVE_MELEE_ATTACKERS).map(o => o.m));
+    }
+
     function processMonsterAI(delta, now) {
       const boundLimit = floorSize / 2 - 2;
+      const activeAttackers = getActiveMonsterAttackers();
+
       monsters.forEach((m, idx) => {
         if (!m.alive) return;
+        ensureMonsterHome(m);
+
         const dist = playerSprite.position.distanceTo(m.sprite.position);
+        const homeDist = Math.hypot(
+          m.sprite.position.x - m.homePosition.x,
+          m.sprite.position.z - m.homePosition.z
+        );
+        const canEngage = m.isBoss || activeAttackers.has(m);
 
         const mBounce = Math.abs(Math.sin(now * 0.01 + idx)) * 0.18;
         const mTilt = Math.sin(now * 0.01 + idx) * 0.08;
 
-        if (dist <= m.attackRange) {
+        // 동시에 3마리까지만 플레이어를 적극적으로 추격/공격한다.
+        // 나머지는 플레이어 주변에 몰리지 않고 자신의 구역에서 배회한다.
+        if (canEngage && dist <= m.attackRange) {
           if (now - m.lastAttackTime >= m.attackSpeed) {
-            m.lastAttackTime = now; monsterAttackPlayer(m);
+            m.lastAttackTime = now;
+            monsterAttackPlayer(m);
           }
-        } else if (dist <= 7.0) {
-          const dir = playerSprite.position.clone().sub(m.sprite.position).normalize();
-          m.sprite.position.x += dir.x * 2.8 * delta;
-          m.sprite.position.z += dir.z * 2.8 * delta;
+        } else if (canEngage && dist <= 7.0 && homeDist <= MONSTER_HOME_LIMIT + MONSTER_LEASH_EXTRA) {
+          const dir = playerSprite.position.clone().sub(m.sprite.position);
+          dir.y = 0;
+          if (dir.lengthSq() > 0.01) {
+            dir.normalize();
+            m.sprite.position.x += dir.x * 2.8 * delta;
+            m.sprite.position.z += dir.z * 2.8 * delta;
+          }
           m.sprite.material.rotation = mTilt;
         } else {
+          // 플레이어와의 거리가 멀어졌거나 home 구역을 벗어나면 자신의 구역으로 복귀.
+          const forceReturn = homeDist > MONSTER_HOME_LIMIT + MONSTER_LEASH_EXTRA;
           m.roamTimer -= delta;
-          if (m.roamTimer <= 0) {
-            m.roamTimer = 2 + Math.random() * 3;
-            const angle = Math.random() * Math.PI * 2;
-            m.roamDir.set(Math.cos(angle), 0, Math.sin(angle));
+
+          const reachedTarget = m.roamTarget && m.sprite.position.distanceTo(m.roamTarget) < 1.2;
+          if (forceReturn) {
+            m.roamTarget = m.homePosition.clone();
+            m.roamTimer = 1.0;
+          } else if (m.roamTimer <= 0 || !m.roamTarget || reachedTarget) {
+            setMonsterRoamTarget(m);
           }
+
+          const dir = m.roamTarget.clone().sub(m.sprite.position);
+          dir.y = 0;
+          if (dir.lengthSq() > 0.01) {
+            dir.normalize();
+            m.roamDir.lerp(dir, Math.min(1, delta * 2.5));
+          }
+
+          // 몬스터끼리 겹치는 것을 방지하는 약한 분리력.
+          const separation = new THREE.Vector3();
+          let nearbyCount = 0;
+          monsters.forEach(other => {
+            if (other === m || !other.alive) return;
+            const dx = m.sprite.position.x - other.sprite.position.x;
+            const dz = m.sprite.position.z - other.sprite.position.z;
+            const d2 = dx * dx + dz * dz;
+            if (d2 > 0.0001 && d2 < MONSTER_SEPARATION_RADIUS * MONSTER_SEPARATION_RADIUS) {
+              const d = Math.sqrt(d2);
+              const weight = (MONSTER_SEPARATION_RADIUS - d) / MONSTER_SEPARATION_RADIUS;
+              separation.x += (dx / d) * weight;
+              separation.z += (dz / d) * weight;
+              nearbyCount++;
+            }
+          });
+          if (nearbyCount > 0 && separation.lengthSq() > 0.001) {
+            separation.normalize().multiplyScalar(0.55);
+            m.roamDir.add(separation).normalize();
+          }
+
           m.sprite.position.x += m.roamDir.x * 1.2 * delta;
           m.sprite.position.z += m.roamDir.z * 1.2 * delta;
           m.sprite.material.rotation = mTilt;
@@ -6184,19 +6293,7 @@
         const baseY = m.isBoss ? 3.0 : 1.3;
         m.sprite.position.y = baseY + mBounce;
 
-        // 배회(roam) 중 필드 경계에 닿으면 단순히 위치만 클램프하고 끝내지 않고,
-        // 다음 배회 방향을 즉시 안쪽(맵 중앙)으로 재설정한다.
-        // 이렇게 하지 않으면 몬스터가 roamTimer가 다시 만료될 때까지(최대 5초)
-        // 계속 같은 바깥쪽 방향을 향한 채 벽에 눌려있게 되어, 여러 몬스터가 가장자리에 쌓이는 현상이 생긴다.
-        const hitBound = m.sprite.position.x <= -boundLimit || m.sprite.position.x >= boundLimit ||
-                          m.sprite.position.z <= -boundLimit || m.sprite.position.z >= boundLimit;
-        if (hitBound && dist > 7.0) {
-          const towardCenter = new THREE.Vector3(-m.sprite.position.x, 0, -m.sprite.position.z);
-          if (towardCenter.lengthSq() > 0.0001) towardCenter.normalize();
-          m.roamDir.copy(towardCenter);
-          m.roamTimer = 2 + Math.random() * 3;
-        }
-
+        // 맵 경계는 최종 안전장치로만 사용한다. 평상시에는 home 구역 안에서 움직인다.
         m.sprite.position.x = Math.max(-boundLimit, Math.min(boundLimit, m.sprite.position.x));
         m.sprite.position.z = Math.max(-boundLimit, Math.min(boundLimit, m.sprite.position.z));
 
@@ -6207,10 +6304,6 @@
     }
 
     function monsterAttackPlayer(m) {
-      // 경험의 서고 사망 선택 팝업이 떠 있는 동안에는 추가 공격을 무시한다.
-      // 그렇지 않으면 팝업을 띄운 직후에도 다른 몬스터의 공격으로 계속 데미지/사망 처리가 겹쳐 일어날 수 있다.
-      if (experienceDungeonDeathModalOpen) return;
-
       // 공격력 범위(attackPowerMin~attackPowerMax)가 지정된 몬스터는 매 공격마다 랜덤 데미지를 굴린다.
       // 범위가 없는 기존 몬스터/보스는 기존 방식(attackPower 고정값)을 그대로 사용한다.
       const rawAtk = (m.attackPowerMin != null && m.attackPowerMax != null)
@@ -6223,30 +6316,10 @@
       if (playerState.hp <= 0) {
         playerState.hp = playerState.maxHp;
         playerSprite.position.set(0, 1.5, 4);
-
-        // 레벨 100 이상에서 사망 시, 현재 보유 경험치(%)에서 1%p를 직접 차감하는 페널티를 적용한다.
-        // maxExp(다음 레벨업 필요 총량)는 건드리지 않고 exp(보유 경험치) 자체를 깎으며, 죽을 때마다 누적된다.
-        // 0% 밑으로는 내려가지 않는다.
-        let deathPenaltyApplied = false;
-        if (playerState.level >= 100) {
-          const expLoss = Math.round(playerState.maxExp * 0.01);
-          if (expLoss > 0 && playerState.exp > 0) {
-            playerState.exp = Math.max(0, playerState.exp - expLoss);
-            deathPenaltyApplied = true;
-          }
-        }
-
         if (isPowerSaveMode) {
           showPowerSaveDeathAlert();
-        } else if (experienceDungeonActive) {
-          // 경험의 서고는 저레벨 구간에서 몬스터에게 반복적으로 죽기 쉬워, alert()를 그대로 쓰면
-          // 자동사냥이 계속 죽음을 유발하며 alert가 겹겹이 쌓여 화면이 막히는 문제가 있었다.
-          // alert 대신 "계속 진행 / 일반 필드로 나가기"를 고를 수 있는 팝업을 띄운다.
-          showExperienceDungeonDeathModal();
         } else {
-          alert(deathPenaltyApplied
-            ? "몬스터의 공격에 쓰러졌습니다! 부활합니다. (경험치 1% 감소)"
-            : "몬스터의 공격에 쓰러졌습니다! 부활합니다.");
+          alert("몬스터의 공격에 쓰러졌습니다! 부활합니다.");
         }
       }
       updateUI();
@@ -6256,10 +6329,6 @@
     // 오토헌트 ON 상태에서는 필드(맵) 전체 범위에서 몬스터를 찾아 이동/공격한다 (targetNearestMonster가 몬스터 전체를 탐색).
     // 절전 모드 중에도 이 함수를 호출해 캐릭터가 계속 사냥하도록 한다.
     function processPlayerMovement(delta, now) {
-      // 경험의 서고 사망 선택 팝업이 떠 있는 동안에는 캐릭터를 완전히 정지시켜,
-      // 몬스터 근처로 다시 이동해 추가로 공격받는 상황을 막는다.
-      if (experienceDungeonDeathModalOpen) return;
-
       let moveX = joystickVector.x, moveZ = joystickVector.y;
       if (keys['w'] || keys['arrowup']) moveZ = -1;
       if (keys['s'] || keys['arrowdown']) moveZ = 1;
