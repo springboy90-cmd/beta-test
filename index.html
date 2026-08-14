@@ -330,9 +330,11 @@
     .stage-card.hadum-locked { background: #eeeeee; border-color: #bdbdbd; cursor: not-allowed; opacity: 0.75; }
     .stage-divider { font-size: 11px; font-weight: bold; color: #b71c1c; text-align: center; margin: 10px 0 4px; letter-spacing: 1px; }
     .btn-exp-dungeon { background: linear-gradient(135deg, #7e57c2, #512da8); border-color: #4527a0; color: #fff; font-weight: bold; }
-    .exp-dungeon-hud { position: fixed; top: 76px; left: 50%; transform: translateX(-50%); z-index: 50; display:none; min-width:210px; padding:7px 12px; border-radius:12px; background:rgba(28,20,48,.92); color:#fff; border:2px solid #9575cd; text-align:center; font-weight:800; box-shadow:0 3px 12px rgba(0,0,0,.35); }
+    .exp-dungeon-hud { position: fixed; top: 76px; left: 50%; transform: translateX(-50%); z-index: 50; display:none; min-width:210px; padding:7px 12px; border-radius:12px; background:rgba(28,20,48,.92); color:#fff; border:2px solid #9575cd; text-align:center; font-weight:800; box-shadow:0 3px 12px rgba(0,0,0,.35); pointer-events:auto; }
     .exp-dungeon-hud .timer { color:#ffd54f; font-size:16px; margin-left:8px; }
     .exp-dungeon-hud .count { color:#ce93d8; font-size:11px; margin-left:8px; }
+    .exp-dungeon-hud .exp-dungeon-exit-btn { display:inline-block; margin-left:8px; padding:2px 7px; border-radius:8px; background:#ef5350; border:1px solid #ffcdd2; color:#fff; font-size:10px; font-weight:800; cursor:pointer; vertical-align:middle; }
+    .exp-dungeon-hud .exp-dungeon-exit-btn:active { transform:scale(0.95); }
     .exp-dungeon-info { margin:0 0 10px; padding:9px; border-radius:10px; background:#f3e5f5; border:1px solid #ce93d8; color:#4a148c; font-size:11px; line-height:1.55; }
     .exp-dungeon-locked { opacity:.55; cursor:not-allowed; }
 
@@ -908,7 +910,7 @@
   <div id="nametag-layer"></div>
 
   <div id="ui-layer">
-    <div id="exp-dungeon-hud" class="exp-dungeon-hud">📕 경험의 서고 <span class="timer" id="exp-dungeon-timer">03:00</span><span class="count" id="exp-dungeon-kills">0마리</span></div>
+    <div id="exp-dungeon-hud" class="exp-dungeon-hud">📕 경험의 서고 <span class="timer" id="exp-dungeon-timer">03:00</span><span class="count" id="exp-dungeon-kills">0마리</span><span class="exp-dungeon-exit-btn" onclick="requestExitExperienceDungeon()">나가기</span></div>
     <div style="display: flex; justify-content: space-between; width: 100%;">
       <div class="status-panel interactive">
         <div class="character-info">
@@ -4306,6 +4308,20 @@
       showHealText('📕 경험의 서고 종료 · 일반 필드로 복귀', playerSprite.position);
     }
 
+    // 이번 입장 때 소모했던 이용 횟수(무료 카운트 또는 입장권)를 그대로 되돌린다.
+    // 사망 후 나가기(exitExperienceDungeonAfterDeath)와 HUD의 즉시 나가기(requestExitExperienceDungeon)에서 공용으로 쓴다.
+    function restoreExperienceDungeonEntryCost() {
+      if (experienceDungeonEntryUsedFreeCount) {
+        const data = getExperienceDungeonDailyData();
+        data.count = Math.max(0, data.count - 1);
+        localStorage.setItem(EXPERIENCE_DUNGEON_SAVE_KEY, JSON.stringify(data));
+      } else if (experienceDungeonEntryUsedTicket) {
+        playerState.experienceDungeonTickets = (playerState.experienceDungeonTickets || 0) + 1;
+      }
+      experienceDungeonEntryUsedFreeCount = false;
+      experienceDungeonEntryUsedTicket = false;
+    }
+
     // 경험의 서고에서 몬스터에게 쓰러졌을 때, alert() 대신 이 팝업을 띄운다.
     // alert는 동기 블로킹이라 자동사냥 중 반복 사망 시 여러 alert가 겹쳐 뜨면서
     // 사용자가 아무 조작도 못 하고 브라우저를 강제 종료해야 하는 문제가 있었기 때문에,
@@ -4329,23 +4345,35 @@
       if (autoBtn) autoBtn.innerHTML = isAutoHunt ? 'AUTO<br>ON' : 'AUTO<br>OFF';
     }
 
-    // "일반 필드로 나가기": 서고를 종료하고, 이번 입장 때 소모했던 횟수(무료 카운트 또는 입장권)를 그대로 되돌린다.
+    // "일반 필드로 나가기"(사망 팝업 경로): 서고를 종료하고 이번 입장 때 소모했던 횟수를 되돌린다.
     function exitExperienceDungeonAfterDeath() {
       const modal = document.getElementById('exp-dungeon-death-modal');
       if (modal) modal.style.display = 'none';
       experienceDungeonDeathModalOpen = false;
 
-      if (experienceDungeonEntryUsedFreeCount) {
-        const data = getExperienceDungeonDailyData();
-        data.count = Math.max(0, data.count - 1);
-        localStorage.setItem(EXPERIENCE_DUNGEON_SAVE_KEY, JSON.stringify(data));
-      } else if (experienceDungeonEntryUsedTicket) {
-        playerState.experienceDungeonTickets = (playerState.experienceDungeonTickets || 0) + 1;
-      }
-      experienceDungeonEntryUsedFreeCount = false;
-      experienceDungeonEntryUsedTicket = false;
+      restoreExperienceDungeonEntryCost();
 
       isAutoHunt = experienceDungeonDeathPrevAutoHunt;
+      exitExperienceDungeon();
+      updateUI();
+      showHealText('📕 이용 횟수가 복구되었습니다', playerSprite.position);
+    }
+
+    // 화면 상단 경험의 서고 HUD의 "나가기" 버튼: 사망 여부와 무관하게 언제든 눌러
+    // 일반 필드로 즉시 복귀할 수 있으며, 이번 입장 때 소모했던 이용 횟수를 그대로 되돌린다.
+    function requestExitExperienceDungeon() {
+      if (!experienceDungeonActive) return;
+      if (!confirm('경험의 서고를 나가시겠습니까?\n(이번 입장에 사용된 이용 횟수는 차감되지 않고 복구됩니다)')) return;
+
+      // 사망 선택 팝업이 함께 떠 있는 상태라면 같이 정리한다.
+      if (experienceDungeonDeathModalOpen) {
+        const deathModal = document.getElementById('exp-dungeon-death-modal');
+        if (deathModal) deathModal.style.display = 'none';
+        experienceDungeonDeathModalOpen = false;
+        isAutoHunt = experienceDungeonDeathPrevAutoHunt;
+      }
+
+      restoreExperienceDungeonEntryCost();
       exitExperienceDungeon();
       updateUI();
       showHealText('📕 이용 횟수가 복구되었습니다', playerSprite.position);
