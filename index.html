@@ -4192,7 +4192,10 @@
       const mob = getRandomExperienceMonsterType();
       const sprite = createExperienceMonsterSprite(mob);
       sprite.scale.set(mob.texture === 'ice' ? 2.7 : 2.6, mob.texture === 'ice' ? 2.7 : 2.6, 1);
-      const x = (Math.random()-0.5)*64, z = (Math.random()-0.5)*64;
+      const spawnAngle = Math.random() * Math.PI * 2;
+      const spawnRadius = 6 + Math.random() * 24;
+      const x = Math.cos(spawnAngle) * spawnRadius;
+      const z = Math.sin(spawnAngle) * spawnRadius;
       sprite.position.set(x, 1.3, z);
       scene.add(sprite);
       const shadow = createShadowDisk(2.0,1.1);
@@ -6068,8 +6071,34 @@
       }
     }
 
+    // 몬스터가 맵 가장자리로 계속 떠밀리는 현상을 방지하는 AI 보정.
+    // 기존에는 무작위 방향으로 계속 배회하다가 경계에서 clamp되어 가장자리에 붙을 수 있었다.
+    // 이제는 '중앙/플레이어 주변의 배회 목표점'을 주기적으로 새로 잡고, 경계에 가까워지면 안쪽으로 강하게 복귀한다.
+    function setMonsterRoamTarget(m) {
+      const center = isAutoHunt
+        ? playerSprite.position
+        : new THREE.Vector3(0, 0, 0);
+
+      // 일반 필드는 중심/플레이어 주변 반경 20 내에서 배회하도록 한다.
+      // 절전 자동사냥에서는 플레이어 주변으로 자연스럽게 몬스터가 모여 타겟 탐색이 끊기지 않는다.
+      const roamRadius = m.isExperienceDungeon ? 24 : 20;
+      const angle = Math.random() * Math.PI * 2;
+      const radius = 5 + Math.random() * roamRadius;
+      m.roamTarget = new THREE.Vector3(
+        center.x + Math.cos(angle) * radius,
+        0,
+        center.z + Math.sin(angle) * radius
+      );
+      const dir = m.roamTarget.clone().sub(m.sprite.position);
+      dir.y = 0;
+      if (dir.lengthSq() > 0.01) dir.normalize();
+      m.roamDir.copy(dir);
+      m.roamTimer = 1.8 + Math.random() * 2.2;
+    }
+
     function processMonsterAI(delta, now) {
       const boundLimit = floorSize / 2 - 2;
+      const softBound = floorSize / 2 - 14; // 가장자리로 가기 전에 안쪽으로 유도
       monsters.forEach((m, idx) => {
         if (!m.alive) return;
         const dist = playerSprite.position.distanceTo(m.sprite.position);
@@ -6082,16 +6111,47 @@
             m.lastAttackTime = now; monsterAttackPlayer(m);
           }
         } else if (dist <= 7.0) {
-          const dir = playerSprite.position.clone().sub(m.sprite.position).normalize();
-          m.sprite.position.x += dir.x * 2.8 * delta;
-          m.sprite.position.z += dir.z * 2.8 * delta;
+          const dir = playerSprite.position.clone().sub(m.sprite.position);
+          dir.y = 0;
+          if (dir.lengthSq() > 0.01) {
+            dir.normalize();
+            m.sprite.position.x += dir.x * 2.8 * delta;
+            m.sprite.position.z += dir.z * 2.8 * delta;
+          }
           m.sprite.material.rotation = mTilt;
         } else {
           m.roamTimer -= delta;
-          if (m.roamTimer <= 0) {
-            m.roamTimer = 2 + Math.random() * 3;
-            const angle = Math.random() * Math.PI * 2;
-            m.roamDir.set(Math.cos(angle), 0, Math.sin(angle));
+
+          // 경계에 가까워졌거나 배회 목표점에 도착하면 새 목표를 잡는다.
+          const absX = Math.abs(m.sprite.position.x);
+          const absZ = Math.abs(m.sprite.position.z);
+          const nearEdge = absX > softBound || absZ > softBound;
+          const noTarget = !m.roamTarget;
+          const reachedTarget = m.roamTarget && m.sprite.position.distanceTo(m.roamTarget) < 1.2;
+
+          if (m.roamTimer <= 0 || nearEdge || noTarget || reachedTarget) {
+            if (nearEdge) {
+              // 현재 위치에서 맵 중앙/플레이어 쪽으로 즉시 방향을 잡아 가장자리 체류를 방지한다.
+              const center = isAutoHunt ? playerSprite.position : new THREE.Vector3(0, 0, 0);
+              const inward = center.clone().sub(m.sprite.position);
+              inward.y = 0;
+              if (inward.lengthSq() > 0.01) inward.normalize();
+              m.roamDir.copy(inward);
+              m.roamTimer = 1.2 + Math.random() * 0.8;
+              m.roamTarget = center.clone();
+            } else {
+              setMonsterRoamTarget(m);
+            }
+          }
+
+          // 목표점으로 부드럽게 이동한다. 기존 1.2 속도는 유지한다.
+          if (m.roamTarget) {
+            const dir = m.roamTarget.clone().sub(m.sprite.position);
+            dir.y = 0;
+            if (dir.lengthSq() > 0.01) {
+              dir.normalize();
+              m.roamDir.lerp(dir, Math.min(1, delta * 2.5));
+            }
           }
           m.sprite.position.x += m.roamDir.x * 1.2 * delta;
           m.sprite.position.z += m.roamDir.z * 1.2 * delta;
@@ -6101,6 +6161,7 @@
         const baseY = m.isBoss ? 3.0 : 1.3;
         m.sprite.position.y = baseY + mBounce;
 
+        // 강제 경계 보정. 기존 clamp는 유지하되, 이제 softBound에서 먼저 안쪽으로 유도한다.
         m.sprite.position.x = Math.max(-boundLimit, Math.min(boundLimit, m.sprite.position.x));
         m.sprite.position.z = Math.max(-boundLimit, Math.min(boundLimit, m.sprite.position.z));
 
@@ -6881,7 +6942,11 @@
           target.hp = cfg.hp;
           target.alive = true;
           target.destroyed = false;
-          target.sprite.position.set((Math.random()-0.5)*64, 1.3, (Math.random()-0.5)*64);
+          const respawnAngle = Math.random() * Math.PI * 2;
+          const respawnRadius = 6 + Math.random() * 24;
+          target.sprite.position.set(Math.cos(respawnAngle) * respawnRadius, 1.3, Math.sin(respawnAngle) * respawnRadius);
+          target.roamTarget = null;
+          target.roamTimer = 0;
           scene.add(target.sprite);
           if (target.shadowDisk && qualityMode === 'high') scene.add(target.shadowDisk);
           if (target.shadowDisk) target.shadowDisk.position.set(target.sprite.position.x,0.02,target.sprite.position.z);
@@ -6897,7 +6962,13 @@
           if (target.isBoss) {
             target.sprite.position.set(0, 3.0, -2);
           } else {
-            target.sprite.position.set((Math.random() - 0.5) * 60, 1.3, (Math.random() - 0.5) * 60);
+            // 리젠 위치를 맵 끝 사각형이 아니라 안쪽 원형 영역으로 제한해
+            // 절전 자동사냥 시작/재탐색이 가장자리에서 끊기지 않게 한다.
+            const angle = Math.random() * Math.PI * 2;
+            const radius = 8 + Math.random() * 20;
+            target.sprite.position.set(Math.cos(angle) * radius, 1.3, Math.sin(angle) * radius);
+            target.roamTarget = null;
+            target.roamTimer = 0;
           }
           scene.add(target.sprite);
           if (target.shadowDisk && qualityMode === 'high') scene.add(target.shadowDisk);
