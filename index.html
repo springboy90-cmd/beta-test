@@ -650,6 +650,198 @@
 }
 </style>
 
+
+<style id="mobile-popup-compact-final">
+/* iPhone급 모바일 화면용 팝업 컴팩트 설정
+   대상: 스테이지 / 스킬 / 경험의 서고 / 저자거리 상점 */
+@media (max-width: 600px) {
+  #stage-modal,
+  #skill-modal,
+  #exp-dungeon-modal,
+  #shop-modal {
+    width: min(84vw, 340px) !important;
+    max-width: calc(100vw - 24px) !important;
+    max-height: 72vh !important;
+    height: auto !important;
+    padding: 10px !important;
+    border-width: 2px !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  #stage-modal,
+  #exp-dungeon-modal,
+  #shop-modal {
+    display: none;
+    flex-direction: column;
+  }
+
+  #stage-modal .modal-title,
+  #skill-modal .modal-title,
+  #exp-dungeon-modal .modal-title,
+  #shop-modal .modal-title {
+    flex: 0 0 auto;
+    font-size: 14px !important;
+    margin-bottom: 7px !important;
+    padding-bottom: 5px !important;
+    border-bottom-width: 1px !important;
+  }
+
+  /* 긴 내용은 팝업 자체가 아니라 내부만 스크롤 */
+  #stage-modal .stage-cards,
+  #exp-dungeon-modal .stage-cards,
+  #shop-modal #shop-items-container,
+  #skill-modal #skill-items-container {
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+  }
+
+  #stage-modal .stage-cards,
+  #exp-dungeon-modal .stage-cards {
+    max-height: 51vh !important;
+    margin-bottom: 4px !important;
+    gap: 5px !important;
+  }
+
+  #stage-modal .stage-card {
+    padding: 8px !important;
+    border-width: 1px !important;
+    border-radius: 9px !important;
+  }
+
+  #stage-modal .stage-card > div:first-child > div:first-child {
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+  }
+
+  #stage-modal .stage-card > div:first-child > div:last-child {
+    font-size: 8px !important;
+    line-height: 1.25 !important;
+  }
+
+  #stage-modal .stage-card > div:last-child {
+    font-size: 9px !important;
+    white-space: nowrap !important;
+  }
+
+  #stage-modal .stage-divider {
+    font-size: 9px !important;
+    margin: 5px 0 2px !important;
+  }
+
+  #exp-dungeon-modal .exp-dungeon-info {
+    padding: 7px !important;
+    margin-bottom: 6px !important;
+    font-size: 9px !important;
+    line-height: 1.4 !important;
+  }
+
+  #exp-dungeon-modal .stage-card {
+    padding: 7px !important;
+  }
+
+  #exp-dungeon-modal .stage-card > div:first-child > div:first-child {
+    font-size: 11px !important;
+  }
+
+  #exp-dungeon-modal .stage-card > div:first-child > div:last-child {
+    font-size: 8px !important;
+  }
+
+  /* 스킬 팝업은 기존 86vh 고정 높이를 해제 */
+  #skill-modal {
+    height: 72vh !important;
+    max-height: 72vh !important;
+    padding: 10px !important;
+  }
+
+  #skill-modal #skill-items-container {
+    flex: 1 1 auto !important;
+    max-height: none !important;
+  }
+
+  /* 상점 탭은 작게, 상품 목록만 스크롤 */
+  #shop-modal .shop-tabs {
+    flex: 0 0 auto;
+    gap: 3px !important;
+    margin-bottom: 6px !important;
+    padding-bottom: 4px !important;
+  }
+
+  #shop-modal .shop-tab {
+    padding: 6px 2px !important;
+    font-size: 9px !important;
+    border-width: 1px !important;
+    border-radius: 6px !important;
+    line-height: 1.2 !important;
+  }
+
+  #shop-modal #shop-items-container {
+    max-height: 53vh !important;
+    padding-right: 2px !important;
+    gap: 5px !important;
+  }
+
+  #shop-modal .shop-item-card {
+    padding: 6px !important;
+    border-width: 1px !important;
+    border-radius: 8px !important;
+  }
+
+  #shop-modal .item-header {
+    font-size: 10px !important;
+  }
+
+  #shop-modal .item-desc {
+    font-size: 8px !important;
+    margin-bottom: 4px !important;
+  }
+
+  #shop-modal .item-price,
+  #shop-modal .btn-buy {
+    font-size: 8px !important;
+  }
+
+  /* 닫기 버튼 영역은 항상 화면 안에 남김 */
+  #stage-modal > div:last-child,
+  #skill-modal .skill-modal-close-row,
+  #exp-dungeon-modal > div:last-child,
+  #shop-modal > div:last-child {
+    flex: 0 0 auto !important;
+    margin-top: 6px !important;
+    padding-top: 6px !important;
+    background: var(--panel-bg) !important;
+    border-top: 1px solid rgba(0,0,0,.08) !important;
+    position: relative !important;
+    z-index: 5 !important;
+  }
+
+  #stage-modal .btn-small,
+  #skill-modal .btn-small,
+  #exp-dungeon-modal .btn-small,
+  #shop-modal .btn-small {
+    min-height: 30px !important;
+    padding: 5px 14px !important;
+    font-size: 10px !important;
+    border-radius: 7px !important;
+  }
+}
+
+/* 아주 작은 화면에서는 한 단계 더 축소 */
+@media (max-width: 380px) {
+  #stage-modal,
+  #skill-modal,
+  #exp-dungeon-modal,
+  #shop-modal {
+    width: calc(100vw - 20px) !important;
+    max-height: 70vh !important;
+    padding: 8px !important;
+  }
+}
+</style>
 </head>
 <body>
 
