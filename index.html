@@ -1404,6 +1404,9 @@
       processHeroAI(delta, now);
       processProjectilesAndVfx(delta);
       processPlayerMovement(delta, now);
+      // animate() 루프는 절전 모드에서 렌더링을 건너뛰기 때문에 미니맵이 여기서도 갱신되지 않으면
+      // 절전 모드 진입 직전 프레임에 박제된 좌표(구석에 몰린 몬스터 등)가 계속 표시된다.
+      renderMinimap();
 
       if (playerState.level > beforeLevel) {
         // 레벨업 직후 EXP가 다시 0으로 바뀌는 현재 시스템을 고려해 최소한의 누적량을 보정한다.
