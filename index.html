@@ -3601,52 +3601,147 @@
     }
 
     // 🐰 토끼소녀 강림 전용 푸른 지면 광원
+    // 기존 Sprite 방식은 세로 billboard라 바닥에 눕는 지면 광원으로 보이지 않을 수 있어
+    // 실제 수평 PlaneGeometry + 투명 CanvasTexture로 구현한다.
     let rabbitFormAura = null;
-    function createRabbitFormAuraTexture() {
-      // 지면에서 위로 퍼지는 푸른 광원 + 이중 마법진 + 반짝이는 별빛
-      const cvs=document.createElement('canvas'); cvs.width=256; cvs.height=256;
-      const ctx=cvs.getContext('2d');
-      const g=ctx.createRadialGradient(128,128,10,128,128,118);
-      g.addColorStop(0,'rgba(255,255,255,0.98)');
-      g.addColorStop(0.18,'rgba(180,245,255,0.88)');
-      g.addColorStop(0.42,'rgba(65,190,255,0.52)');
-      g.addColorStop(0.70,'rgba(30,120,255,0.20)');
-      g.addColorStop(1,'rgba(0,80,255,0)');
-      ctx.fillStyle=g;
-      ctx.beginPath(); ctx.ellipse(128,158,108,54,0,0,Math.PI*2); ctx.fill();
+    let rabbitFormAuraRing = null;
+    const rabbitFormSparkles = [];
 
-      ctx.strokeStyle='rgba(105,225,255,0.95)'; ctx.lineWidth=5;
-      ctx.beginPath(); ctx.ellipse(128,158,88,39,0,0,Math.PI*2); ctx.stroke();
-      ctx.strokeStyle='rgba(190,250,255,0.72)'; ctx.lineWidth=2;
-      ctx.beginPath(); ctx.ellipse(128,158,69,29,0,0,Math.PI*2); ctx.stroke();
+    function createRabbitGroundTexture() {
+      const cvs = document.createElement('canvas');
+      cvs.width = 512; cvs.height = 256;
+      const ctx = cvs.getContext('2d');
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
 
-      const stars=[[54,113,5],[82,76,4],[128,67,5],[176,82,4],[207,118,5],[191,163,3],[67,166,3],[105,188,4],[153,191,3],[224,151,3],[38,148,3]];
-      for(const [x,y,r] of stars){
-        const grd=ctx.createRadialGradient(x,y,0,x,y,r*3.2);
-        grd.addColorStop(0,'rgba(255,255,255,1)');
-        grd.addColorStop(.18,'rgba(170,245,255,.95)');
-        grd.addColorStop(1,'rgba(80,180,255,0)');
-        ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(x,y,r*3.2,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='rgba(255,255,255,.98)';
-        ctx.fillRect(x-1,y-r*1.8,2,r*3.6);
-        ctx.fillRect(x-r*1.8,y-1,r*3.6,2);
-      }
+      // 바닥에 넓게 퍼지는 푸른 광원
+      const g = ctx.createRadialGradient(256, 128, 8, 256, 128, 245);
+      g.addColorStop(0, 'rgba(235,255,255,0.96)');
+      g.addColorStop(0.18, 'rgba(105,225,255,0.78)');
+      g.addColorStop(0.48, 'rgba(25,155,255,0.42)');
+      g.addColorStop(0.78, 'rgba(30,100,255,0.16)');
+      g.addColorStop(1, 'rgba(0,70,255,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, cvs.width, cvs.height);
+
       return new THREE.CanvasTexture(cvs);
     }
-    function ensureRabbitFormAura(){
-      if(rabbitFormAura) return;
-      const mat=new THREE.SpriteMaterial({map:createRabbitFormAuraTexture(),transparent:true,opacity:0.9,depthWrite:false});
-      rabbitFormAura=new THREE.Sprite(mat); rabbitFormAura.scale.set(3.5,1.8,1); rabbitFormAura.visible=false; scene.add(rabbitFormAura);
+
+    function createRabbitGroundRingTexture() {
+      const cvs = document.createElement('canvas');
+      cvs.width = 512; cvs.height = 256;
+      const ctx = cvs.getContext('2d');
+      ctx.clearRect(0,0,512,256);
+      ctx.save();
+      ctx.translate(256,128);
+      ctx.shadowColor = 'rgba(40,190,255,0.95)';
+      ctx.shadowBlur = 16;
+      ctx.strokeStyle = 'rgba(105,230,255,0.92)';
+      ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.ellipse(190,70,190,70,0,0,Math.PI*2); ctx.stroke();
+      ctx.strokeStyle = 'rgba(220,255,255,0.76)';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(155,54,155,54,0,0,Math.PI*2); ctx.stroke();
+      ctx.restore();
+      return new THREE.CanvasTexture(cvs);
     }
+
+    function createRabbitSparkTexture() {
+      const cvs=document.createElement('canvas'); cvs.width=64; cvs.height=64;
+      const ctx=cvs.getContext('2d');
+      const g=ctx.createRadialGradient(32,32,0,32,32,30);
+      g.addColorStop(0,'rgba(255,255,255,1)');
+      g.addColorStop(0.18,'rgba(190,250,255,1)');
+      g.addColorStop(0.55,'rgba(70,190,255,0.55)');
+      g.addColorStop(1,'rgba(0,120,255,0)');
+      ctx.fillStyle=g; ctx.fillRect(0,0,64,64);
+      ctx.strokeStyle='rgba(255,255,255,0.95)'; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.moveTo(32,5); ctx.lineTo(32,59); ctx.moveTo(5,32); ctx.lineTo(59,32); ctx.stroke();
+      return new THREE.CanvasTexture(cvs);
+    }
+
+    function ensureRabbitFormAura(){
+      if (rabbitFormAura) return;
+
+      const group = new THREE.Group();
+      group.renderOrder = 100;
+
+      const glowMat = new THREE.MeshBasicMaterial({
+        map: createRabbitGroundTexture(),
+        transparent: true,
+        opacity: 0.34,
+        depthWrite: false,
+        depthTest: false,
+        blending: THREE.AdditiveBlending,
+        toneMapped: false,
+        side: THREE.DoubleSide
+      });
+      const glow = new THREE.Mesh(new THREE.PlaneGeometry(7.04, 3.68), glowMat);
+      glow.rotation.x = -Math.PI / 2;
+      glow.position.y = 0.045;
+      glow.renderOrder = 100;
+      group.add(glow);
+
+      const ringMat = new THREE.MeshBasicMaterial({
+        map: createRabbitGroundRingTexture(),
+        transparent: true,
+        opacity: 0.68,
+        depthWrite: false,
+        depthTest: false,
+        blending: THREE.AdditiveBlending,
+        toneMapped: false,
+        side: THREE.DoubleSide
+      });
+      const ring = new THREE.Mesh(new THREE.PlaneGeometry(6.56, 3.20), ringMat);
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.y = 0.075;
+      ring.renderOrder = 101;
+      group.add(ring);
+      rabbitFormAuraRing = ring;
+
+      const sparkTex = createRabbitSparkTexture();
+      const sparkPositions = [
+        [-2.32,0.18,-0.56],[2.24,0.16,-0.40],[-1.68,0.12,0.72],[1.76,0.14,0.76],
+        [-0.72,0.20,-1.08],[0.64,0.18,-1.16],[-2.64,0.12,0.28],[2.64,0.12,0.20]
+      ];
+      sparkPositions.forEach((pos, i) => {
+        const mat = new THREE.SpriteMaterial({map:sparkTex, transparent:true, opacity:0.0, depthWrite:false, depthTest:false, blending:THREE.AdditiveBlending, toneMapped:false});
+        const sp = new THREE.Sprite(mat);
+        sp.scale.set(0.34,0.34,1);
+        sp.renderOrder = 102;
+        sp.position.set(pos[0],pos[1]+0.25,pos[2]);
+        sp.userData.phase = i * 0.72;
+        group.add(sp);
+        rabbitFormSparkles.push(sp);
+      });
+
+      rabbitFormAura = group;
+      rabbitFormAura.visible = false;
+      scene.add(rabbitFormAura);
+    }
+
     function updateRabbitFormAura(now){
       ensureRabbitFormAura();
-      rabbitFormAura.visible=!!playerState.rabbitForm;
-      if(!playerState.rabbitForm) return;
-      rabbitFormAura.position.set(playerSprite.position.x,0.12,playerSprite.position.z);
-      const pulse=1+Math.sin(now*0.006)*0.06;
-      rabbitFormAura.scale.set(3.5*pulse,1.8*pulse,1);
-      rabbitFormAura.material.opacity=0.80+Math.sin(now*0.006)*0.14;
-      rabbitFormAura.material.rotation = now * 0.00018;
+      const active = !!playerState.rabbitForm;
+      rabbitFormAura.visible = active;
+      if (!active) {
+        rabbitFormSparkles.forEach(sp => sp.material.opacity = 0);
+        return;
+      }
+
+      rabbitFormAura.position.set(playerSprite.position.x, 0, playerSprite.position.z);
+      const pulse = 1 + Math.sin(now * 0.005) * 0.055;
+      rabbitFormAura.scale.set(pulse, 1, pulse);
+      rabbitFormAuraRing.rotation.z = now * 0.00045;
+
+      const t = now * 0.004;
+      rabbitFormSparkles.forEach((sp, i) => {
+        const phase = sp.userData.phase || 0;
+        const wave = (Math.sin(t + phase) + 1) * 0.5;
+        sp.material.opacity = 0.15 + wave * 0.85;
+        const s = 0.22 + wave * 0.28;
+        sp.scale.set(s,s,1);
+        sp.position.y = 0.28 + wave * 0.55;
+      });
     }
     ensureRabbitFormAura();
 
