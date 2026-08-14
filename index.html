@@ -2990,10 +2990,10 @@
     }
 
     // ===== 무공단련(검사 계열) / 주술연구(주술사 계열) =====
-    // 1차 전직(tier >= 2) 완료 시에만 노출되는 계열별 영구 강화. 최대 +50강.
+    // 1차 전직(tier >= 2) 완료 시에만 노출되는 계열별 영구 강화. 최대 +100강.
     // 1업당 상승: 검사(무공단련) - 공격력+5, HP+30, 방어+2 / 주술사(주술연구) - 공격력+5, MP+30, 방어+2
     // 비용: 1강 5,000G 시작, 1업당 +1,000G씩 증가 (매 강화 100% 성공하는 유료 강화)
-    const CLASS_TRAINING_MAX_LV = 50;
+    const CLASS_TRAINING_MAX_LV = 100;
     const CLASS_TRAINING_BASE_COST = 5000;
     const CLASS_TRAINING_COST_STEP = 1000;
 
@@ -5429,9 +5429,9 @@
       [siriSprite, janggeumSprite, munyeahanaSprite].forEach((heroSprite, index) => {
         if (heroSprite) {
           const heroState = index === 0 ? siriState : (index === 1 ? janggeumState : munyeahanaState);
-          if (heroState.level < 70) {
+          if (heroState.level < 100) {
             heroState.exp += exp;
-            while (heroState.level < 70 && heroState.exp >= heroState.maxExp) {
+            while (heroState.level < 100 && heroState.exp >= heroState.maxExp) {
               heroState.exp -= heroState.maxExp;
               heroState.level++;
               heroState.maxExp = getRequiredExp(heroState.level);
@@ -5505,7 +5505,7 @@
 
     function applyHeroSavedState(state, hero) {
       if (!state || !hero) return;
-      hero.level = Math.max(1, Math.min(70, Number(state.level) || 1));
+      hero.level = Math.max(1, Math.min(100, Number(state.level) || 1));
       hero.exp = Math.max(0, Number(state.exp) || 0);
       hero.maxExp = Number(state.maxExp) || getRequiredExp(hero.level);
     }
