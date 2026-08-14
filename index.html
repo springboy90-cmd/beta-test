@@ -140,6 +140,7 @@
     .btn-small { background: var(--panel-bg); border: 2px solid var(--panel-border); color: var(--text-main); padding: 6px 12px; font-size: 10px; font-weight: bold; border-radius: 10px; cursor: pointer; box-shadow: 0 2px 0 var(--panel-border); }
     .btn-small:active { transform: translateY(2px); box-shadow: none; }
     .btn-job { background: linear-gradient(135deg, #ffd54f, #ffb74d); border-color: #f57f17; color: #5d4037; font-weight: bold; animation: stagePulse 1.2s infinite; }
+    .btn-rabbit { background: linear-gradient(135deg,#f8bbd0,#ec407a); border-color:#ad1457; color:#fff; font-weight:bold; }
 
     @keyframes stagePulse {
       0% { box-shadow: 0 0 0 0 rgba(255, 183, 77, 0.7); }
@@ -944,6 +945,7 @@
         <button class="btn-small btn-job" id="btn-job-modal" style="display: none;" onclick="openJobModal()">📜 1차 전직하기 (Lv.20)</button>
         <button class="btn-small btn-job" id="btn-job2-modal" style="display: none;" onclick="openJob2Modal()">📜 2차 전직하기 (Lv.40)</button>
         <button class="btn-small btn-job" id="btn-job-change" style="display: none; background:#fff3e0; border-color:#ffb74d; color:#e65100;" onclick="openJobChangeModal()">🔄 직업 변경</button>
+        <button class="btn-small btn-rabbit" id="btn-rabbit-transform" style="display:none;" onclick="toggleRabbitForm()">🐰 토끼소녀 강림</button>
         <button class="btn-small" style="background:#f3e5f5; border-color:#ce93d8; color:#6a1b9a;" onclick="openHeroManager()">👥 영웅 관리</button>
         <button class="btn-small" id="btn-hero-recall" onclick="recallHeroesToPlayer()" style="background:#e3f2fd; border-color:#64b5f6; color:#1565c0;">🔔 영웅 호출</button>
         <button class="btn-small" id="btn-hero-auto" onclick="toggleHeroAutoHunt()" style="background: #fff9c4; border-color: #fbc02d; color: #f57f17;">영웅 자율사냥: OFF</button>
@@ -1182,6 +1184,7 @@
       <div class="shop-tab" id="tab-armor" onclick="switchShopCategory('armor')">방어구</div>
       <div class="shop-tab" id="tab-hero" onclick="switchShopCategory('hero')">소환영웅</div>
       <div class="shop-tab" id="tab-enhance" onclick="switchShopCategory('enhance')">강화상점</div>
+      <div class="shop-tab" id="tab-summon" onclick="switchShopCategory('summon')">강림</div>
     </div>
     <div class="shop-items-grid" id="shop-items-container"></div>
     <div style="text-align: center; margin-top: 12px;">
@@ -2593,7 +2596,76 @@
       ctx.fillStyle=g; ctx.fillRect(0,0,32,32); return new THREE.CanvasTexture(cvs);
     }
 
+    // 강림 전용 핑크 토끼소녀 도트 외형. 외부 이미지 파일 없이 HTML 내부 Canvas로 생성한다.
+    function createRabbitGirlTexture(isBack = false, attackStage = 0) {
+      // 첨부 참고 이미지의 느낌: 작은 체구의 핑크 토끼 후드 소녀 + 보라 리본 + 피크닉 가방.
+      // 외부 이미지 없이 HTML 내부 Canvas로 픽셀풍 외형을 직접 생성한다.
+      const cvs = document.createElement('canvas'); cvs.width = 128; cvs.height = 128;
+      const ctx = cvs.getContext('2d'); ctx.imageSmoothingEnabled = false;
+      const pink='#d96ac8', pink2='#f39adf', pink3='#ffb6e8', inner='#ffe4f4', skin='#f7d3b1', hair='#6b4037', purple='#7b2cbf', purple2='#a44ee8', basket='#b86a2d', basket2='#e99a4c', dark='#5a315e';
+      ctx.clearRect(0,0,128,128);
+
+      // 토끼 후드와 긴 귀
+      ctx.fillStyle=pink;
+      ctx.beginPath(); ctx.moveTo(40,42); ctx.lineTo(20,6); ctx.lineTo(42,20); ctx.lineTo(51,43); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(88,42); ctx.lineTo(108,6); ctx.lineTo(86,20); ctx.lineTo(77,43); ctx.fill();
+      ctx.fillStyle=pink3;
+      ctx.beginPath(); ctx.moveTo(37,30); ctx.lineTo(27,13); ctx.lineTo(40,22); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(91,30); ctx.lineTo(101,13); ctx.lineTo(88,22); ctx.fill();
+      ctx.fillStyle=pink2; ctx.beginPath(); ctx.arc(64,39,31,0,Math.PI*2); ctx.fill();
+
+      // 얼굴 + 머리카락
+      ctx.fillStyle=hair; ctx.beginPath(); ctx.arc(64,47,23,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=skin; ctx.beginPath(); ctx.arc(64,48,19,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#f1a5c7'; ctx.fillRect(47,49,7,3); ctx.fillRect(74,49,7,3);
+      // 큰 귀여운 눈
+      ctx.fillStyle='#2b1a35'; ctx.fillRect(53,43,7,9); ctx.fillRect(68,43,7,9);
+      ctx.fillStyle='#fff'; ctx.fillRect(54,44,2,3); ctx.fillRect(69,44,2,3);
+      ctx.fillStyle='#9b3d77'; ctx.fillRect(61,55,6,3);
+      // 앞머리
+      ctx.fillStyle=hair; ctx.fillRect(50,31,28,7); ctx.fillRect(55,36,7,8); ctx.fillRect(66,34,7,10);
+
+      // 보라색 리본
+      ctx.fillStyle=purple; ctx.fillRect(56,63,16,8); ctx.fillRect(43,60,15,12); ctx.fillRect(70,60,15,12);
+      ctx.fillStyle=purple2; ctx.fillRect(59,64,10,6);
+
+      // 핑크 원피스/토끼 슈트
+      ctx.fillStyle=pink; ctx.beginPath(); ctx.moveTo(39,70); ctx.lineTo(89,70); ctx.lineTo(98,107); ctx.lineTo(30,107); ctx.fill();
+      ctx.fillStyle=inner; ctx.beginPath(); ctx.moveTo(52,73); ctx.lineTo(64,91); ctx.lineTo(76,73); ctx.fill();
+      // 팔
+      ctx.fillStyle=pink2; ctx.fillRect(24,73,15,29); ctx.fillRect(89,73,15,29);
+      ctx.fillStyle=skin; ctx.fillRect(24,98,15,8); ctx.fillRect(89,98,15,8);
+      // 다리/신발
+      ctx.fillStyle=pink; ctx.fillRect(39,104,19,14); ctx.fillRect(70,104,19,14);
+      ctx.fillStyle=purple; ctx.fillRect(38,116,21,6); ctx.fillRect(69,116,21,6);
+
+      // 피크닉 가방: 오른손 옆에 큼직하게
+      ctx.fillStyle=basket; ctx.fillRect(88,78,25,27); ctx.fillStyle=basket2; ctx.fillRect(91,82,19,19);
+      ctx.fillStyle=dark; ctx.fillRect(87,76,27,5); ctx.strokeStyle=basket2; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.arc(101,80,12,Math.PI,Math.PI*2); ctx.stroke();
+      // 가방 속 사탕
+      ctx.fillStyle='#ff4d8d'; ctx.fillRect(95,73,5,8); ctx.fillStyle='#6ec6ff'; ctx.fillRect(103,71,5,9);
+
+      // 공격 중에는 가방에서 사탕을 꺼내는 손동작 + 반짝임
+      if (attackStage) {
+        ctx.fillStyle=skin; ctx.fillRect(82,68,12,10);
+        ctx.fillStyle='#ff4d8d'; ctx.fillRect(89,59,10,5); ctx.fillRect(91,57,6,9);
+        ctx.fillStyle='#fff6a0'; ctx.fillRect(86,54,3,3); ctx.fillRect(97,61,3,3);
+        ctx.fillStyle='#8bdcff'; ctx.fillRect(76,52,3,3); ctx.fillStyle='#ff7fc8'; ctx.fillRect(103,55,3,3);
+      }
+      if (isBack) {
+        ctx.fillStyle=pink; ctx.beginPath(); ctx.arc(64,45,28,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle=hair; ctx.fillRect(45,32,38,30);
+        ctx.fillStyle=pink; ctx.fillRect(40,63,48,40);
+        ctx.fillStyle=basket; ctx.fillRect(87,78,24,27);
+      }
+      const tex=new THREE.CanvasTexture(cvs); tex.colorSpace=THREE.SRGBColorSpace;
+      tex.magFilter=THREE.NearestFilter; tex.minFilter=THREE.NearestFilter; tex.generateMipmaps=false;
+      return tex;
+    }
+
     function createPixelSpriteTexture(type, isBack = false, attackStage = 0) {
+      if (type === 'rabbit_girl') return createRabbitGirlTexture(isBack, attackStage);
       if (summonHeroVisuals[type]) return summonHeroVisuals[type](isBack, attackStage);
       const cvs = document.createElement('canvas');
       cvs.width = 128; cvs.height = 128;
@@ -3449,7 +3521,7 @@
       weaponAtk: 0, defensePower: 5, weaponEnhanceLv: 0,
       lastAttackTime: 0, moveSpeed: 9, attackRange: 2.5,
       isAttacking: false, attackStage: 0, attackAnimTimer: 0,
-      hasSiri: false, hasJanggeum: false, hasMunyeahana: false,
+      hasSiri: false, hasJanggeum: false, hasMunyeahana: false, hasRabbitGirl: false, rabbitForm: false,
       hasAutoHeal: false, atkSpeedLv: 0, idleTimer: 0,
       skillsLearned: [],
       firstSkillLv: 0,
@@ -3517,6 +3589,66 @@
     playerSprite.scale.set(3.2, 3.2, 1);
     playerSprite.position.set(0, 1.6, 4);
     scene.add(playerSprite);
+
+    // 토끼소녀 강림 시 캐릭터 크기: 기존 대비 40% 축소(60% 유지)
+    const PLAYER_NORMAL_SCALE = 3.2;
+    const RABBIT_FORM_SCALE = PLAYER_NORMAL_SCALE * 0.6;
+    function applyPlayerFormScale() {
+      const base = playerState.rabbitForm ? RABBIT_FORM_SCALE : PLAYER_NORMAL_SCALE;
+      playerSprite.scale.x = base;
+      playerSprite.scale.y = base;
+      playerSprite.scale.z = 1;
+    }
+
+    // 🐰 토끼소녀 강림 전용 푸른 지면 광원
+    let rabbitFormAura = null;
+    function createRabbitFormAuraTexture() {
+      // 지면에서 위로 퍼지는 푸른 광원 + 이중 마법진 + 반짝이는 별빛
+      const cvs=document.createElement('canvas'); cvs.width=256; cvs.height=256;
+      const ctx=cvs.getContext('2d');
+      const g=ctx.createRadialGradient(128,128,10,128,128,118);
+      g.addColorStop(0,'rgba(255,255,255,0.98)');
+      g.addColorStop(0.18,'rgba(180,245,255,0.88)');
+      g.addColorStop(0.42,'rgba(65,190,255,0.52)');
+      g.addColorStop(0.70,'rgba(30,120,255,0.20)');
+      g.addColorStop(1,'rgba(0,80,255,0)');
+      ctx.fillStyle=g;
+      ctx.beginPath(); ctx.ellipse(128,158,108,54,0,0,Math.PI*2); ctx.fill();
+
+      ctx.strokeStyle='rgba(105,225,255,0.95)'; ctx.lineWidth=5;
+      ctx.beginPath(); ctx.ellipse(128,158,88,39,0,0,Math.PI*2); ctx.stroke();
+      ctx.strokeStyle='rgba(190,250,255,0.72)'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.ellipse(128,158,69,29,0,0,Math.PI*2); ctx.stroke();
+
+      const stars=[[54,113,5],[82,76,4],[128,67,5],[176,82,4],[207,118,5],[191,163,3],[67,166,3],[105,188,4],[153,191,3],[224,151,3],[38,148,3]];
+      for(const [x,y,r] of stars){
+        const grd=ctx.createRadialGradient(x,y,0,x,y,r*3.2);
+        grd.addColorStop(0,'rgba(255,255,255,1)');
+        grd.addColorStop(.18,'rgba(170,245,255,.95)');
+        grd.addColorStop(1,'rgba(80,180,255,0)');
+        ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(x,y,r*3.2,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='rgba(255,255,255,.98)';
+        ctx.fillRect(x-1,y-r*1.8,2,r*3.6);
+        ctx.fillRect(x-r*1.8,y-1,r*3.6,2);
+      }
+      return new THREE.CanvasTexture(cvs);
+    }
+    function ensureRabbitFormAura(){
+      if(rabbitFormAura) return;
+      const mat=new THREE.SpriteMaterial({map:createRabbitFormAuraTexture(),transparent:true,opacity:0.9,depthWrite:false});
+      rabbitFormAura=new THREE.Sprite(mat); rabbitFormAura.scale.set(3.5,1.8,1); rabbitFormAura.visible=false; scene.add(rabbitFormAura);
+    }
+    function updateRabbitFormAura(now){
+      ensureRabbitFormAura();
+      rabbitFormAura.visible=!!playerState.rabbitForm;
+      if(!playerState.rabbitForm) return;
+      rabbitFormAura.position.set(playerSprite.position.x,0.12,playerSprite.position.z);
+      const pulse=1+Math.sin(now*0.006)*0.06;
+      rabbitFormAura.scale.set(3.5*pulse,1.8*pulse,1);
+      rabbitFormAura.material.opacity=0.80+Math.sin(now*0.006)*0.14;
+      rabbitFormAura.material.rotation = now * 0.00018;
+    }
+    ensureRabbitFormAura();
 
     let munyeahanaBuffAura = null;
     let munyeahanaBuffAuraBase = 1;
@@ -5231,6 +5363,10 @@
     }
 
     function useActiveSkill(skillId) {
+      if (playerState.rabbitForm) {
+        showHealText('🐰 강림 중에는 전직 스킬을 사용할 수 없습니다.', playerSprite.position);
+        return;
+      }
       const now = Date.now();
       const cfg = getSecondJobSkillConfig(skillId);
       if (!cfg) return;
@@ -5314,7 +5450,12 @@
     }
 
     function setPlayerJobVisuals(jobName) {
-      const cfg = JOB_STAT_BONUSES[jobName] || JOB_STAT_BONUSES[getJobBaseFamily(jobName)] || JOB_STAT_BONUSES.검사;
+      if (playerState.rabbitForm) {
+        playerSprite.material.map = createPixelSpriteTexture('rabbit_girl', playerFacing === 'back', playerState.attackStage);
+        playerSprite.material.needsUpdate = true;
+        return;
+      }
+      const cfg = JOB_STAT_BONUSES[jobName] || JOB_STAT_BONUSES[getJobBaseFamily(jobName)] || JOB_STAT_BONUSES['검사'];
       const spriteType = cfg.sprite || 'player_beginner';
       const mapTex = createPixelSpriteTexture(spriteType, playerFacing === 'back');
       playerSprite.material.map = mapTex;
@@ -5334,6 +5475,7 @@
     }
 
     function openJobChangeModal() {
+      if (playerState.rabbitForm) { alert('강림 상태에서는 직업 변경을 할 수 없습니다. 먼저 강림을 해제하세요.'); return; }
       if (playerState.tier < 2) return;
       const container = document.getElementById('job-change-cards-container');
       const desc = document.getElementById('job-change-desc');
@@ -5448,7 +5590,7 @@
       ['s2_1', 's2_2', 's2_3'].forEach(skId => {
         const btn = document.getElementById(`btn-skill-${skId}`);
         if (!btn) return;
-        btn.style.display = playerState.skillsLearned.includes(skId) ? 'flex' : 'none';
+        btn.style.display = (!playerState.rabbitForm && playerState.skillsLearned.includes(skId)) ? 'flex' : 'none';
       });
     }
 
@@ -5540,6 +5682,9 @@
         { id: 'h2', name: '의녀장금', desc: '연두색 반타원 에너지 볼트 사격 (공격력 30~40) & 힐', price: 20000, currency: 'gold', type: 'hero' },
         { id: 'h3', name: '무녀하나', desc: '근거리 공격형 (기본공격 80-100) & 공/방 상시 버프 (레벨/7)%', price: 50000, currency: 'gold', type: 'hero' }
       ]
+      ,summon: [
+        { id: 'rabbit_girl', name: '🐰 토끼소녀 강림', desc: '강림 시 일반 공격이 최대 3마리 범위 공격으로 변경됩니다. 사거리 5 · 공격력 -20% 패널티 · 전직 스킬 사용 불가', price: 300000, currency: 'gold', type: 'summon' }
+      ]
     };
 
     function openShopModal() { document.getElementById('shop-modal').style.display = 'block'; switchShopCategory(currentShopCategory); }
@@ -5547,7 +5692,7 @@
 
     function switchShopCategory(cat) {
       currentShopCategory = cat;
-      ['weapon', 'armor', 'hero', 'enhance'].forEach(c => {
+      ['weapon', 'armor', 'hero', 'enhance', 'summon'].forEach(c => {
         const el = document.getElementById(`tab-${c}`);
         if (el) el.classList.toggle('active', c === cat);
       });
@@ -5556,6 +5701,24 @@
 
       if (cat === 'enhance') {
         renderEnhanceShop(container);
+        return;
+      }
+
+      if (cat === 'summon') {
+        const item = shopCatalog.summon[0];
+        const owned = !!playerState.hasRabbitGirl;
+        const active = !!playerState.rabbitForm;
+        const card = document.createElement('div'); card.className = 'shop-item-card';
+        card.innerHTML = `
+          <div>
+            <div class="item-header"><span>${item.name}</span></div>
+            <div class="item-desc">${item.desc}<br><br>🐰 핑크 토끼소녀 외형으로 변신/해제 가능<br>💰 구매 후 영구 보유</div>
+          </div>
+          <div class="item-footer">
+            <span class="item-price">${owned ? '보유중' : item.price.toLocaleString() + ' G'}</span>
+            ${owned ? `<button class="btn-buy" onclick="toggleRabbitForm();">${active ? '강림 해제' : '강림하기'}</button>` : `<button class="btn-buy" ${playerState.gold < item.price ? 'disabled' : ''} onclick="buyRabbitGirlSummon()">구매하기</button>`}
+          </div>`;
+        container.appendChild(card);
         return;
       }
 
@@ -5912,6 +6075,42 @@
       if (document.getElementById('shop-modal')?.style.display !== 'none') switchShopCategory(currentShopCategory);
     }
 
+    function buyRabbitGirlSummon() {
+      const price = 300000;
+      if (playerState.hasRabbitGirl) { toggleRabbitForm(); return; }
+      if (playerState.gold < price) { alert('게임머니가 부족합니다! (300,000 G 필요)'); return; }
+      playerState.gold -= price;
+      playerState.hasRabbitGirl = true;
+      showHealText('🐰 토끼소녀 강림 획득!', playerSprite.position);
+      updateUI();
+      switchShopCategory('summon');
+      saveGame();
+    }
+
+    function toggleRabbitForm() {
+      if (!playerState.hasRabbitGirl) { alert('저자거리 상점에서 토끼소녀 강림을 먼저 구매하세요.'); return; }
+      playerState.rabbitForm = !playerState.rabbitForm;
+      if (playerState.rabbitForm) {
+        playerState.attackRange = 5.0;
+        playerState.title = '토끼소녀 강림';
+        playerSprite.material.map = createPixelSpriteTexture('rabbit_girl', playerFacing === 'back', 0);
+        playerSprite.material.needsUpdate = true;
+        applyPlayerFormScale();
+        showHealText('🐰 토끼소녀 강림!', playerSprite.position);
+      } else {
+        const b = getJobAppliedBonus(playerState.job);
+        playerState.attackRange = b.range;
+        playerState.title = b.title;
+        setPlayerJobVisuals(playerState.job);
+        applyPlayerFormScale();
+        showHealText('🐰 강림 해제', playerSprite.position);
+      }
+      refreshSkillButtonVisibility();
+      updateUI();
+      if (document.getElementById('shop-modal')?.style.display !== 'none') switchShopCategory('summon');
+      saveGame();
+    }
+
     function buyShopItem(cat, id) {
       const item = shopCatalog[cat].find(i => i.id === id);
       if (!item || playerState.gold < item.price) return;
@@ -6172,7 +6371,8 @@
         const dist = dir.length();
 
         if (dist < 0.8) {
-          spawnHitVfx(p.target.sprite.position, 'slash', 2.0);
+          spawnHitVfx(p.target.sprite.position, p.rabbitCandy ? 'sparkle' : 'slash', p.rabbitCandy ? 2.4 : 2.0);
+          if (p.rabbitCandy) { showDamageText(p.damage, p.target.sprite.position, false); }
           applyDamage(p.target, p.damage);
           scene.remove(p.sprite);
           activeProjectiles.splice(i, 1);
@@ -6390,7 +6590,10 @@
       } else {
         playerSprite.position.y = 1.6;
         playerSprite.material.rotation = 0;
-        playerSprite.scale.y = 3.2 + Math.sin(now * 0.004) * 0.06;
+        const baseScale = playerState.rabbitForm ? RABBIT_FORM_SCALE : PLAYER_NORMAL_SCALE;
+        playerSprite.scale.x = baseScale;
+        playerSprite.scale.y = baseScale + Math.sin(now * 0.004) * 0.06;
+        playerSprite.scale.z = 1;
 
         if (playerState.hasAutoHeal) {
           playerState.idleTimer += delta;
@@ -6522,7 +6725,7 @@
           dailyCoreBought: playerState.dailyCoreBought, dailyResetDate: playerState.dailyResetDate,
           moveSpeed: playerState.moveSpeed, attackRange: playerState.attackRange,
           hasSiri: playerState.hasSiri, hasJanggeum: playerState.hasJanggeum,
-          hasMunyeahana: playerState.hasMunyeahana, hasAutoHeal: playerState.hasAutoHeal,
+          hasMunyeahana: playerState.hasMunyeahana, hasRabbitGirl: playerState.hasRabbitGirl, rabbitForm: playerState.rabbitForm, hasAutoHeal: playerState.hasAutoHeal,
           atkSpeedLv: playerState.atkSpeedLv, firstSkillLv: playerState.firstSkillLv, jobChangeCount: playerState.jobChangeCount, skillLv: { s2_2: playerState.skillLv.s2_2, s2_3: playerState.skillLv.s2_3 }, skillsLearned: Array.isArray(playerState.skillsLearned) ? [...playerState.skillsLearned].filter(id => id !== 's1_2') : [],
           skillCooldowns: { s1_1: 0, s2_1: 0, s2_2: 0, s2_3: 0 }
         },
@@ -6572,7 +6775,8 @@
         numericFields.forEach(k => { if (p[k] !== undefined && Number.isFinite(Number(p[k]))) playerState[k] = Number(p[k]); });
         playerState.maxLevel = 150;
         ['name','title','job','dailyResetDate'].forEach(k => { if (typeof p[k] === 'string') playerState[k] = p[k]; });
-        ['hasSiri','hasJanggeum','hasMunyeahana','hasAutoHeal'].forEach(k => { if (typeof p[k] === 'boolean') playerState[k] = p[k]; });
+        ['hasSiri','hasJanggeum','hasMunyeahana','hasRabbitGirl','rabbitForm','hasAutoHeal'].forEach(k => { if (typeof p[k] === 'boolean') playerState[k] = p[k]; });
+        if (!playerState.hasRabbitGirl) playerState.rabbitForm = false;
         if (Array.isArray(p.skillsLearned)) playerState.skillsLearned = [...p.skillsLearned].filter(id => id !== 's1_2');
         playerState.firstSkillLv = Math.max(0, Math.min(5, Number(playerState.firstSkillLv) || 0));
         playerState.weaponEnhanceLv = Math.max(0, Math.min(WEAPON_ENHANCE_MAX_LV, Number(playerState.weaponEnhanceLv) || 0));
@@ -6615,6 +6819,14 @@
         if (playerState.hasJanggeum && data.heroes && data.heroes.janggeum && data.heroes.janggeum.active) spawnJanggeumHero();
         if (playerState.hasMunyeahana && data.heroes && data.heroes.munyeahana && data.heroes.munyeahana.active) spawnMunyeahanaHero();
 
+        if (playerState.rabbitForm) {
+          playerState.attackRange = 5.0;
+          playerState.title = '토끼소녀 강림';
+          playerSprite.material.map = createPixelSpriteTexture('rabbit_girl', playerFacing === 'back', 0);
+          playerSprite.material.needsUpdate = true;
+          applyPlayerFormScale();
+        }
+
         isLoadingSave = false;
         return true;
       } catch (e) {
@@ -6641,7 +6853,12 @@
       refreshSecondSkillButtons();
       document.getElementById('player-name').innerText = playerState.name;
       document.getElementById('player-lv').innerText = playerState.level >= playerState.maxLevel ? `Lv.${playerState.maxLevel} (MAX)` : `Lv.${playerState.level}`;
-      document.getElementById('player-job').innerText = playerState.job;
+      document.getElementById('player-job').innerText = playerState.rabbitForm ? '🐰 토끼소녀 강림' : playerState.job;
+      const rabbitBtn = document.getElementById('btn-rabbit-transform');
+      if (rabbitBtn) {
+        rabbitBtn.style.display = playerState.hasRabbitGirl ? 'block' : 'none';
+        rabbitBtn.innerText = playerState.rabbitForm ? '🐰 강림 해제' : '🐰 토끼소녀 강림';
+      }
 
       document.getElementById('hp-fill').style.width = `${(playerState.hp / playerState.maxHp) * 100}%`;
       document.getElementById('hp-text').innerText = `${playerState.hp}/${playerState.maxHp}`;
@@ -6777,6 +6994,11 @@
     window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
     function updatePlayerFacingTexture() {
+      if (playerState.rabbitForm) {
+        playerSprite.material.map = createPixelSpriteTexture('rabbit_girl', playerFacing === 'back', playerState.attackStage);
+        playerSprite.material.needsUpdate = true;
+        return;
+      }
       let baseType = 'player_beginner';
       if (playerState.tier === 2) {
         if (playerState.job === '검사') baseType = 'player_sword';
@@ -6881,8 +7103,42 @@
       return selectedTarget;
     }
 
+    function createRabbitCandyTexture(color='#ff5fa2') {
+      const cvs=document.createElement('canvas'); cvs.width=48; cvs.height=48;
+      const ctx=cvs.getContext('2d'); ctx.imageSmoothingEnabled=false;
+      ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.fillRect(20,8,8,32);
+      ctx.fillStyle=color; ctx.fillRect(12,16,24,16); ctx.fillRect(8,20,8,8); ctx.fillRect(32,20,8,8);
+      ctx.fillStyle='#fff'; ctx.fillRect(15,19,4,4); ctx.fillStyle='#ffe66d'; ctx.fillRect(25,25,5,5);
+      return new THREE.CanvasTexture(cvs);
+    }
+    function spawnRabbitCandyProjectile(startPos,target,damageVal,index=0){
+      const colors=['#ff5fa2','#64c7ff','#ffd34d','#b57cff'];
+      const mat=new THREE.SpriteMaterial({map:createRabbitCandyTexture(colors[index%colors.length]),transparent:true,depthWrite:false});
+      const sprite=new THREE.Sprite(mat); sprite.scale.set(0.62,0.62,1); sprite.position.copy(startPos).add(new THREE.Vector3(0,1.05,0)); scene.add(sprite);
+      activeProjectiles.push({sprite,target,damage:damageVal,speed:18.0,rabbitCandy:true});
+    }
+
     function triggerAttackBtn(forceRetarget = true) {
       const now = Date.now();
+
+      // 🐰 토끼소녀 강림: 일반 공격만 사용 / 최대 3마리 / 사거리 5 / 공격 1회당 MP 5 소모
+      if (playerState.rabbitForm) {
+        const hasValidRabbitTarget = selectedTarget && selectedTarget.alive && playerSprite.position.distanceTo(selectedTarget.sprite.position) <= 18;
+        if (!hasValidRabbitTarget && forceRetarget) targetNearestMonster(true);
+        if (now - playerState.lastAttackTime < playerState.attackSpeed) return;
+        if (!selectedTarget || !selectedTarget.alive || playerSprite.position.distanceTo(selectedTarget.sprite.position) > playerState.attackRange) return;
+        if (!consumeSkillMp(5)) return;
+        playerState.lastAttackTime = now;
+        triggerAttackAnim();
+        const center = selectedTarget.sprite.position;
+        const targets = monsters.filter(m => m.alive && playerSprite.position.distanceTo(m.sprite.position) <= playerState.attackRange)
+          .sort((a,b) => center.distanceTo(a.sprite.position) - center.distanceTo(b.sprite.position)).slice(0,3);
+        const uniqueTargets = targets.length ? targets : [selectedTarget];
+        uniqueTargets.forEach((m, idx) => {
+          spawnRabbitCandyProjectile(playerSprite.position, m, getPlayerActualDmg(0.8), idx);
+        });
+        return;
+      }
 
       // 기존 타겟이 살아있고 사거리 내에 있으면 그대로 유지한다.
       // (다른 몬스터가 더 가깝다는 이유만으로 살아있는 타겟을 바꾸지 않는다.)
@@ -7155,6 +7411,7 @@
       processMonsterAI(delta, now);
       processHeroAI(delta, now);
       processProjectilesAndVfx(delta);
+        updateRabbitFormAura(now);
 
       if (stage4SnowPoints) {
         const posAttr4 = stage4SnowPoints.geometry.attributes.position;
