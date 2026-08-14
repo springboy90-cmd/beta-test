@@ -223,7 +223,14 @@
     .skill-cooldown-panel { margin:0 0 10px; padding:8px 10px; border-radius:6px; background:#181818; border:1px solid #333; font-size:12px; line-height:1.7; display:none; }
     .skill-cooldown-panel.show { display:block; }
     .daedosa-skill-art { width:100%; height:118px; object-fit:cover; object-position:center; display:block; border-radius:9px; margin:0 0 8px; border:1px solid rgba(255,215,120,.55); box-shadow:0 2px 8px rgba(80,0,120,.28); }
-    .daedosa-skill-card { overflow:hidden; padding:7px; background:linear-gradient(135deg,#24103c,#4a1b55); border-color:#9c5cff; }
+    /* 대도사 2차 스킬 카드: 이미지가 버튼 영역을 밀어내지 않도록 구매 영역을 항상 노출 */
+    .daedosa-skill-card { overflow:hidden; padding:7px; background:linear-gradient(135deg,#24103c,#4a1b55); border-color:#9c5cff; min-width:0; }
+    .daedosa-skill-card .daedosa-skill-art { height:96px; margin-bottom:6px; }
+    .daedosa-skill-card .item-header { min-height:16px; }
+    .daedosa-skill-card .item-desc { min-height:30px; margin-bottom:5px; }
+    .daedosa-skill-card .item-footer { min-height:27px; margin-top:3px; gap:4px; }
+    .daedosa-skill-card .btn-buy { flex:0 0 auto; white-space:nowrap; padding:5px 9px; font-size:9px; }
+    .daedosa-skill-card .item-price { white-space:nowrap; font-size:9px; }
     .daedosa-skill-card .item-header { color:#fff; font-size:13px; }
     .daedosa-skill-card .item-desc { color:#f4e8ff; }
     .skill-btn-img { display:none; width:100%; height:100%; object-fit:cover; border-radius:50%; position:absolute; inset:0; }
@@ -771,6 +778,27 @@
   #skill-modal #skill-items-container {
     flex: 1 1 auto !important;
     max-height: none !important;
+  }
+
+  /* 모바일: 대도사 2차 스킬 이미지와 구매 버튼을 한 카드 안에 함께 표시 */
+  #skill-modal .daedosa-skill-card .daedosa-skill-art {
+    height: 92px !important;
+  }
+  #skill-modal .daedosa-skill-card .item-desc {
+    font-size: 8px !important;
+    line-height: 1.25 !important;
+    min-height: 30px !important;
+  }
+  #skill-modal .daedosa-skill-card .item-footer {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    min-height: 28px !important;
+  }
+  #skill-modal .daedosa-skill-card .btn-buy {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 
   /* 상점 탭은 작게, 상품 목록만 스크롤 */
