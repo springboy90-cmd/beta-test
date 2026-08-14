@@ -1450,17 +1450,13 @@
       document.getElementById('btn-powersave-off').classList.toggle('active', !on);
 
       if (on) {
-        // 절전 모드에서는 유저와 소환영웅 모두 자동사냥을 강제로 활성화한다.
+        // 절전 모드에서는 유저 캐릭터만 자동사냥을 강제로 활성화한다.
+        // 소환영웅은 화면을 안 보는 동안에도 유저와 함께 같은 자리에서 사냥하도록,
+        // 자율사냥(필드 전체를 돌아다니며 개별 행동)은 강제로 켜지 않고 기존 설정을 그대로 둔다.
         isAutoHunt = true;
-        heroAutoHunt = true;
 
         const autoBtn = document.getElementById('btn-auto');
         if (autoBtn) autoBtn.innerHTML = 'AUTO<br>ON';
-        const heroAutoBtn = document.getElementById('btn-hero-auto');
-        if (heroAutoBtn) {
-          heroAutoBtn.innerText = '영웅 자율사냥: ON';
-          heroAutoBtn.style.background = '#ffe082';
-        }
 
         if (!siriTarget || !siriTarget.alive) siriTarget = null;
         if (!janggeumTarget || !janggeumTarget.alive) janggeumTarget = null;
@@ -1479,6 +1475,12 @@
         if (powerSaveClockTimer) { clearInterval(powerSaveClockTimer); powerSaveClockTimer = null; }
         if (powerSaveGameTimer) { clearInterval(powerSaveGameTimer); powerSaveGameTimer = null; }
         powerSaveLastTick = 0;
+
+        // 절전 모드 중 브라우저가 탭/화면을 스로틀링하면 processPowerSaveGameTick(250ms 인터벌) 자체가
+        // 오랫동안 거의 실행되지 못해, 그 사이 몬스터가 벽에 눌린 상태로 갱신이 멈춰있을 수 있다.
+        // 해제 직후 렌더 루프가 정상 프레임으로 재개되기 전에 모든 몬스터의 roamTimer를 강제로 만료시켜,
+        // 다음 프레임부터 즉시 새 방향(및 벽 반사 로직)이 적용되도록 한다.
+        monsters.forEach(m => { if (m.alive) m.roamTimer = 0; });
       }
     }
 
