@@ -36,43 +36,6 @@
       position: absolute; top: 0; left: 0; right: 0; bottom: 0;
       z-index: 1; 
     }
-    #power-save-screen {
-      display: none;
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: #000000;
-      z-index: 10000;
-      flex-direction: column; align-items: center; justify-content: center;
-      color: #78909c;
-    }
-    #power-save-screen.active { display: flex; }
-    #power-save-clock { font-size: 15vw; font-weight: 300; letter-spacing: 2px; color: #90a4ae; font-variant-numeric: tabular-nums; }
-    #power-save-date { font-size: 4vw; color: #546e7a; margin-top: 4px; }
-    #power-save-label { font-size: 3vw; color: #37474f; margin-top: 24px; letter-spacing: 4px; }
-    #power-save-exp { margin-top: 18px; color: #90a4ae; font-size: 16px; font-weight: 700; }
-    #power-save-status { margin-top: 8px; color: #78909c; font-size: 13px; font-weight: 600; }
-    #power-save-death-log {
-      display: none;
-      margin-top: 20px;
-      background: rgba(198, 40, 40, 0.15);
-      border: 1px solid #c62828;
-      color: #ef9a9a;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 3.2vw;
-      text-align: center;
-      animation: powerSaveDeathFade 4s ease-out forwards;
-    }
-    @keyframes powerSaveDeathFade {
-      0% { opacity: 0; transform: translateY(-6px); }
-      10% { opacity: 1; transform: translateY(0); }
-      80% { opacity: 1; }
-      100% { opacity: 0; }
-    }
-    #power-save-exit-btn {
-      position: absolute; bottom: 24px; right: 24px;
-      background: rgba(255,255,255,0.08); color: #90a4ae; border: 1px solid #37474f;
-      border-radius: 20px; padding: 8px 16px; font-size: 12px; cursor: pointer;
-    }
     #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 8px; }
     .interactive { pointer-events: auto; }
 
@@ -896,16 +859,6 @@
 </head>
 <body>
 
-  <div id="power-save-screen">
-    <div id="power-save-clock">00:00</div>
-    <div id="power-save-date"></div>
-    <div id="power-save-label">절전 모드 · 사냥 진행 중</div>
-    <div id="power-save-exp">획득 경험치: 0 EXP</div>
-    <div id="power-save-status">⚔️ 자동사냥 진행 중 · 💀 사망 없음</div>
-    <div id="power-save-death-log"></div>
-    <button id="power-save-exit-btn" onclick="setPowerSaveMode(false)">게임 화면 보기</button>
-  </div>
-
   <div id="canvas-container"></div>
   <div id="nametag-layer"></div>
 
@@ -1016,14 +969,7 @@
     </div>
     <div style="margin-bottom: 16px;">
       <div style="font-weight: bold; margin-bottom: 8px; font-size: 12px; color: #4e342e;">🌙 절전 모드</div>
-      <div style="display: flex; gap: 8px;">
-        <button class="shop-tab active" id="btn-powersave-off" onclick="setPowerSaveMode(false)">
-          ☀️ 절전 모드 끄기<br><span style="font-size: 9px; font-weight: normal; opacity: 0.85;">일반 게임 화면 유지</span>
-        </button>
-        <button class="shop-tab" id="btn-powersave-on" onclick="setPowerSaveMode(true)">
-          🌙 절전 모드 켜기<br><span style="font-size: 9px; font-weight: normal; opacity: 0.85;">화면 최소화, 사냥은 계속 진행</span>
-        </button>
-      </div>
+
     </div>
     <div style="display:flex; gap:8px; margin-top:12px;">
       <button class="btn-small" style="flex:1; background:#e8f5e9; border-color:#81c784; color:#2e7d32;" onclick="saveGame(true)">💾 지금 저장</button>
@@ -1379,139 +1325,6 @@
       shadowMeshes.forEach(mesh => {
         mesh.visible = isHigh;
       });
-    }
-
-    /* ==========================================
-       절전 모드 (배터리/발열 관리)
-       화면 렌더링만 멈추고 전투/성장 로직은 그대로 진행된다.
-       ========================================== */
-    let isPowerSaveMode = false;
-    let powerSaveClockTimer = null;
-    let powerSaveGameTimer = null;
-    let powerSaveSessionExp = 0;
-    let powerSaveLastTick = 0;
-    let powerSaveDeathCount = 0;
-
-    function updatePowerSaveClock() {
-      const now = new Date();
-      const hh = String(now.getHours()).padStart(2, '0');
-      const mm = String(now.getMinutes()).padStart(2, '0');
-      const clockEl = document.getElementById('power-save-clock');
-      if (clockEl) clockEl.innerText = `${hh}:${mm}`;
-
-      const dateEl = document.getElementById('power-save-date');
-      if (dateEl) {
-        const days = ['일','월','화','수','목','금','토'];
-        dateEl.innerText = `${now.getMonth() + 1}월 ${now.getDate()}일 (${days[now.getDay()]}) · Lv.${playerState.level} ${playerState.job}`;
-      }
-
-      const expEl = document.getElementById('power-save-exp');
-      if (expEl) expEl.innerText = `획득 경험치: ${powerSaveSessionExp.toLocaleString()} EXP`;
-
-      const statusEl = document.getElementById('power-save-status');
-      if (statusEl) {
-        statusEl.innerText = `⚔️ ${isAutoHunt ? '자동사냥 진행 중' : '자동사냥 대기'} · ${powerSaveDeathCount > 0 ? `💀 ${powerSaveDeathCount}회 사망` : '💀 사망 없음'}`;
-      }
-    }
-
-    function processPowerSaveGameTick() {
-      if (!isPowerSaveMode) return;
-      const now = Date.now();
-      const rawElapsedSec = powerSaveLastTick > 0 ? (now - powerSaveLastTick) / 1000 : 0.25;
-      const delta = powerSaveLastTick > 0 ? Math.min(0.5, Math.max(0.05, rawElapsedSec)) : 0.25;
-      powerSaveLastTick = now;
-
-      // 절전 모드 중 브라우저가 탭/화면을 스로틀링하면 이 인터벌이 몇 초~몇 분 단위로 건너뛰어 실행될 수 있다.
-      // delta는 한 틱당 최대 0.5초로 클램프되어 있어 실제 경과시간을 그대로 반영하지 못하므로,
-      // 그 사이 몬스터의 roamTimer가 갱신되지 않아 우연히 바깥쪽을 향하던 방향 그대로 벽에 눌려있게 된다.
-      // 실제 경과시간이 비정상적으로 크면(5초 이상) 모든 몬스터의 roamTimer를 강제로 만료시켜
-      // 다음 processMonsterAI 호출에서 새 방향을 즉시 재설정하도록 한다.
-      if (rawElapsedSec >= 5) {
-        monsters.forEach(m => { if (m.alive) m.roamTimer = 0; });
-      }
-
-      const beforeExp = playerState.exp;
-      const beforeLevel = playerState.level;
-      processMonsterAI(delta, now);
-      processHeroAI(delta, now);
-      processProjectilesAndVfx(delta);
-      processPlayerMovement(delta, now);
-      // animate() 루프는 절전 모드에서 렌더링을 건너뛰기 때문에 미니맵이 여기서도 갱신되지 않으면
-      // 절전 모드 진입 직전 프레임에 박제된 좌표(구석에 몰린 몬스터 등)가 계속 표시된다.
-      renderMinimap();
-
-      if (playerState.level > beforeLevel) {
-        // 레벨업 직후 EXP가 다시 0으로 바뀌는 현재 시스템을 고려해 최소한의 누적량을 보정한다.
-        powerSaveSessionExp += Math.max(0, (playerState.maxExp + playerState.exp) - beforeExp);
-      } else {
-        powerSaveSessionExp += Math.max(0, playerState.exp - beforeExp);
-      }
-      updatePowerSaveClock();
-    }
-
-    // 절전 모드 중 캐릭터가 쓰러졌을 때, alert()로 화면을 막지 않고
-    // 절전 화면 위에 잠깐 뜨는 알림 배너로 대신 안내한다.
-    function showPowerSaveDeathAlert() {
-      const el = document.getElementById('power-save-death-log');
-      if (!el) return;
-      const now = new Date();
-      const hh = String(now.getHours()).padStart(2, '0');
-      const mm = String(now.getMinutes()).padStart(2, '0');
-      el.innerText = `💀 ${hh}:${mm} — 몬스터의 공격에 쓰러져 부활했습니다`;
-      el.style.display = 'block';
-      el.style.animation = 'none';
-      void el.offsetWidth; // 애니메이션 재시작을 위한 강제 리플로우
-      el.style.animation = 'powerSaveDeathFade 4s ease-out forwards';
-    }
-
-    function setPowerSaveMode(on) {
-      isPowerSaveMode = on;
-      const screen = document.getElementById('power-save-screen');
-
-      document.getElementById('btn-powersave-on').classList.toggle('active', on);
-      document.getElementById('btn-powersave-off').classList.toggle('active', !on);
-
-      if (on) {
-        // 절전 모드에서는 유저 캐릭터만 자동사냥을 강제로 활성화한다.
-        // 소환영웅은 화면을 안 보는 동안에도 유저와 함께 같은 자리에서 사냥하도록,
-        // 자율사냥(필드 전체를 돌아다니며 개별 행동)은 강제로 켜지 않고 기존 설정을 그대로 둔다.
-        isAutoHunt = true;
-
-        const autoBtn = document.getElementById('btn-auto');
-        if (autoBtn) autoBtn.innerHTML = 'AUTO<br>ON';
-
-        if (!siriTarget || !siriTarget.alive) siriTarget = null;
-        if (!janggeumTarget || !janggeumTarget.alive) janggeumTarget = null;
-        if (!munyeahanaTarget || !munyeahanaTarget.alive) munyeahanaTarget = null;
-
-        powerSaveSessionExp = 0;
-        powerSaveDeathCount = 0;
-        // 절전모드 진입 순간 모든 몬스터의 젠 구역을 확정하고 랜덤 배회를 즉시 중지한다.
-        monsters.forEach(m => {
-          if (!m.alive) return;
-          ensureMonsterHome(m);
-          m.roamTarget = null;
-          m.roamTimer = 0;
-          m.roamDir.set(0, 0, 0);
-        });
-        powerSaveLastTick = Date.now();
-        updatePowerSaveClock();
-        screen.classList.add('active');
-
-        if (!powerSaveClockTimer) powerSaveClockTimer = setInterval(updatePowerSaveClock, 1000);
-        if (!powerSaveGameTimer) powerSaveGameTimer = setInterval(processPowerSaveGameTick, 250);
-      } else {
-        screen.classList.remove('active');
-        if (powerSaveClockTimer) { clearInterval(powerSaveClockTimer); powerSaveClockTimer = null; }
-        if (powerSaveGameTimer) { clearInterval(powerSaveGameTimer); powerSaveGameTimer = null; }
-        powerSaveLastTick = 0;
-
-        // 절전 모드 중 브라우저가 탭/화면을 스로틀링하면 processPowerSaveGameTick(250ms 인터벌) 자체가
-        // 오랫동안 거의 실행되지 못해, 그 사이 몬스터가 벽에 눌린 상태로 갱신이 멈춰있을 수 있다.
-        // 해제 직후 렌더 루프가 정상 프레임으로 재개되기 전에 모든 몬스터의 roamTimer를 강제로 만료시켜,
-        // 다음 프레임부터 즉시 새 방향(및 벽 반사 로직)이 적용되도록 한다.
-        monsters.forEach(m => { if (m.alive) m.roamTimer = 0; });
-      }
     }
 
     /* ==========================================
@@ -3905,7 +3718,7 @@
       stage1SnowPoints = snowPoints;
 
       const beginnerTypes = ['cat', 'pig', 'mushroom', 'rabbit'];
-      const stage1MobCount = isHadum ? 45 : 30; // 기존 대비 일반몹 +10
+      const stage1MobCount = isHadum ? 35 : 20;
       for (let i = 0; i < stage1MobCount; i++) {
         const type = beginnerTypes[i % beginnerTypes.length];
         const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: createPixelSpriteTexture(type) }));
@@ -3944,12 +3757,12 @@
       const bossShadow = createShadowDisk(4.8, 2.5);
 
       monsters.push({
-        id: `monster_${stage1MobCount}`, stageId: 1, sprite: kingMushroomSprite, shadowDisk: bossShadow, type: '왕송이모자', tier: 1, isBoss: true, isHadum,
+        id: `monster_20`, stageId: 1, sprite: kingMushroomSprite, shadowDisk: bossShadow, type: '왕송이모자', tier: 1, isBoss: true, isHadum,
         hp: isHadum ? Math.round(1500 * HADUM_MULT * HADUM_STAGE1_HP_MULT) * HADUM_HP_EXTRA_MULT : 1500, maxHp: isHadum ? Math.round(1500 * HADUM_MULT * HADUM_STAGE1_HP_MULT) * HADUM_HP_EXTRA_MULT : 1500, goldReward: 1500,
         attackPower: isHadum ? 28 * HADUM_MULT : 28, attackRange: 3.0, attackSpeed: 1300,
         lastAttackTime: 0, alive: true, destroyed: false, roamDir: new THREE.Vector3(), roamTimer: 0
       });
-      createNametagElement(`monster_${stage1MobCount}`, '대왕', '왕송이모자', false, false, true);
+      createNametagElement(`monster_20`, '대왕', '왕송이모자', false, false, true);
     }
 
     function buildStage2Cave(isHadum = false) {
@@ -3972,7 +3785,7 @@
       bearSprite.scale.set(10, 10, 1); bearSprite.position.set(0, 5, -10); scene.add(bearSprite); stageObjects.push(bearSprite);
 
       const caveTypes = ['garlic_king', 'tiger_patient', 'ungyang'];
-      const stage2MobCount = isHadum ? 45 : 28; // 기존 대비 일반몹 +10
+      const stage2MobCount = isHadum ? 35 : 18;
       for (let i = 0; i < stage2MobCount; i++) {
         const type = caveTypes[i % caveTypes.length];
         const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: createPixelSpriteTexture(type) }));
@@ -4007,12 +3820,12 @@
       const bossShadow = createShadowDisk(5.5, 3.0);
 
       monsters.push({
-        id: `monster_${stage2MobCount}`, stageId: 2, sprite: bossSprite, shadowDisk: bossShadow, type: '마늘장갑차', tier: 2, isBoss: true, isHadum,
+        id: `monster_18`, stageId: 2, sprite: bossSprite, shadowDisk: bossShadow, type: '마늘장갑차', tier: 2, isBoss: true, isHadum,
         hp: isHadum ? 5000 * HADUM_MULT * HADUM_HP_EXTRA_MULT : 5000, maxHp: isHadum ? 5000 * HADUM_MULT * HADUM_HP_EXTRA_MULT : 5000, goldReward: 3000,
         attackPower: isHadum ? 55 * HADUM_MULT : 55, attackRange: 3.5, attackSpeed: 1200,
         lastAttackTime: 0, alive: true, destroyed: false, roamDir: new THREE.Vector3(), roamTimer: 0
       });
-      createNametagElement(`monster_${stage2MobCount}`, '대왕', '마늘장갑차', false, false, true);
+      createNametagElement(`monster_18`, '대왕', '마늘장갑차', false, false, true);
     }
 
     function buildStage3Baduk(isHadum = false) {
@@ -4032,7 +3845,7 @@
       badukAltar.position.set(0, 0.2, -6); scene.add(badukAltar); stageObjects.push(badukAltar);
 
       const badukTypes = ['judang', 'palgwang', 'sangdupo'];
-      const stage3MobCount = isHadum ? 45 : 28; // 기존 대비 일반몹 +10
+      const stage3MobCount = isHadum ? 35 : 18;
       for (let i = 0; i < stage3MobCount; i++) {
         const type = badukTypes[i % badukTypes.length];
         const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: createPixelSpriteTexture(type) }));
@@ -4067,12 +3880,12 @@
       const bossShadow = createShadowDisk(6.0, 3.2);
 
       monsters.push({
-        id: `monster_${stage3MobCount}`, stageId: 3, sprite: madaepoBoss, shadowDisk: bossShadow, type: '마대포', tier: 3, isBoss: true, isHadum,
+        id: `monster_18`, stageId: 3, sprite: madaepoBoss, shadowDisk: bossShadow, type: '마대포', tier: 3, isBoss: true, isHadum,
         hp: isHadum ? 15000 * HADUM_MULT * HADUM_HP_EXTRA_MULT : 15000, maxHp: isHadum ? 15000 * HADUM_MULT * HADUM_HP_EXTRA_MULT : 15000, goldReward: 10000,
         attackPower: isHadum ? 90 * HADUM_MULT : 90, attackRange: 4.0, attackSpeed: 1000,
         lastAttackTime: 0, alive: true, destroyed: false, roamDir: new THREE.Vector3(), roamTimer: 0
       });
-      createNametagElement(`monster_${stage3MobCount}`, '대장군', '마대포', false, false, true);
+      createNametagElement(`monster_18`, '대장군', '마대포', false, false, true);
     }
 
     function buildStage4IceCastle(isHadum = false) {
@@ -4113,7 +3926,7 @@
       // Two normal monsters from the supplied screenshots.
       const iceTypes=['snowrabbit','snowlady'];
       const names={'snowrabbit':'눈토끼','snowlady':'설녀'};
-      const stage4MobCount = isHadum ? 45 : 28; // 기존 대비 일반몹 +10
+      const stage4MobCount = isHadum ? 35 : 18;
       for(let i=0;i<stage4MobCount;i++){
         const type=iceTypes[i%iceTypes.length];
         const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createIceMonsterTexture(type,false,0),transparent:true}));
@@ -4130,8 +3943,8 @@
       const bossSpritePos4 = getRandomBossSpawnPos(24, 33);
       bossSprite.scale.set(8.2,8.2,1); bossSprite.position.set(bossSpritePos4.x,4.1,bossSpritePos4.z); scene.add(bossSprite);
       const bossShadow=createShadowDisk(7.0,3.6);
-      monsters.push({id:`monster_${stage4MobCount}`,stageId:4,sprite:bossSprite,shadowDisk:bossShadow,type:'빙설여왕',tier:4,isBoss:true,isHadum,hp:isHadum?36000*HADUM_MULT * HADUM_HP_EXTRA_MULT:36000,maxHp:isHadum?36000*HADUM_MULT * HADUM_HP_EXTRA_MULT:36000,goldReward:18000,attackPower:isHadum?172*HADUM_MULT:172,attackRange:4.5,attackSpeed:950,lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});
-      createNametagElement(`monster_${stage4MobCount}`,'얼음성의 여왕','빙설여왕',false,false,true);
+      monsters.push({id:'monster_18',stageId:4,sprite:bossSprite,shadowDisk:bossShadow,type:'빙설여왕',tier:4,isBoss:true,isHadum,hp:isHadum?36000*HADUM_MULT * HADUM_HP_EXTRA_MULT:36000,maxHp:isHadum?36000*HADUM_MULT * HADUM_HP_EXTRA_MULT:36000,goldReward:18000,attackPower:isHadum?172*HADUM_MULT:172,attackRange:4.5,attackSpeed:950,lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});
+      createNametagElement('monster_18','얼음성의 여왕','빙설여왕',false,false,true);
     }
 
     function getExperienceDungeonDailyData() {
@@ -6159,168 +5972,52 @@
       }
     }
 
-    // 몬스터 AI 개선:
-    // 1) 플레이어를 배회 중심으로 삼지 않고, 각 몬스터의 '귀환 지점(home)'을 기준으로 배회한다.
-    // 2) 플레이어에게 동시에 달려드는 몬스터 수를 제한해 고난도 필드에서 과도한 포위를 방지한다.
-    // 3) 몬스터끼리 너무 겹치면 약하게 서로 밀어내어 한곳에 뭉치는 현상을 줄인다.
-    // 4) home에서 너무 멀어지면 전투를 중단하고 자신의 구역으로 돌아간다.
-    // 몬스터 젠 구역 AI: 플레이어 추격과 랜덤 배회를 분리해 절전모드에서도
-    // 몬스터가 맵 가장자리로 도망가는 현상을 방지한다.
-    const MONSTER_HOME_LIMIT = 22;       // 젠 구역 중심이 위치할 수 있는 최대 반경
-    const MONSTER_ROAM_RADIUS = 5.5;     // 일반 필드 배회 반경
-    const EXP_MONSTER_ROAM_RADIUS = 6.5; // 경험의 서고 배회 반경
-    const MONSTER_LEASH_EXTRA = 8;       // 젠 구역을 벗어나면 복귀
-    const MONSTER_CHASE_RADIUS = 6.0;    // 이 거리 안에서만 추격
-    const MAX_ACTIVE_MELEE_ATTACKERS = 3;
-    const MONSTER_SAFE_BOUND_MARGIN = 7; // 맵 외곽과 충분한 안전거리
-
-    function ensureMonsterHome(m, forceReset = false) {
-      if (m.homePosition && !forceReset) return;
-
-      // 최초 젠 위치를 홈으로 삼되, 맵 외곽에 붙어 있으면 안전한 안쪽으로 이동시킨다.
-      let hx = m.sprite.position.x;
-      let hz = m.sprite.position.z;
-      const len = Math.hypot(hx, hz);
-      if (len > MONSTER_HOME_LIMIT) {
-        const safeRadius = MONSTER_HOME_LIMIT - 1.5;
-        if (len > 0.001) {
-          hx = (hx / len) * safeRadius;
-          hz = (hz / len) * safeRadius;
-          m.sprite.position.x = hx;
-          m.sprite.position.z = hz;
-        }
-      }
-
-      m.homePosition = new THREE.Vector3(hx, 0, hz);
-      m.roamTarget = null;
-      m.roamTimer = 0;
-      m.roamDir = m.roamDir || new THREE.Vector3();
-    }
-
-    function setMonsterRoamTarget(m) {
-      ensureMonsterHome(m);
-      const center = m.homePosition;
-      const roamRadius = m.isExperienceDungeon ? EXP_MONSTER_ROAM_RADIUS : MONSTER_ROAM_RADIUS;
-      const angle = Math.random() * Math.PI * 2;
-      const radius = 1.5 + Math.random() * roamRadius;
-      m.roamTarget = new THREE.Vector3(
-        center.x + Math.cos(angle) * radius,
-        0,
-        center.z + Math.sin(angle) * radius
-      );
-
-      // 홈 반경을 넘는 목표점은 홈 방향으로 잘라낸다.
-      const dx = m.roamTarget.x - center.x;
-      const dz = m.roamTarget.z - center.z;
-      const d = Math.hypot(dx, dz);
-      if (d > roamRadius && d > 0.001) {
-        m.roamTarget.x = center.x + (dx / d) * roamRadius;
-        m.roamTarget.z = center.z + (dz / d) * roamRadius;
-      }
-
-      const dir = m.roamTarget.clone().sub(m.sprite.position);
-      dir.y = 0;
-      if (dir.lengthSq() > 0.01) dir.normalize();
-      m.roamDir.copy(dir);
-      m.roamTimer = 1.8 + Math.random() * 2.2;
-    }
-
-    function getActiveMonsterAttackers() {
-      const candidates = monsters
-        .filter(m => m.alive && !m.destroyed && !m.isBoss)
-        .map(m => {
-          ensureMonsterHome(m);
-          const dist = playerSprite.position.distanceTo(m.sprite.position);
-          const homeDist = Math.hypot(
-            m.sprite.position.x - m.homePosition.x,
-            m.sprite.position.z - m.homePosition.z
-          );
-          return { m, dist, homeDist };
-        })
-        // 플레이어 근처 + 자기 젠 구역 근처에 있는 몬스터만 추격 후보로 인정한다.
-        .filter(o => o.dist <= MONSTER_CHASE_RADIUS && o.homeDist <= MONSTER_LEASH_EXTRA)
-        .sort((a, b) => a.dist - b.dist);
-
-      return new Set(candidates.slice(0, MAX_ACTIVE_MELEE_ATTACKERS).map(o => o.m));
-    }
-
     function processMonsterAI(delta, now) {
-      const boundLimit = floorSize / 2 - MONSTER_SAFE_BOUND_MARGIN;
-      const activeAttackers = getActiveMonsterAttackers();
-
+      const boundLimit = floorSize / 2 - 2;
       monsters.forEach((m, idx) => {
         if (!m.alive) return;
-        ensureMonsterHome(m);
-
         const dist = playerSprite.position.distanceTo(m.sprite.position);
-        const homeDist = Math.hypot(
-          m.sprite.position.x - m.homePosition.x,
-          m.sprite.position.z - m.homePosition.z
-        );
-        const canEngage = m.isBoss || activeAttackers.has(m);
 
         const mBounce = Math.abs(Math.sin(now * 0.01 + idx)) * 0.18;
         const mTilt = Math.sin(now * 0.01 + idx) * 0.08;
 
-        // ① 공격 범위 안: 공격만 한다.
-        if (canEngage && dist <= m.attackRange) {
+        if (dist <= m.attackRange) {
           if (now - m.lastAttackTime >= m.attackSpeed) {
-            m.lastAttackTime = now;
-            monsterAttackPlayer(m);
+            m.lastAttackTime = now; monsterAttackPlayer(m);
           }
-        }
-        // ② 추격: 젠 구역을 크게 벗어나지 않는 범위에서 최대 3마리만 접근한다.
-        else if (canEngage && dist <= MONSTER_CHASE_RADIUS && homeDist <= MONSTER_LEASH_EXTRA) {
-          const dir = playerSprite.position.clone().sub(m.sprite.position);
-          dir.y = 0;
-          if (dir.lengthSq() > 0.01) {
-            dir.normalize();
-            m.sprite.position.x += dir.x * 2.0 * delta;
-            m.sprite.position.z += dir.z * 2.0 * delta;
-          }
-        }
-        // ③ 젠 구역 이탈: 반드시 홈으로 돌아온다.
-        else if (homeDist > MONSTER_LEASH_EXTRA) {
-          const dir = m.homePosition.clone().sub(m.sprite.position);
-          dir.y = 0;
-          if (dir.lengthSq() > 0.01) {
-            dir.normalize();
-            m.sprite.position.x += dir.x * 2.2 * delta;
-            m.sprite.position.z += dir.z * 2.2 * delta;
-          }
-          m.roamTarget = null;
-          m.roamTimer = 1.0;
-        }
-        // ④ 절전모드: 몬스터는 랜덤 배회하지 않는다.
-        // 플레이어가 자동사냥으로 접근하면 위의 최대 3마리 추격만 작동한다.
-        else if (isPowerSaveMode) {
-          m.roamTarget = null;
-          m.roamTimer = 0;
-          m.roamDir.set(0, 0, 0);
-        }
-        // ⑤ 일반 화면: 자기 젠 구역 안에서만 천천히 배회한다.
-        else {
+        } else if (dist <= 7.0) {
+          const dir = playerSprite.position.clone().sub(m.sprite.position).normalize();
+          m.sprite.position.x += dir.x * 2.8 * delta;
+          m.sprite.position.z += dir.z * 2.8 * delta;
+          m.sprite.material.rotation = mTilt;
+        } else {
           m.roamTimer -= delta;
-          const reachedTarget = m.roamTarget && m.sprite.position.distanceTo(m.roamTarget) < 1.0;
-          if (m.roamTimer <= 0 || !m.roamTarget || reachedTarget) {
-            setMonsterRoamTarget(m);
+          if (m.roamTimer <= 0) {
+            m.roamTimer = 2 + Math.random() * 3;
+            const angle = Math.random() * Math.PI * 2;
+            m.roamDir.set(Math.cos(angle), 0, Math.sin(angle));
           }
-
-          const dir = m.roamTarget.clone().sub(m.sprite.position);
-          dir.y = 0;
-          if (dir.lengthSq() > 0.01) {
-            dir.normalize();
-            m.roamDir.lerp(dir, Math.min(1, delta * 2.5));
-          }
-          m.sprite.position.x += m.roamDir.x * 0.75 * delta;
-          m.sprite.position.z += m.roamDir.z * 0.75 * delta;
+          m.sprite.position.x += m.roamDir.x * 1.2 * delta;
+          m.sprite.position.z += m.roamDir.z * 1.2 * delta;
+          m.sprite.material.rotation = mTilt;
         }
 
-        m.sprite.material.rotation = mTilt;
         const baseY = m.isBoss ? 3.0 : 1.3;
         m.sprite.position.y = baseY + mBounce;
 
-        // 어떤 상황에서도 맵 외곽에 붙어 있지 않도록 안전 경계 적용.
+        // 배회(roam) 중 필드 경계에 닿으면 단순히 위치만 클램프하고 끝내지 않고,
+        // 다음 배회 방향을 즉시 안쪽(맵 중앙)으로 재설정한다.
+        // 이렇게 하지 않으면 몬스터가 roamTimer가 다시 만료될 때까지(최대 5초)
+        // 계속 같은 바깥쪽 방향을 향한 채 벽에 눌려있게 되어, 여러 몬스터가 가장자리에 쌓이는 현상이 생긴다.
+        const hitBound = m.sprite.position.x <= -boundLimit || m.sprite.position.x >= boundLimit ||
+                          m.sprite.position.z <= -boundLimit || m.sprite.position.z >= boundLimit;
+        if (hitBound && dist > 7.0) {
+          const towardCenter = new THREE.Vector3(-m.sprite.position.x, 0, -m.sprite.position.z);
+          if (towardCenter.lengthSq() > 0.0001) towardCenter.normalize();
+          m.roamDir.copy(towardCenter);
+          m.roamTimer = 2 + Math.random() * 3;
+        }
+
         m.sprite.position.x = Math.max(-boundLimit, Math.min(boundLimit, m.sprite.position.x));
         m.sprite.position.z = Math.max(-boundLimit, Math.min(boundLimit, m.sprite.position.z));
 
@@ -6331,6 +6028,10 @@
     }
 
     function monsterAttackPlayer(m) {
+      // 경험의 서고 사망 선택 팝업이 떠 있는 동안에는 추가 공격을 무시한다.
+      // 그렇지 않으면 팝업을 띄운 직후에도 다른 몬스터의 공격으로 계속 데미지/사망 처리가 겹쳐 일어날 수 있다.
+      if (experienceDungeonDeathModalOpen) return;
+
       // 공격력 범위(attackPowerMin~attackPowerMax)가 지정된 몬스터는 매 공격마다 랜덤 데미지를 굴린다.
       // 범위가 없는 기존 몬스터/보스는 기존 방식(attackPower 고정값)을 그대로 사용한다.
       const rawAtk = (m.attackPowerMin != null && m.attackPowerMax != null)
@@ -6338,15 +6039,33 @@
         : m.attackPower;
       const netDmg = Math.max(1, rawAtk - Math.floor(getPlayerEffectiveDef() * 0.3));
       playerState.hp -= netDmg;
-      if (!isPowerSaveMode) showPlayerDamageText(netDmg, playerSprite.position);
+      showPlayerDamageText(netDmg, playerSprite.position);
 
       if (playerState.hp <= 0) {
         playerState.hp = playerState.maxHp;
         playerSprite.position.set(0, 1.5, 4);
-        if (isPowerSaveMode) {
-          showPowerSaveDeathAlert();
+
+        // 레벨 100 이상에서 사망 시, 현재 보유 경험치(%)에서 1%p를 직접 차감하는 페널티를 적용한다.
+        // maxExp(다음 레벨업 필요 총량)는 건드리지 않고 exp(보유 경험치) 자체를 깎으며, 죽을 때마다 누적된다.
+        // 0% 밑으로는 내려가지 않는다.
+        let deathPenaltyApplied = false;
+        if (playerState.level >= 100) {
+          const expLoss = Math.round(playerState.maxExp * 0.01);
+          if (expLoss > 0 && playerState.exp > 0) {
+            playerState.exp = Math.max(0, playerState.exp - expLoss);
+            deathPenaltyApplied = true;
+          }
+        }
+
+        if (experienceDungeonActive) {
+          // 경험의 서고는 저레벨 구간에서 몬스터에게 반복적으로 죽기 쉬워, alert()를 그대로 쓰면
+          // 자동사냥이 계속 죽음을 유발하며 alert가 겹겹이 쌓여 화면이 막히는 문제가 있었다.
+          // alert 대신 "계속 진행 / 일반 필드로 나가기"를 고를 수 있는 팝업을 띄운다.
+          showExperienceDungeonDeathModal();
         } else {
-          alert("몬스터의 공격에 쓰러졌습니다! 부활합니다.");
+          alert(deathPenaltyApplied
+            ? "몬스터의 공격에 쓰러졌습니다! 부활합니다. (경험치 1% 감소)"
+            : "몬스터의 공격에 쓰러졌습니다! 부활합니다.");
         }
       }
       updateUI();
@@ -6356,6 +6075,10 @@
     // 오토헌트 ON 상태에서는 필드(맵) 전체 범위에서 몬스터를 찾아 이동/공격한다 (targetNearestMonster가 몬스터 전체를 탐색).
     // 절전 모드 중에도 이 함수를 호출해 캐릭터가 계속 사냥하도록 한다.
     function processPlayerMovement(delta, now) {
+      // 경험의 서고 사망 선택 팝업이 떠 있는 동안에는 캐릭터를 완전히 정지시켜,
+      // 몬스터 근처로 다시 이동해 추가로 공격받는 상황을 막는다.
+      if (experienceDungeonDeathModalOpen) return;
+
       let moveX = joystickVector.x, moveZ = joystickVector.y;
       if (keys['w'] || keys['arrowup']) moveZ = -1;
       if (keys['s'] || keys['arrowdown']) moveZ = 1;
@@ -7112,24 +6835,12 @@
         const respawnTime = target.isBoss ? 60000 : 3000;
         const timerId = setTimeout(() => {
           if (target.destroyed || currentStage !== target.stageId) return;
-          target.hp = target.maxHp;
+          target.hp = target.maxHp; 
           target.alive = true;
           if (target.isBoss) {
             target.sprite.position.set(0, 3.0, -2);
           } else {
-            // 사망 후에도 원래 젠 구역을 유지하고 맵 외곽에 새로 생성하지 않는다.
-            ensureMonsterHome(target);
-            const home = target.homePosition;
-            const angle = Math.random() * Math.PI * 2;
-            const radius = 1.0 + Math.random() * 3.0;
-            target.sprite.position.set(
-              home.x + Math.cos(angle) * radius,
-              1.3,
-              home.z + Math.sin(angle) * radius
-            );
-            target.roamTarget = null;
-            target.roamTimer = 0;
-            target.roamDir.set(0, 0, 0);
+            target.sprite.position.set((Math.random() - 0.5) * 60, 1.3, (Math.random() - 0.5) * 60);
           }
           scene.add(target.sprite);
           if (target.shadowDisk && qualityMode === 'high') scene.add(target.shadowDisk);
@@ -7195,12 +6906,7 @@
 
       const now = Date.now();
 
-      if (isPowerSaveMode) {
-        // 절전 모드 전투는 별도 타이머에서 계속 처리하고, 렌더링만 중단한다.
-        return;
-      }
-
-      const delta = clock.getDelta();
+            const delta = clock.getDelta();
 
       const frameInterval = 1000 / targetFps;
       if (now - lastRenderFrameTime < frameInterval) {
