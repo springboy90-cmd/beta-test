@@ -885,6 +885,73 @@
 #skill-modal .daedosa-skill-card .btn-buy { display:inline-block !important; visibility:visible !important; opacity:1 !important; }
 </style>
 
+
+<style id="mobile-ui-80-final">
+/* iPhone급 모바일 HUD 축소/재배치: 상단 상태창과 우측 버튼이 게임 시야를 가리지 않도록 약 80% */
+@media (max-width: 600px) {
+  #ui-layer {
+    padding: 6px !important;
+  }
+
+  /* 상단 좌측 캐릭터 상태창: 시각 크기 80% */
+  #ui-layer > div:nth-of-type(2) .status-panel {
+    transform: scale(0.8) !important;
+    transform-origin: top left !important;
+    margin: 0 !important;
+  }
+
+  /* 상단 우측 기능 버튼: 시각 크기 80%, 우측/상단에 정렬 */
+  #ui-layer > div:nth-of-type(2) .top-right-controls {
+    transform: scale(0.8) !important;
+    transform-origin: top right !important;
+    gap: 5px !important;
+    margin: 0 !important;
+  }
+
+  #ui-layer > div:nth-of-type(2) {
+    align-items: flex-start !important;
+  }
+
+  .top-right-controls .btn-small {
+    padding: 5px 10px !important;
+    font-size: 10px !important;
+    border-width: 2px !important;
+    border-radius: 9px !important;
+    min-height: 0 !important;
+    line-height: 1.2 !important;
+  }
+
+  /* 상태창 내부가 축소되면서 글자가 찌그러지지 않도록 */
+  #ui-layer > div:nth-of-type(2) .status-panel {
+    width: 185px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 우측 미니맵도 상단 버튼과 충분히 떨어지도록 */
+  #minimap-box {
+    top: 125px !important;
+    right: 8px !important;
+    transform: scale(0.9) !important;
+    transform-origin: top right !important;
+  }
+
+  /* + / - 줌 버튼은 미니맵 아래쪽으로 조금 이동 */
+  .zoom-controls {
+    right: 8px !important;
+    top: 39% !important;
+  }
+}
+
+@media (max-width: 380px) {
+  #ui-layer > div:nth-of-type(2) .status-panel,
+  #ui-layer > div:nth-of-type(2) .top-right-controls {
+    transform: scale(0.76) !important;
+  }
+  #minimap-box {
+    top: 116px !important;
+  }
+}
+</style>
 </head>
 <body>
 
