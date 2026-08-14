@@ -298,6 +298,13 @@
     .exp-dungeon-hud .count { color:#ce93d8; font-size:11px; margin-left:8px; }
     .exp-dungeon-hud .exp-dungeon-exit-btn { display:inline-block; margin-left:8px; padding:2px 7px; border-radius:8px; background:#ef5350; border:1px solid #ffcdd2; color:#fff; font-size:10px; font-weight:800; cursor:pointer; vertical-align:middle; }
     .exp-dungeon-hud .exp-dungeon-exit-btn:active { transform:scale(0.95); }
+    /* 모바일 화면에서는 캐릭터 정보 패널과 겹칠 만큼 크게 보이므로, 폰트/패딩을 줄이고 더 위쪽으로 붙인다. */
+    @media (max-width: 600px) {
+      .exp-dungeon-hud { top: 6px; min-width: 0; padding: 3px 8px; border-radius: 9px; font-size: 10px; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+      .exp-dungeon-hud .timer { font-size: 11px; margin-left: 4px; }
+      .exp-dungeon-hud .count { font-size: 9px; margin-left: 4px; }
+      .exp-dungeon-hud .exp-dungeon-exit-btn { margin-left: 4px; padding: 1px 5px; font-size: 9px; border-radius: 6px; }
+    }
     .exp-dungeon-info { margin:0 0 10px; padding:9px; border-radius:10px; background:#f3e5f5; border:1px solid #ce93d8; color:#4a148c; font-size:11px; line-height:1.55; }
     .exp-dungeon-locked { opacity:.55; cursor:not-allowed; }
 
@@ -843,6 +850,10 @@
     max-height: 70vh !important;
     padding: 8px !important;
   }
+  .exp-dungeon-hud { padding: 2px 6px !important; font-size: 9px !important; }
+  .exp-dungeon-hud .timer { font-size: 10px !important; }
+  .exp-dungeon-hud .count { font-size: 8px !important; }
+  .exp-dungeon-hud .exp-dungeon-exit-btn { padding: 1px 4px !important; font-size: 8px !important; }
 }
 </style>
 
@@ -968,7 +979,7 @@
       </div>
     </div>
     <div style="margin-bottom: 16px;">
-      
+
     </div>
     <div style="display:flex; gap:8px; margin-top:12px;">
       <button class="btn-small" style="flex:1; background:#e8f5e9; border-color:#81c784; color:#2e7d32;" onclick="saveGame(true)">💾 지금 저장</button>
