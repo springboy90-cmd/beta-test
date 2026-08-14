@@ -312,11 +312,108 @@
     .stage-card.hadum.active { border-color: #ff5252; background: #2a1414; }
     .stage-card.hadum-locked { background: #eeeeee; border-color: #bdbdbd; cursor: not-allowed; opacity: 0.75; }
     .stage-divider { font-size: 11px; font-weight: bold; color: #b71c1c; text-align: center; margin: 10px 0 4px; letter-spacing: 1px; }
+    .btn-exp-dungeon { background: linear-gradient(135deg, #7e57c2, #512da8); border-color: #4527a0; color: #fff; font-weight: bold; }
+    .exp-dungeon-hud { position: fixed; top: 76px; left: 50%; transform: translateX(-50%); z-index: 50; display:none; min-width:210px; padding:7px 12px; border-radius:12px; background:rgba(28,20,48,.92); color:#fff; border:2px solid #9575cd; text-align:center; font-weight:800; box-shadow:0 3px 12px rgba(0,0,0,.35); }
+    .exp-dungeon-hud .timer { color:#ffd54f; font-size:16px; margin-left:8px; }
+    .exp-dungeon-hud .count { color:#ce93d8; font-size:11px; margin-left:8px; }
+    .exp-dungeon-info { margin:0 0 10px; padding:9px; border-radius:10px; background:#f3e5f5; border:1px solid #ce93d8; color:#4a148c; font-size:11px; line-height:1.55; }
+    .exp-dungeon-locked { opacity:.55; cursor:not-allowed; }
 
     .skill-section-title { font-size: 11px; font-weight: bold; color: #e65100; margin: 10px 0 6px 0; border-left: 3px solid #ff9800; padding-left: 6px; grid-column: span 2; }
 
     @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-30px); } }
-  </style>
+  
+    /* ===== 상태창 버튼 UI 정리 ===== */
+    .status-main-action-row {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1.25fr) 0.62fr minmax(0, 1.45fr) auto;
+      gap: 4px;
+      width: 100%;
+      align-items: stretch;
+    }
+
+    .status-main-action-row > button,
+    .status-main-action-row > .stage-badge {
+      box-sizing: border-box;
+      min-width: 0;
+      width: 100%;
+      height: 25px;
+      margin: 0;
+      padding: 2px 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      line-height: 1;
+      border-radius: 6px;
+      font-size: 7px;
+      font-weight: 800;
+    }
+
+    .status-main-action-row .stage-badge {
+      background: #ffe0b2;
+      border: 1px solid #ffb74d;
+      color: #e65100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+      cursor: pointer;
+    }
+
+    .status-main-action-row .btn-skill-badge {
+      background: #e8eaf6;
+      border: 1px solid #c5cae9;
+      color: #3f51b5;
+      cursor: pointer;
+    }
+
+    .status-main-action-row .btn-exp-dungeon {
+      background: linear-gradient(135deg, #7e57c2, #512da8);
+      border: 1px solid #4527a0;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0,0,0,.15);
+    }
+
+    .status-main-action-row .stat-gold {
+      min-width: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      white-space: nowrap;
+      font-size: 8px;
+      font-weight: 800;
+    }
+
+    .status-main-action-row > button:active,
+    .status-main-action-row > .stage-badge:active {
+      transform: translateY(1px);
+    }
+
+    /* 하단 상점/설정 버튼도 동일한 높이와 글자 기준으로 통일 */
+    .status-action-row {
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+    }
+
+    .status-action-btn {
+      height: 26px;
+      padding: 2px 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      line-height: 1;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    /* 화면이 좁아져도 상태창 내부 버튼이 서로 밀리지 않도록 */
+    .status-panel {
+      box-sizing: border-box;
+    }
+
+</style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <style id="hero-modal-mobile-fix">
@@ -570,6 +667,7 @@
   <div id="nametag-layer"></div>
 
   <div id="ui-layer">
+    <div id="exp-dungeon-hud" class="exp-dungeon-hud">📕 경험의 서고 <span class="timer" id="exp-dungeon-timer">03:00</span><span class="count" id="exp-dungeon-kills">0마리</span></div>
     <div style="display: flex; justify-content: space-between; width: 100%;">
       <div class="status-panel interactive">
         <div class="character-info">
@@ -601,9 +699,10 @@
           <div class="stat-row-item" id="munyeahana-buff-row" style="display:none; justify-content:center;">
             <span class="stat-buff munyeahana-buff-active">✨ 무녀하나 버프 <span id="munyeahana-buff-pct">+0%</span> · ⚔️+<span id="munyeahana-atk-buff">0</span> / 🛡️+<span id="munyeahana-def-buff">0</span></span>
           </div>
-          <div class="stat-row-item">
-            <span class="stage-badge" id="stage-badge" onclick="openStageModal()" title="클릭하여 스테이지 선택">초보자 사냥터 ▾</span>
+          <div class="stat-row-item status-main-action-row">
+            <button class="stage-badge" id="stage-badge" onclick="openStageModal()" title="클릭하여 스테이지 선택">초보자 사냥터 ▾</button>
             <button class="btn-skill-badge" onclick="openSkillModal()">✨ 스킬</button>
+            <button class="btn-exp-dungeon" onclick="openExpDungeonModal()">📕 경험의 서고</button>
             <span class="stat-gold"><span id="gold-val">200</span> G</span>
           </div>
           <div class="stat-row-item" style="justify-content: flex-end;">
@@ -690,6 +789,20 @@
     <div id="save-status" style="text-align:center; font-size:9px; color:#78909c; margin-top:7px;">💾 버튼을 눌러 수동으로 저장하세요.</div>
     <div style="text-align: center; margin-top: 8px;">
       <button class="btn-small" onclick="closeSettingsModal()">설정 완료</button>
+    </div>
+  </div>
+
+  <!-- Experience Dungeon Modal -->
+  <div class="modal interactive" id="exp-dungeon-modal">
+    <div class="modal-title">📕 경험의 서고</div>
+    <div class="exp-dungeon-info">
+      단계별 입장 레벨에 맞춰 선택하세요. 입장 시 <b>3분</b> 동안 60마리의 일반 몬스터가 즉시 리젠됩니다.<br>
+      기존 일반 필드의 배경과 일반 몬스터 외형을 매 입장마다 랜덤으로 사용합니다.<br>
+      <b>하루 3회</b> 이용 가능하며, 획득 EXP는 해당 단계의 <b>다음 레벨 필요 EXP 비율</b>을 적용합니다.
+    </div>
+    <div class="stage-cards" id="exp-dungeon-cards"></div>
+    <div style="text-align:center; margin-top:10px;">
+      <button class="btn-small" onclick="closeExpDungeonModal()">창 닫기</button>
     </div>
   </div>
 
@@ -857,6 +970,34 @@
     scene.fog = new THREE.Fog(0x2b241c, 34, 95);
     let currentStage = 1;
     let currentHadum = false; // 하둠 영역(2차 전직 전용 고난도 스테이지) 진입 여부
+
+    // 경험의 서고
+    let experienceDungeonActive = false;
+    let experienceDungeonStage = 0;
+    let experienceDungeonEndsAt = 0;
+    let experienceDungeonTimer = null;
+    let experienceDungeonKills = 0;
+    let experienceDungeonReturnStage = 1;
+    let experienceDungeonReturnHadum = false;
+    const EXPERIENCE_DUNGEON_DAILY_LIMIT = 3;
+    const EXPERIENCE_DUNGEON_DURATION = 180000;
+    const EXPERIENCE_DUNGEON_STATS = {
+      1: { minLv:1, maxLv:30, hp:500, def:50, atkMin:30, atkMax:40, expRate:0.08 },
+      2: { minLv:31, maxLv:60, hp:1500, def:120, atkMin:70, atkMax:90, expRate:0.10 },
+      3: { minLv:61, maxLv:90, hp:3500, def:250, atkMin:140, atkMax:180, expRate:0.12 },
+      4: { minLv:91, maxLv:120, hp:7000, def:450, atkMin:250, atkMax:320, expRate:0.13 },
+      5: { minLv:121, maxLv:150, hp:12000, def:700, atkMin:450, atkMax:550, expRate:0.15 }
+    };
+    const EXPERIENCE_DUNGEON_BG_NAMES = {1:'초보자 사냥터',2:'웅녀동굴',3:'바둑골 산길',4:'얼음성'};
+    const EXPERIENCE_DUNGEON_MOBS = [
+      { type:'cat', name:'야옹이', texture:'pixel' }, { type:'pig', name:'돼지', texture:'pixel' },
+      { type:'mushroom', name:'송이모자', texture:'pixel' }, { type:'rabbit', name:'토끼', texture:'pixel' },
+      { type:'garlic_king', name:'마늘대왕', texture:'pixel' }, { type:'tiger_patient', name:'병자호랑', texture:'pixel' },
+      { type:'ungyang', name:'웅양', texture:'pixel' }, { type:'judang', name:'주당', texture:'pixel' },
+      { type:'palgwang', name:'팔광병사', texture:'pixel' }, { type:'sangdupo', name:'상두포', texture:'pixel' },
+      { type:'snowrabbit', name:'눈토끼', texture:'ice' }, { type:'snowlady', name:'설녀', texture:'ice' }
+    ];
+    const EXPERIENCE_DUNGEON_SAVE_KEY = 'experienceDungeonDaily';
     const HADUM_MULT = 2; // 하둠 영역 몹 공격력/HP/경험치 배율 (보스에 적용)
     const HADUM_STAGE1_HP_MULT = 1.5; // 하둠 초보자 사냥터(1스테이지) 보스 전용 추가 체력 배율
     const HADUM_HP_EXTRA_MULT = 2; // 하둠 보스 현재 HP 추가 2배
@@ -3702,6 +3843,137 @@
       createNametagElement('monster_18','얼음성의 여왕','빙설여왕',false,false,true);
     }
 
+    function getExperienceDungeonDailyData() {
+      const today = new Date().toISOString().slice(0,10);
+      let data = null;
+      try { data = JSON.parse(localStorage.getItem(EXPERIENCE_DUNGEON_SAVE_KEY) || 'null'); } catch(e) {}
+      if (!data || data.date !== today) data = { date: today, count: 0 };
+      return data;
+    }
+
+    function getExperienceDungeonRemaining() {
+      return Math.max(0, EXPERIENCE_DUNGEON_DAILY_LIMIT - getExperienceDungeonDailyData().count);
+    }
+
+    function openExpDungeonModal() {
+      if (experienceDungeonActive) return;
+      renderExperienceDungeonCards();
+      document.getElementById('exp-dungeon-modal').style.display = 'flex';
+    }
+
+    function closeExpDungeonModal() {
+      document.getElementById('exp-dungeon-modal').style.display = 'none';
+    }
+
+    function renderExperienceDungeonCards() {
+      const container = document.getElementById('exp-dungeon-cards');
+      const remain = getExperienceDungeonRemaining();
+      container.innerHTML = Object.entries(EXPERIENCE_DUNGEON_STATS).map(([key, cfg]) => {
+        const stage = Number(key);
+        const unlocked = playerState.level >= cfg.minLv && playerState.level <= cfg.maxLv;
+        const canEnter = unlocked && remain > 0 && !experienceDungeonActive;
+        const label = unlocked ? (remain > 0 ? '입장 ➔' : '오늘 이용 완료') : `Lv.${cfg.minLv}~${cfg.maxLv}`;
+        return `<div class="stage-card ${canEnter ? '' : 'exp-dungeon-locked'}" ${canEnter ? `onclick="enterExperienceDungeon(${stage})"` : ''}>
+          <div><div style="font-weight:bold;color:#6a1b9a;font-size:13px;">📕 서고 ${stage} <span style="font-size:10px;color:#7b1fa2;">(Lv.${cfg.minLv}~${cfg.maxLv})</span></div>
+          <div style="font-size:10px;color:#5e35b1;">HP ${cfg.hp.toLocaleString()} · DEF ${cfg.def.toLocaleString()} · ATK ${cfg.atkMin}~${cfg.atkMax} · EXP ${cfg.expRate*100}%</div></div>
+          <div style="font-size:11px;font-weight:bold;">${label}</div></div>`;
+      }).join('') + `<div style="text-align:center;font-size:10px;color:#6a1b9a;margin-top:4px;">오늘 남은 입장: <b>${remain}/3회</b></div>`;
+    }
+
+    function createExperienceMonsterSprite(mob) {
+      if (mob.texture === 'ice') {
+        return new THREE.Sprite(new THREE.SpriteMaterial({ map:createIceMonsterTexture(mob.type,false,0), transparent:true }));
+      }
+      return new THREE.Sprite(new THREE.SpriteMaterial({ map:createPixelSpriteTexture(mob.type) }));
+    }
+
+    function getRandomExperienceMonsterType() {
+      return EXPERIENCE_DUNGEON_MOBS[Math.floor(Math.random() * EXPERIENCE_DUNGEON_MOBS.length)];
+    }
+
+    function spawnExperienceDungeonMonster(index, cfg) {
+      const mob = getRandomExperienceMonsterType();
+      const sprite = createExperienceMonsterSprite(mob);
+      sprite.scale.set(mob.texture === 'ice' ? 2.7 : 2.6, mob.texture === 'ice' ? 2.7 : 2.6, 1);
+      const x = (Math.random()-0.5)*64, z = (Math.random()-0.5)*64;
+      sprite.position.set(x, 1.3, z);
+      scene.add(sprite);
+      const shadow = createShadowDisk(2.0,1.1);
+      const id = `monster_${index}`;
+      monsters.push({ id, stageId: experienceDungeonStage, sprite, shadowDisk:shadow, type:mob.name, tier:experienceDungeonStage,
+        isBoss:false, isHadum:false, isExperienceDungeon:true, hp:cfg.hp, maxHp:cfg.hp, defense:cfg.def,
+        goldReward:0, attackPowerMin:cfg.atkMin, attackPowerMax:cfg.atkMax, attackRange:2.4, attackSpeed:1200,
+        lastAttackTime:0, alive:true, destroyed:false, roamDir:new THREE.Vector3(), roamTimer:0 });
+      createNametagElement(id,'',`Lv.${experienceDungeonStage} ${mob.name}`,true);
+    }
+
+    function enterExperienceDungeon(stage) {
+      if (experienceDungeonActive) return;
+      const cfg = EXPERIENCE_DUNGEON_STATS[stage];
+      if (!cfg || playerState.level < cfg.minLv || playerState.level > cfg.maxLv) {
+        alert(`서고 ${stage}는 Lv.${cfg?.minLv}~${cfg?.maxLv}에서 입장할 수 있습니다.`); return;
+      }
+      const data = getExperienceDungeonDailyData();
+      if (data.count >= EXPERIENCE_DUNGEON_DAILY_LIMIT) { alert('오늘 경험의 서고 이용 횟수를 모두 사용했습니다.'); return; }
+      data.count++;
+      localStorage.setItem(EXPERIENCE_DUNGEON_SAVE_KEY, JSON.stringify(data));
+
+      experienceDungeonActive = true;
+      experienceDungeonStage = stage;
+      experienceDungeonKills = 0;
+      experienceDungeonEndsAt = Date.now() + EXPERIENCE_DUNGEON_DURATION;
+      experienceDungeonReturnStage = currentStage;
+      experienceDungeonReturnHadum = currentHadum;
+
+      // 기존 일반 필드 중 하나를 랜덤 배경으로 사용한다.
+      const bgStage = Math.floor(Math.random()*4)+1;
+      if (bgStage === 1) buildStage1Field(false);
+      else if (bgStage === 2) buildStage2Cave(false);
+      else if (bgStage === 3) buildStage3Baduk(false);
+      else buildStage4IceCastle(false);
+
+      // 일반 필드의 기존 몬스터/Boss는 제거하고, 서고 전용 60마리를 즉시 생성한다.
+      clearMonsters();
+      for (let i=0;i<60;i++) spawnExperienceDungeonMonster(i,cfg);
+      document.getElementById('stage-badge').innerText = `📕 경험의 서고 ${stage} ▾`;
+      document.getElementById('exp-dungeon-hud').style.display = 'block';
+      updateExperienceDungeonHud();
+      closeExpDungeonModal();
+      selectedTarget = null;
+      targetArrowSprite.visible = false;
+      autoHuntPatrolTarget = null;
+      playerSprite.position.set(0,1.6,4);
+      recallHeroesToPlayer(true);
+      if (experienceDungeonTimer) clearInterval(experienceDungeonTimer);
+      experienceDungeonTimer = setInterval(() => {
+        if (!experienceDungeonActive) return;
+        if (Date.now() >= experienceDungeonEndsAt) exitExperienceDungeon();
+        else updateExperienceDungeonHud();
+      }, 250);
+    }
+
+    function updateExperienceDungeonHud() {
+      const remain = Math.max(0, experienceDungeonEndsAt - Date.now());
+      const sec = Math.ceil(remain/1000);
+      const mm = String(Math.floor(sec/60)).padStart(2,'0');
+      const ss = String(sec%60).padStart(2,'0');
+      const timer = document.getElementById('exp-dungeon-timer');
+      const kills = document.getElementById('exp-dungeon-kills');
+      if (timer) timer.innerText = `${mm}:${ss}`;
+      if (kills) kills.innerText = `${experienceDungeonKills}마리 처치`;
+    }
+
+    function exitExperienceDungeon() {
+      if (!experienceDungeonActive) return;
+      experienceDungeonActive = false;
+      if (experienceDungeonTimer) { clearInterval(experienceDungeonTimer); experienceDungeonTimer = null; }
+      document.getElementById('exp-dungeon-hud').style.display = 'none';
+      clearMonsters();
+      if (experienceDungeonReturnHadum) selectStage(experienceDungeonReturnStage,true);
+      else selectStage(experienceDungeonReturnStage,false);
+      showHealText('📕 경험의 서고 종료 · 일반 필드로 복귀', playerSprite.position);
+    }
+
     function openStageModal() {
       document.getElementById('stage-modal').style.display = 'block';
       const isJob2Done = playerState.tier === 3;
@@ -3725,6 +3997,7 @@
     }
 
     function selectStage(stageNum, isHadum = false, keepPosition = false) {
+      if (experienceDungeonActive && !keepPosition) return;
       if (isHadum && playerState.tier !== 3) {
         alert('2차 전직을 완료해야 하둠의 영역에 입장할 수 있습니다.');
         return;
@@ -5378,6 +5651,10 @@
 
     function getMonsterExpReward(monster) {
       if (playerState.level >= playerState.maxLevel) return 0;
+      if (monster.isExperienceDungeon) {
+        const cfg = EXPERIENCE_DUNGEON_STATS[experienceDungeonStage];
+        return cfg ? Math.max(1, Math.round(playerState.maxExp * cfg.expRate)) : 0;
+      }
 
       if (playerState.tier >= 3 && monster.tier === 1 && !monster.isHadum) {
         return 0;
@@ -5888,8 +6165,10 @@
       const critChance = getCritChance();
       const critMult = getCritMultiplier();
 
-      // 하둠 일반몹은 스테이지별 고정 방어력을 유저 공격력에서 그대로 차감한다.
-      if (currentHadum && !target.isBoss) {
+      // 경험의 서고/하둠 일반몹은 고정 방어력을 유저 공격력에서 차감한다.
+      if (target.isExperienceDungeon && !target.isBoss) {
+        finalDmg = Math.max(1, amount - target.defense);
+      } else if (currentHadum && !target.isBoss) {
         const monsterDefense = (HADUM_NORMAL_STATS[currentStage] && HADUM_NORMAL_STATS[currentStage].def) || 120;
         finalDmg = Math.max(1, amount - monsterDefense);
       }
@@ -5913,11 +6192,14 @@
         const expGained = getMonsterExpReward(target);
 
         // ===== 골드 보상 =====
+        // 경험의 서고는 EXP 전용이므로 골드/전리품을 지급하지 않는다.
         // 일반몹(비하둠): 스테이지 1~2는 180G, 스테이지 3~4는 500G 고정 지급.
         // 하둠 스테이지(1~4) 일반몹: 850G 고정 지급.
         // 보스: 92% 확률로 500G, 별개로 10% 확률로 40,000G 보너스 지급.
         let rewardGold = 0;
-        if (target.isBoss) {
+        if (target.isExperienceDungeon) {
+          rewardGold = 0;
+        } else if (target.isBoss) {
           if (Math.random() < 0.92) {
             rewardGold += 500;
           }
@@ -5938,7 +6220,9 @@
         // 일반몹(하둠): 30% 확률로 전리품 2개.
         // 보스(비하둠): 5% 확률 0개 / 70% 확률 4~6개 / 25% 확률 10개.
         // 보스(하둠): 50% 확률 전리품 1개 / 45% 확률 전리품 8~12개 / 5% 확률 강화의 핵 1개.
-        if (target.isBoss) {
+        if (target.isExperienceDungeon) {
+          // 경험의 서고는 EXP만 지급
+        } else if (target.isBoss) {
           if (target.isHadum) {
             const rand = Math.random();
             if (rand < 0.50) {
@@ -5987,6 +6271,20 @@
         if (selectedTarget === target) {
           selectedTarget = null;
           targetArrowSprite.visible = false;
+        }
+
+        if (target.isExperienceDungeon && experienceDungeonActive) {
+          experienceDungeonKills++;
+          const cfg = EXPERIENCE_DUNGEON_STATS[experienceDungeonStage];
+          target.hp = cfg.hp;
+          target.alive = true;
+          target.destroyed = false;
+          target.sprite.position.set((Math.random()-0.5)*64, 1.3, (Math.random()-0.5)*64);
+          scene.add(target.sprite);
+          if (target.shadowDisk && qualityMode === 'high') scene.add(target.shadowDisk);
+          if (target.shadowDisk) target.shadowDisk.position.set(target.sprite.position.x,0.02,target.sprite.position.z);
+          updateExperienceDungeonHud();
+          return;
         }
 
         const respawnTime = target.isBoss ? 60000 : 3000;
