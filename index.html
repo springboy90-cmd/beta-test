@@ -880,6 +880,17 @@
   }
 }
 </style>
+
+<style id="restore-original-2nd-skill-ui">
+/* 2차 스킬 수련원은 기존 카드 UI로 복원. 이미지는 실제 스킬 사용 시 VFX로만 표시. */
+.daedosa-skill-card { background: initial !important; border-color: initial !important; padding: initial !important; overflow: visible !important; }
+.daedosa-skill-art { display:none !important; }
+.skill-btn-img, .btn-skill-slot.daedosa-active .skill-btn-img { display:none !important; }
+.btn-skill-slot.daedosa-active > .skill-icon { display:inline !important; }
+#skill-modal .daedosa-skill-card .item-footer { display:flex !important; visibility:visible !important; opacity:1 !important; }
+#skill-modal .daedosa-skill-card .btn-buy { display:inline-block !important; visibility:visible !important; opacity:1 !important; }
+</style>
+
 </head>
 <body>
 
@@ -981,9 +992,9 @@
       <div class="action-btn btn-target" id="btn-target" onclick="targetNearestMonster()">🎯</div>
       <div class="action-btn btn-attack" id="btn-attack" onclick="triggerAttackBtn()">⚔️</div>
 
-      <div class="action-btn btn-skill-slot btn-skill-s2_1" id="btn-skill-s2_1" onclick="useActiveSkill('s2_1')"><span class="skill-icon">⚡</span><img class="skill-btn-img" alt="멸천화"><br><span class="skill-btn-name">뇌전참</span><span class="skill-cd"></span></div>
-      <div class="action-btn btn-skill-slot btn-skill-s2_2" id="btn-skill-s2_2" onclick="useActiveSkill('s2_2')"><span class="skill-icon">🌀</span><img class="skill-btn-img" alt="화염폭우"><br><span class="skill-btn-name">회풍참</span><span class="skill-cd"></span></div>
-      <div class="action-btn btn-skill-slot btn-skill-s2_3" id="btn-skill-s2_3" onclick="useActiveSkill('s2_3')"><span class="skill-icon">💥</span><img class="skill-btn-img" alt="천지개벽"><br><span class="skill-btn-name">천검난무</span><span class="skill-cd"></span></div>
+      <div class="action-btn btn-skill-slot btn-skill-s2_1" id="btn-skill-s2_1" onclick="useActiveSkill('s2_1')"><span class="skill-icon">⚡</span><br><span class="skill-btn-name">오의: 뇌전참</span><span class="skill-cd"></span></div>
+      <div class="action-btn btn-skill-slot btn-skill-s2_2" id="btn-skill-s2_2" onclick="useActiveSkill('s2_2')"><span class="skill-icon">🌀</span><br><span class="skill-btn-name">회풍참</span><span class="skill-cd"></span></div>
+      <div class="action-btn btn-skill-slot btn-skill-s2_3" id="btn-skill-s2_3" onclick="useActiveSkill('s2_3')"><span class="skill-icon">⚔️</span><br><span class="skill-btn-name">천검난무</span><span class="skill-cd"></span></div>
     </div>
   </div>
 
@@ -4533,14 +4544,10 @@
         const currentLv = sk.id === 's2_1' ? (isLearned ? 1 : 0) : Math.max(0, Math.min(5, Number(playerState.skillLv[sk.id]) || 0));
         const isMax = currentLv >= sk.maxLv;
         const levelDesc = sk.id === 's2_2' || sk.id === 's2_3'
-          ? (isDaedosa
-              ? `현재 Lv.${currentLv}/5 · 공격력 ${[0,100,120,140,160,200][currentLv]}% · ${sk.id === 's2_2' ? 'MP 40 · 재사용 5초' : 'MP 70 · 재사용 10초'}`
-              : `현재 Lv.${currentLv}/5 · 공격력 ${[0,100,120,140,160,200][currentLv]}% · MP 15`)
+          ? `현재 Lv.${currentLv}/5 · 공격력 ${[0,100,120,140,160,200][currentLv]}% · MP 15`
           : sk.desc;
-        const card = document.createElement('div'); card.className = 'shop-item-card' + (isDaedosa ? ' daedosa-skill-card' : '');
-        const skillArt = isDaedosa ? `<img class="daedosa-skill-art" src="${DAEDOSA_SKILL_IMAGES[sk.id]}" alt="${sk.name}">` : '';
+        const card = document.createElement('div'); card.className = 'shop-item-card';
         card.innerHTML = `
-          ${skillArt}
           <div>
             <div class="item-header"><span>${sk.name}${sk.maxLv > 1 ? ` (Lv.${currentLv}/5)` : ''}</span></div>
             <div class="item-desc">${levelDesc}</div>
@@ -4693,17 +4700,6 @@
         if (!btn || !cfg) return;
         const nameEl = btn.querySelector('.skill-btn-name');
         if (nameEl) nameEl.textContent = cfg.name;
-        const imgEl = btn.querySelector('.skill-btn-img');
-        const isDaedosa = playerState.job === '대도사';
-        if (imgEl) {
-          if (isDaedosa && DAEDOSA_SKILL_IMAGES[id]) {
-            imgEl.src = DAEDOSA_SKILL_IMAGES[id];
-            btn.classList.add('daedosa-active');
-          } else {
-            imgEl.removeAttribute('src');
-            btn.classList.remove('daedosa-active');
-          }
-        }
         const cdEl = btn.querySelector('.skill-cd');
         if (cdEl) cdEl.textContent = '';
         btn.title = `${cfg.name} · MP ${cfg.mp} · 재사용 ${cfg.cooldownMs / 1000}초`;
@@ -4753,6 +4749,275 @@
       if (panel?.classList.contains('show')) updateSkillCooldownPanel();
     }
 
+    function createDaedosaVfxTexture(skillId, variant = 0) {
+      const cvs = document.createElement('canvas'); cvs.width = 256; cvs.height = 256;
+      const ctx = cvs.getContext('2d');
+      ctx.clearRect(0, 0, 256, 256);
+      const cx = 128, cy = 128;
+      ctx.globalCompositeOperation = 'lighter';
+
+      if (skillId === 's2_1') {
+        const g = ctx.createRadialGradient(cx, cy, 4, cx, cy, 112);
+        g.addColorStop(0, '#fff7c2'); g.addColorStop(0.18, '#ffd166');
+        g.addColorStop(0.48, '#ff6b00'); g.addColorStop(0.78, '#d81b60');
+        g.addColorStop(1, 'rgba(80,0,120,0)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, 112, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#fff3b0'; ctx.lineWidth = 9;
+        ctx.beginPath(); ctx.arc(cx, cy, 82 + variant * 6, 0, Math.PI*2); ctx.stroke();
+        ctx.strokeStyle = '#ff4d00'; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.arc(cx, cy, 56, 0.2, Math.PI*1.8); ctx.stroke();
+      } else if (skillId === 's2_2') {
+        for (let i = 0; i < 7; i++) {
+          const a = (Math.PI * 2 * i) / 7 + variant * 0.18;
+          const r = 38 + i * 12;
+          const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+          const g = ctx.createRadialGradient(x,y,2,x,y,26);
+          g.addColorStop(0,'#fff7c2'); g.addColorStop(0.25,'#ffb000'); g.addColorStop(0.65,'#ff3d00'); g.addColorStop(1,'rgba(255,0,0,0)');
+          ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x,y,26,0,Math.PI*2); ctx.fill();
+        }
+        ctx.strokeStyle = '#ff7a00'; ctx.lineWidth = 6;
+        ctx.beginPath(); ctx.arc(cx,cy,92,0,Math.PI*2); ctx.stroke();
+      } else {
+        ctx.strokeStyle = '#c084fc'; ctx.lineWidth = 8;
+        ctx.beginPath(); ctx.arc(cx,cy,96,0,Math.PI*2); ctx.stroke();
+        ctx.strokeStyle = '#fef08a'; ctx.lineWidth = 3;
+        for (let i=0;i<8;i++) {
+          const a = i*Math.PI/4;
+          ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a)*108,cy+Math.sin(a)*108); ctx.stroke();
+        }
+        const g = ctx.createRadialGradient(cx,cy,4,cx,cy,72);
+        g.addColorStop(0,'#ffffff'); g.addColorStop(0.25,'#fef08a'); g.addColorStop(0.55,'#a855f7'); g.addColorStop(1,'rgba(124,58,237,0)');
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,72,0,Math.PI*2); ctx.fill();
+      }
+      ctx.globalCompositeOperation = 'source-over';
+      const tex = new THREE.CanvasTexture(cvs); tex.magFilter = THREE.LinearFilter; return tex;
+    }
+
+    function spawnDaedosaSkillVfx(worldPos, skillId, radius = 5) {
+      // 대도사: 수련원 카드/하단 버튼은 기존 UI로 유지하고, 실제 스킬 사용 순간에만 대형 주술 이펙트를 출력.
+      const main = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: createDaedosaVfxTexture(skillId, 0), transparent: true, opacity: 1.0, depthWrite: false
+      }));
+      main.scale.set(radius, radius, 1);
+      main.position.copy(worldPos).add(new THREE.Vector3(0, 1.5, 0));
+      scene.add(main);
+      activeHitVfx.push({ sprite: main, timer: 0, duration: 0.55 });
+
+      const burstCount = skillId === 's2_1' ? 3 : skillId === 's2_2' ? 7 : 10;
+      for (let i = 0; i < burstCount; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const dist = radius * (0.35 + Math.random() * 0.75);
+        const p = worldPos.clone().add(new THREE.Vector3(Math.cos(a)*dist, 0.8 + Math.random()*2.2, Math.sin(a)*dist));
+        const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: createDaedosaVfxTexture(skillId, i + 1), transparent: true, opacity: 0.9, depthWrite: false
+        }));
+        const sc = (skillId === 's2_3' ? 1.8 : 1.2) + Math.random() * 0.8;
+        sp.scale.set(sc, sc, 1); sp.position.copy(p); scene.add(sp);
+        activeHitVfx.push({ sprite: sp, timer: -Math.random()*0.08, duration: 0.45 + Math.random()*0.2 });
+      }
+    }
+
+    function createSwordsmanVfxTexture(skillId, variant = 0) {
+      const cvs = document.createElement('canvas'); cvs.width = 420; cvs.height = 420;
+      const ctx = cvs.getContext('2d');
+      ctx.clearRect(0, 0, 420, 420);
+      const cx = 210, cy = 210;
+      ctx.globalCompositeOperation = 'lighter';
+
+      const glow = (x, y, r, inner, outer) => {
+        const g = ctx.createRadialGradient(x, y, 2, x, y, r);
+        g.addColorStop(0, inner); g.addColorStop(0.32, inner);
+        g.addColorStop(1, outer);
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+      };
+
+      const swordArc = (angle, radius, width, alpha = 1) => {
+        ctx.save(); ctx.translate(cx, cy); ctx.rotate(angle);
+        ctx.globalAlpha = alpha; ctx.lineCap = 'round';
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = width + 8;
+        ctx.beginPath(); ctx.arc(0, 0, radius, -0.95, 0.75); ctx.stroke();
+        ctx.strokeStyle = '#72ddff'; ctx.lineWidth = width;
+        ctx.beginPath(); ctx.arc(0, 0, radius, -0.95, 0.75); ctx.stroke();
+        ctx.strokeStyle = '#e8fbff'; ctx.lineWidth = Math.max(2, width * 0.28);
+        ctx.beginPath(); ctx.arc(0, 0, radius, -0.92, 0.72); ctx.stroke();
+        ctx.restore();
+      };
+
+      if (skillId === 's2_1') {
+        /*
+         * 오의: 뇌전참
+         * 원거리 검기처럼 보이지 않도록 '검 자체'를 중심으로 연출한다.
+         * 거대한 검신 + 푸른 검기 + 검신을 타고 흐르는 번개가
+         * 플레이어가 바로 앞의 적을 베는 순간 겹쳐 보이도록 제작.
+         */
+        glow(cx, cy, 180, '#ffffff', 'rgba(0,160,255,0)');
+
+        ctx.save();
+        ctx.translate(cx, cy + 12);
+        ctx.rotate(-0.42);
+
+        // 검 주변의 거대한 푸른 오라
+        const bladeGlow = ctx.createLinearGradient(-22, 118, 22, -150);
+        bladeGlow.addColorStop(0, 'rgba(0,80,255,0)');
+        bladeGlow.addColorStop(0.35, 'rgba(20,190,255,.72)');
+        bladeGlow.addColorStop(0.72, 'rgba(120,235,255,.92)');
+        bladeGlow.addColorStop(1, 'rgba(255,255,255,.15)');
+        ctx.fillStyle = bladeGlow;
+        ctx.beginPath();
+        ctx.moveTo(-30, 125); ctx.lineTo(-42, -130); ctx.lineTo(0, -175);
+        ctx.lineTo(42, -130); ctx.lineTo(30, 125); ctx.closePath(); ctx.fill();
+
+        // 거대한 검신
+        const blade = ctx.createLinearGradient(-15, 115, 15, -165);
+        blade.addColorStop(0, '#1266ff');
+        blade.addColorStop(0.32, '#43c7ff');
+        blade.addColorStop(0.68, '#baf5ff');
+        blade.addColorStop(1, '#ffffff');
+        ctx.fillStyle = blade;
+        ctx.beginPath();
+        ctx.moveTo(-17, 105); ctx.lineTo(-24, -128); ctx.lineTo(0, -174);
+        ctx.lineTo(24, -128); ctx.lineTo(17, 105); ctx.closePath(); ctx.fill();
+
+        // 검신 중앙의 밝은 날
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 7;
+        ctx.beginPath(); ctx.moveTo(0, 102); ctx.lineTo(0, -154); ctx.stroke();
+        ctx.strokeStyle = '#7be7ff'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(8, 92); ctx.lineTo(8, -137); ctx.stroke();
+
+        // 손잡이/가드
+        ctx.strokeStyle = '#dffbff'; ctx.lineWidth = 15; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(-43, 103); ctx.lineTo(43, 103); ctx.stroke();
+        const grip = ctx.createLinearGradient(-12, 110, 12, 165);
+        grip.addColorStop(0, '#e7faff'); grip.addColorStop(.45, '#5cc9ff'); grip.addColorStop(1, '#0b49b5');
+        ctx.fillStyle = grip; ctx.fillRect(-11, 108, 22, 62);
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.arc(0, 170, 16, 0, Math.PI * 2); ctx.stroke();
+        ctx.restore();
+
+        // 검신을 감싸며 흐르는 번개 3줄
+        const lightning = (offset, color, width) => {
+          ctx.save(); ctx.translate(cx + offset, cy - 2); ctx.rotate(-0.42);
+          ctx.strokeStyle = color; ctx.lineWidth = width; ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(-8, 110);
+          ctx.lineTo(18, 68); ctx.lineTo(-9, 42); ctx.lineTo(22, 5);
+          ctx.lineTo(-8, -28); ctx.lineTo(17, -70); ctx.lineTo(-2, -112);
+          ctx.stroke();
+          ctx.restore();
+        };
+        lightning(-25, '#ffffff', 7);
+        lightning(3, '#7de8ff', 5);
+        lightning(27, '#fff36b', 3);
+
+        // 근거리 일격임을 강조하는 짧은 반달 검격
+        swordArc(-0.12 + variant * 0.03, 116, 16, 0.95);
+
+        // 손에서 터지는 번개/파편
+        for (let i = 0; i < 18; i++) {
+          const a = Math.random() * Math.PI * 2;
+          const r = 55 + Math.random() * 115;
+          glow(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 5 + Math.random() * 6,
+            i % 3 === 0 ? '#fff36b' : '#b8f4ff', 'rgba(0,150,255,0)');
+        }
+      } else if (skillId === 's2_2') {
+        // 회풍참 — 검기가 회전하며 여러 겹으로 휘몰아치는 근거리 광역 검무
+        glow(cx, cy, 150, '#d9f7ff', 'rgba(0,160,255,0)');
+        for (let i = 0; i < 4; i++) swordArc((Math.PI * 2 * i) / 4 + variant * 0.18, 88 + i * 15, 10 - i * 0.7, 0.9);
+        for (let i = 0; i < 12; i++) {
+          const a = Math.random() * Math.PI * 2, r = 80 + Math.random() * 70;
+          glow(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 10, '#ffffff', 'rgba(80,210,255,0)');
+        }
+      } else {
+        // 천검난무 — 화면을 가르는 거대한 다중 검격 + 교차 참격 + 충격파
+        glow(cx, cy, 165, '#ffffff', 'rgba(80,120,255,0)');
+        [-0.7, -0.35, 0, 0.35, 0.7].forEach((a, i) => swordArc(a + variant * 0.04, 112 + (i % 2) * 16, 14, 0.92));
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 14;
+        ctx.beginPath(); ctx.moveTo(40, 275); ctx.lineTo(300, 65); ctx.stroke();
+        ctx.strokeStyle = '#7dd3fc'; ctx.lineWidth = 7;
+        ctx.beginPath(); ctx.moveTo(45, 280); ctx.lineTo(305, 70); ctx.stroke();
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 14;
+        ctx.beginPath(); ctx.moveTo(65, 65); ctx.lineTo(295, 285); ctx.stroke();
+        ctx.strokeStyle = '#a5f3fc'; ctx.lineWidth = 7;
+        ctx.beginPath(); ctx.moveTo(70, 70); ctx.lineTo(300, 290); ctx.stroke();
+        ctx.strokeStyle = '#8be9ff'; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.arc(cx, cy, 140, 0, Math.PI * 2); ctx.stroke();
+      }
+
+      ctx.globalCompositeOperation = 'source-over';
+      const tex = new THREE.CanvasTexture(cvs); tex.magFilter = THREE.LinearFilter; return tex;
+    }
+
+    function spawnSwordsmanSkillVfx(worldPos, skillId, radius = 4, sourcePos = null) {
+      // 검성: UI는 그대로 유지. 실제 전투에서만 근거리 검격 VFX 출력.
+      if (skillId === 's2_1') {
+        // 뇌전참은 적 위치에 원거리 검기를 띄우지 않고, 플레이어 손에 거대한 번개검이 생기는 연출.
+        const origin = sourcePos ? sourcePos.clone() : playerSprite.position.clone();
+        const target = worldPos.clone();
+        const dir = target.clone().sub(origin);
+        dir.y = 0;
+        const main = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: createSwordsmanVfxTexture('s2_1', 0), transparent: true, opacity: 1.0, depthWrite: false
+        }));
+        main.scale.set(radius * 1.25, radius * 1.25, 1);
+        main.position.copy(origin).add(new THREE.Vector3(0, 2.0, 0.2));
+        if (dir.lengthSq() > 0.01) main.material.rotation = Math.atan2(dir.x, dir.z) * -0.85;
+        scene.add(main);
+        activeHitVfx.push({ sprite: main, timer: 0, duration: 0.42 });
+
+        // 바로 이어지는 근거리 참격의 잔상 — 플레이어와 적 사이에만 짧게 발생
+        const slash = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: createHitVfxTexture('slash'), transparent: true, opacity: 0.95, depthWrite: false
+        }));
+        slash.scale.set(radius * 1.5, radius * 0.9, 1);
+        slash.position.copy(origin).lerp(target, 0.52).add(new THREE.Vector3(0, 1.55, 0.18));
+        if (dir.lengthSq() > 0.01) slash.material.rotation = Math.atan2(dir.x, dir.z);
+        scene.add(slash);
+        activeHitVfx.push({ sprite: slash, timer: -0.04, duration: 0.28 });
+
+        // 타격 순간에는 적 바로 앞에서 작은 충격파만 추가
+        const impact = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: createSwordsmanVfxTexture('s2_1', 3), transparent: true, opacity: 0.8, depthWrite: false
+        }));
+        impact.scale.set(radius * 0.75, radius * 0.75, 1);
+        impact.position.copy(target).add(new THREE.Vector3(0, 1.2, 0.22));
+        scene.add(impact);
+        activeHitVfx.push({ sprite: impact, timer: -0.08, duration: 0.3 });
+        return;
+      }
+
+      const main = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: createSwordsmanVfxTexture(skillId, 0), transparent: true, opacity: 1.0, depthWrite: false
+      }));
+      const mainScale = skillId === 's2_3' ? radius * 1.45 : radius;
+      main.scale.set(mainScale, mainScale, 1);
+      main.position.copy(worldPos).add(new THREE.Vector3(0, 1.7, 0.15));
+      scene.add(main);
+      activeHitVfx.push({ sprite: main, timer: 0, duration: skillId === 's2_3' ? 0.7 : 0.5 });
+
+      const burstCount = skillId === 's2_2' ? 8 : 14;
+      for (let i = 0; i < burstCount; i++) {
+        const a = (Math.PI * 2 * i) / burstCount + Math.random() * 0.2;
+        const dist = radius * (0.35 + Math.random() * 0.9);
+        const p = worldPos.clone().add(new THREE.Vector3(Math.cos(a) * dist, 0.9 + Math.random() * 2.4, Math.sin(a) * dist));
+        const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: createSwordsmanVfxTexture(skillId, i + 1), transparent: true, opacity: 0.9, depthWrite: false
+        }));
+        const sc = (skillId === 's2_3' ? 1.4 : 0.9) + Math.random() * 0.7;
+        sp.scale.set(sc, sc, 1); sp.position.copy(p); scene.add(sp);
+        activeHitVfx.push({ sprite: sp, timer: -Math.random() * 0.08, duration: 0.38 + Math.random() * 0.25 });
+      }
+
+      if (skillId === 's2_3') {
+        const ring = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: createSwordsmanVfxTexture('s2_2', 9), transparent: true, opacity: 0.75, depthWrite: false
+        }));
+        ring.scale.set(radius * 1.8, radius * 1.8, 1);
+        ring.position.copy(worldPos).add(new THREE.Vector3(0, 0.35, 0.1));
+        scene.add(ring);
+        activeHitVfx.push({ sprite: ring, timer: 0.05, duration: 0.55 });
+      }
+    }
+
     function useActiveSkill(skillId) {
       const now = Date.now();
       const cfg = getSecondJobSkillConfig(skillId);
@@ -4773,17 +5038,17 @@
       if (skillId === 's2_1') {
         if (!selectedTarget || !selectedTarget.alive) targetNearestMonster();
         if (selectedTarget && selectedTarget.alive) {
-          spawnHitVfx(selectedTarget.sprite.position, 'lightning', 3.5);
+          if (playerState.job === '대도사') { spawnDaedosaSkillVfx(selectedTarget.sprite.position, 's2_1', 4.5); } else { spawnSwordsmanSkillVfx(selectedTarget.sprite.position, 's2_1', 4.8, playerSprite.position); }
           applyDamage(selectedTarget, getPlayerActualDmg(3.0));
         }
       } else if (skillId === 's2_2') {
         const lv = Math.max(1, Math.min(5, Number(playerState.skillLv.s2_2) || 1));
         const multTable = [0, 1.00, 1.20, 1.40, 1.60, 2.00];
         const mult = multTable[lv];
-        spawnHitVfx(playerSprite.position, 'whirlwind', 5.0);
+        if (playerState.job === '대도사') spawnDaedosaSkillVfx(playerSprite.position, 's2_2', 6.0); else spawnSwordsmanSkillVfx(playerSprite.position, 's2_2', 6.0);
         monsters.forEach(m => {
           if (m.alive && playerSprite.position.distanceTo(m.sprite.position) <= 6.0) {
-            spawnHitVfx(m.sprite.position, 'slash', 2.2);
+            if (playerState.job === '대도사') spawnHitVfx(m.sprite.position, 'explosion', 2.0); else spawnSwordsmanSkillVfx(m.sprite.position, 's2_1', 1.8);
             applyDamage(m, getPlayerActualDmg(mult));
           }
         });
@@ -4793,9 +5058,10 @@
         const mult = multTable[lv];
         if (!selectedTarget || !selectedTarget.alive) targetNearestMonster();
         const centerPos = selectedTarget && selectedTarget.alive ? selectedTarget.sprite.position : playerSprite.position;
-        spawnHitVfx(centerPos, 'explosion', 6.0);
+        if (playerState.job === '대도사') spawnDaedosaSkillVfx(centerPos, 's2_3', 8.0); else spawnSwordsmanSkillVfx(centerPos, 's2_3', 8.0);
         monsters.forEach(m => {
           if (m.alive && m.sprite.position.distanceTo(centerPos) <= 8.0) {
+            if (playerState.job !== '대도사') spawnSwordsmanSkillVfx(m.sprite.position, 's2_1', 1.6);
             applyDamage(m, getPlayerActualDmg(mult));
           }
         });
