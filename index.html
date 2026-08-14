@@ -3887,7 +3887,7 @@
           attackRange: 2.0, attackSpeed: 1500,
           lastAttackTime: 0, alive: true, destroyed: false, roamDir: new THREE.Vector3(), roamTimer: 0
         });
-        createNametagElement(`monster_${i}`, '', `Lv.1 ${mName}`, true);
+        createNametagElement(`monster_${i}`, '', `${mName}`, true);
       }
 
       const kingMushroomSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: createPixelSpriteTexture('boss_king_mushroom') }));
@@ -3950,7 +3950,7 @@
           attackRange: 2.2, attackSpeed: 1400,
           lastAttackTime: 0, alive: true, destroyed: false, roamDir: new THREE.Vector3(), roamTimer: 0
         });
-        createNametagElement(`monster_${i}`, '', `Lv.5 ${mName}`, true);
+        createNametagElement(`monster_${i}`, '', `${mName}`, true);
       }
 
       const bossSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: createPixelSpriteTexture('boss_tank') }));
@@ -4010,7 +4010,7 @@
           attackRange: 2.5, attackSpeed: 1200,
           lastAttackTime: 0, alive: true, destroyed: false, roamDir: new THREE.Vector3(), roamTimer: 0
         });
-        createNametagElement(`monster_${i}`, '', `Lv.40 ${mName}`, true);
+        createNametagElement(`monster_${i}`, '', `${mName}`, true);
       }
 
       const madaepoBoss = new THREE.Sprite(new THREE.SpriteMaterial({ map: createPixelSpriteTexture('madaepo') }));
@@ -4077,7 +4077,7 @@
         scene.add(sprite);
         const mShadow=createShadowDisk(2.7,1.4);
         monsters.push({id:`monster_${i}`,stageId:4,sprite,shadowDisk:mShadow,type:names[type],tier:4,isBoss:false,isHadum,hp:isHadum?HADUM_NORMAL_STATS[4].hp:5400,maxHp:isHadum?HADUM_NORMAL_STATS[4].hp:5400,goldReward:1200,attackPower:isHadum?HADUM_NORMAL_STATS[4].atkMin:108,attackPowerMin:isHadum?HADUM_NORMAL_STATS[4].atkMin:null,attackPowerMax:isHadum?HADUM_NORMAL_STATS[4].atkMax:null,attackRange:2.6,attackSpeed:1150,lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});
-        createNametagElement(`monster_${i}`,'',`Lv.55 ${names[type]}`,true);
+        createNametagElement(`monster_${i}`,'',`${names[type]}`,true);
       }
 
       // Final boss: purpose-built Ice Queen for the castle finale.
@@ -4191,7 +4191,7 @@
         isBoss:false, isHadum:false, isExperienceDungeon:true, hp:cfg.hp, maxHp:cfg.hp, defense:cfg.def,
         goldReward:0, attackPowerMin:cfg.atkMin, attackPowerMax:cfg.atkMax, attackRange:2.4, attackSpeed:1200,
         lastAttackTime:0, alive:true, destroyed:false, roamDir:new THREE.Vector3(), roamTimer:0 });
-      createNametagElement(id,'',`Lv.${experienceDungeonStage} ${mob.name}`,true);
+      createNametagElement(id,'',`${mob.name}`,true);
     }
 
     function enterExperienceDungeon(stage) {
@@ -6094,10 +6094,25 @@
       if (playerState.hp <= 0) {
         playerState.hp = playerState.maxHp;
         playerSprite.position.set(0, 1.5, 4);
+
+        // 레벨 100 이상에서 사망 시, 현재 보유 경험치(%)에서 1%p를 직접 차감하는 페널티를 적용한다.
+        // maxExp(다음 레벨업 필요 총량)는 건드리지 않고 exp(보유 경험치) 자체를 깎으며, 죽을 때마다 누적된다.
+        // 0% 밑으로는 내려가지 않는다.
+        let deathPenaltyApplied = false;
+        if (playerState.level >= 100) {
+          const expLoss = Math.round(playerState.maxExp * 0.01);
+          if (expLoss > 0 && playerState.exp > 0) {
+            playerState.exp = Math.max(0, playerState.exp - expLoss);
+            deathPenaltyApplied = true;
+          }
+        }
+
         if (isPowerSaveMode) {
           showPowerSaveDeathAlert();
         } else {
-          alert("몬스터의 공격에 쓰러졌습니다! 부활합니다.");
+          alert(deathPenaltyApplied
+            ? "몬스터의 공격에 쓰러졌습니다! 부활합니다. (경험치 1% 감소)"
+            : "몬스터의 공격에 쓰러졌습니다! 부활합니다.");
         }
       }
       updateUI();
@@ -6487,15 +6502,15 @@
 
       if (siriSprite) {
         const el = document.getElementById('hero_lv_hero_siri');
-        if (el) el.innerText = siriState.level >= 70 ? 'Lv.70 (MAX)' : `Lv.${siriState.level}`;
+        if (el) el.innerText = siriState.level >= 100 ? 'Lv.100 (MAX)' : `Lv.${siriState.level}`;
       }
       if (janggeumSprite) {
         const el = document.getElementById('hero_lv_hero_janggeum');
-        if (el) el.innerText = janggeumState.level >= 70 ? 'Lv.70 (MAX)' : `Lv.${janggeumState.level}`;
+        if (el) el.innerText = janggeumState.level >= 100 ? 'Lv.100 (MAX)' : `Lv.${janggeumState.level}`;
       }
       if (munyeahanaSprite) {
         const el = document.getElementById('hero_lv_hero_munyeahana');
-        if (el) el.innerText = munyeahanaState.level >= 70 ? 'Lv.70 (MAX)' : `Lv.${munyeahanaState.level}`;
+        if (el) el.innerText = munyeahanaState.level >= 100 ? 'Lv.100 (MAX)' : `Lv.${munyeahanaState.level}`;
       }
 
       const jobBtn = document.getElementById('btn-job-modal');
