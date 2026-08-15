@@ -2672,25 +2672,74 @@
       const pink='#d96ac8', pink2='#f39adf', pink3='#ffb6e8', inner='#ffe4f4', skin='#f7d3b1', hair='#6b4037', purple='#7b2cbf', purple2='#a44ee8', basket='#b86a2d', basket2='#e99a4c', dark='#5a315e';
       ctx.clearRect(0,0,128,128);
 
-      // 토끼 후드와 긴 귀
+      // 캔버스(128x128) 크기는 그대로 유지하되(스프라이트가 정사각형 스케일이라 세로가 늘어나면 캐릭터 전체가 찌그러져 보임),
+      // 귀가 들어갈 위쪽 공간을 확보하기 위해 몸통 전체를 발끝(y=122) 기준으로 살짝 압축해 배치한다.
+      ctx.save();
+      const PIVOT_Y = 122, BODY_SCALE = 0.80;
+      ctx.translate(64, PIVOT_Y);
+      ctx.scale(1, BODY_SCALE);
+      ctx.translate(-64, -PIVOT_Y);
+
+      // 토끼 후드와 귀: 기존 대비 길이 2배로 늘려 축 처진 토끼 귀 느낌을 강화. 뿌리 간격은 가깝게 유지.
       ctx.fillStyle=pink;
-      ctx.beginPath(); ctx.moveTo(40,42); ctx.lineTo(20,6); ctx.lineTo(42,20); ctx.lineTo(51,43); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(88,42); ctx.lineTo(108,6); ctx.lineTo(86,20); ctx.lineTo(77,43); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(49,34);
+      ctx.quadraticCurveTo(33,14, 31,-14);
+      ctx.quadraticCurveTo(33,-30, 47,-26);
+      ctx.quadraticCurveTo(58,-20, 65,4);
+      ctx.quadraticCurveTo(68,20, 63,33);
+      ctx.closePath(); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(79,34);
+      ctx.quadraticCurveTo(95,14, 97,-14);
+      ctx.quadraticCurveTo(95,-30, 81,-26);
+      ctx.quadraticCurveTo(70,-20, 63,4);
+      ctx.quadraticCurveTo(60,20, 65,33);
+      ctx.closePath(); ctx.fill();
       ctx.fillStyle=pink3;
-      ctx.beginPath(); ctx.moveTo(37,30); ctx.lineTo(27,13); ctx.lineTo(40,22); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(91,30); ctx.lineTo(101,13); ctx.lineTo(88,22); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(48,30);
+      ctx.quadraticCurveTo(38,10, 37,-10);
+      ctx.quadraticCurveTo(37,-19, 44,-16);
+      ctx.quadraticCurveTo(51,-11, 55,7);
+      ctx.quadraticCurveTo(57,20, 57,29);
+      ctx.closePath(); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(80,30);
+      ctx.quadraticCurveTo(90,10, 91,-10);
+      ctx.quadraticCurveTo(91,-19, 84,-16);
+      ctx.quadraticCurveTo(77,-11, 73,7);
+      ctx.quadraticCurveTo(71,20, 71,29);
+      ctx.closePath(); ctx.fill();
       ctx.fillStyle=pink2; ctx.beginPath(); ctx.arc(64,39,31,0,Math.PI*2); ctx.fill();
 
-      // 얼굴 + 머리카락
+      // 모자(후드) 상단부의 눈코입 자수. 실제 얼굴(아래쪽)과 겹치지 않도록 후드 꼭대기에 작게 배치.
+      if (!isBack) {
+        ctx.fillStyle='#7a3d1f';
+        ctx.beginPath(); ctx.arc(53,16,2.2,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(75,16,2.2,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#c2185b';
+        ctx.beginPath(); ctx.moveTo(59,18.5); ctx.quadraticCurveTo(64,21.5,69,18.5); ctx.quadraticCurveTo(64,21,59,18.5); ctx.fill();
+      }
+
+      // 얼굴 + 머리카락 (앞/뒤 공통 실루엣은 둥근 후드를 그대로 사용하고, 이목구비만 앞모습에서 추가)
       ctx.fillStyle=hair; ctx.beginPath(); ctx.arc(64,47,23,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle=skin; ctx.beginPath(); ctx.arc(64,48,19,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle='#f1a5c7'; ctx.fillRect(47,49,7,3); ctx.fillRect(74,49,7,3);
-      // 큰 귀여운 눈
-      ctx.fillStyle='#2b1a35'; ctx.fillRect(53,43,7,9); ctx.fillRect(68,43,7,9);
-      ctx.fillStyle='#fff'; ctx.fillRect(54,44,2,3); ctx.fillRect(69,44,2,3);
-      ctx.fillStyle='#9b3d77'; ctx.fillRect(61,55,6,3);
-      // 앞머리
-      ctx.fillStyle=hair; ctx.fillRect(50,31,28,7); ctx.fillRect(55,36,7,8); ctx.fillRect(66,34,7,10);
+      if (!isBack) {
+        ctx.fillStyle=skin; ctx.beginPath(); ctx.arc(64,48,19,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#f1a5c7'; ctx.fillRect(47,49,7,3); ctx.fillRect(74,49,7,3);
+        // 큰 귀여운 눈
+        ctx.fillStyle='#2b1a35'; ctx.fillRect(53,43,7,9); ctx.fillRect(68,43,7,9);
+        ctx.fillStyle='#fff'; ctx.fillRect(54,44,2,3); ctx.fillRect(69,44,2,3);
+        ctx.fillStyle='#9b3d77'; ctx.fillRect(61,55,6,3);
+        // 앞머리
+        ctx.fillStyle=hair; ctx.fillRect(50,31,28,7); ctx.fillRect(55,36,7,8); ctx.fillRect(66,34,7,10);
+      } else {
+        // 뒷모습: 각진 사각형 대신 둥근 뒤통수(정수리 가르마 라인만 표현)를 사용해 앞모습과 실루엣을 통일한다.
+        ctx.fillStyle='#5a332b';
+        ctx.beginPath();
+        ctx.moveTo(64,26); ctx.quadraticCurveTo(50,30,48,50); ctx.quadraticCurveTo(64,56,80,50); ctx.quadraticCurveTo(78,30,64,26);
+        ctx.fill();
+      }
 
       // 보라색 리본
       ctx.fillStyle=purple; ctx.fillRect(56,63,16,8); ctx.fillRect(43,60,15,12); ctx.fillRect(70,60,15,12);
@@ -2698,7 +2747,7 @@
 
       // 핑크 원피스/토끼 슈트
       ctx.fillStyle=pink; ctx.beginPath(); ctx.moveTo(39,70); ctx.lineTo(89,70); ctx.lineTo(98,107); ctx.lineTo(30,107); ctx.fill();
-      ctx.fillStyle=inner; ctx.beginPath(); ctx.moveTo(52,73); ctx.lineTo(64,91); ctx.lineTo(76,73); ctx.fill();
+      if (!isBack) { ctx.fillStyle=inner; ctx.beginPath(); ctx.moveTo(52,73); ctx.lineTo(64,91); ctx.lineTo(76,73); ctx.fill(); }
       // 팔
       ctx.fillStyle=pink2; ctx.fillRect(24,73,15,29); ctx.fillRect(89,73,15,29);
       ctx.fillStyle=skin; ctx.fillRect(24,98,15,8); ctx.fillRect(89,98,15,8);
@@ -2711,7 +2760,7 @@
       ctx.fillStyle=dark; ctx.fillRect(87,76,27,5); ctx.strokeStyle=basket2; ctx.lineWidth=3;
       ctx.beginPath(); ctx.arc(101,80,12,Math.PI,Math.PI*2); ctx.stroke();
       // 가방 속 사탕
-      ctx.fillStyle='#ff4d8d'; ctx.fillRect(95,73,5,8); ctx.fillStyle='#6ec6ff'; ctx.fillRect(103,71,5,9);
+      if (!isBack) { ctx.fillStyle='#ff4d8d'; ctx.fillRect(95,73,5,8); ctx.fillStyle='#6ec6ff'; ctx.fillRect(103,71,5,9); }
 
       // 공격 중에는 가방에서 사탕을 꺼내는 손동작 + 반짝임
       if (attackStage) {
@@ -2721,11 +2770,10 @@
         ctx.fillStyle='#8bdcff'; ctx.fillRect(76,52,3,3); ctx.fillStyle='#ff7fc8'; ctx.fillRect(103,55,3,3);
       }
       if (isBack) {
-        ctx.fillStyle=pink; ctx.beginPath(); ctx.arc(64,45,28,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle=hair; ctx.fillRect(45,32,38,30);
         ctx.fillStyle=pink; ctx.fillRect(40,63,48,40);
         ctx.fillStyle=basket; ctx.fillRect(87,78,24,27);
       }
+      ctx.restore();
       const tex=new THREE.CanvasTexture(cvs); tex.colorSpace=THREE.SRGBColorSpace;
       tex.magFilter=THREE.NearestFilter; tex.minFilter=THREE.NearestFilter; tex.generateMipmaps=false;
       return tex;
