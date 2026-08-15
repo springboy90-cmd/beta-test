@@ -1717,71 +1717,90 @@
       const tex = new THREE.CanvasTexture(cvs); tex.magFilter = THREE.NearestFilter; return tex;
     }
 
-    // 크리티컬 히트 전용 방사형 광원 텍스처: 중심의 밝은 코어 + 사방으로 뻗는 광선.
-    // 참고 이미지처럼 타격 지점에서 폭발적으로 퍼지는 흰색 섬광을 표현한다.
-    function createCritGlowTexture() {
-      const cvs = document.createElement('canvas'); cvs.width = 256; cvs.height = 256;
+    // 크리티컬 히트 전용 광원: 참고 이미지처럼 몬스터를 중심으로 화면을 가로지르는
+    // 강렬한 십자 렌즈플레어 + 바닥에 겹겹이 퍼지는 동심원 링으로 구성한다.
+    function createCritFlareTexture() {
+      const cvs = document.createElement('canvas'); cvs.width = 512; cvs.height = 512;
       const ctx = cvs.getContext('2d');
-      const cx = 128, cy = 128;
+      const cx = 256, cy = 256;
 
-      const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, 60);
+      // 중심 코어(가장 밝은 흰 빛)
+      const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, 100);
       core.addColorStop(0, 'rgba(255,255,255,1)');
-      core.addColorStop(0.3, 'rgba(255,250,210,0.95)');
-      core.addColorStop(0.6, 'rgba(255,220,140,0.55)');
-      core.addColorStop(1, 'rgba(255,200,100,0)');
+      core.addColorStop(0.4, 'rgba(255,255,255,0.9)');
+      core.addColorStop(1, 'rgba(255,255,255,0)');
       ctx.fillStyle = core;
-      ctx.beginPath(); ctx.arc(cx, cy, 60, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx, cy, 100, 0, Math.PI*2); ctx.fill();
 
-      ctx.save();
-      ctx.translate(cx, cy);
-      ctx.fillStyle = 'rgba(255,255,255,0.95)';
-      for (let i = 0; i < 4; i++) {
-        ctx.save();
-        ctx.rotate((Math.PI/2) * i + Math.PI/4);
-        ctx.beginPath();
-        ctx.moveTo(-7, 0); ctx.lineTo(0, -122); ctx.lineTo(7, 0); ctx.closePath();
-        ctx.fill();
-        ctx.restore();
+      // 세로/가로로 화면을 가로지르는 굵은 렌즈플레어 빔
+      function drawBeam(width, alpha) {
+        const grad = ctx.createLinearGradient(cx, 0, cx, 512);
+        grad.addColorStop(0, 'rgba(255,255,255,0)');
+        grad.addColorStop(0.5, `rgba(255,255,255,${alpha})`);
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(cx - width/2, 0, width, 512);
       }
-      ctx.fillStyle = 'rgba(255,240,180,0.8)';
-      for (let i = 0; i < 8; i++) {
-        ctx.save();
-        ctx.rotate((Math.PI/4) * i);
-        ctx.beginPath();
-        ctx.moveTo(-3, 0); ctx.lineTo(0, -92); ctx.lineTo(3, 0); ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-      }
-      ctx.restore();
+      drawBeam(14, 1.0);
+      ctx.save(); ctx.translate(cx,cy); ctx.rotate(Math.PI/2); ctx.translate(-cx,-cy); drawBeam(14, 1.0); ctx.restore();
+      drawBeam(48, 0.45);
+      ctx.save(); ctx.translate(cx,cy); ctx.rotate(Math.PI/2); ctx.translate(-cx,-cy); drawBeam(48, 0.45); ctx.restore();
 
       const tex = new THREE.CanvasTexture(cvs); tex.magFilter = THREE.LinearFilter; return tex;
     }
 
-    // 크리티컬 히트 시 타격 지점에 광원 폭발 이펙트를 생성한다. 큰 광원 + 작은 스파클 2겹 구성.
+    function createCritRingTexture() {
+      const cvs = document.createElement('canvas'); cvs.width = 512; cvs.height = 512;
+      const ctx = cvs.getContext('2d');
+      const cx = 256, cy = 256;
+      // 황금빛 큰 링 + 안쪽의 흰 링. 은은하게 흐려지도록 블러 대용으로 여러 겹 stroke.
+      [ [220,20,'rgba(255,235,180,0.55)'], [200,10,'rgba(255,245,210,0.85)'],
+        [160,14,'rgba(255,255,255,0.5)'], [150,6,'rgba(255,255,255,0.85)'] ]
+        .forEach(([r,w,color]) => {
+          ctx.strokeStyle = color; ctx.lineWidth = w;
+          ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+        });
+      const tex = new THREE.CanvasTexture(cvs); tex.magFilter = THREE.LinearFilter; return tex;
+    }
+
+    // 크리티컬 히트 시 타격 지점에 광원 폭발 이펙트를 생성한다.
+    // 십자 렌즈플레어(수직으로 세워 화면을 가로지름) + 바닥에 눕는 동심원 링 2겹으로 구성.
     function spawnCritGlowVfx(worldPos) {
-      const glowTex = createCritGlowTexture();
+      const flareTex = createCritFlareTexture();
+      const ringTex = createCritRingTexture();
 
-      const mainMat = new THREE.SpriteMaterial({
-        map: glowTex, transparent: true, opacity: 1.0, depthWrite: false,
+      // 1) 화면을 가로지르는 십자 플레어 (카메라를 향하는 스프라이트, 크게)
+      const flareMat = new THREE.SpriteMaterial({
+        map: flareTex, transparent: true, opacity: 1.0, depthWrite: false,
         blending: THREE.AdditiveBlending, toneMapped: false
       });
-      const main = new THREE.Sprite(mainMat);
-      main.scale.set(1.0, 1.0, 1);
-      main.position.copy(worldPos).add(new THREE.Vector3(0, 1.4, 0.15));
-      main.material.rotation = Math.random() * Math.PI;
-      scene.add(main);
-      activeHitVfx.push({ sprite: main, timer: 0, duration: 0.4, growTo: 4.2, baseScale: 1.0 });
+      const flare = new THREE.Sprite(flareMat);
+      flare.scale.set(2.0, 2.0, 1);
+      flare.position.copy(worldPos).add(new THREE.Vector3(0, 1.5, 0.2));
+      scene.add(flare);
+      activeHitVfx.push({ sprite: flare, timer: 0, duration: 0.55, growTo: 15, baseScale: 2.0 });
 
-      const sparkMat = new THREE.SpriteMaterial({
-        map: glowTex, transparent: true, opacity: 0.9, depthWrite: false,
+      // 2) 바닥에 눕는 동심원 링 (지면과 평행하게 배치해 퍼져나가는 느낌)
+      const ringMat = new THREE.SpriteMaterial({
+        map: ringTex, transparent: true, opacity: 0.95, depthWrite: false,
         blending: THREE.AdditiveBlending, toneMapped: false
       });
-      const spark = new THREE.Sprite(sparkMat);
-      spark.scale.set(0.6, 0.6, 1);
-      spark.position.copy(worldPos).add(new THREE.Vector3(0, 1.4, 0.2));
-      spark.material.rotation = Math.random() * Math.PI;
-      scene.add(spark);
-      activeHitVfx.push({ sprite: spark, timer: -0.05, duration: 0.3, growTo: 2.4, baseScale: 0.6 });
+      const ring1 = new THREE.Sprite(ringMat);
+      ring1.scale.set(3.0, 3.0, 1);
+      ring1.position.copy(worldPos).add(new THREE.Vector3(0, 0.3, 0.1));
+      scene.add(ring1);
+      activeHitVfx.push({ sprite: ring1, timer: 0, duration: 0.6, growTo: 9, baseScale: 3.0 });
+
+      const ring2Mat = new THREE.SpriteMaterial({
+        map: ringTex, transparent: true, opacity: 0.7, depthWrite: false,
+        blending: THREE.AdditiveBlending, toneMapped: false
+      });
+      const ring2 = new THREE.Sprite(ring2Mat);
+      ring2.scale.set(2.0, 2.0, 1);
+      ring2.position.copy(worldPos).add(new THREE.Vector3(0, 0.35, 0.15));
+      ring2.material.rotation = Math.PI / 5;
+      scene.add(ring2);
+      activeHitVfx.push({ sprite: ring2, timer: -0.08, duration: 0.55, growTo: 7, baseScale: 2.0 });
     }
 
     /* ==========================================
