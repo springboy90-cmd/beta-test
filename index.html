@@ -1023,6 +1023,14 @@
           <div class="stat-row-item" id="guardian-set-row" style="display:none; justify-content: flex-end;">
             <span class="stat-loot" id="guardian-set-val" style="color:#d84315;">🔥 파수꾼셋트: 0/4</span>
           </div>
+          <div class="stat-row-item" id="guardian-equip-row" style="display:none; justify-content:flex-end; margin-top:2px;">
+            <button id="guardian-equip-btn"
+                    class="status-action-btn"
+                    onclick="toggleGuardianSetEquip()"
+                    style="width:100%; background:#fff3e0; border-color:#ff7043; color:#bf360c;">
+              🔥 파수꾼셋트 장착
+            </button>
+          </div>
           <div class="status-action-row">
             <button class="status-action-btn status-shop-btn" onclick="openShopModal()">🛒 저자거리 상점</button>
             <button class="status-action-btn status-settings-btn" onclick="openSettingsModal()">⚙️ 설정</button>
@@ -2887,8 +2895,149 @@
       return tex;
     }
 
+    // 🔥 파수꾼셋트 풀세트 전용 캐릭터 외형.
+    // 첨부 참고 이미지의 특징을 현재 게임의 128x128 Nearest 픽셀 스타일로 재구성:
+    // - 머리를 감싸는 검붉은 뿔 투구 / 중앙 장식
+    // - 좁고 긴 중갑 실루엣
+    // - 양쪽으로 크게 펼쳐지는 박쥐날개형 망토/견갑
+    // - 검붉은 갑주 + 금속 하이라이트
+    // - 손 주변의 작은 화염
+    // 실제 풀세트 화염 오라는 별도 guardianFireAura에서 처리한다.
+    function createGuardianPlayerTexture(isBack = false, attackStage = 0) {
+      const cvs = document.createElement('canvas'); cvs.width = 128; cvs.height = 128;
+      const ctx = cvs.getContext('2d'); ctx.imageSmoothingEnabled = false;
+
+      const O='#12080a', B='#211012', D='#32151a', A='#4b1d23', R='#69262b';
+      const H='#8f3538', L='#b74b3f', M='#8d6b58', MH='#d7b28c';
+      const F='#ff5a1f', FO='#ff9b32', FY='#ffe28a';
+
+      // 작은 픽셀 윤곽 보정용 헬퍼
+      const rect=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);};
+      const poly=(pts,c)=>{ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.closePath();ctx.fill();};
+
+      if (isBack) {
+        // ===== 후면: 참고 이미지처럼 거대한 날개형 망토 =====
+        // 검은 외곽 날개
+        poly([[45,43],[31,43],[17,49],[8,62],[13,65],[5,77],[17,82],[8,91],[27,89],[40,78],[47,69],[81,69],[88,78],[101,89],[120,91],[111,82],[123,77],[115,65],[120,62],[111,49],[97,43],[83,43]], O);
+        // 날개 안쪽 검붉은 막
+        poly([[45,47],[31,47],[19,53],[12,63],[22,65],[14,75],[28,78],[20,84],[38,77],[49,66],[79,66],[90,77],[108,84],[100,78],[114,75],[106,65],[116,63],[109,53],[97,47],[83,47]], D);
+        // 날개 뼈대
+        ctx.strokeStyle=A; ctx.lineWidth=3;
+        [[22,52,45,65],[14,63,45,68],[20,82,46,70],[106,52,83,65],[114,63,83,68],[108,82,82,70]].forEach(v=>{ctx.beginPath();ctx.moveTo(v[0],v[1]);ctx.lineTo(v[2],v[3]);ctx.stroke();});
+        // 날개 끝부분의 붉은 픽셀
+        rect(8,76,7,6,R); rect(15,84,9,4,H); rect(113,76,7,6,R); rect(104,84,9,4,H);
+
+        // 뒷머리/투구
+        poly([[45,18],[54,11],[64,15],[74,11],[83,18],[84,43],[44,43]], O);
+        rect(48,19,32,22,D); rect(52,16,24,8,A); rect(57,14,14,5,H);
+        // 투구 중앙 세로 장식
+        rect(61,18,7,22,M); rect(62,19,5,10,MH);
+        // 목/등갑
+        rect(45,40,38,9,A); rect(49,44,30,7,R);
+        // 등 중앙 갑주
+        poly([[41,48],[87,48],[91,87],[78,99],[50,99],[37,87]], O);
+        poly([[44,50],[84,50],[87,84],[76,94],[52,94],[41,84]], A);
+        rect(49,53,30,7,H); rect(58,51,12,41,M); rect(61,53,6,24,MH);
+        rect(48,63,32,5,D); rect(51,70,26,14,R); rect(54,74,20,12,A);
+        // 허리 벨트
+        rect(43,84,42,7,O); rect(48,84,32,5,H); rect(60,82,8,10,M); rect(62,83,4,5,MH);
+        // 팔/건틀릿
+        rect(28,63,14,29,D); rect(86,63,14,29,D);
+        rect(25,70,16,18,A); rect(87,70,16,18,A);
+        rect(27,82,15,10,H); rect(86,82,15,10,H);
+        rect(24,90,19,9,M); rect(85,90,19,9,M); rect(27,91,7,4,MH); rect(91,91,7,4,MH);
+        // 다리/발
+        rect(43,91,17,24,O); rect(68,91,17,24,O);
+        rect(46,94,12,18,A); rect(70,94,12,18,A);
+        rect(39,109,21,9,M); rect(68,109,21,9,M); rect(43,110,10,4,MH); rect(72,110,10,4,MH);
+        // 뒤쪽 망토 중앙 꼬리
+        poly([[48,76],[80,76],[86,103],[78,113],[70,106],[64,118],[57,106],[49,113],[42,103]], '#351319');
+        rect(54,79,20,5,R); rect(58,85,12,5,H);
+      } else {
+        // ===== 정면 =====
+        // 거대한 날개형 어깨/망토 외곽 - 참고 이미지의 핵심 실루엣
+        poly([[44,42],[32,39],[22,43],[14,52],[7,61],[12,64],[5,73],[14,75],[8,82],[24,80],[37,72],[43,63],[85,63],[91,72],[104,80],[120,82],[114,75],[123,73],[116,64],[121,61],[114,52],[106,43],[96,39],[84,42]], O);
+        poly([[43,45],[31,43],[23,47],[16,55],[11,61],[20,63],[12,70],[23,72],[17,77],[29,74],[40,66],[46,56],[82,56],[88,66],[99,74],[111,77],[105,72],[116,70],[108,63],[117,61],[112,55],[105,47],[97,43],[85,45]], D);
+        // 날개 막과 테두리
+        poly([[31,47],[22,51],[16,58],[27,61],[18,68],[31,69],[25,73],[39,65],[44,54]], A);
+        poly([[97,47],[106,51],[112,58],[101,61],[110,68],[97,69],[103,73],[89,65],[84,54]], A);
+        ctx.strokeStyle=R; ctx.lineWidth=2;
+        [[18,58,43,53],[22,68,42,57],[29,74,44,60],[110,58,85,53],[106,68,86,57],[99,74,84,60]].forEach(v=>{ctx.beginPath();ctx.moveTo(v[0],v[1]);ctx.lineTo(v[2],v[3]);ctx.stroke();});
+
+        // 뿔 투구: 참고 이미지처럼 머리 전체를 덮고 위쪽 뿔이 길게 올라감
+        poly([[43,35],[38,25],[30,12],[40,17],[44,7],[50,20],[64,14],[78,20],[84,7],[88,17],[98,12],[90,27],[85,35],[82,45],[46,45]], O);
+        // 투구 본체
+        poly([[44,24],[52,17],[64,14],[76,17],[84,24],[82,42],[74,48],[54,48],[46,42]], D);
+        rect(49,27,30,13,A); rect(53,31,22,8,H); rect(56,35,16,4,D);
+        // 투구 좌우 날개/뿔
+        poly([[45,24],[37,18],[31,13],[42,20],[48,29]], A);
+        poly([[83,24],[91,18],[98,13],[86,20],[80,29]], A);
+        rect(34,15,5,4,H); rect(89,15,5,4,H);
+        // 중앙 장식 + 눈빛
+        rect(61,17,7,24,M); rect(62,19,5,12,MH); rect(55,36,6,3,FY); rect(67,36,6,3,FY);
+        rect(58,41,12,4,O); rect(61,40,6,3,F);
+        // 목 보호대
+        rect(48,43,32,10,O); rect(52,45,24,8,R); rect(59,44,10,8,M);
+
+        // 견갑
+        poly([[40,51],[27,49],[20,56],[19,70],[31,75],[43,67]], O);
+        poly([[88,51],[101,49],[108,56],[109,70],[97,75],[85,67]], O);
+        poly([[39,54],[29,53],[24,58],[24,68],[32,71],[41,64]], R);
+        poly([[89,54],[99,53],[104,58],[104,68],[96,71],[87,64]], R);
+        rect(23,61,17,5,M); rect(88,61,17,5,M); rect(27,66,12,4,MH); rect(89,66,12,4,MH);
+
+        // 흉갑 - 좁고 길게, 중앙 금속 장식
+        poly([[42,50],[86,50],[90,88],[78,99],[50,99],[38,88]], O);
+        poly([[45,53],[83,53],[86,85],[76,94],[52,94],[42,85]], A);
+        rect(48,56,32,8,H); rect(51,63,26,19,R); rect(55,67,18,18,A);
+        rect(59,52,10,40,M); rect(61,55,6,22,MH);
+        // 흉갑 문양
+        poly([[64,58],[70,67],[67,76],[64,81],[61,76],[58,67]], D);
+        rect(57,82,14,4,M); rect(60,82,8,4,MH);
+        // 허리/벨트
+        rect(43,85,42,8,O); rect(48,85,32,5,H); rect(59,83,10,10,M); rect(61,84,6,5,MH);
+
+        // 장갑 + 손에 화염
+        rect(25,69,17,25,O); rect(86,69,17,25,O);
+        rect(27,73,14,17,R); rect(87,73,14,17,R);
+        rect(24,87,18,9,M); rect(86,87,18,9,M); rect(27,89,7,4,MH); rect(92,89,7,4,MH);
+        // 작은 손불꽃
+        poly([[23,79],[16,75],[19,83],[14,88],[23,90],[28,84]],F);
+        poly([[105,79],[112,75],[109,83],[114,88],[105,90],[100,84]],F);
+        rect(19,81,6,6,FO); rect(103,81,6,6,FO); rect(21,82,3,3,FY); rect(105,82,3,3,FY);
+
+        // 하체/장화
+        rect(43,91,17,23,O); rect(68,91,17,23,O);
+        rect(46,94,12,18,A); rect(70,94,12,18,A);
+        rect(40,108,20,10,M); rect(68,108,20,10,M); rect(44,110,10,4,MH); rect(72,110,10,4,MH);
+
+        // 공격 모션: 참고 이미지처럼 왼쪽/오른쪽으로 불꽃이 크게 뻗음
+        if (attackStage) {
+          poly([[23,78],[8,69],[15,65],[4,58],[22,61],[34,70],[28,77]],F);
+          poly([[18,68],[8,61],[19,63],[13,55],[26,63],[35,71]],FO);
+          rect(10,63,8,5,FY); rect(18,66,8,5,FY);
+          // 손 앞 불꽃 파편
+          rect(6,54,4,4,FY); rect(12,50,3,3,FO); rect(27,58,3,3,FY); rect(4,71,3,3,FO);
+        }
+      }
+
+      // 픽셀 스파크를 소량 추가해 참고 이미지의 화염/마법 느낌을 유지
+      if (attackStage || !isBack) {
+        rect(17,47,2,2,FY); rect(108,45,2,2,FY);
+        rect(14,55,2,2,FO); rect(112,57,2,2,FO);
+      }
+
+      const tex = new THREE.CanvasTexture(cvs);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.magFilter = THREE.NearestFilter;
+      tex.minFilter = THREE.NearestFilter;
+      tex.generateMipmaps = false;
+      return tex;
+    }
+
     function createPixelSpriteTexture(type, isBack = false, attackStage = 0) {
       if (type === 'rabbit_girl') return createRabbitGirlTexture(isBack, attackStage);
+      if (type === 'player_guardian') return createGuardianPlayerTexture(isBack, attackStage);
       if (summonHeroVisuals[type]) return summonHeroVisuals[type](isBack, attackStage);
       const cvs = document.createElement('canvas');
       cvs.width = 128; cvs.height = 128;
@@ -3734,7 +3883,7 @@
     }
 
     const playerState = {
-      name: "조선유생", title: "유생", level: 1, maxLevel: 150, job: "평민", tier: 1,
+      name: "조선유생", title: "유생", level: 1, maxLevel: 180, job: "평민", tier: 1,
       hp: 100, maxHp: 100, mp: 50, maxMp: 50, exp: 0,
       maxExp: getRequiredExp(1),
       gold: 200, 
@@ -3755,7 +3904,8 @@
       jobChangeCount: 0,
       // 파수꾼셋트: 하둠 보스 전용 드랍(부위별 10%). 4부위(투구/갑옷/장갑/신발)를 모두 갖추면
       // 공격력 +15%, 크리티컬 확률 +8%가 적용되고 캐릭터를 화염이 휘감는 외형이 활성화된다.
-      guardianSet: { helm: false, armor: false, gloves: false, boots: false }
+      guardianSet: { helm: false, armor: false, gloves: false, boots: false },
+      guardianSetEquipped: false
     };
 
     function getCritChance() {
@@ -3765,9 +3915,14 @@
     }
 
     // 파수꾼셋트(투구/갑옷/장갑/신발) 4부위를 모두 갖췄는지 판정.
-    function isGuardianSetComplete() {
+    function hasGuardianFullSet() {
       const s = playerState.guardianSet;
       return !!(s && s.helm && s.armor && s.gloves && s.boots);
+    }
+
+    // 파수꾼 풀세트를 현재 장착하고 있는지 판정.
+    function isGuardianSetComplete() {
+      return hasGuardianFullSet() && playerState.guardianSetEquipped === true;
     }
 
     const GUARDIAN_SET_PIECE_NAMES = { helm: '투구', armor: '갑옷', gloves: '장갑', boots: '신발' };
@@ -7147,7 +7302,8 @@
           hasMunyeahana: playerState.hasMunyeahana, hasRabbitGirl: playerState.hasRabbitGirl, rabbitForm: playerState.rabbitForm, hasAutoHeal: playerState.hasAutoHeal,
           atkSpeedLv: playerState.atkSpeedLv, firstSkillLv: playerState.firstSkillLv, jobChangeCount: playerState.jobChangeCount, skillLv: { s2_2: playerState.skillLv.s2_2, s2_3: playerState.skillLv.s2_3 }, skillsLearned: Array.isArray(playerState.skillsLearned) ? [...playerState.skillsLearned].filter(id => id !== 's1_2') : [],
           skillCooldowns: { s1_1: 0, s2_1: 0, s2_2: 0, s2_3: 0 },
-          guardianSet: { helm: !!playerState.guardianSet.helm, armor: !!playerState.guardianSet.armor, gloves: !!playerState.guardianSet.gloves, boots: !!playerState.guardianSet.boots }
+          guardianSet: { helm: !!playerState.guardianSet.helm, armor: !!playerState.guardianSet.armor, gloves: !!playerState.guardianSet.gloves, boots: !!playerState.guardianSet.boots },
+          guardianSetEquipped: !!playerState.guardianSetEquipped
         },
         heroes: {
           siri: { level:siriState.level, exp:siriState.exp, maxExp:siriState.maxExp, active:!!siriSprite },
@@ -7193,7 +7349,7 @@
         const p = data.player;
         const numericFields = ['level','maxLevel','tier','hp','maxHp','mp','maxMp','exp','maxExp','gold','talismanLoot','talismanLevel','enhanceCore','baseAttackSpeed','attackSpeed','weaponAtk','defensePower','weaponEnhanceLv','moveSpeed','attackRange','atkSpeedLv','firstSkillLv','martialTrainingLv','shamanStudyLv','dailyCoreBought','jobChangeCount','experienceDungeonTickets'];
         numericFields.forEach(k => { if (p[k] !== undefined && Number.isFinite(Number(p[k]))) playerState[k] = Number(p[k]); });
-        playerState.maxLevel = 150;
+        playerState.maxLevel = 180;
         ['name','title','job','dailyResetDate'].forEach(k => { if (typeof p[k] === 'string') playerState[k] = p[k]; });
         ['hasSiri','hasJanggeum','hasMunyeahana','hasRabbitGirl','rabbitForm','hasAutoHeal'].forEach(k => { if (typeof p[k] === 'boolean') playerState[k] = p[k]; });
         if (!playerState.hasRabbitGirl) playerState.rabbitForm = false;
@@ -7214,6 +7370,8 @@
             gloves: !!p.guardianSet.gloves, boots: !!p.guardianSet.boots
           };
         }
+        // 기존 저장 데이터와의 호환: 장착 상태가 없는 예전 세이브는 해체 상태로 시작.
+        playerState.guardianSetEquipped = p.guardianSetEquipped === true;
         if (playerState.skillsLearned.includes('s1_1') && playerState.firstSkillLv === 0) playerState.firstSkillLv = 1;
         ['s2_2','s2_3'].forEach(id => { if (playerState.skillsLearned.includes(id) && playerState.skillLv[id] === 0) playerState.skillLv[id] = 1; });
         playerState.skillCooldowns = { s1_1:0, s2_1:0, s2_2:0, s2_3:0 };
@@ -7250,6 +7408,9 @@
           playerState.title = '토끼소녀 강림';
           playerSprite.material.map = createPixelSpriteTexture('rabbit_girl', playerFacing === 'back', 0);
           playerSprite.material.needsUpdate = true;
+          applyPlayerFormScale();
+        } else {
+          updatePlayerFacingTexture();
           applyPlayerFormScale();
         }
 
@@ -7312,6 +7473,20 @@
       if (guardianRow && guardianVal) {
         const gs = playerState.guardianSet || {};
         const ownedCount = ['helm','armor','gloves','boots'].filter(k => gs[k]).length;
+        const guardianEquipRow = document.getElementById('guardian-equip-row');
+        const guardianEquipBtn = document.getElementById('guardian-equip-btn');
+
+        if (guardianEquipRow && guardianEquipBtn) {
+          const full = ownedCount === 4;
+          guardianEquipRow.style.display = full ? 'flex' : 'none';
+          guardianEquipBtn.innerText = playerState.guardianSetEquipped
+            ? '🔥 파수꾼셋트 해체'
+            : '🔥 파수꾼셋트 장착';
+          guardianEquipBtn.style.background = playerState.guardianSetEquipped ? '#eeeeee' : '#fff3e0';
+          guardianEquipBtn.style.borderColor = playerState.guardianSetEquipped ? '#9e9e9e' : '#ff7043';
+          guardianEquipBtn.style.color = playerState.guardianSetEquipped ? '#424242' : '#bf360c';
+        }
+
         if (ownedCount > 0) {
           guardianRow.style.display = 'flex';
           const pieces = ['helm','armor','gloves','boots'].map(k => `${GUARDIAN_SET_PIECE_NAMES[k]}${gs[k] ? '✅' : '❌'}`).join(' ');
@@ -7433,9 +7608,38 @@
     });
     window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 
+    function toggleGuardianSetEquip() {
+      if (!hasGuardianFullSet()) {
+        showHealText('🔥 파수꾼 4부위를 모두 모아야 장착할 수 있습니다!', playerSprite.position);
+        return;
+      }
+
+      playerState.guardianSetEquipped = !playerState.guardianSetEquipped;
+
+      // 장착/해체에 따라 캐릭터 외형을 즉시 갱신한다.
+      updatePlayerFacingTexture();
+      updateUI();
+      saveGame();
+
+      if (playerState.guardianSetEquipped) {
+        showHealText('🔥 파수꾼 풀세트 장착! 화염이 그대를 감싼다!', playerSprite.position);
+        setTimeout(() => {
+          showHealText('⚔ 공격력 +15% · ✨ 크리티컬 +8%', playerSprite.position);
+        }, 450);
+      } else {
+        showHealText('🛡 파수꾼 풀세트 해체', playerSprite.position);
+      }
+    }
+
     function updatePlayerFacingTexture() {
       if (playerState.rabbitForm) {
         playerSprite.material.map = createPixelSpriteTexture('rabbit_girl', playerFacing === 'back', playerState.attackStage);
+        playerSprite.material.needsUpdate = true;
+        return;
+      }
+      // 🔥 파수꾼셋트 4부위 완성 시 전용 중갑 외형으로 변경
+      if (isGuardianSetComplete()) {
+        playerSprite.material.map = createPixelSpriteTexture('player_guardian', playerFacing === 'back', playerState.attackStage);
         playerSprite.material.needsUpdate = true;
         return;
       }
@@ -7846,9 +8050,11 @@
       }
       updateUI();
     }
-
     function changeZoom(amount) { zoomLevel = Math.max(0.5, Math.min(2.0, zoomLevel + amount)); }
-    function addExpDev() { addReward(5000, 5000); }
+    function addExpDev() {
+      // 레벨업 지원: 경험치 +5,000 / 게임머니 +50,000G
+      addReward(5000, 50000);
+    }
 
     /* ==========================================
        10. MAIN ANIMATION LOOP
