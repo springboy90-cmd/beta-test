@@ -1020,6 +1020,9 @@
             <span class="stat-loot">📜 전리품: <span id="loot-val">0</span>개</span>
             <span class="stat-loot">🔷 강화의 핵: <span id="core-val">0</span>개</span>
           </div>
+          <div class="stat-row-item" id="subweapon-status-row" style="display:none; justify-content: flex-end;">
+            <span id="subweapon-status-val" style="color:#4a148c;">⚔️ 보조무기: 없음</span>
+          </div>
           <div class="stat-row-item" id="guardian-set-row" style="display:none; justify-content: flex-end;">
             <span class="stat-loot" id="guardian-set-val" style="color:#d84315;">🔥 파수꾼셋트: 0/4</span>
           </div>
@@ -1278,6 +1281,7 @@
     <div class="modal-title">🛒 조선 저자거리 상점</div>
     <div class="shop-tabs">
       <div class="shop-tab active" id="tab-weapon" onclick="switchShopCategory('weapon')">무기/부적</div>
+      <div class="shop-tab" id="tab-subweapon" onclick="switchShopCategory('subweapon')">보조무기</div>
       <div class="shop-tab" id="tab-armor" onclick="switchShopCategory('armor')">방어구</div>
       <div class="shop-tab" id="tab-hero" onclick="switchShopCategory('hero')">소환영웅</div>
       <div class="shop-tab" id="tab-enhance" onclick="switchShopCategory('enhance')">강화상점</div>
@@ -3819,6 +3823,89 @@
     const WEAPON_ENHANCE_UNLOCK_ATK = 1500;
     const WEAPON_ENHANCE_CORE_COST = 1;
 
+
+    // ===== 보조무기 3종 성장 시스템 =====
+    // 하둠4 보스(HP 144,000)의 현재 구조를 기준으로, Lv.180 풀성장 캐릭터의 기본 DPS를
+    // 약 16~24% 정도 끌어올리되 3종 중 1종만 장착하도록 설계했다.
+    const SUB_WEAPON_MAX_LV = 10;
+    const SUB_WEAPON_CORE_COST = 1;
+    const SUB_WEAPON_DATA = {
+      annihilator: {
+        name: '⚔️ 파멸의 철편', short: '파멸', price: 300000,
+        desc: '순수 공격력 특화. 하둠 일반몹과 보스 모두 안정적으로 강화합니다.',
+        atk: [0, 35, 70, 105, 145, 185, 225, 265, 295, 325, 350],
+        boss: [0,0,0,0,0,0,0,0,0,0,0], speed: [0,0,0,0,0,0,0,0,0,0,0]
+      },
+      judgement: {
+        name: '⚡ 천벌의 패', short: '천벌', price: 450000,
+        desc: '보스전 특화. 공격력과 함께 보스 피해량이 증가합니다.',
+        atk: [0, 25, 50, 75, 100, 130, 160, 185, 205, 225, 240],
+        boss: [0,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.10],
+        speed: [0,0,0,0,0,0,0,0,0,0,0]
+      },
+      gale: {
+        name: '🌪️ 질풍의 환', short: '질풍', price: 400000,
+        desc: '공격속도 특화. 공격력과 함께 기본 공격 회전속도를 높입니다.',
+        atk: [0, 20, 40, 60, 85, 110, 135, 155, 170, 185, 200],
+        boss: [0,0,0,0,0,0,0,0,0,0,0],
+        speed: [0,0.007,0.014,0.021,0.028,0.035,0.042,0.049,0.056,0.063,0.07]
+      },
+      magic: {
+        name: '🔮 마력패', short: '마력', price: 350000,
+        desc: '스킬 공격과 MP 운용에 특화된 보조무기.',
+        atk: [0, 20, 40, 60, 80, 105, 130, 155, 180, 205, 230],
+        boss: [0,0,0,0,0,0,0,0,0,0,0],
+        speed: [0,0,0,0,0,0,0,0,0,0,0],
+        skillDamage: [0,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.12],
+        mpRecovery: [0,1,1,2,2,3,3,4,4,5,6]
+      }
+    };
+    const SUB_WEAPON_SUCCESS = [1.00,0.95,0.90,0.85,0.80,0.70,0.60,0.50,0.40,0.30,0];
+    const SUB_WEAPON_GOLD_COST = [40000,55000,65000,80000,105000,135000,170000,210000,255000,300000];
+
+    function getSubWeaponStat(id, stat) {
+      if (!id || !SUB_WEAPON_DATA[id]) return 0;
+      const lv = Math.max(0, Math.min(SUB_WEAPON_MAX_LV, Number(playerState.subWeaponLevel?.[id]) || 0));
+      return SUB_WEAPON_DATA[id][stat]?.[lv] || 0;
+    }
+    function getEquippedSubWeaponAtk() { return getSubWeaponStat(playerState.subWeaponEquipped, 'atk'); }
+    function getEquippedSubWeaponBossDamage() { return getSubWeaponStat(playerState.subWeaponEquipped, 'boss'); }
+    function getEquippedSubWeaponSpeedBonus() { return getSubWeaponStat(playerState.subWeaponEquipped, 'speed'); }
+
+    function equipSubWeapon(id) {
+      if (!SUB_WEAPON_DATA[id] || !playerState.subWeaponOwned?.[id]) return;
+      playerState.subWeaponEquipped = id;
+      recalcAttackSpeed();
+      updateUI();
+      if (document.getElementById('shop-modal')?.style.display !== 'none') switchShopCategory('subweapon');
+      saveGame();
+      showHealText(`${SUB_WEAPON_DATA[id].name} 장착!`, playerSprite.position);
+    }
+
+    function enhanceSubWeapon(id) {
+      if (!SUB_WEAPON_DATA[id] || !playerState.subWeaponOwned?.[id]) return;
+      const lv = Math.max(0, Math.min(SUB_WEAPON_MAX_LV, Number(playerState.subWeaponLevel?.[id]) || 0));
+      if (lv >= SUB_WEAPON_MAX_LV) return;
+      const core = playerState.enhanceCore || 0;
+      const goldCost = SUB_WEAPON_GOLD_COST[lv + 1];
+      if (core < SUB_WEAPON_CORE_COST) { alert('강화의 핵이 부족합니다!'); return; }
+      if (playerState.gold < goldCost) { alert(`게임머니가 부족합니다! (${goldCost.toLocaleString()} G 필요)`); return; }
+      playerState.enhanceCore -= SUB_WEAPON_CORE_COST;
+      playerState.gold -= goldCost;
+      const success = Math.random() < SUB_WEAPON_SUCCESS[lv];
+      if (success) {
+        playerState.subWeaponLevel[id] = lv + 1;
+        recalcAttackSpeed();
+        showHealText(`✨ ${SUB_WEAPON_DATA[id].name} +${lv+1} 강화 성공!`, playerSprite.position);
+      } else {
+        showPlayerDamageText(`💥 ${SUB_WEAPON_DATA[id].name} 강화 실패...`, playerSprite.position);
+      }
+      updateUI();
+      if (document.getElementById('shop-modal')?.style.display !== 'none') switchShopCategory('subweapon');
+      saveGame();
+    }
+
+
     // ===== 강화상점: 강화의 핵 판매 (일일 구매 제한) =====
     const CORE_SHOP_ITEMS = [
       { id: 'core1', qty: 1, price: 10000 },
@@ -3906,7 +3993,11 @@
       // 파수꾼셋트: 하둠 보스 전용 드랍(부위별 10%). 4부위(투구/갑옷/장갑/신발)를 모두 갖추면
       // 공격력 +15%, 크리티컬 확률 +8%가 적용되고 캐릭터를 화염이 휘감는 외형이 활성화된다.
       guardianSet: { helm: false, armor: false, gloves: false, boots: false },
-      guardianSetEquipped: false
+      guardianSetEquipped: false,
+      // 보조무기: 3종 중 1종만 장착. 각 보조무기는 별도 강화 레벨을 가진다.
+      subWeaponOwned: { annihilator: false, judgement: false, gale: false },
+      subWeaponLevel: { annihilator: 0, judgement: 0, gale: 0 },
+      subWeaponEquipped: ''
     };
 
     function getCritChance() {
@@ -3943,7 +4034,7 @@
     }
 
     function getPlayerBaseAtk() {
-      return 15 + (playerState.level - 1) * 3 + playerState.weaponAtk;
+      return 15 + (playerState.level - 1) * 3 + playerState.weaponAtk + getEquippedSubWeaponAtk();
     }
 
     function getPlayerAvgAtk() {
@@ -3973,6 +4064,16 @@
     function getMunyeahanaDefBuff() {
       if (!isMunyeahanaBuffActive()) return 0;
       return Math.max(0, getPlayerEffectiveDef() - playerState.defensePower);
+    }
+
+    function estimatePlayerBasicDps() {
+      const atk = getPlayerAvgAtk();
+      const crit = getCritChance();
+      const critMult = getCritMultiplier();
+      const avgHit = atk * ((1 - crit) + crit * critMult) * 0.995; // 랜덤 0.9~1.1의 평균
+      const intervalSec = Math.max(0.05, playerState.attackSpeed / 1000);
+      const bossMult = 1 + getEquippedSubWeaponBossDamage();
+      return avgHit * bossMult / intervalSec;
     }
 
     function getPlayerActualDmg(multiplier = 1.0) {
@@ -5984,7 +6085,7 @@
     }
 
     function recalcAttackSpeed() {
-      playerState.attackSpeed = playerState.baseAttackSpeed / (1 + playerState.atkSpeedLv * 0.04);
+      playerState.attackSpeed = playerState.baseAttackSpeed / (1 + playerState.atkSpeedLv * 0.04 + getEquippedSubWeaponSpeedBonus());
     }
 
     const JOB_CHANGE_COSTS = {
@@ -6259,7 +6360,7 @@
 
     function switchShopCategory(cat) {
       currentShopCategory = cat;
-      ['weapon', 'armor', 'hero', 'enhance', 'summon'].forEach(c => {
+      ['weapon', 'subweapon', 'armor', 'hero', 'enhance', 'summon'].forEach(c => {
         const el = document.getElementById(`tab-${c}`);
         if (el) el.classList.toggle('active', c === cat);
       });
@@ -6268,6 +6369,57 @@
 
       if (cat === 'enhance') {
         renderEnhanceShop(container);
+        return;
+      }
+
+      if (cat === 'subweapon') {
+        Object.entries(SUB_WEAPON_DATA).forEach(([id, data]) => {
+          const owned = !!playerState.subWeaponOwned?.[id];
+          const lv = Math.max(0, Math.min(SUB_WEAPON_MAX_LV, Number(playerState.subWeaponLevel?.[id]) || 0));
+          const equipped = playerState.subWeaponEquipped === id;
+          const atk = data.atk[lv];
+          const boss = data.boss[lv];
+          const speed = data.speed[lv];
+          const skillDamage = data.skillDamage?.[lv] || 0;
+          const mpRecovery = data.mpRecovery?.[lv] || 0;
+          const maxed = lv >= SUB_WEAPON_MAX_LV;
+          const nextLv = Math.min(SUB_WEAPON_MAX_LV, lv + 1);
+          const nextAtk = data.atk[nextLv];
+          const nextBoss = data.boss[nextLv];
+          const nextSpeed = data.speed[nextLv];
+          const card = document.createElement('div'); card.className = 'shop-item-card';
+          let statLine = `현재 공격력 +${atk}`;
+          if (boss > 0) statLine += ` · 보스 피해 +${Math.round(boss*100)}%`;
+          if (speed > 0) statLine += ` · 공격속도 +${Math.round(speed*1000)/10}%`;
+          if (skillDamage > 0) statLine += ` · 스킬 피해 +${Math.round(skillDamage*100)}%`;
+          if (mpRecovery > 0) statLine += ` · MP 회복 +${mpRecovery}`;
+          let nextLine = '';
+          if (!maxed) {
+            nextLine = `→ 다음 +${nextLv}: 공격력 +${nextAtk}`;
+            if (nextBoss > 0) nextLine += ` · 보스 피해 +${Math.round(nextBoss*100)}%`;
+            if (nextSpeed > 0) nextLine += ` · 공격속도 +${Math.round(nextSpeed*1000)/10}%`;
+            const nextSkillDamage = data.skillDamage?.[nextLv] || 0;
+            const nextMpRecovery = data.mpRecovery?.[nextLv] || 0;
+            if (nextSkillDamage > 0) nextLine += ` · 스킬 피해 +${Math.round(nextSkillDamage*100)}%`;
+            if (nextMpRecovery > 0) nextLine += ` · MP 회복 +${nextMpRecovery}`;
+          }
+          const price = data.price.toLocaleString();
+          let footer = '';
+          if (!owned) {
+            footer = `<span class="item-price">${price} G · Lv.150</span><button class="btn-buy" ${playerState.level < 150 || playerState.gold < data.price ? 'disabled' : ''} onclick="buySubWeapon('${id}')">구매</button>`;
+          } else if (maxed) {
+            footer = `<span class="item-price">MAX</span><button class="btn-buy" onclick="equipSubWeapon('${id}')">${equipped ? '장착중' : '장착'}</button>`;
+          } else {
+            const cost = SUB_WEAPON_GOLD_COST[lv+1];
+            const disabled = (playerState.enhanceCore || 0) < SUB_WEAPON_CORE_COST || playerState.gold < cost;
+            footer = `<span class="item-price">핵 1개 + ${cost.toLocaleString()} G</span><button class="btn-buy" ${disabled ? 'disabled' : ''} onclick="enhanceSubWeapon('${id}')">강화</button><button class="btn-buy" onclick="equipSubWeapon('${id}')">${equipped ? '장착중' : '장착'}</button>`;
+          }
+          card.innerHTML = `<div><div class="item-header"><span>${data.name} (+${lv}/${SUB_WEAPON_MAX_LV}) ${equipped ? '🔥' : ''}</span></div><div class="item-desc">${data.desc}<br>${statLine}${nextLine ? `<br>${nextLine}` : ''}<br>강화 성공률: ${maxed ? 'MAX' : Math.round(SUB_WEAPON_SUCCESS[lv]*100)+'%'}${maxed ? '' : ` · 다음 강화 비용: ${SUB_WEAPON_GOLD_COST[lv+1].toLocaleString()} G + 강화의 핵 1개`}</div></div><div class="item-footer">${footer}</div>`;
+          container.appendChild(card);
+        });
+        const guide = document.createElement('div'); guide.className='shop-item-card';
+        guide.innerHTML = `<div><div class="item-header"><span>📊 하둠4 보스용 추천</span></div><div class="item-desc">파멸: 순수 공격력 · 천벌: 보스전 · 질풍: 공격속도 · 마력: 스킬/MP형<br>4종은 동시에 적용되지 않고 <b>1종만 장착</b>됩니다.</div></div>`;
+        container.appendChild(guide);
         return;
       }
 
@@ -6676,6 +6828,22 @@
       updateUI();
       if (document.getElementById('shop-modal')?.style.display !== 'none') switchShopCategory('summon');
       saveGame();
+    }
+
+    function buySubWeapon(id) {
+      const data = SUB_WEAPON_DATA[id];
+      if (!data || playerState.subWeaponOwned?.[id]) return;
+      if (playerState.level < 150) { alert('Lv.150 이상부터 구매할 수 있습니다.'); return; }
+      if (playerState.gold < data.price) { alert(`게임머니가 부족합니다! (${data.price.toLocaleString()} G 필요)`); return; }
+      playerState.gold -= data.price;
+      playerState.subWeaponOwned[id] = true;
+      // 첫 보조무기는 자동 장착. 이후 보조무기는 직접 선택 장착.
+      if (!playerState.subWeaponEquipped) playerState.subWeaponEquipped = id;
+      recalcAttackSpeed();
+      updateUI();
+      switchShopCategory('subweapon');
+      saveGame();
+      showHealText(`${data.name} 획득!`, playerSprite.position);
     }
 
     function buyShopItem(cat, id) {
@@ -7304,7 +7472,10 @@
           atkSpeedLv: playerState.atkSpeedLv, firstSkillLv: playerState.firstSkillLv, jobChangeCount: playerState.jobChangeCount, skillLv: { s2_2: playerState.skillLv.s2_2, s2_3: playerState.skillLv.s2_3 }, skillsLearned: Array.isArray(playerState.skillsLearned) ? [...playerState.skillsLearned].filter(id => id !== 's1_2') : [],
           skillCooldowns: { s1_1: 0, s2_1: 0, s2_2: 0, s2_3: 0 },
           guardianSet: { helm: !!playerState.guardianSet.helm, armor: !!playerState.guardianSet.armor, gloves: !!playerState.guardianSet.gloves, boots: !!playerState.guardianSet.boots },
-          guardianSetEquipped: !!playerState.guardianSetEquipped
+          guardianSetEquipped: !!playerState.guardianSetEquipped,
+          subWeaponOwned: { ...(playerState.subWeaponOwned || {}) },
+          subWeaponLevel: { ...(playerState.subWeaponLevel || {}) },
+          subWeaponEquipped: playerState.subWeaponEquipped || ''
         },
         heroes: {
           siri: { level:siriState.level, exp:siriState.exp, maxExp:siriState.maxExp, active:!!siriSprite },
@@ -7373,6 +7544,15 @@
         }
         // 기존 저장 데이터와의 호환: 장착 상태가 없는 예전 세이브는 해체 상태로 시작.
         playerState.guardianSetEquipped = p.guardianSetEquipped === true;
+        playerState.subWeaponOwned = { annihilator:false, judgement:false, gale:false, ...(p.subWeaponOwned || {}) };
+        playerState.subWeaponLevel = { annihilator:0, judgement:0, gale:0, ...(p.subWeaponLevel || {}) };
+        playerState.subWeaponEquipped = SUB_WEAPON_DATA[p.subWeaponEquipped] ? p.subWeaponEquipped : '';
+        Object.keys(SUB_WEAPON_DATA).forEach(id => {
+          playerState.subWeaponLevel[id] = Math.max(0, Math.min(SUB_WEAPON_MAX_LV, Number(playerState.subWeaponLevel[id]) || 0));
+          playerState.subWeaponOwned[id] = !!playerState.subWeaponOwned[id];
+        });
+        if (playerState.subWeaponEquipped && !playerState.subWeaponOwned[playerState.subWeaponEquipped]) playerState.subWeaponEquipped = '';
+        recalcAttackSpeed();
         if (playerState.skillsLearned.includes('s1_1') && playerState.firstSkillLv === 0) playerState.firstSkillLv = 1;
         ['s2_2','s2_3'].forEach(id => { if (playerState.skillsLearned.includes(id) && playerState.skillLv[id] === 0) playerState.skillLv[id] = 1; });
         playerState.skillCooldowns = { s1_1:0, s2_1:0, s2_2:0, s2_3:0 };
@@ -7474,6 +7654,24 @@
       if (guardianRow && guardianVal) {
         const gs = playerState.guardianSet || {};
         const ownedCount = ['helm','armor','gloves','boots'].filter(k => gs[k]).length;
+        const subweaponStatusRow = document.getElementById('subweapon-status-row');
+        const subweaponStatusVal = document.getElementById('subweapon-status-val');
+        if (subweaponStatusRow && subweaponStatusVal) {
+          const sid = playerState.subWeaponEquipped;
+          if (sid && SUB_WEAPON_DATA[sid]) {
+            const slv = playerState.subWeaponLevel[sid] || 0;
+            const sd = SUB_WEAPON_DATA[sid];
+            let extra = `공격력 +${sd.atk[slv]}`;
+            if (sd.boss[slv]) extra += ` · 보스 +${Math.round(sd.boss[slv]*100)}%`;
+            if (sd.speed[slv]) extra += ` · 공속 +${Math.round(sd.speed[slv]*1000)/10}%`;
+            subweaponStatusVal.innerText = `${sd.name} +${slv} (${extra})`;
+            subweaponStatusRow.style.display = 'flex';
+          } else {
+            subweaponStatusVal.innerText = '⚔️ 보조무기: 없음';
+            subweaponStatusRow.style.display = 'none';
+          }
+        }
+
         const guardianEquipRow = document.getElementById('guardian-equip-row');
         const guardianEquipBtn = document.getElementById('guardian-equip-btn');
 
@@ -7848,6 +8046,10 @@
         // 5스테이지(용궁) 일반몹: 일반4(방어력 없음)와 하둠1(방어력 280)의 중간 수준인 140을 적용.
         finalDmg = Math.max(1, amount - 140);
       }
+
+      // 보조무기 '천벌의 패'의 보스 피해 증가. 보스에만 적용되며 크리티컬/스킬 포함 모든 유저 피해에 적용.
+      const subBossDamage = target.isBoss ? getEquippedSubWeaponBossDamage() : 0;
+      if (subBossDamage > 0) finalDmg = Math.max(1, Math.round(finalDmg * (1 + subBossDamage)));
 
       let isCrit = Math.random() < critChance;
       if (isCrit) {
