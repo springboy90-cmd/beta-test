@@ -20,6 +20,12 @@
       font-family: 'Malgun Gothic', '맑은 고딕', sans-serif; 
       background: #23301f; color: #5d4037; 
     }
+    /* 모달(사냥터 선택/경험의 서고 등)이 열려 있는 동안에는 body 전역의 touch-action:none이
+       일부 모바일 브라우저에서 자식 요소의 touch-action:pan-y까지 함께 막아 세로 스크롤이
+       먹지 않는 문제가 있어, 모달이 열린 동안만 body의 터치 제한을 해제한다. */
+    body.modal-open {
+      touch-action: pan-y !important;
+    }
 
     :root {
       --theme-primary: #ffb74d;
@@ -241,7 +247,7 @@
       background: var(--panel-bg); border: 3px solid var(--panel-border); border-radius: 16px; 
       padding: 18px; width: 92%; max-width: 480px; max-height: 85vh; display: none; z-index: 100; color: var(--text-main); 
       box-shadow: 0 8px 25px var(--panel-shadow); overflow-y: auto; overflow-x: hidden; pointer-events: auto;
-      -webkit-overflow-scrolling: touch;
+      -webkit-overflow-scrolling: touch; touch-action: pan-y;
     }
     .modal-title { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 12px; border-bottom: 2px dashed var(--panel-border); padding-bottom: 8px; }
     .hero-manage-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:8px; }
@@ -1212,6 +1218,13 @@
         </div>
         <div style="font-size: 12px; font-weight: bold; color: #ff8a65;">이동 ➔</div>
       </div>
+      <div class="stage-card hadum" id="stage-card-hadum-5" onclick="selectStage(5, true)">
+        <div>
+          <div style="font-weight: bold; color: #ff8a65; font-size: 13px;">🔥 하둠: 용궁</div>
+          <div style="font-size: 10px; color: #bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div>
+        </div>
+        <div style="font-size: 12px; font-weight: bold; color: #ff8a65;">이동 ➔</div>
+      </div>
     </div>
     <div style="text-align: center; margin-top: 10px;">
       <button class="btn-small" onclick="closeStageModal()">창 닫기</button>
@@ -1306,6 +1319,32 @@
       lastTouchEnd = now;
     }, { passive: false });
 
+    /* 모바일에서 사냥터 선택/경험의 서고 등 팝업 내부 스크롤이 막히는 문제 대응:
+       .modal 요소 중 하나라도 display:block/flex 등으로 열려 있으면 body에 modal-open을 붙여
+       body의 전역 touch-action:none을 일시 해제한다. 팝업이 모두 닫히면 다시 제거한다. */
+    (function setupModalTouchFix() {
+      function syncModalOpenState() {
+        const anyOpen = Array.from(document.querySelectorAll('.modal')).some(m => {
+          const d = m.style.display || getComputedStyle(m).display;
+          return d && d !== 'none';
+        });
+        document.body.classList.toggle('modal-open', anyOpen);
+      }
+      const observer = new MutationObserver(syncModalOpenState);
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.modal').forEach(m => {
+          observer.observe(m, { attributes: true, attributeFilter: ['style', 'class'] });
+        });
+        syncModalOpenState();
+      });
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        document.querySelectorAll('.modal').forEach(m => {
+          observer.observe(m, { attributes: true, attributeFilter: ['style', 'class'] });
+        });
+        syncModalOpenState();
+      }
+    })();
+
     const container = document.getElementById('canvas-container');
     const nametagLayer = document.getElementById('nametag-layer');
 
@@ -1337,7 +1376,7 @@
       3: { minLv:61, maxLv:90, hp:3500, def:250, atkMin:140, atkMax:180, expRate:0.07 },
       4: { minLv:91, maxLv:120, hp:7000, def:450, atkMin:250, atkMax:320, expRate:0.075 },
       5: { minLv:121, maxLv:150, hp:12000, def:700, atkMin:450, atkMax:550, expRate:0.08 },
-      6: { minLv:150, maxLv:180, hp:18000, def:1050, atkMin:675, atkMax:825, expRate:0.085 }
+      6: { minLv:150, maxLv:250, hp:18000, def:1050, atkMin:675, atkMax:825, expRate:0.085 }
     };
     const EXPERIENCE_DUNGEON_BG_NAMES = {1:'초보자 사냥터',2:'웅녀동굴',3:'바둑골 산길',4:'얼음성'};
     const EXPERIENCE_DUNGEON_MOBS = [
@@ -1363,7 +1402,8 @@
       1: { hp: 4000, atkMin: 285, atkMax: 315, def: 280 },
       2: { hp: 8000, atkMin: 425, atkMax: 455, def: 400 },
       3: { hp: 12500, atkMin: 585, atkMax: 715, def: 850 },
-      4: { hp: 20000, atkMin: 810, atkMax: 990, def: 1000 }
+      4: { hp: 20000, atkMin: 810, atkMax: 990, def: 1000 },
+      5: { hp: 26000, atkMin: 1050, atkMax: 1280, def: 1250 }
     };
     let zoomLevel = 1.0;
     const baseCameraOffset = new THREE.Vector3(0, 20, 20);
@@ -3971,7 +4011,7 @@
     }
 
     const playerState = {
-      name: "조선유생", title: "유생", level: 1, maxLevel: 180, job: "평민", tier: 1,
+      name: "조선유생", title: "유생", level: 1, maxLevel: 250, job: "평민", tier: 1,
       hp: 100, maxHp: 100, mp: 50, maxMp: 50, exp: 0,
       maxExp: getRequiredExp(1),
       gold: 200, 
@@ -4905,14 +4945,16 @@
     }
 
     // ==========================================
-    // STAGE 5: 용궁 (일반 전용 · 하둠 영역 없음)
-    // 몹 공격력/방어력/HP/경험치/드랍 비율은 일반4와 하둠1의 중간 수준으로 설계.
+    // STAGE 5: 용궁 (일반 + 하둠 지원)
+    // 일반: 몹 공격력/방어력/HP/경험치/드랍 비율은 일반4와 하둠1의 중간 수준으로 설계.
+    // 하둠: 배경/몹 종류는 일반5와 동일하게 재사용하고, 스탯만 HADUM_NORMAL_STATS[5] 및
+    //       HADUM_MULT/HADUM_HP_EXTRA_MULT 규칙(하둠1~4와 동일 패턴)을 적용해 고난도로 강화.
     // ==========================================
-    function buildStage5DragonPalace() {
+    function buildStage5DragonPalace(isHadum = false) {
       clearStageObjects(); clearMonsters();
-      currentHadum = false;
+      currentHadum = isHadum;
       document.body.style.backgroundColor = '#2f8fa0';
-      document.getElementById('stage-badge').innerText = "🐢 용궁 ▾";
+      document.getElementById('stage-badge').innerText = isHadum ? "🔥 하둠: 용궁 ▾" : "🐢 용궁 ▾";
       scene.background = new THREE.Color(0x3fa0ab);
       scene.fog = new THREE.Fog(0x4fb8bd, 30, 92);
 
@@ -4945,7 +4987,7 @@
       // 일반 몬스터 2종: 포졸거북, 인어병사 (스크린샷 참고)
       const dpTypes=['turtleguard','merwarrior'];
       const names={'turtleguard':'포졸거북','merwarrior':'인어병사'};
-      const stage5MobCount = 22;
+      const stage5MobCount = isHadum ? 35 : 22;
       for(let i=0;i<stage5MobCount;i++){
         const type=dpTypes[i%dpTypes.length];
         const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createDragonPalaceMonsterTexture(type,false,0),transparent:true}));
@@ -4953,22 +4995,26 @@
         sprite.position.set((Math.random()-0.5)*60,1.7,(Math.random()-0.5)*60);
         scene.add(sprite);
         const mShadow=createShadowDisk(2.7,1.4);
-        // 일반4(HP 5400, 공격력108, 경험치80, 골드500, 방어력0)와
+        // 일반: 일반4(HP 5400, 공격력108, 경험치80, 골드500, 방어력0)와
         // 하둠1(HP 4000, 공격력285~315, 경험치300, 골드850, 방어력280)의 중간 수준으로 산정.
-        monsters.push({id:`monster_${i}`,stageId:5,sprite,shadowDisk:mShadow,type:names[type],tier:5,isBoss:false,isHadum:false,
-          hp:4700,maxHp:4700,goldReward:675,
-          attackPower:196,attackPowerMin:196,attackPowerMax:212,
+        // 하둠: 하둠1~4와 동일한 패턴으로 HADUM_NORMAL_STATS[5] 고정 스탯을 적용.
+        monsters.push({id:`monster_${i}`,stageId:5,sprite,shadowDisk:mShadow,type:names[type],tier:5,isBoss:false,isHadum,
+          hp:isHadum?HADUM_NORMAL_STATS[5].hp:4700,maxHp:isHadum?HADUM_NORMAL_STATS[5].hp:4700,goldReward:isHadum?850:675,
+          attackPower:isHadum?HADUM_NORMAL_STATS[5].atkMin:196,
+          attackPowerMin:isHadum?HADUM_NORMAL_STATS[5].atkMin:196,
+          attackPowerMax:isHadum?HADUM_NORMAL_STATS[5].atkMax:212,
           attackRange:2.6,attackSpeed:1150,lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});
         createNametagElement(`monster_${i}`,'',`${names[type]}`,true);
       }
 
-      // 보스: 해적상어 (일반4 보스보다 소폭 강화된 수준)
+      // 보스: 해적상어 (일반4 보스보다 소폭 강화된 수준 / 하둠은 하둠1~4와 동일한 배율 규칙 적용)
       const bossSprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createDragonPalaceMonsterTexture('pirateshark',false,0),transparent:true}));
       const bossSpritePos5 = getRandomBossSpawnPos(24, 33);
       bossSprite.scale.set(8.2,8.2,1); bossSprite.position.set(bossSpritePos5.x,4.1,bossSpritePos5.z); scene.add(bossSprite);
       const bossShadow=createShadowDisk(7.0,3.6);
-      monsters.push({id:'monster_22',stageId:5,sprite:bossSprite,shadowDisk:bossShadow,type:'해적상어',tier:5,isBoss:true,isHadum:false,
-        hp:55000,maxHp:55000,goldReward:22000,attackPower:210,attackRange:4.5,attackSpeed:950,
+      monsters.push({id:'monster_22',stageId:5,sprite:bossSprite,shadowDisk:bossShadow,type:'해적상어',tier:5,isBoss:true,isHadum,
+        hp:isHadum?55000*HADUM_MULT*HADUM_HP_EXTRA_MULT:55000,maxHp:isHadum?55000*HADUM_MULT*HADUM_HP_EXTRA_MULT:55000,
+        goldReward:22000,attackPower:isHadum?210*HADUM_MULT:210,attackRange:4.5,attackSpeed:950,
         lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});
       createNametagElement('monster_22','용궁의 습격자','해적상어',false,false,true);
     }
@@ -5230,7 +5276,7 @@
       document.getElementById('stage-modal').style.display = 'block';
       const isJob2Done = playerState.tier === 3;
 
-      ['1', '2', '3', '4'].forEach(sId => {
+      ['1', '2', '3', '4', '5'].forEach(sId => {
         const card = document.getElementById(`stage-card-${sId}`);
         if (card) {
           card.classList.toggle('active', !currentHadum && parseInt(sId) === currentStage);
@@ -5260,7 +5306,7 @@
       else if (stageNum === 2) buildStage2Cave(isHadum);
       else if (stageNum === 3) buildStage3Baduk(isHadum);
       else if (stageNum === 4) buildStage4IceCastle(isHadum);
-      else if (stageNum === 5) buildStage5DragonPalace();
+      else if (stageNum === 5) buildStage5DragonPalace(isHadum);
 
       // 스테이지 전환 시 캐릭터를 맵 중앙 스폰 지점으로 되돌린다.
       // (안 그러면 이전 스테이지에서 서 있던 좌표에 그대로 남아, 새 맵의 지형/몬스터와 위치가 어긋나 보인다.)
@@ -7361,10 +7407,10 @@
        ========================================== */
     // 스테이지별 일반 몬스터 고정 경험치 테이블 (일반: 1~4스테이지, 하둠: 1~4스테이지)
     const STAGE_NORMAL_EXP = { 1: 20, 2: 40, 3: 60, 4: 80, 5: 190 };
-    const STAGE_HADUM_EXP = { 1: 300, 2: 450, 3: 700, 4: 850 };
+    const STAGE_HADUM_EXP = { 1: 300, 2: 450, 3: 700, 4: 850, 5: 1050 };
     const STAGE_BOSS_EXP = {
       normal: { 1: 1500, 2: 2500, 3: 4000, 4: 6000, 5: 8250 },
-      hadum: { 1: 10500, 2: 13500, 3: 16500, 4: 22500 }
+      hadum: { 1: 10500, 2: 13500, 3: 16500, 4: 22500, 5: 27000 }
     };
 
     function getMonsterExpReward(monster) {
@@ -7521,7 +7567,7 @@
         const p = data.player;
         const numericFields = ['level','maxLevel','tier','hp','maxHp','mp','maxMp','exp','maxExp','gold','talismanLoot','talismanLevel','enhanceCore','baseAttackSpeed','attackSpeed','weaponAtk','defensePower','weaponEnhanceLv','moveSpeed','attackRange','atkSpeedLv','firstSkillLv','martialTrainingLv','shamanStudyLv','dailyCoreBought','jobChangeCount','experienceDungeonTickets'];
         numericFields.forEach(k => { if (p[k] !== undefined && Number.isFinite(Number(p[k]))) playerState[k] = Number(p[k]); });
-        playerState.maxLevel = 180;
+        playerState.maxLevel = 250;
         ['name','title','job','dailyResetDate'].forEach(k => { if (typeof p[k] === 'string') playerState[k] = p[k]; });
         ['hasSiri','hasJanggeum','hasMunyeahana','hasRabbitGirl','rabbitForm','hasAutoHeal'].forEach(k => { if (typeof p[k] === 'boolean') playerState[k] = p[k]; });
         if (!playerState.hasRabbitGirl) playerState.rabbitForm = false;
