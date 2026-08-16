@@ -1332,7 +1332,8 @@
       2: { minLv:31, maxLv:60, hp:1500, def:120, atkMin:70, atkMax:90, expRate:0.10 },
       3: { minLv:61, maxLv:90, hp:3500, def:250, atkMin:140, atkMax:180, expRate:0.12 },
       4: { minLv:91, maxLv:120, hp:7000, def:450, atkMin:250, atkMax:320, expRate:0.13 },
-      5: { minLv:121, maxLv:150, hp:12000, def:700, atkMin:450, atkMax:550, expRate:0.15 }
+      5: { minLv:121, maxLv:150, hp:12000, def:700, atkMin:450, atkMax:550, expRate:0.15 },
+      6: { minLv:150, maxLv:180, hp:18000, def:1050, atkMin:675, atkMax:825, expRate:0.16 }
     };
     const EXPERIENCE_DUNGEON_BG_NAMES = {1:'초보자 사냥터',2:'웅녀동굴',3:'바둑골 산길',4:'얼음성'};
     const EXPERIENCE_DUNGEON_MOBS = [
@@ -7765,13 +7766,13 @@
     function triggerAttackBtn(forceRetarget = true) {
       const now = Date.now();
 
-      // 🐰 토끼소녀 강림: 일반 공격만 사용 / 최대 3마리 / 사거리 5 / 공격 1회당 MP 5 소모
+      // 🐰 토끼소녀 강림: 일반 공격만 사용 / 최대 3마리 / 사거리 5 / 공격 1회당 MP 10 소모
       if (playerState.rabbitForm) {
         const hasValidRabbitTarget = selectedTarget && selectedTarget.alive && playerSprite.position.distanceTo(selectedTarget.sprite.position) <= 18;
         if (!hasValidRabbitTarget && forceRetarget) targetNearestMonster(true);
         if (now - playerState.lastAttackTime < playerState.attackSpeed) return;
         if (!selectedTarget || !selectedTarget.alive || playerSprite.position.distanceTo(selectedTarget.sprite.position) > playerState.attackRange) return;
-        if (!consumeSkillMp(5)) return;
+        if (!consumeSkillMp(10)) return;
         playerState.lastAttackTime = now;
         triggerAttackAnim();
         const center = selectedTarget.sprite.position;
