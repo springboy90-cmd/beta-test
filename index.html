@@ -20,12 +20,6 @@
       font-family: 'Malgun Gothic', '맑은 고딕', sans-serif; 
       background: #23301f; color: #5d4037; 
     }
-    /* 모달(사냥터 선택/경험의 서고 등)이 열려 있는 동안에는 body 전역의 touch-action:none이
-       일부 모바일 브라우저에서 자식 요소의 touch-action:pan-y까지 함께 막아 세로 스크롤이
-       먹지 않는 문제가 있어, 모달이 열린 동안만 body의 터치 제한을 해제한다. */
-    body.modal-open {
-      touch-action: pan-y !important;
-    }
 
     :root {
       --theme-primary: #ffb74d;
@@ -247,7 +241,7 @@
       background: var(--panel-bg); border: 3px solid var(--panel-border); border-radius: 16px; 
       padding: 18px; width: 92%; max-width: 480px; max-height: 85vh; display: none; z-index: 100; color: var(--text-main); 
       box-shadow: 0 8px 25px var(--panel-shadow); overflow-y: auto; overflow-x: hidden; pointer-events: auto;
-      -webkit-overflow-scrolling: touch; touch-action: pan-y;
+      -webkit-overflow-scrolling: touch;
     }
     .modal-title { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 12px; border-bottom: 2px dashed var(--panel-border); padding-bottom: 8px; }
     .hero-manage-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:8px; }
@@ -1218,13 +1212,6 @@
         </div>
         <div style="font-size: 12px; font-weight: bold; color: #ff8a65;">이동 ➔</div>
       </div>
-      <div class="stage-card hadum" id="stage-card-hadum-5" onclick="selectStage(5, true)">
-        <div>
-          <div style="font-weight: bold; color: #ff8a65; font-size: 13px;">🔥 하둠: 용궁</div>
-          <div style="font-size: 10px; color: #bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div>
-        </div>
-        <div style="font-size: 12px; font-weight: bold; color: #ff8a65;">이동 ➔</div>
-      </div>
     </div>
     <div style="text-align: center; margin-top: 10px;">
       <button class="btn-small" onclick="closeStageModal()">창 닫기</button>
@@ -1319,32 +1306,6 @@
       lastTouchEnd = now;
     }, { passive: false });
 
-    /* 모바일에서 사냥터 선택/경험의 서고 등 팝업 내부 스크롤이 막히는 문제 대응:
-       .modal 요소 중 하나라도 display:block/flex 등으로 열려 있으면 body에 modal-open을 붙여
-       body의 전역 touch-action:none을 일시 해제한다. 팝업이 모두 닫히면 다시 제거한다. */
-    (function setupModalTouchFix() {
-      function syncModalOpenState() {
-        const anyOpen = Array.from(document.querySelectorAll('.modal')).some(m => {
-          const d = m.style.display || getComputedStyle(m).display;
-          return d && d !== 'none';
-        });
-        document.body.classList.toggle('modal-open', anyOpen);
-      }
-      const observer = new MutationObserver(syncModalOpenState);
-      document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('.modal').forEach(m => {
-          observer.observe(m, { attributes: true, attributeFilter: ['style', 'class'] });
-        });
-        syncModalOpenState();
-      });
-      if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        document.querySelectorAll('.modal').forEach(m => {
-          observer.observe(m, { attributes: true, attributeFilter: ['style', 'class'] });
-        });
-        syncModalOpenState();
-      }
-    })();
-
     const container = document.getElementById('canvas-container');
     const nametagLayer = document.getElementById('nametag-layer');
 
@@ -1376,7 +1337,7 @@
       3: { minLv:61, maxLv:90, hp:3500, def:250, atkMin:140, atkMax:180, expRate:0.07 },
       4: { minLv:91, maxLv:120, hp:7000, def:450, atkMin:250, atkMax:320, expRate:0.075 },
       5: { minLv:121, maxLv:150, hp:12000, def:700, atkMin:450, atkMax:550, expRate:0.08 },
-      6: { minLv:150, maxLv:250, hp:18000, def:1050, atkMin:675, atkMax:825, expRate:0.085 }
+      6: { minLv:150, maxLv:180, hp:18000, def:1050, atkMin:675, atkMax:825, expRate:0.085 }
     };
     const EXPERIENCE_DUNGEON_BG_NAMES = {1:'초보자 사냥터',2:'웅녀동굴',3:'바둑골 산길',4:'얼음성'};
     const EXPERIENCE_DUNGEON_MOBS = [
@@ -1402,8 +1363,7 @@
       1: { hp: 4000, atkMin: 285, atkMax: 315, def: 280 },
       2: { hp: 8000, atkMin: 425, atkMax: 455, def: 400 },
       3: { hp: 12500, atkMin: 585, atkMax: 715, def: 850 },
-      4: { hp: 20000, atkMin: 810, atkMax: 990, def: 1000 },
-      5: { hp: 26000, atkMin: 1050, atkMax: 1280, def: 1250 }
+      4: { hp: 20000, atkMin: 810, atkMax: 990, def: 1000 }
     };
     let zoomLevel = 1.0;
     const baseCameraOffset = new THREE.Vector3(0, 20, 20);
@@ -1859,6 +1819,95 @@
     /* ==========================================
        2. SPRITE GENERATOR & WEAPON DRAWING
        ========================================== */
+    // 검사 전용 보조무기 외형.
+    // 첨부된 픽셀 무기 시트의 실루엣/색감만 참고해 현재 128x128 Nearest 픽셀 스타일에 맞춰 재구성한다.
+    // 파멸=Sinister 계열, 천벌=Divine Relic 계열, 질풍=Guardian 계열, 마력패=Stars 계열.
+    function drawSubWeaponVisual(ctx, id, x, y, angle, attackStage, isBack = false) {
+      if (!id || !SUB_WEAPON_DATA || !SUB_WEAPON_DATA[id]) return false;
+      ctx.save();
+      ctx.translate(x, y);
+
+      let rot = angle;
+      let ox = 0, oy = 0;
+      if (attackStage === 1) { rot -= 0.55; ox = -7; oy = -5; }
+      else if (attackStage === 2) { rot += 0.75; ox = 9; oy = -7; }
+      else if (attackStage === 3) { rot += 1.45; ox = 17; oy = 1; }
+      else if (attackStage === 4) { rot += 0.95; ox = 9; oy = 7; }
+      else if (attackStage === 5) { rot += 0.25; ox = 3; oy = 2; }
+      ctx.translate(ox, oy);
+      ctx.rotate(isBack ? -rot : rot);
+
+      const rect=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);};
+      const poly=(pts,c)=>{ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.closePath();ctx.fill();};
+
+      if (id === 'annihilator') {
+        // 파멸의 철편 — Sinister/Cursed 계열의 검붉은 톱날 대검
+        rect(-44,-3,70,7,'#17151b');
+        rect(-42,-1,66,3,'#34313b');
+        poly([[-49,-8],[-39,-4],[-44,0],[-39,4],[-50,8],[-58,0]],'#bfc4cc');
+        poly([[-51,-5],[-42,-2],[-47,0],[-42,2],[-51,5],[-57,0]],'#eef2f7');
+        rect(-26,-6,7,12,'#0f1016'); rect(-18,-5,4,10,'#9d2533');
+        rect(22,-7,6,14,'#111017');
+        // 붉은 균열
+        rect(-5,-3,3,2,'#e23b4c'); rect(3,1,4,2,'#e23b4c'); rect(11,-2,3,2,'#e23b4c');
+        // 손잡이/가드
+        rect(24,-4,7,8,'#f04b2f'); rect(30,-3,15,6,'#15131a');
+        rect(34,-1,13,2,'#8a5a42'); rect(44,-4,4,8,'#25212a');
+        if (attackStage > 0 && !isBack) {
+          rect(-60,-11,4,4,'#ff5a55'); rect(-54,10,3,3,'#ff8b4b'); rect(-43,-14,3,3,'#b51f31');
+        }
+      } else if (id === 'judgement') {
+        // 천벌의 패 — Divine Relic 계열의 백청색 성검 + 전격
+        rect(-42,-3,70,6,'#172033');
+        rect(-41,-1,66,2,'#69d8ff');
+        poly([[-50,-9],[-40,-3],[-43,0],[-40,3],[-50,9],[-59,0]],'#dcecff');
+        poly([[-49,-4],[-43,0],[-49,4],[-59,0]],'#ffffff');
+        rect(-20,-5,6,10,'#233a5d'); rect(-14,-4,4,8,'#42c9ff');
+        // 성스러운 링 가드
+        ctx.strokeStyle='#6de8ff'; ctx.lineWidth=3; ctx.strokeRect(14,-9,12,18);
+        rect(19,-12,4,24,'#d9f7ff');
+        rect(26,-4,8,8,'#0f172a'); rect(32,-2,13,4,'#2d6b9d'); rect(42,-3,5,6,'#f59e0b');
+        if (attackStage > 0 && !isBack) {
+          rect(-52,-13,3,7,'#ffffff'); rect(-48,10,3,6,'#38d9ff'); rect(-36,-16,3,3,'#38d9ff');
+          rect(4,12,3,7,'#38d9ff'); rect(10,-15,3,5,'#ffffff');
+        }
+      } else if (id === 'gale') {
+        // 질풍의 환 — Guardian 계열의 길고 가벼운 백청색 곡검
+        rect(-39,-2,70,5,'#182236');
+        rect(-38,-1,66,2,'#9dd7ff');
+        poly([[-48,-8],[-42,-5],[-55,0],[-42,5],[-48,8],[-62,0]],'#dcecff');
+        poly([[-50,-4],[-59,0],[-50,4],[-43,0]],'#ffffff');
+        // 곡선 느낌의 픽셀 블레이드
+        rect(-32,-5,5,10,'#547a9c'); rect(-24,-4,5,8,'#b8ddf4'); rect(-16,-3,4,6,'#e8f7ff');
+        rect(27,-5,7,10,'#f08a36'); rect(33,-4,12,8,'#202536'); rect(40,-2,8,4,'#b87842');
+        if (attackStage > 0 && !isBack) {
+          ctx.strokeStyle='rgba(137,224,255,.9)'; ctx.lineWidth=2;
+          ctx.beginPath(); ctx.arc(-4,0,26,-1.2,1.0); ctx.stroke();
+          rect(-31,-14,3,3,'#ffffff'); rect(-18,12,3,3,'#8de6ff'); rect(8,-14,3,3,'#8de6ff');
+        }
+      } else if (id === 'magic') {
+        // 마력패 — Stars 계열의 보석검/마력 패턴
+        rect(-40,-3,64,6,'#171d2e');
+        rect(-39,-1,60,2,'#70d8ff');
+        poly([[-51,-9],[-42,-4],[-45,0],[-42,4],[-51,9],[-60,0]],'#d9fbff');
+        poly([[-49,-5],[-42,0],[-49,5],[-56,0]],'#ff6bd6');
+        // 무지개 마력 코어
+        rect(-30,-5,5,10,'#ff4fa3'); rect(-24,-5,5,10,'#ffd84d'); rect(-18,-5,5,10,'#45e5ff'); rect(-12,-4,4,8,'#8b6dff');
+        rect(22,-7,7,14,'#111827'); rect(28,-5,7,10,'#7c3aed'); rect(34,-3,8,6,'#ff69d4'); rect(41,-2,7,4,'#e7d7ff');
+        // 마력 별 파편
+        if (!isBack || attackStage > 0) {
+          rect(-34,-14,3,3,'#ffffff'); rect(-28,12,3,3,'#38d9ff'); rect(-8,-16,3,3,'#ff71d2');
+          rect(3,12,3,3,'#ffe45b'); rect(12,-13,3,3,'#7ee8ff');
+        }
+        if (attackStage > 0 && !isBack) {
+          ctx.strokeStyle='rgba(94,224,255,.9)'; ctx.lineWidth=2;
+          ctx.beginPath(); ctx.arc(0,0,29,-1.25,1.0); ctx.stroke();
+        }
+      }
+      ctx.restore();
+      return true;
+    }
+
     function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       ctx.save();
       ctx.translate(x, y);
@@ -3284,7 +3333,7 @@
           ctx.fillStyle = '#f8fafc'; ctx.fillRect(44, 105, 12, 8); ctx.fillRect(72, 105, 12, 8);
           ctx.fillStyle = '#854d0e'; ctx.fillRect(42, 112, 16, 6); ctx.fillRect(70, 112, 16, 6);
 
-          drawSpearWeapon(ctx, 64, 68, -Math.PI / 6, attackStage, false);
+          if (!drawSubWeaponVisual(ctx, playerState.subWeaponEquipped, 64, 68, -Math.PI / 6, attackStage, true)) drawSpearWeapon(ctx, 64, 68, -Math.PI / 6, attackStage, false);
         } else {
           ctx.fillStyle = '#111827';
           ctx.beginPath(); ctx.ellipse(64, 28, 27, 22, 0, 0, Math.PI * 2); ctx.fill();
@@ -3312,7 +3361,7 @@
           ctx.fillStyle = '#f8fafc'; ctx.fillRect(44, 105, 12, 8); ctx.fillRect(72, 105, 12, 8);
           ctx.fillStyle = '#854d0e'; ctx.fillRect(42, 112, 16, 6); ctx.fillRect(70, 112, 16, 6);
 
-          drawSpearWeapon(ctx, 64, 68, Math.PI / 12, attackStage, false);
+          if (!drawSubWeaponVisual(ctx, playerState.subWeaponEquipped, 64, 68, Math.PI / 12, attackStage, false)) drawSpearWeapon(ctx, 64, 68, Math.PI / 12, attackStage, false);
         }
       }
       else if (type === 'player_swordmaster') {
@@ -4011,7 +4060,7 @@
     }
 
     const playerState = {
-      name: "조선유생", title: "유생", level: 1, maxLevel: 250, job: "평민", tier: 1,
+      name: "조선유생", title: "유생", level: 1, maxLevel: 180, job: "평민", tier: 1,
       hp: 100, maxHp: 100, mp: 50, maxMp: 50, exp: 0,
       maxExp: getRequiredExp(1),
       gold: 200, 
@@ -4035,8 +4084,8 @@
       guardianSet: { helm: false, armor: false, gloves: false, boots: false },
       guardianSetEquipped: false,
       // 보조무기: 3종 중 1종만 장착. 각 보조무기는 별도 강화 레벨을 가진다.
-      subWeaponOwned: { annihilator: false, judgement: false, gale: false },
-      subWeaponLevel: { annihilator: 0, judgement: 0, gale: 0 },
+      subWeaponOwned: { annihilator: false, judgement: false, gale: false, magic: false },
+      subWeaponLevel: { annihilator: 0, judgement: 0, gale: 0, magic: 0 },
       subWeaponEquipped: ''
     };
 
@@ -4945,16 +4994,14 @@
     }
 
     // ==========================================
-    // STAGE 5: 용궁 (일반 + 하둠 지원)
-    // 일반: 몹 공격력/방어력/HP/경험치/드랍 비율은 일반4와 하둠1의 중간 수준으로 설계.
-    // 하둠: 배경/몹 종류는 일반5와 동일하게 재사용하고, 스탯만 HADUM_NORMAL_STATS[5] 및
-    //       HADUM_MULT/HADUM_HP_EXTRA_MULT 규칙(하둠1~4와 동일 패턴)을 적용해 고난도로 강화.
+    // STAGE 5: 용궁 (일반 전용 · 하둠 영역 없음)
+    // 몹 공격력/방어력/HP/경험치/드랍 비율은 일반4와 하둠1의 중간 수준으로 설계.
     // ==========================================
-    function buildStage5DragonPalace(isHadum = false) {
+    function buildStage5DragonPalace() {
       clearStageObjects(); clearMonsters();
-      currentHadum = isHadum;
+      currentHadum = false;
       document.body.style.backgroundColor = '#2f8fa0';
-      document.getElementById('stage-badge').innerText = isHadum ? "🔥 하둠: 용궁 ▾" : "🐢 용궁 ▾";
+      document.getElementById('stage-badge').innerText = "🐢 용궁 ▾";
       scene.background = new THREE.Color(0x3fa0ab);
       scene.fog = new THREE.Fog(0x4fb8bd, 30, 92);
 
@@ -4987,7 +5034,7 @@
       // 일반 몬스터 2종: 포졸거북, 인어병사 (스크린샷 참고)
       const dpTypes=['turtleguard','merwarrior'];
       const names={'turtleguard':'포졸거북','merwarrior':'인어병사'};
-      const stage5MobCount = isHadum ? 35 : 22;
+      const stage5MobCount = 22;
       for(let i=0;i<stage5MobCount;i++){
         const type=dpTypes[i%dpTypes.length];
         const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createDragonPalaceMonsterTexture(type,false,0),transparent:true}));
@@ -4995,26 +5042,22 @@
         sprite.position.set((Math.random()-0.5)*60,1.7,(Math.random()-0.5)*60);
         scene.add(sprite);
         const mShadow=createShadowDisk(2.7,1.4);
-        // 일반: 일반4(HP 5400, 공격력108, 경험치80, 골드500, 방어력0)와
+        // 일반4(HP 5400, 공격력108, 경험치80, 골드500, 방어력0)와
         // 하둠1(HP 4000, 공격력285~315, 경험치300, 골드850, 방어력280)의 중간 수준으로 산정.
-        // 하둠: 하둠1~4와 동일한 패턴으로 HADUM_NORMAL_STATS[5] 고정 스탯을 적용.
-        monsters.push({id:`monster_${i}`,stageId:5,sprite,shadowDisk:mShadow,type:names[type],tier:5,isBoss:false,isHadum,
-          hp:isHadum?HADUM_NORMAL_STATS[5].hp:4700,maxHp:isHadum?HADUM_NORMAL_STATS[5].hp:4700,goldReward:isHadum?850:675,
-          attackPower:isHadum?HADUM_NORMAL_STATS[5].atkMin:196,
-          attackPowerMin:isHadum?HADUM_NORMAL_STATS[5].atkMin:196,
-          attackPowerMax:isHadum?HADUM_NORMAL_STATS[5].atkMax:212,
+        monsters.push({id:`monster_${i}`,stageId:5,sprite,shadowDisk:mShadow,type:names[type],tier:5,isBoss:false,isHadum:false,
+          hp:4700,maxHp:4700,goldReward:675,
+          attackPower:196,attackPowerMin:196,attackPowerMax:212,
           attackRange:2.6,attackSpeed:1150,lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});
         createNametagElement(`monster_${i}`,'',`${names[type]}`,true);
       }
 
-      // 보스: 해적상어 (일반4 보스보다 소폭 강화된 수준 / 하둠은 하둠1~4와 동일한 배율 규칙 적용)
+      // 보스: 해적상어 (일반4 보스보다 소폭 강화된 수준)
       const bossSprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createDragonPalaceMonsterTexture('pirateshark',false,0),transparent:true}));
       const bossSpritePos5 = getRandomBossSpawnPos(24, 33);
       bossSprite.scale.set(8.2,8.2,1); bossSprite.position.set(bossSpritePos5.x,4.1,bossSpritePos5.z); scene.add(bossSprite);
       const bossShadow=createShadowDisk(7.0,3.6);
-      monsters.push({id:'monster_22',stageId:5,sprite:bossSprite,shadowDisk:bossShadow,type:'해적상어',tier:5,isBoss:true,isHadum,
-        hp:isHadum?55000*HADUM_MULT*HADUM_HP_EXTRA_MULT:55000,maxHp:isHadum?55000*HADUM_MULT*HADUM_HP_EXTRA_MULT:55000,
-        goldReward:22000,attackPower:isHadum?210*HADUM_MULT:210,attackRange:4.5,attackSpeed:950,
+      monsters.push({id:'monster_22',stageId:5,sprite:bossSprite,shadowDisk:bossShadow,type:'해적상어',tier:5,isBoss:true,isHadum:false,
+        hp:55000,maxHp:55000,goldReward:22000,attackPower:210,attackRange:4.5,attackSpeed:950,
         lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});
       createNametagElement('monster_22','용궁의 습격자','해적상어',false,false,true);
     }
@@ -5276,7 +5319,7 @@
       document.getElementById('stage-modal').style.display = 'block';
       const isJob2Done = playerState.tier === 3;
 
-      ['1', '2', '3', '4', '5'].forEach(sId => {
+      ['1', '2', '3', '4'].forEach(sId => {
         const card = document.getElementById(`stage-card-${sId}`);
         if (card) {
           card.classList.toggle('active', !currentHadum && parseInt(sId) === currentStage);
@@ -5306,7 +5349,7 @@
       else if (stageNum === 2) buildStage2Cave(isHadum);
       else if (stageNum === 3) buildStage3Baduk(isHadum);
       else if (stageNum === 4) buildStage4IceCastle(isHadum);
-      else if (stageNum === 5) buildStage5DragonPalace(isHadum);
+      else if (stageNum === 5) buildStage5DragonPalace();
 
       // 스테이지 전환 시 캐릭터를 맵 중앙 스폰 지점으로 되돌린다.
       // (안 그러면 이전 스테이지에서 서 있던 좌표에 그대로 남아, 새 맵의 지형/몬스터와 위치가 어긋나 보인다.)
@@ -7407,10 +7450,10 @@
        ========================================== */
     // 스테이지별 일반 몬스터 고정 경험치 테이블 (일반: 1~4스테이지, 하둠: 1~4스테이지)
     const STAGE_NORMAL_EXP = { 1: 20, 2: 40, 3: 60, 4: 80, 5: 190 };
-    const STAGE_HADUM_EXP = { 1: 300, 2: 450, 3: 700, 4: 850, 5: 1050 };
+    const STAGE_HADUM_EXP = { 1: 300, 2: 450, 3: 700, 4: 850 };
     const STAGE_BOSS_EXP = {
       normal: { 1: 1500, 2: 2500, 3: 4000, 4: 6000, 5: 8250 },
-      hadum: { 1: 10500, 2: 13500, 3: 16500, 4: 22500, 5: 27000 }
+      hadum: { 1: 10500, 2: 13500, 3: 16500, 4: 22500 }
     };
 
     function getMonsterExpReward(monster) {
@@ -7567,7 +7610,7 @@
         const p = data.player;
         const numericFields = ['level','maxLevel','tier','hp','maxHp','mp','maxMp','exp','maxExp','gold','talismanLoot','talismanLevel','enhanceCore','baseAttackSpeed','attackSpeed','weaponAtk','defensePower','weaponEnhanceLv','moveSpeed','attackRange','atkSpeedLv','firstSkillLv','martialTrainingLv','shamanStudyLv','dailyCoreBought','jobChangeCount','experienceDungeonTickets'];
         numericFields.forEach(k => { if (p[k] !== undefined && Number.isFinite(Number(p[k]))) playerState[k] = Number(p[k]); });
-        playerState.maxLevel = 250;
+        playerState.maxLevel = 180;
         ['name','title','job','dailyResetDate'].forEach(k => { if (typeof p[k] === 'string') playerState[k] = p[k]; });
         ['hasSiri','hasJanggeum','hasMunyeahana','hasRabbitGirl','rabbitForm','hasAutoHeal'].forEach(k => { if (typeof p[k] === 'boolean') playerState[k] = p[k]; });
         if (!playerState.hasRabbitGirl) playerState.rabbitForm = false;
@@ -7590,8 +7633,8 @@
         }
         // 기존 저장 데이터와의 호환: 장착 상태가 없는 예전 세이브는 해체 상태로 시작.
         playerState.guardianSetEquipped = p.guardianSetEquipped === true;
-        playerState.subWeaponOwned = { annihilator:false, judgement:false, gale:false, ...(p.subWeaponOwned || {}) };
-        playerState.subWeaponLevel = { annihilator:0, judgement:0, gale:0, ...(p.subWeaponLevel || {}) };
+        playerState.subWeaponOwned = { annihilator:false, judgement:false, gale:false, magic:false, ...(p.subWeaponOwned || {}) };
+        playerState.subWeaponLevel = { annihilator:0, judgement:0, gale:0, magic:0, ...(p.subWeaponLevel || {}) };
         playerState.subWeaponEquipped = SUB_WEAPON_DATA[p.subWeaponEquipped] ? p.subWeaponEquipped : '';
         Object.keys(SUB_WEAPON_DATA).forEach(id => {
           playerState.subWeaponLevel[id] = Math.max(0, Math.min(SUB_WEAPON_MAX_LV, Number(playerState.subWeaponLevel[id]) || 0));
