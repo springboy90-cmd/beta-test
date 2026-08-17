@@ -1992,6 +1992,110 @@
       ctx.restore();
     }
 
+    // 주술사/대도사 전용 보조무기 외형.
+    // 검사/검성의 검 외형과 완전히 분리하여 같은 보조무기 ID라도
+    // 주술사 계열에서는 '지팡이/마도구' 형태로 렌더링한다.
+    function drawShamanSubWeaponVisual(ctx, id, x, y, angle, attackStage, isBack = false, isTier3 = false) {
+      if (!id || !SUB_WEAPON_DATA || !SUB_WEAPON_DATA[id]) return false;
+
+      ctx.save();
+      ctx.translate(x, y);
+
+      let rot = angle;
+      let ox = 0, oy = 0;
+      if (attackStage === 1) { rot -= 0.25; ox = -2; oy = -4; }
+      else if (attackStage === 2) { rot += 0.45; ox = 7; oy = -2; }
+      else if (attackStage === 3) { rot += 0.85; ox = 13; oy = 3; }
+      else if (attackStage === 4) { rot += 0.38; ox = 7; oy = 2; }
+      else if (attackStage === 5) { rot += 0.08; ox = 2; oy = 0; }
+
+      ctx.translate(ox, oy);
+      ctx.rotate(isBack ? -rot : rot);
+
+      const rect = (x,y,w,h,c) => { ctx.fillStyle=c; ctx.fillRect(x,y,w,h); };
+      const poly = (pts,c) => {
+        ctx.fillStyle=c; ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]);
+        for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0],pts[i][1]);
+        ctx.closePath(); ctx.fill();
+      };
+
+      // 공통 지팡이 몸통
+      rect(-2,-32,5,70, isTier3 ? '#25113d' : '#2b2117');
+      rect(-1,-31,2,68, isTier3 ? '#b66cff' : '#b9894f');
+
+      if (id === 'annihilator') {
+        // 파멸의 철편: 첨부 시트의 Cursed Relic 계열처럼 검보라 + 붉은 마력핵
+        rect(-4,-37,9,8,'#170d24');
+        poly([[-13,-34],[-7,-45],[0,-39],[8,-48],[14,-34],[7,-22],[0,-27],[-7,-22]], '#4b103f');
+        rect(-3,-39,6,8,'#c51f5d');
+        rect(-1,-37,2,4,'#ff6b9d');
+        rect(5,-29,9,3,'#8b1d55');
+        rect(-12,-27,5,3,'#8b1d55');
+        if (attackStage > 0 && !isBack) {
+          rect(13,-44,3,3,'#ff4d8d');
+          rect(-16,-18,3,3,'#b51f31');
+          rect(12,-12,3,3,'#ff5a55');
+        }
+      } else if (id === 'judgement') {
+        // 천벌의 패: Divine Relic 계열의 백금/금빛 성스러운 마도구
+        rect(-4,-38,9,7,'#8b6b19');
+        poly([[-14,-34],[-8,-49],[0,-41],[8,-49],[15,-34],[7,-20],[0,-27],[-7,-20]], '#fff4bf');
+        rect(-3,-43,6,12,'#ffffff');
+        rect(-1,-48,2,8,'#ffe36e');
+        rect(-11,-30,4,4,'#f6c945');
+        rect(9,-30,4,4,'#f6c945');
+        if (attackStage > 0 && !isBack) {
+          for (const p of [[-17,-43],[14,-38],[-14,-12],[15,-16],[0,-55]]) {
+            rect(p[0],p[1],3,3,'#fff6c7');
+          }
+        }
+      } else if (id === 'gale') {
+        // 질풍의 환: 첨부 시트의 Ice/Divine 계열처럼 청백색 + 냉기 파편
+        rect(-4,-38,9,8,'#173b61');
+        poly([[-13,-34],[-8,-47],[0,-40],[8,-48],[14,-34],[7,-20],[0,-27],[-7,-20]], '#a9edff');
+        rect(-3,-42,6,11,'#35d8ff');
+        rect(-1,-45,2,7,'#ffffff');
+        rect(-12,-29,4,4,'#69e8ff');
+        rect(9,-29,4,4,'#69e8ff');
+        if (attackStage > 0 && !isBack) {
+          ctx.strokeStyle='rgba(83,220,255,.9)'; ctx.lineWidth=2;
+          ctx.beginPath(); ctx.arc(0,-36,17,-1.1,1.2); ctx.stroke();
+          rect(-17,-49,3,3,'#ffffff');
+          rect(14,-18,3,3,'#35d8ff');
+          rect(-16,-8,3,3,'#69e8ff');
+        }
+      } else if (id === 'magic') {
+        // 마력패: 첨부 시트의 Stars 계열처럼 다색 보석 + 별 파편
+        rect(-4,-38,9,8,'#111827');
+        poly([[-14,-34],[-8,-48],[0,-40],[8,-48],[15,-34],[7,-20],[0,-27],[-7,-20]], '#37206b');
+        rect(-4,-43,8,12,'#8b5cf6');
+        rect(-2,-41,4,8,'#ff4fd8');
+        rect(-12,-29,4,4,'#37e8ff');
+        rect(9,-29,4,4,'#ffd84d');
+        rect(-7,-22,4,4,'#56f39a');
+        if (attackStage > 0 || !isBack) {
+          rect(-17,-47,3,3,'#ffffff');
+          rect(14,-40,3,3,'#ff72d2');
+          rect(-15,-12,3,3,'#4de8ff');
+          rect(14,-17,3,3,'#ffe45b');
+          rect(0,-57,3,3,'#8dff8d');
+        }
+      }
+
+      // 대도사는 외곽 마력 링을 추가하여 2차 전직 외형을 차별화.
+      if (isTier3) {
+        ctx.strokeStyle = 'rgba(216,180,254,.72)';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(0,-35,21 + (attackStage > 0 ? attackStage : 0), 0, Math.PI*2); ctx.stroke();
+        ctx.strokeStyle = 'rgba(255,255,255,.55)';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(0,-35,15 + (attackStage > 0 ? attackStage*0.5 : 0), 0, Math.PI*2); ctx.stroke();
+      }
+
+      ctx.restore();
+      return true;
+    }
+
     function drawShamanStaff(ctx, staffX, staffY, angle, attackStage, isTier3 = false) {
       ctx.save();
       ctx.translate(staffX, staffY);
@@ -3115,6 +3219,20 @@
         }
       }
 
+      // 검사 계열 + 파수꾼 풀세트 장착 상태에서도 보조무기를 표시한다.
+      // 보조무기가 없으면 기존 외형만 유지한다.
+      if (playerState.subWeaponEquipped) {
+        drawSubWeaponVisual(
+          ctx,
+          playerState.subWeaponEquipped,
+          64,
+          67,
+          isBack ? -Math.PI / 6 : Math.PI / 12,
+          attackStage,
+          isBack
+        );
+      }
+
       // 픽셀 스파크를 소량 추가해 참고 이미지의 화염/마법 느낌을 유지
       if (attackStage || !isBack) {
         rect(17,47,2,2,FY); rect(108,45,2,2,FY);
@@ -3389,7 +3507,8 @@
           ctx.fillStyle = '#f8fafc'; ctx.fillRect(42, 108, 14, 8); ctx.fillRect(72, 108, 14, 8);
           ctx.fillStyle = '#78350f'; ctx.fillRect(40, 114, 18, 6); ctx.fillRect(70, 114, 18, 6);
 
-          drawSpearWeapon(ctx, 64, 66, -Math.PI / 5, attackStage, true);
+          if (!drawSubWeaponVisual(ctx, playerState.subWeaponEquipped, 64, 66, -Math.PI / 5, attackStage, true))
+            drawSpearWeapon(ctx, 64, 66, -Math.PI / 5, attackStage, true);
         } else {
           ctx.strokeStyle = 'rgba(0, 240, 255, 0.55)'; ctx.lineWidth = 6;
           ctx.beginPath(); ctx.arc(64, 52, 42, 0, Math.PI * 2); ctx.stroke();
@@ -3424,7 +3543,8 @@
           ctx.fillStyle = '#f8fafc'; ctx.fillRect(42, 108, 14, 8); ctx.fillRect(72, 108, 14, 8);
           ctx.fillStyle = '#78350f'; ctx.fillRect(40, 114, 18, 6); ctx.fillRect(70, 114, 18, 6);
 
-          drawSpearWeapon(ctx, 64, 66, Math.PI / 8, attackStage, true);
+          if (!drawSubWeaponVisual(ctx, playerState.subWeaponEquipped, 64, 66, Math.PI / 8, attackStage, false))
+            drawSpearWeapon(ctx, 64, 66, Math.PI / 8, attackStage, true);
         }
       }
       else if (type === 'player_mage') {
@@ -3440,7 +3560,7 @@
 
           ctx.fillStyle = '#111827'; ctx.fillRect(44, 102, 16, 18); ctx.fillRect(68, 102, 16, 18);
 
-          drawShamanStaff(ctx, 88, 60, -Math.PI / 6, attackStage, false);
+          if (!drawShamanSubWeaponVisual(ctx, playerState.subWeaponEquipped, 88, 60, -Math.PI / 6, attackStage, true, false)) drawShamanStaff(ctx, 88, 60, -Math.PI / 6, attackStage, false);
         } else {
           ctx.fillStyle = '#cbd5e1'; ctx.beginPath(); ctx.ellipse(64, 28, 25, 20, 0, 0, Math.PI * 2); ctx.fill();
           ctx.fillStyle = '#f1f5f9'; ctx.beginPath(); ctx.ellipse(64, 24, 20, 15, 0, 0, Math.PI * 2); ctx.fill();
@@ -3463,7 +3583,7 @@
           ctx.fillStyle = '#1f2937'; ctx.fillRect(44, 102, 16, 18); ctx.fillRect(68, 102, 16, 18);
           ctx.fillStyle = '#111827'; ctx.fillRect(42, 114, 20, 8); ctx.fillRect(66, 114, 20, 8);
 
-          drawShamanStaff(ctx, 92, 62, Math.PI / 10, attackStage, false);
+          if (!drawShamanSubWeaponVisual(ctx, playerState.subWeaponEquipped, 92, 62, Math.PI / 10, attackStage, false, false)) drawShamanStaff(ctx, 92, 62, Math.PI / 10, attackStage, false);
         }
       }
       else if (type === 'player_daedosa') {
@@ -3488,7 +3608,7 @@
 
           ctx.fillStyle = '#111827'; ctx.fillRect(44, 102, 16, 18); ctx.fillRect(68, 102, 16, 18);
 
-          drawShamanStaff(ctx, 88, 60, -Math.PI / 6, attackStage, true);
+          if (!drawShamanSubWeaponVisual(ctx, playerState.subWeaponEquipped, 88, 60, -Math.PI / 6, attackStage, true, true)) drawShamanStaff(ctx, 88, 60, -Math.PI / 6, attackStage, true);
         } else {
           ctx.strokeStyle = 'rgba(216, 180, 254, 0.65)'; ctx.lineWidth = 6;
           ctx.beginPath(); ctx.arc(64, 50, 42, 0, Math.PI * 2); ctx.stroke();
@@ -3520,7 +3640,7 @@
           ctx.fillStyle = '#1f2937'; ctx.fillRect(44, 102, 16, 18); ctx.fillRect(68, 102, 16, 18);
           ctx.fillStyle = '#111827'; ctx.fillRect(42, 114, 20, 8); ctx.fillRect(66, 114, 20, 8);
 
-          drawShamanStaff(ctx, 92, 62, Math.PI / 10, attackStage, true);
+          if (!drawShamanSubWeaponVisual(ctx, playerState.subWeaponEquipped, 92, 62, Math.PI / 10, attackStage, false, true)) drawShamanStaff(ctx, 92, 62, Math.PI / 10, attackStage, true);
         }
       }
       else if (type === 'cat') {
@@ -3965,6 +4085,7 @@
       if (!SUB_WEAPON_DATA[id] || !playerState.subWeaponOwned?.[id]) return;
       playerState.subWeaponEquipped = id;
       recalcAttackSpeed();
+      updatePlayerFacingTexture();
       updateUI();
       if (document.getElementById('shop-modal')?.style.display !== 'none') switchShopCategory('subweapon');
       saveGame();
@@ -6212,11 +6333,7 @@
         playerSprite.material.needsUpdate = true;
         return;
       }
-      const cfg = JOB_STAT_BONUSES[jobName] || JOB_STAT_BONUSES[getJobBaseFamily(jobName)] || JOB_STAT_BONUSES['검사'];
-      const spriteType = cfg.sprite || 'player_beginner';
-      const mapTex = createPixelSpriteTexture(spriteType, playerFacing === 'back');
-      playerSprite.material.map = mapTex;
-      playerSprite.material.needsUpdate = true;
+      updatePlayerFacingTexture();
     }
 
     function applyJobStatsTransition(oldJob, newJob) {
@@ -6303,9 +6420,7 @@
         spriteType = 'player_mage';
       }
 
-      const mapTex = createPixelSpriteTexture(spriteType, playerFacing === 'back');
-      playerSprite.material.map = mapTex;
-      playerSprite.material.needsUpdate = true;
+      updatePlayerFacingTexture();
 
       document.getElementById('btn-job-modal').style.display = "none";
       updateUI(); closeJobModal();
@@ -7925,8 +8040,9 @@
         playerSprite.material.needsUpdate = true;
         return;
       }
-      // 🔥 파수꾼셋트 4부위 완성 시 전용 중갑 외형으로 변경
-      if (isGuardianSetComplete()) {
+      // 🔥 파수꾼셋트는 '장착' 상태일 때만 전용 외형을 사용한다.
+      // 세트 4부위를 보유하기만 한 상태에서는 기존 직업 외형을 유지한다.
+      if (playerState.guardianSetEquipped && isGuardianSetComplete()) {
         playerSprite.material.map = createPixelSpriteTexture('player_guardian', playerFacing === 'back', playerState.attackStage);
         playerSprite.material.needsUpdate = true;
         return;
