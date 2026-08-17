@@ -20,6 +20,12 @@
       font-family: 'Malgun Gothic', '맑은 고딕', sans-serif; 
       background: #23301f; color: #5d4037; 
     }
+    /* 모달(사냥터 선택/경험의 서고 등)이 열려 있는 동안에는 body 전역의 touch-action:none이
+       일부 모바일 브라우저에서 자식 요소의 touch-action:pan-y까지 함께 막아 세로 스크롤이
+       먹지 않는 문제가 있어, 모달이 열린 동안만 body의 터치 제한을 해제한다. */
+    body.modal-open {
+      touch-action: pan-y !important;
+    }
 
     :root {
       --theme-primary: #ffb74d;
@@ -241,7 +247,7 @@
       background: var(--panel-bg); border: 3px solid var(--panel-border); border-radius: 16px; 
       padding: 18px; width: 92%; max-width: 480px; max-height: 85vh; display: none; z-index: 100; color: var(--text-main); 
       box-shadow: 0 8px 25px var(--panel-shadow); overflow-y: auto; overflow-x: hidden; pointer-events: auto;
-      -webkit-overflow-scrolling: touch;
+      -webkit-overflow-scrolling: touch; touch-action: pan-y;
     }
     .modal-title { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 12px; border-bottom: 2px dashed var(--panel-border); padding-bottom: 8px; }
     .hero-manage-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:8px; }
@@ -1212,6 +1218,13 @@
         </div>
         <div style="font-size: 12px; font-weight: bold; color: #ff8a65;">이동 ➔</div>
       </div>
+      <div class="stage-card hadum" id="stage-card-hadum-5" onclick="selectStage(5, true)">
+        <div>
+          <div style="font-weight: bold; color: #ff8a65; font-size: 13px;">🔥 하둠: 용궁</div>
+          <div style="font-size: 10px; color: #bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div>
+        </div>
+        <div style="font-size: 12px; font-weight: bold; color: #ff8a65;">이동 ➔</div>
+      </div>
     </div>
     <div style="text-align: center; margin-top: 10px;">
       <button class="btn-small" onclick="closeStageModal()">창 닫기</button>
@@ -1306,6 +1319,32 @@
       lastTouchEnd = now;
     }, { passive: false });
 
+    /* 모바일에서 사냥터 선택/경험의 서고 등 팝업 내부 스크롤이 막히는 문제 대응:
+       .modal 요소 중 하나라도 display:block/flex 등으로 열려 있으면 body에 modal-open을 붙여
+       body의 전역 touch-action:none을 일시 해제한다. 팝업이 모두 닫히면 다시 제거한다. */
+    (function setupModalTouchFix() {
+      function syncModalOpenState() {
+        const anyOpen = Array.from(document.querySelectorAll('.modal')).some(m => {
+          const d = m.style.display || getComputedStyle(m).display;
+          return d && d !== 'none';
+        });
+        document.body.classList.toggle('modal-open', anyOpen);
+      }
+      const observer = new MutationObserver(syncModalOpenState);
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.modal').forEach(m => {
+          observer.observe(m, { attributes: true, attributeFilter: ['style', 'class'] });
+        });
+        syncModalOpenState();
+      });
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        document.querySelectorAll('.modal').forEach(m => {
+          observer.observe(m, { attributes: true, attributeFilter: ['style', 'class'] });
+        });
+        syncModalOpenState();
+      }
+    })();
+
     const container = document.getElementById('canvas-container');
     const nametagLayer = document.getElementById('nametag-layer');
 
@@ -1337,7 +1376,7 @@
       3: { minLv:61, maxLv:90, hp:3500, def:250, atkMin:140, atkMax:180, expRate:0.07 },
       4: { minLv:91, maxLv:120, hp:7000, def:450, atkMin:250, atkMax:320, expRate:0.075 },
       5: { minLv:121, maxLv:150, hp:12000, def:700, atkMin:450, atkMax:550, expRate:0.08 },
-      6: { minLv:150, maxLv:180, hp:18000, def:1050, atkMin:675, atkMax:825, expRate:0.085 }
+      6: { minLv:150, maxLv:250, hp:18000, def:1050, atkMin:675, atkMax:825, expRate:0.085 }
     };
     const EXPERIENCE_DUNGEON_BG_NAMES = {1:'초보자 사냥터',2:'웅녀동굴',3:'바둑골 산길',4:'얼음성'};
     const EXPERIENCE_DUNGEON_MOBS = [
@@ -1363,7 +1402,8 @@
       1: { hp: 4000, atkMin: 285, atkMax: 315, def: 280 },
       2: { hp: 8000, atkMin: 425, atkMax: 455, def: 400 },
       3: { hp: 12500, atkMin: 585, atkMax: 715, def: 850 },
-      4: { hp: 20000, atkMin: 810, atkMax: 990, def: 1000 }
+      4: { hp: 20000, atkMin: 810, atkMax: 990, def: 1000 },
+      5: { hp: 26000, atkMin: 1050, atkMax: 1280, def: 1250 }
     };
     let zoomLevel = 1.0;
     const baseCameraOffset = new THREE.Vector3(0, 20, 20);
@@ -1819,96 +1859,21 @@
     /* ==========================================
        2. SPRITE GENERATOR & WEAPON DRAWING
        ========================================== */
-    // 검사 전용 보조무기 외형.
-    // 첨부된 픽셀 무기 시트의 실루엣/색감만 참고해 현재 128x128 Nearest 픽셀 스타일에 맞춰 재구성한다.
-    // 파멸=Sinister 계열, 천벌=Divine Relic 계열, 질풍=Guardian 계열, 마력패=Stars 계열.
-    function drawSubWeaponVisual(ctx, id, x, y, angle, attackStage, isBack = false) {
-      if (!id || !SUB_WEAPON_DATA || !SUB_WEAPON_DATA[id]) return false;
-      ctx.save();
-      ctx.translate(x, y);
+    // 보조무기별 검 스킨 팔레트 (참고 이미지: Dragon Slayer / Guardian / Sinister)
+    // 보조무기별 검 스킨 팔레트 (참고 이미지 검 스타일 4종 매핑)
+    // annihilator=파멸의 철편 → 은빛 검신 + 주황 발톱 장식 (Dragon Slayer 톤)
+    // judgement=천벌의 패 → 푸른 검신 + 금빛 광채/보석 (Guardian 톤)
+    // gale=질풍의 환 → 흑빛 검신 + 붉은 가시 장식 (Sinister 톤)
+    // magic=마력패 → 흑철 검신 + 자보라 룬 장식 (Ancient 톤)
+    const SUB_WEAPON_SWORD_SKINS = {
+      '': { blade: '#94a3b8', bladeEdge: '#475569', accent: '#06b6d4', accentEdge: '#00f0ff', glow: 'rgba(34, 211, 238, 0.75)' },
+      annihilator: { blade: '#e2e8f0', bladeEdge: '#64748b', accent: '#f97316', accentEdge: '#fb923c', glow: 'rgba(249, 115, 22, 0.75)' },
+      judgement: { blade: '#93c5fd', bladeEdge: '#1d4ed8', accent: '#fbbf24', accentEdge: '#fde68a', glow: 'rgba(251, 191, 36, 0.8)' },
+      gale: { blade: '#334155', bladeEdge: '#0f172a', accent: '#dc2626', accentEdge: '#f87171', glow: 'rgba(220, 38, 38, 0.75)' },
+      magic: { blade: '#3f3f46', bladeEdge: '#18181b', accent: '#c084fc', accentEdge: '#e9d5ff', glow: 'rgba(192, 132, 252, 0.8)' }
+    };
 
-      let rot = angle;
-      let ox = 0, oy = 0;
-      if (attackStage === 1) { rot -= 0.55; ox = -7; oy = -5; }
-      else if (attackStage === 2) { rot += 0.75; ox = 9; oy = -7; }
-      else if (attackStage === 3) { rot += 1.45; ox = 17; oy = 1; }
-      else if (attackStage === 4) { rot += 0.95; ox = 9; oy = 7; }
-      else if (attackStage === 5) { rot += 0.25; ox = 3; oy = 2; }
-      ctx.translate(ox, oy);
-      ctx.rotate(isBack ? -rot : rot);
-
-      const rect=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);};
-      const poly=(pts,c)=>{ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.closePath();ctx.fill();};
-
-      if (id === 'annihilator') {
-        // 파멸의 철편 — Sinister/Cursed 계열의 검붉은 톱날 대검
-        rect(-44,-3,70,7,'#17151b');
-        rect(-42,-1,66,3,'#34313b');
-        poly([[-49,-8],[-39,-4],[-44,0],[-39,4],[-50,8],[-58,0]],'#bfc4cc');
-        poly([[-51,-5],[-42,-2],[-47,0],[-42,2],[-51,5],[-57,0]],'#eef2f7');
-        rect(-26,-6,7,12,'#0f1016'); rect(-18,-5,4,10,'#9d2533');
-        rect(22,-7,6,14,'#111017');
-        // 붉은 균열
-        rect(-5,-3,3,2,'#e23b4c'); rect(3,1,4,2,'#e23b4c'); rect(11,-2,3,2,'#e23b4c');
-        // 손잡이/가드
-        rect(24,-4,7,8,'#f04b2f'); rect(30,-3,15,6,'#15131a');
-        rect(34,-1,13,2,'#8a5a42'); rect(44,-4,4,8,'#25212a');
-        if (attackStage > 0 && !isBack) {
-          rect(-60,-11,4,4,'#ff5a55'); rect(-54,10,3,3,'#ff8b4b'); rect(-43,-14,3,3,'#b51f31');
-        }
-      } else if (id === 'judgement') {
-        // 천벌의 패 — Divine Relic 계열의 백청색 성검 + 전격
-        rect(-42,-3,70,6,'#172033');
-        rect(-41,-1,66,2,'#69d8ff');
-        poly([[-50,-9],[-40,-3],[-43,0],[-40,3],[-50,9],[-59,0]],'#dcecff');
-        poly([[-49,-4],[-43,0],[-49,4],[-59,0]],'#ffffff');
-        rect(-20,-5,6,10,'#233a5d'); rect(-14,-4,4,8,'#42c9ff');
-        // 성스러운 링 가드
-        ctx.strokeStyle='#6de8ff'; ctx.lineWidth=3; ctx.strokeRect(14,-9,12,18);
-        rect(19,-12,4,24,'#d9f7ff');
-        rect(26,-4,8,8,'#0f172a'); rect(32,-2,13,4,'#2d6b9d'); rect(42,-3,5,6,'#f59e0b');
-        if (attackStage > 0 && !isBack) {
-          rect(-52,-13,3,7,'#ffffff'); rect(-48,10,3,6,'#38d9ff'); rect(-36,-16,3,3,'#38d9ff');
-          rect(4,12,3,7,'#38d9ff'); rect(10,-15,3,5,'#ffffff');
-        }
-      } else if (id === 'gale') {
-        // 질풍의 환 — Guardian 계열의 길고 가벼운 백청색 곡검
-        rect(-39,-2,70,5,'#182236');
-        rect(-38,-1,66,2,'#9dd7ff');
-        poly([[-48,-8],[-42,-5],[-55,0],[-42,5],[-48,8],[-62,0]],'#dcecff');
-        poly([[-50,-4],[-59,0],[-50,4],[-43,0]],'#ffffff');
-        // 곡선 느낌의 픽셀 블레이드
-        rect(-32,-5,5,10,'#547a9c'); rect(-24,-4,5,8,'#b8ddf4'); rect(-16,-3,4,6,'#e8f7ff');
-        rect(27,-5,7,10,'#f08a36'); rect(33,-4,12,8,'#202536'); rect(40,-2,8,4,'#b87842');
-        if (attackStage > 0 && !isBack) {
-          ctx.strokeStyle='rgba(137,224,255,.9)'; ctx.lineWidth=2;
-          ctx.beginPath(); ctx.arc(-4,0,26,-1.2,1.0); ctx.stroke();
-          rect(-31,-14,3,3,'#ffffff'); rect(-18,12,3,3,'#8de6ff'); rect(8,-14,3,3,'#8de6ff');
-        }
-      } else if (id === 'magic') {
-        // 마력패 — Stars 계열의 보석검/마력 패턴
-        rect(-40,-3,64,6,'#171d2e');
-        rect(-39,-1,60,2,'#70d8ff');
-        poly([[-51,-9],[-42,-4],[-45,0],[-42,4],[-51,9],[-60,0]],'#d9fbff');
-        poly([[-49,-5],[-42,0],[-49,5],[-56,0]],'#ff6bd6');
-        // 무지개 마력 코어
-        rect(-30,-5,5,10,'#ff4fa3'); rect(-24,-5,5,10,'#ffd84d'); rect(-18,-5,5,10,'#45e5ff'); rect(-12,-4,4,8,'#8b6dff');
-        rect(22,-7,7,14,'#111827'); rect(28,-5,7,10,'#7c3aed'); rect(34,-3,8,6,'#ff69d4'); rect(41,-2,7,4,'#e7d7ff');
-        // 마력 별 파편
-        if (!isBack || attackStage > 0) {
-          rect(-34,-14,3,3,'#ffffff'); rect(-28,12,3,3,'#38d9ff'); rect(-8,-16,3,3,'#ff71d2');
-          rect(3,12,3,3,'#ffe45b'); rect(12,-13,3,3,'#7ee8ff');
-        }
-        if (attackStage > 0 && !isBack) {
-          ctx.strokeStyle='rgba(94,224,255,.9)'; ctx.lineWidth=2;
-          ctx.beginPath(); ctx.arc(0,0,29,-1.25,1.0); ctx.stroke();
-        }
-      }
-      ctx.restore();
-      return true;
-    }
-
-    function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
+    function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false, weaponSkin = '') {
       ctx.save();
       ctx.translate(x, y);
       
@@ -1926,6 +1891,7 @@
       ctx.rotate(rotAngle);
 
       const lenMult = isTier3 ? 1.35 : 1.0;
+      const skin = SUB_WEAPON_SWORD_SKINS[weaponSkin] || SUB_WEAPON_SWORD_SKINS[''];
 
       if (isTier3) {
         ctx.strokeStyle = 'rgba(0, 240, 255, 0.6)';
@@ -1937,33 +1903,33 @@
 
       ctx.fillStyle = isTier3 ? '#0f172a' : '#1e293b';
       ctx.fillRect(-52 * lenMult, -3, 104 * lenMult, 6);
-      ctx.fillStyle = isTier3 ? '#38bdf8' : '#475569';
+      ctx.fillStyle = isTier3 ? '#38bdf8' : skin.bladeEdge;
       ctx.fillRect(-52 * lenMult, -1, 104 * lenMult, 2);
 
-      ctx.fillStyle = isTier3 ? '#f59e0b' : '#94a3b8';
+      ctx.fillStyle = isTier3 ? '#f59e0b' : skin.blade;
       ctx.fillRect(-32 * lenMult, -5, 6, 10);
       ctx.fillRect(26 * lenMult, -5, 6, 10);
 
-      ctx.fillStyle = isTier3 ? '#00f0ff' : '#06b6d4';
+      ctx.fillStyle = isTier3 ? '#00f0ff' : skin.accent;
       ctx.beginPath();
       ctx.moveTo(-30 * lenMult, -8 * (isTier3 ? 1.2 : 1.0)); ctx.lineTo(-68 * lenMult, 0); ctx.lineTo(-30 * lenMult, 8 * (isTier3 ? 1.2 : 1.0)); ctx.closePath();
       ctx.fill();
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = isTier3 ? '#ffffff' : skin.accentEdge;
       ctx.beginPath();
       ctx.moveTo(-32 * lenMult, -3); ctx.lineTo(-60 * lenMult, 0); ctx.lineTo(-32 * lenMult, 3); ctx.closePath();
       ctx.fill();
 
-      ctx.fillStyle = isTier3 ? '#00f0ff' : '#06b6d4';
+      ctx.fillStyle = isTier3 ? '#00f0ff' : skin.accent;
       ctx.beginPath();
       ctx.moveTo(30 * lenMult, -8 * (isTier3 ? 1.2 : 1.0)); ctx.lineTo(68 * lenMult, 0); ctx.lineTo(30 * lenMult, 8 * (isTier3 ? 1.2 : 1.0)); ctx.closePath();
       ctx.fill();
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = isTier3 ? '#ffffff' : skin.accentEdge;
       ctx.beginPath();
       ctx.moveTo(32 * lenMult, -3); ctx.lineTo(60 * lenMult, 0); ctx.lineTo(32 * lenMult, 3); ctx.closePath();
       ctx.fill();
 
       if (attackStage > 0) {
-        ctx.strokeStyle = isTier3 ? 'rgba(0, 240, 255, 0.9)' : 'rgba(34, 211, 238, 0.75)';
+        ctx.strokeStyle = isTier3 ? 'rgba(0, 240, 255, 0.9)' : skin.glow;
         ctx.lineWidth = isTier3 ? 12 : 8;
         ctx.beginPath();
         ctx.arc(0, 0, 60 * lenMult, -Math.PI / 2.5, Math.PI / 2.5);
@@ -1992,111 +1958,20 @@
       ctx.restore();
     }
 
-    // 주술사/대도사 전용 보조무기 외형.
-    // 검사/검성의 검 외형과 완전히 분리하여 같은 보조무기 ID라도
-    // 주술사 계열에서는 '지팡이/마도구' 형태로 렌더링한다.
-    function drawShamanSubWeaponVisual(ctx, id, x, y, angle, attackStage, isBack = false, isTier3 = false) {
-      if (!id || !SUB_WEAPON_DATA || !SUB_WEAPON_DATA[id]) return false;
+    // 보조무기별 지팡이 스킨 팔레트 (참고 이미지 지팡이 스타일 4종 매핑)
+    // annihilator=파멸의 철편 → 주황 화염 오라 지팡이 톤
+    // judgement=천벌의 패 → 금빛 별빛 지팡이 톤
+    // gale=질풍의 환 → 청록 번개 지팡이 톤
+    // magic=마력패 → 자홍 보석 + 보라 별빛 지팡이 톤
+    const SUB_WEAPON_STAFF_SKINS = {
+      '': { wood: '#654321', woodEdge: '#a17438', ring: '#fbbf24', orb: '#fef08a', ribbon: '#e2e8f0', glow: 'rgba(0, 229, 255, 0.7)', sparkle: '#f0abfc' },
+      annihilator: { wood: '#7c2d12', woodEdge: '#ea580c', ring: '#f97316', orb: '#fed7aa', ribbon: '#fdba74', glow: 'rgba(249, 115, 22, 0.8)', sparkle: '#ffffff' },
+      judgement: { wood: '#78350f', woodEdge: '#d97706', ring: '#fbbf24', orb: '#fef9c3', ribbon: '#fde68a', glow: 'rgba(251, 191, 36, 0.85)', sparkle: '#ffffff' },
+      gale: { wood: '#164e63', woodEdge: '#06b6d4', ring: '#22d3ee', orb: '#cffafe', ribbon: '#a5f3fc', glow: 'rgba(34, 211, 238, 0.85)', sparkle: '#ffffff' },
+      magic: { wood: '#4c1d95', woodEdge: '#a855f7', ring: '#f0abfc', orb: '#e879f9', ribbon: '#f5d0fe', glow: 'rgba(232, 121, 249, 0.8)', sparkle: '#ffffff' }
+    };
 
-      ctx.save();
-      ctx.translate(x, y);
-
-      let rot = angle;
-      let ox = 0, oy = 0;
-      if (attackStage === 1) { rot -= 0.25; ox = -2; oy = -4; }
-      else if (attackStage === 2) { rot += 0.45; ox = 7; oy = -2; }
-      else if (attackStage === 3) { rot += 0.85; ox = 13; oy = 3; }
-      else if (attackStage === 4) { rot += 0.38; ox = 7; oy = 2; }
-      else if (attackStage === 5) { rot += 0.08; ox = 2; oy = 0; }
-
-      ctx.translate(ox, oy);
-      ctx.rotate(isBack ? -rot : rot);
-
-      const rect = (x,y,w,h,c) => { ctx.fillStyle=c; ctx.fillRect(x,y,w,h); };
-      const poly = (pts,c) => {
-        ctx.fillStyle=c; ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]);
-        for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0],pts[i][1]);
-        ctx.closePath(); ctx.fill();
-      };
-
-      // 공통 지팡이 몸통
-      rect(-2,-32,5,70, isTier3 ? '#25113d' : '#2b2117');
-      rect(-1,-31,2,68, isTier3 ? '#b66cff' : '#b9894f');
-
-      if (id === 'annihilator') {
-        // 파멸의 철편: 첨부 시트의 Cursed Relic 계열처럼 검보라 + 붉은 마력핵
-        rect(-4,-37,9,8,'#170d24');
-        poly([[-13,-34],[-7,-45],[0,-39],[8,-48],[14,-34],[7,-22],[0,-27],[-7,-22]], '#4b103f');
-        rect(-3,-39,6,8,'#c51f5d');
-        rect(-1,-37,2,4,'#ff6b9d');
-        rect(5,-29,9,3,'#8b1d55');
-        rect(-12,-27,5,3,'#8b1d55');
-        if (attackStage > 0 && !isBack) {
-          rect(13,-44,3,3,'#ff4d8d');
-          rect(-16,-18,3,3,'#b51f31');
-          rect(12,-12,3,3,'#ff5a55');
-        }
-      } else if (id === 'judgement') {
-        // 천벌의 패: Divine Relic 계열의 백금/금빛 성스러운 마도구
-        rect(-4,-38,9,7,'#8b6b19');
-        poly([[-14,-34],[-8,-49],[0,-41],[8,-49],[15,-34],[7,-20],[0,-27],[-7,-20]], '#fff4bf');
-        rect(-3,-43,6,12,'#ffffff');
-        rect(-1,-48,2,8,'#ffe36e');
-        rect(-11,-30,4,4,'#f6c945');
-        rect(9,-30,4,4,'#f6c945');
-        if (attackStage > 0 && !isBack) {
-          for (const p of [[-17,-43],[14,-38],[-14,-12],[15,-16],[0,-55]]) {
-            rect(p[0],p[1],3,3,'#fff6c7');
-          }
-        }
-      } else if (id === 'gale') {
-        // 질풍의 환: 첨부 시트의 Ice/Divine 계열처럼 청백색 + 냉기 파편
-        rect(-4,-38,9,8,'#173b61');
-        poly([[-13,-34],[-8,-47],[0,-40],[8,-48],[14,-34],[7,-20],[0,-27],[-7,-20]], '#a9edff');
-        rect(-3,-42,6,11,'#35d8ff');
-        rect(-1,-45,2,7,'#ffffff');
-        rect(-12,-29,4,4,'#69e8ff');
-        rect(9,-29,4,4,'#69e8ff');
-        if (attackStage > 0 && !isBack) {
-          ctx.strokeStyle='rgba(83,220,255,.9)'; ctx.lineWidth=2;
-          ctx.beginPath(); ctx.arc(0,-36,17,-1.1,1.2); ctx.stroke();
-          rect(-17,-49,3,3,'#ffffff');
-          rect(14,-18,3,3,'#35d8ff');
-          rect(-16,-8,3,3,'#69e8ff');
-        }
-      } else if (id === 'magic') {
-        // 마력패: 첨부 시트의 Stars 계열처럼 다색 보석 + 별 파편
-        rect(-4,-38,9,8,'#111827');
-        poly([[-14,-34],[-8,-48],[0,-40],[8,-48],[15,-34],[7,-20],[0,-27],[-7,-20]], '#37206b');
-        rect(-4,-43,8,12,'#8b5cf6');
-        rect(-2,-41,4,8,'#ff4fd8');
-        rect(-12,-29,4,4,'#37e8ff');
-        rect(9,-29,4,4,'#ffd84d');
-        rect(-7,-22,4,4,'#56f39a');
-        if (attackStage > 0 || !isBack) {
-          rect(-17,-47,3,3,'#ffffff');
-          rect(14,-40,3,3,'#ff72d2');
-          rect(-15,-12,3,3,'#4de8ff');
-          rect(14,-17,3,3,'#ffe45b');
-          rect(0,-57,3,3,'#8dff8d');
-        }
-      }
-
-      // 대도사는 외곽 마력 링을 추가하여 2차 전직 외형을 차별화.
-      if (isTier3) {
-        ctx.strokeStyle = 'rgba(216,180,254,.72)';
-        ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(0,-35,21 + (attackStage > 0 ? attackStage : 0), 0, Math.PI*2); ctx.stroke();
-        ctx.strokeStyle = 'rgba(255,255,255,.55)';
-        ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.arc(0,-35,15 + (attackStage > 0 ? attackStage*0.5 : 0), 0, Math.PI*2); ctx.stroke();
-      }
-
-      ctx.restore();
-      return true;
-    }
-
-    function drawShamanStaff(ctx, staffX, staffY, angle, attackStage, isTier3 = false) {
+    function drawShamanStaff(ctx, staffX, staffY, angle, attackStage, isTier3 = false, weaponSkin = '') {
       ctx.save();
       ctx.translate(staffX, staffY);
       
@@ -2113,6 +1988,8 @@
       ctx.translate(offsetX, offsetY);
       ctx.rotate(weaponAngle);
 
+      const skin = SUB_WEAPON_STAFF_SKINS[weaponSkin] || SUB_WEAPON_STAFF_SKINS[''];
+
       if (isTier3) {
         ctx.strokeStyle = 'rgba(216, 180, 254, 0.7)';
         ctx.lineWidth = 12;
@@ -2121,23 +1998,23 @@
         ctx.stroke();
       }
 
-      ctx.fillStyle = isTier3 ? '#3b0764' : '#654321';
+      ctx.fillStyle = isTier3 ? '#3b0764' : skin.wood;
       ctx.fillRect(-3, -35, 6, 75);
-      ctx.fillStyle = isTier3 ? '#c084fc' : '#a17438';
+      ctx.fillStyle = isTier3 ? '#c084fc' : skin.woodEdge;
       ctx.fillRect(-2, -35, 2, 75);
 
-      ctx.strokeStyle = isTier3 ? '#a855f7' : '#fbbf24';
+      ctx.strokeStyle = isTier3 ? '#a855f7' : skin.ring;
       ctx.lineWidth = 5;
       ctx.beginPath();
       ctx.arc(0, -38, isTier3 ? 15 : 12, 0, Math.PI * 2);
       ctx.stroke();
 
-      ctx.fillStyle = isTier3 ? '#00f0ff' : '#fef08a';
+      ctx.fillStyle = isTier3 ? '#00f0ff' : skin.orb;
       ctx.beginPath();
       ctx.arc(0, -38, isTier3 ? 7 : 5, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = isTier3 ? '#c084fc' : '#e2e8f0';
+      ctx.fillStyle = isTier3 ? '#c084fc' : skin.ribbon;
       ctx.beginPath();
       ctx.ellipse(-8, -26, 10, 4, -Math.PI / 4, 0, Math.PI * 2);
       ctx.fill();
@@ -2146,7 +2023,7 @@
       ctx.fill();
 
       if (attackStage > 0) {
-        ctx.fillStyle = isTier3 ? 'rgba(192, 132, 252, 0.85)' : 'rgba(0, 229, 255, 0.7)';
+        ctx.fillStyle = isTier3 ? 'rgba(192, 132, 252, 0.85)' : skin.glow;
         ctx.beginPath();
         ctx.arc(0, -38, 18 + attackStage * 3, 0, Math.PI * 2);
         ctx.fill();
@@ -2158,7 +2035,7 @@
             let px = Math.cos(a) * r;
             let py = -38 + Math.sin(a) * r;
 
-            ctx.fillStyle = Math.random() > 0.3 ? '#ffffff' : '#f0abfc';
+            ctx.fillStyle = Math.random() > 0.3 ? '#ffffff' : skin.sparkle;
             let size = 2 + Math.random() * 3;
             ctx.beginPath(); ctx.arc(px, py, size, 0, Math.PI * 2); ctx.fill();
           }
@@ -3219,20 +3096,6 @@
         }
       }
 
-      // 검사 계열 + 파수꾼 풀세트 장착 상태에서도 보조무기를 표시한다.
-      // 보조무기가 없으면 기존 외형만 유지한다.
-      if (playerState.subWeaponEquipped) {
-        drawSubWeaponVisual(
-          ctx,
-          playerState.subWeaponEquipped,
-          64,
-          67,
-          isBack ? -Math.PI / 6 : Math.PI / 12,
-          attackStage,
-          isBack
-        );
-      }
-
       // 픽셀 스파크를 소량 추가해 참고 이미지의 화염/마법 느낌을 유지
       if (attackStage || !isBack) {
         rect(17,47,2,2,FY); rect(108,45,2,2,FY);
@@ -3451,7 +3314,7 @@
           ctx.fillStyle = '#f8fafc'; ctx.fillRect(44, 105, 12, 8); ctx.fillRect(72, 105, 12, 8);
           ctx.fillStyle = '#854d0e'; ctx.fillRect(42, 112, 16, 6); ctx.fillRect(70, 112, 16, 6);
 
-          if (!drawSubWeaponVisual(ctx, playerState.subWeaponEquipped, 64, 68, -Math.PI / 6, attackStage, true)) drawSpearWeapon(ctx, 64, 68, -Math.PI / 6, attackStage, false);
+          drawSpearWeapon(ctx, 64, 68, -Math.PI / 6, attackStage, false, playerState.subWeaponEquipped);
         } else {
           ctx.fillStyle = '#111827';
           ctx.beginPath(); ctx.ellipse(64, 28, 27, 22, 0, 0, Math.PI * 2); ctx.fill();
@@ -3479,7 +3342,7 @@
           ctx.fillStyle = '#f8fafc'; ctx.fillRect(44, 105, 12, 8); ctx.fillRect(72, 105, 12, 8);
           ctx.fillStyle = '#854d0e'; ctx.fillRect(42, 112, 16, 6); ctx.fillRect(70, 112, 16, 6);
 
-          if (!drawSubWeaponVisual(ctx, playerState.subWeaponEquipped, 64, 68, Math.PI / 12, attackStage, false)) drawSpearWeapon(ctx, 64, 68, Math.PI / 12, attackStage, false);
+          drawSpearWeapon(ctx, 64, 68, Math.PI / 12, attackStage, false, playerState.subWeaponEquipped);
         }
       }
       else if (type === 'player_swordmaster') {
@@ -3507,8 +3370,7 @@
           ctx.fillStyle = '#f8fafc'; ctx.fillRect(42, 108, 14, 8); ctx.fillRect(72, 108, 14, 8);
           ctx.fillStyle = '#78350f'; ctx.fillRect(40, 114, 18, 6); ctx.fillRect(70, 114, 18, 6);
 
-          if (!drawSubWeaponVisual(ctx, playerState.subWeaponEquipped, 64, 66, -Math.PI / 5, attackStage, true))
-            drawSpearWeapon(ctx, 64, 66, -Math.PI / 5, attackStage, true);
+          drawSpearWeapon(ctx, 64, 66, -Math.PI / 5, attackStage, true, playerState.subWeaponEquipped);
         } else {
           ctx.strokeStyle = 'rgba(0, 240, 255, 0.55)'; ctx.lineWidth = 6;
           ctx.beginPath(); ctx.arc(64, 52, 42, 0, Math.PI * 2); ctx.stroke();
@@ -3543,8 +3405,7 @@
           ctx.fillStyle = '#f8fafc'; ctx.fillRect(42, 108, 14, 8); ctx.fillRect(72, 108, 14, 8);
           ctx.fillStyle = '#78350f'; ctx.fillRect(40, 114, 18, 6); ctx.fillRect(70, 114, 18, 6);
 
-          if (!drawSubWeaponVisual(ctx, playerState.subWeaponEquipped, 64, 66, Math.PI / 8, attackStage, false))
-            drawSpearWeapon(ctx, 64, 66, Math.PI / 8, attackStage, true);
+          drawSpearWeapon(ctx, 64, 66, Math.PI / 8, attackStage, true, playerState.subWeaponEquipped);
         }
       }
       else if (type === 'player_mage') {
@@ -3560,7 +3421,7 @@
 
           ctx.fillStyle = '#111827'; ctx.fillRect(44, 102, 16, 18); ctx.fillRect(68, 102, 16, 18);
 
-          if (!drawShamanSubWeaponVisual(ctx, playerState.subWeaponEquipped, 88, 60, -Math.PI / 6, attackStage, true, false)) drawShamanStaff(ctx, 88, 60, -Math.PI / 6, attackStage, false);
+          drawShamanStaff(ctx, 88, 60, -Math.PI / 6, attackStage, false, playerState.subWeaponEquipped);
         } else {
           ctx.fillStyle = '#cbd5e1'; ctx.beginPath(); ctx.ellipse(64, 28, 25, 20, 0, 0, Math.PI * 2); ctx.fill();
           ctx.fillStyle = '#f1f5f9'; ctx.beginPath(); ctx.ellipse(64, 24, 20, 15, 0, 0, Math.PI * 2); ctx.fill();
@@ -3583,7 +3444,7 @@
           ctx.fillStyle = '#1f2937'; ctx.fillRect(44, 102, 16, 18); ctx.fillRect(68, 102, 16, 18);
           ctx.fillStyle = '#111827'; ctx.fillRect(42, 114, 20, 8); ctx.fillRect(66, 114, 20, 8);
 
-          if (!drawShamanSubWeaponVisual(ctx, playerState.subWeaponEquipped, 92, 62, Math.PI / 10, attackStage, false, false)) drawShamanStaff(ctx, 92, 62, Math.PI / 10, attackStage, false);
+          drawShamanStaff(ctx, 92, 62, Math.PI / 10, attackStage, false, playerState.subWeaponEquipped);
         }
       }
       else if (type === 'player_daedosa') {
@@ -3608,7 +3469,7 @@
 
           ctx.fillStyle = '#111827'; ctx.fillRect(44, 102, 16, 18); ctx.fillRect(68, 102, 16, 18);
 
-          if (!drawShamanSubWeaponVisual(ctx, playerState.subWeaponEquipped, 88, 60, -Math.PI / 6, attackStage, true, true)) drawShamanStaff(ctx, 88, 60, -Math.PI / 6, attackStage, true);
+          drawShamanStaff(ctx, 88, 60, -Math.PI / 6, attackStage, true, playerState.subWeaponEquipped);
         } else {
           ctx.strokeStyle = 'rgba(216, 180, 254, 0.65)'; ctx.lineWidth = 6;
           ctx.beginPath(); ctx.arc(64, 50, 42, 0, Math.PI * 2); ctx.stroke();
@@ -3640,7 +3501,7 @@
           ctx.fillStyle = '#1f2937'; ctx.fillRect(44, 102, 16, 18); ctx.fillRect(68, 102, 16, 18);
           ctx.fillStyle = '#111827'; ctx.fillRect(42, 114, 20, 8); ctx.fillRect(66, 114, 20, 8);
 
-          if (!drawShamanSubWeaponVisual(ctx, playerState.subWeaponEquipped, 92, 62, Math.PI / 10, attackStage, false, true)) drawShamanStaff(ctx, 92, 62, Math.PI / 10, attackStage, true);
+          drawShamanStaff(ctx, 92, 62, Math.PI / 10, attackStage, true, playerState.subWeaponEquipped);
         }
       }
       else if (type === 'cat') {
@@ -4070,7 +3931,7 @@
       }
     };
     const SUB_WEAPON_SUCCESS = [1.00,0.95,0.90,0.85,0.80,0.70,0.60,0.50,0.40,0.30,0];
-    const SUB_WEAPON_GOLD_COST = [40000,55000,65000,80000,105000,135000,170000,210000,255000,300000];
+    const SUB_WEAPON_GOLD_COST = [0,40000,55000,65000,80000,105000,135000,170000,210000,255000,300000];
 
     function getSubWeaponStat(id, stat) {
       if (!id || !SUB_WEAPON_DATA[id]) return 0;
@@ -4098,7 +3959,7 @@
       if (lv >= SUB_WEAPON_MAX_LV) return;
       const core = playerState.enhanceCore || 0;
       const goldCost = Number(SUB_WEAPON_GOLD_COST[lv + 1] ?? 0);
-      if (!Number.isFinite(goldCost) || goldCost <= 0) {
+      if (!goldCost) {
         alert('보조무기 강화 비용 설정 오류입니다.');
         return;
       }
@@ -4185,7 +4046,7 @@
     }
 
     const playerState = {
-      name: "조선유생", title: "유생", level: 1, maxLevel: 180, job: "평민", tier: 1,
+      name: "조선유생", title: "유생", level: 1, maxLevel: 250, job: "평민", tier: 1,
       hp: 100, maxHp: 100, mp: 50, maxMp: 50, exp: 0,
       maxExp: getRequiredExp(1),
       gold: 200, 
@@ -4209,8 +4070,8 @@
       guardianSet: { helm: false, armor: false, gloves: false, boots: false },
       guardianSetEquipped: false,
       // 보조무기: 3종 중 1종만 장착. 각 보조무기는 별도 강화 레벨을 가진다.
-      subWeaponOwned: { annihilator: false, judgement: false, gale: false, magic: false },
-      subWeaponLevel: { annihilator: 0, judgement: 0, gale: 0, magic: 0 },
+      subWeaponOwned: { annihilator: false, judgement: false, gale: false },
+      subWeaponLevel: { annihilator: 0, judgement: 0, gale: 0 },
       subWeaponEquipped: ''
     };
 
@@ -5119,14 +4980,16 @@
     }
 
     // ==========================================
-    // STAGE 5: 용궁 (일반 전용 · 하둠 영역 없음)
-    // 몹 공격력/방어력/HP/경험치/드랍 비율은 일반4와 하둠1의 중간 수준으로 설계.
+    // STAGE 5: 용궁 (일반 + 하둠 지원)
+    // 일반: 몹 공격력/방어력/HP/경험치/드랍 비율은 일반4와 하둠1의 중간 수준으로 설계.
+    // 하둠: 배경/몹 종류는 일반5와 동일하게 재사용하고, 스탯만 HADUM_NORMAL_STATS[5] 및
+    //       HADUM_MULT/HADUM_HP_EXTRA_MULT 규칙(하둠1~4와 동일 패턴)을 적용해 고난도로 강화.
     // ==========================================
-    function buildStage5DragonPalace() {
+    function buildStage5DragonPalace(isHadum = false) {
       clearStageObjects(); clearMonsters();
-      currentHadum = false;
+      currentHadum = isHadum;
       document.body.style.backgroundColor = '#2f8fa0';
-      document.getElementById('stage-badge').innerText = "🐢 용궁 ▾";
+      document.getElementById('stage-badge').innerText = isHadum ? "🔥 하둠: 용궁 ▾" : "🐢 용궁 ▾";
       scene.background = new THREE.Color(0x3fa0ab);
       scene.fog = new THREE.Fog(0x4fb8bd, 30, 92);
 
@@ -5159,7 +5022,7 @@
       // 일반 몬스터 2종: 포졸거북, 인어병사 (스크린샷 참고)
       const dpTypes=['turtleguard','merwarrior'];
       const names={'turtleguard':'포졸거북','merwarrior':'인어병사'};
-      const stage5MobCount = 22;
+      const stage5MobCount = isHadum ? 35 : 22;
       for(let i=0;i<stage5MobCount;i++){
         const type=dpTypes[i%dpTypes.length];
         const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createDragonPalaceMonsterTexture(type,false,0),transparent:true}));
@@ -5167,22 +5030,26 @@
         sprite.position.set((Math.random()-0.5)*60,1.7,(Math.random()-0.5)*60);
         scene.add(sprite);
         const mShadow=createShadowDisk(2.7,1.4);
-        // 일반4(HP 5400, 공격력108, 경험치80, 골드500, 방어력0)와
+        // 일반: 일반4(HP 5400, 공격력108, 경험치80, 골드500, 방어력0)와
         // 하둠1(HP 4000, 공격력285~315, 경험치300, 골드850, 방어력280)의 중간 수준으로 산정.
-        monsters.push({id:`monster_${i}`,stageId:5,sprite,shadowDisk:mShadow,type:names[type],tier:5,isBoss:false,isHadum:false,
-          hp:4700,maxHp:4700,goldReward:675,
-          attackPower:196,attackPowerMin:196,attackPowerMax:212,
+        // 하둠: 하둠1~4와 동일한 패턴으로 HADUM_NORMAL_STATS[5] 고정 스탯을 적용.
+        monsters.push({id:`monster_${i}`,stageId:5,sprite,shadowDisk:mShadow,type:names[type],tier:5,isBoss:false,isHadum,
+          hp:isHadum?HADUM_NORMAL_STATS[5].hp:4700,maxHp:isHadum?HADUM_NORMAL_STATS[5].hp:4700,goldReward:isHadum?850:675,
+          attackPower:isHadum?HADUM_NORMAL_STATS[5].atkMin:196,
+          attackPowerMin:isHadum?HADUM_NORMAL_STATS[5].atkMin:196,
+          attackPowerMax:isHadum?HADUM_NORMAL_STATS[5].atkMax:212,
           attackRange:2.6,attackSpeed:1150,lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});
         createNametagElement(`monster_${i}`,'',`${names[type]}`,true);
       }
 
-      // 보스: 해적상어 (일반4 보스보다 소폭 강화된 수준)
+      // 보스: 해적상어 (일반4 보스보다 소폭 강화된 수준 / 하둠은 하둠1~4와 동일한 배율 규칙 적용)
       const bossSprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createDragonPalaceMonsterTexture('pirateshark',false,0),transparent:true}));
       const bossSpritePos5 = getRandomBossSpawnPos(24, 33);
       bossSprite.scale.set(8.2,8.2,1); bossSprite.position.set(bossSpritePos5.x,4.1,bossSpritePos5.z); scene.add(bossSprite);
       const bossShadow=createShadowDisk(7.0,3.6);
-      monsters.push({id:'monster_22',stageId:5,sprite:bossSprite,shadowDisk:bossShadow,type:'해적상어',tier:5,isBoss:true,isHadum:false,
-        hp:55000,maxHp:55000,goldReward:22000,attackPower:210,attackRange:4.5,attackSpeed:950,
+      monsters.push({id:'monster_22',stageId:5,sprite:bossSprite,shadowDisk:bossShadow,type:'해적상어',tier:5,isBoss:true,isHadum,
+        hp:isHadum?55000*HADUM_MULT*HADUM_HP_EXTRA_MULT:55000,maxHp:isHadum?55000*HADUM_MULT*HADUM_HP_EXTRA_MULT:55000,
+        goldReward:22000,attackPower:isHadum?210*HADUM_MULT:210,attackRange:4.5,attackSpeed:950,
         lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});
       createNametagElement('monster_22','용궁의 습격자','해적상어',false,false,true);
     }
@@ -5444,7 +5311,7 @@
       document.getElementById('stage-modal').style.display = 'block';
       const isJob2Done = playerState.tier === 3;
 
-      ['1', '2', '3', '4'].forEach(sId => {
+      ['1', '2', '3', '4', '5'].forEach(sId => {
         const card = document.getElementById(`stage-card-${sId}`);
         if (card) {
           card.classList.toggle('active', !currentHadum && parseInt(sId) === currentStage);
@@ -5474,7 +5341,7 @@
       else if (stageNum === 2) buildStage2Cave(isHadum);
       else if (stageNum === 3) buildStage3Baduk(isHadum);
       else if (stageNum === 4) buildStage4IceCastle(isHadum);
-      else if (stageNum === 5) buildStage5DragonPalace();
+      else if (stageNum === 5) buildStage5DragonPalace(isHadum);
 
       // 스테이지 전환 시 캐릭터를 맵 중앙 스폰 지점으로 되돌린다.
       // (안 그러면 이전 스테이지에서 서 있던 좌표에 그대로 남아, 새 맵의 지형/몬스터와 위치가 어긋나 보인다.)
@@ -6337,7 +6204,11 @@
         playerSprite.material.needsUpdate = true;
         return;
       }
-      updatePlayerFacingTexture();
+      const cfg = JOB_STAT_BONUSES[jobName] || JOB_STAT_BONUSES[getJobBaseFamily(jobName)] || JOB_STAT_BONUSES['검사'];
+      const spriteType = cfg.sprite || 'player_beginner';
+      const mapTex = createPixelSpriteTexture(spriteType, playerFacing === 'back');
+      playerSprite.material.map = mapTex;
+      playerSprite.material.needsUpdate = true;
     }
 
     function applyJobStatsTransition(oldJob, newJob) {
@@ -6424,7 +6295,9 @@
         spriteType = 'player_mage';
       }
 
-      updatePlayerFacingTexture();
+      const mapTex = createPixelSpriteTexture(spriteType, playerFacing === 'back');
+      playerSprite.material.map = mapTex;
+      playerSprite.material.needsUpdate = true;
 
       document.getElementById('btn-job-modal').style.display = "none";
       updateUI(); closeJobModal();
@@ -6585,14 +6458,13 @@
           const owned = !!playerState.subWeaponOwned?.[id];
           const lv = Math.max(0, Math.min(SUB_WEAPON_MAX_LV, Number(playerState.subWeaponLevel?.[id]) || 0));
           const equipped = playerState.subWeaponEquipped === id;
-          const safeLv = Number.isFinite(lv) ? lv : 0;
-          const atk = Number(data.atk?.[safeLv] ?? 0);
-          const boss = Number(data.boss?.[safeLv] ?? 0);
-          const speed = Number(data.speed?.[safeLv] ?? 0);
-          const skillDamage = Number(data.skillDamage?.[safeLv] ?? 0);
-          const mpRecovery = Number(data.mpRecovery?.[safeLv] ?? 0);
-          const maxed = safeLv >= SUB_WEAPON_MAX_LV;
-          const nextLv = Math.min(SUB_WEAPON_MAX_LV, safeLv + 1);
+          const atk = Number(data.atk?.[lv] ?? 0);
+          const boss = Number(data.boss?.[lv] ?? 0);
+          const speed = Number(data.speed?.[lv] ?? 0);
+          const skillDamage = Number(data.skillDamage?.[lv] ?? 0);
+          const mpRecovery = Number(data.mpRecovery?.[lv] ?? 0);
+          const maxed = lv >= SUB_WEAPON_MAX_LV;
+          const nextLv = Math.min(SUB_WEAPON_MAX_LV, lv + 1);
           const nextAtk = Number(data.atk?.[nextLv] ?? atk);
           const nextBoss = Number(data.boss?.[nextLv] ?? boss);
           const nextSpeed = Number(data.speed?.[nextLv] ?? speed);
@@ -6617,15 +6489,13 @@
           if (!owned) {
             footer = `<span class="item-price">${price} G · Lv.150</span><button class="btn-buy" ${playerState.level < 150 || playerState.gold < data.price ? 'disabled' : ''} onclick="buySubWeapon('${id}')">구매</button>`;
           } else if (maxed) {
-            footer = `<span class="item-price">MAX · 강화완료</span><button class="btn-buy" onclick="equipSubWeapon('${id}')">${equipped ? '장착중' : '장착'}</button>`;
+            footer = `<span class="item-price">MAX</span><button class="btn-buy" onclick="equipSubWeapon('${id}')">${equipped ? '장착중' : '장착'}</button>`;
           } else {
-            const cost = Number(SUB_WEAPON_GOLD_COST[safeLv + 1] ?? 0);
+            const cost = Number(SUB_WEAPON_GOLD_COST[lv+1] ?? 0);
             const disabled = (playerState.enhanceCore || 0) < SUB_WEAPON_CORE_COST || playerState.gold < cost;
             footer = `<span class="item-price">핵 1개 + ${cost.toLocaleString()} G</span><button class="btn-buy" ${disabled ? 'disabled' : ''} onclick="enhanceSubWeapon('${id}')">강화</button><button class="btn-buy" onclick="equipSubWeapon('${id}')">${equipped ? '장착중' : '장착'}</button>`;
           }
-          const successText = maxed ? 'MAX' : Math.round((SUB_WEAPON_SUCCESS[safeLv] ?? 0) * 100) + '%';
-          const nextCostText = maxed ? '' : ` · 다음 강화 비용: ${Number(SUB_WEAPON_GOLD_COST[safeLv + 1] ?? 0).toLocaleString()} G + 강화의 핵 1개`;
-          card.innerHTML = `<div><div class="item-header"><span>${data.name} (+${safeLv}/${SUB_WEAPON_MAX_LV}) ${equipped ? '🔥' : ''}</span></div><div class="item-desc">${data.desc}<br>${statLine}${nextLine ? `<br>${nextLine}` : ''}<br>강화 성공률: ${successText}${nextCostText}</div></div><div class="item-footer">${footer}</div>`;
+          card.innerHTML = `<div><div class="item-header"><span>${data.name} (+${lv}/${SUB_WEAPON_MAX_LV}) ${equipped ? '🔥' : ''}</span></div><div class="item-desc">${data.desc}<br>${statLine}${nextLine ? `<br>${nextLine}` : ''}<br>강화 성공률: ${maxed ? 'MAX' : Math.round(SUB_WEAPON_SUCCESS[lv]*100)+'%'}${maxed ? '' : ` · 다음 강화 비용: ${Number(SUB_WEAPON_GOLD_COST[lv+1] ?? 0).toLocaleString()} G + 강화의 핵 1개`}</div></div><div class="item-footer">${footer}</div>`;
           container.appendChild(card);
         });
         const guide = document.createElement('div'); guide.className='shop-item-card';
@@ -7051,6 +6921,7 @@
       // 첫 보조무기는 자동 장착. 이후 보조무기는 직접 선택 장착.
       if (!playerState.subWeaponEquipped) playerState.subWeaponEquipped = id;
       recalcAttackSpeed();
+      updatePlayerFacingTexture();
       updateUI();
       switchShopCategory('subweapon');
       saveGame();
@@ -7572,10 +7443,10 @@
        ========================================== */
     // 스테이지별 일반 몬스터 고정 경험치 테이블 (일반: 1~4스테이지, 하둠: 1~4스테이지)
     const STAGE_NORMAL_EXP = { 1: 20, 2: 40, 3: 60, 4: 80, 5: 190 };
-    const STAGE_HADUM_EXP = { 1: 300, 2: 450, 3: 700, 4: 850 };
+    const STAGE_HADUM_EXP = { 1: 300, 2: 450, 3: 700, 4: 850, 5: 1050 };
     const STAGE_BOSS_EXP = {
       normal: { 1: 1500, 2: 2500, 3: 4000, 4: 6000, 5: 8250 },
-      hadum: { 1: 10500, 2: 13500, 3: 16500, 4: 22500 }
+      hadum: { 1: 10500, 2: 13500, 3: 16500, 4: 22500, 5: 27000 }
     };
 
     function getMonsterExpReward(monster) {
@@ -7732,7 +7603,7 @@
         const p = data.player;
         const numericFields = ['level','maxLevel','tier','hp','maxHp','mp','maxMp','exp','maxExp','gold','talismanLoot','talismanLevel','enhanceCore','baseAttackSpeed','attackSpeed','weaponAtk','defensePower','weaponEnhanceLv','moveSpeed','attackRange','atkSpeedLv','firstSkillLv','martialTrainingLv','shamanStudyLv','dailyCoreBought','jobChangeCount','experienceDungeonTickets'];
         numericFields.forEach(k => { if (p[k] !== undefined && Number.isFinite(Number(p[k]))) playerState[k] = Number(p[k]); });
-        playerState.maxLevel = 180;
+        playerState.maxLevel = 250;
         ['name','title','job','dailyResetDate'].forEach(k => { if (typeof p[k] === 'string') playerState[k] = p[k]; });
         ['hasSiri','hasJanggeum','hasMunyeahana','hasRabbitGirl','rabbitForm','hasAutoHeal'].forEach(k => { if (typeof p[k] === 'boolean') playerState[k] = p[k]; });
         if (!playerState.hasRabbitGirl) playerState.rabbitForm = false;
@@ -7755,8 +7626,8 @@
         }
         // 기존 저장 데이터와의 호환: 장착 상태가 없는 예전 세이브는 해체 상태로 시작.
         playerState.guardianSetEquipped = p.guardianSetEquipped === true;
-        playerState.subWeaponOwned = { annihilator:false, judgement:false, gale:false, magic:false, ...(p.subWeaponOwned || {}) };
-        playerState.subWeaponLevel = { annihilator:0, judgement:0, gale:0, magic:0, ...(p.subWeaponLevel || {}) };
+        playerState.subWeaponOwned = { annihilator:false, judgement:false, gale:false, ...(p.subWeaponOwned || {}) };
+        playerState.subWeaponLevel = { annihilator:0, judgement:0, gale:0, ...(p.subWeaponLevel || {}) };
         playerState.subWeaponEquipped = SUB_WEAPON_DATA[p.subWeaponEquipped] ? p.subWeaponEquipped : '';
         Object.keys(SUB_WEAPON_DATA).forEach(id => {
           playerState.subWeaponLevel[id] = Math.max(0, Math.min(SUB_WEAPON_MAX_LV, Number(playerState.subWeaponLevel[id]) || 0));
@@ -8047,9 +7918,8 @@
         playerSprite.material.needsUpdate = true;
         return;
       }
-      // 🔥 파수꾼셋트는 '장착' 상태일 때만 전용 외형을 사용한다.
-      // 세트 4부위를 보유하기만 한 상태에서는 기존 직업 외형을 유지한다.
-      if (playerState.guardianSetEquipped && isGuardianSetComplete()) {
+      // 🔥 파수꾼셋트 4부위 완성 시 전용 중갑 외형으로 변경
+      if (isGuardianSetComplete()) {
         playerSprite.material.map = createPixelSpriteTexture('player_guardian', playerFacing === 'back', playerState.attackStage);
         playerSprite.material.needsUpdate = true;
         return;
