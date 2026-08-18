@@ -4353,6 +4353,10 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       subWeaponLevel: { annihilator: 0, judgement: 0, gale: 0 },
       subWeaponEquipped: ''
     };
+    // 무기 제작 스크립트(별도 <script> 블록)가 window.playerState로 참조하므로 명시적으로 노출한다.
+    // const/let 최상위 선언은 자동으로 window 프로퍼티가 되지 않기 때문에, 이 누락이 있으면
+    // 제작 재료 드랍/적립이 항상 실패한다(매번 새 임시 객체에만 기록되고 사라짐).
+    window.playerState = playerState;
 
     function getCritChance() {
       let chance = talismanTable[playerState.talismanLevel].crit;
