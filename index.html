@@ -1225,7 +1225,20 @@
         </div>
         <div style="font-size: 12px; font-weight: bold; color: #ff8a65;">이동 ➔</div>
       </div>
-    </div>
+      <div class="stage-card hadum" id="stage-card-hadum-6" onclick="selectStage(6, true)">
+        <div>
+          <div style="font-weight: bold; color: #ff8a65; font-size: 13px;">🔥 하둠: 신수협곡</div>
+          <div style="font-size: 10px; color: #bcaaa4;">삿갓다람쥐, 춤추는선인장 및 신수협곡 수호령(보스)</div>
+        </div>
+        <div style="font-size: 12px; font-weight: bold; color: #ff8a65;">이동 ➔</div>
+      </div>
+      <div class="stage-card hadum" id="stage-card-hadum-7" onclick="selectStage(7, true)">
+        <div>
+          <div style="font-weight: bold; color: #ff8a65; font-size: 13px;">🔥 하둠: 신수협곡 2층</div>
+          <div style="font-size: 10px; color: #bcaaa4;">붉은깃털독수리, 하얀깃털독수리 및 신수협곡 2층 수호령(보스)</div>
+        </div>
+        <div style="font-size: 12px; font-weight: bold; color: #ff8a65;">이동 ➔</div>
+      </div>
     <div style="text-align: center; margin-top: 10px;">
       <button class="btn-small" onclick="closeStageModal()">창 닫기</button>
     </div>
@@ -1403,7 +1416,11 @@
       2: { hp: 8000, atkMin: 425, atkMax: 455, def: 400 },
       3: { hp: 12500, atkMin: 585, atkMax: 715, def: 850 },
       4: { hp: 20000, atkMin: 810, atkMax: 990, def: 1000 },
-      5: { hp: 26000, atkMin: 1050, atkMax: 1280, def: 1250 }
+      5: { hp: 26000, atkMin: 1050, atkMax: 1280, def: 1250 },
+      // 하둠6 신수협곡: 하둠5 대비 약 27% HP / 20~29% 공격 / 16% 방어 상승
+      6: { hp: 33000, atkMin: 1350, atkMax: 1650, def: 1450 },
+      // 하둠7 신수협곡 2층: 하둠6 대비 HP 약 27% / 공격 약 21~22% / 방어 약 17% 상승
+      7: { hp: 42000, atkMin: 1650, atkMax: 2000, def: 1700 }
     };
     let zoomLevel = 1.0;
     const baseCameraOffset = new THREE.Vector3(0, 20, 20);
@@ -5278,6 +5295,297 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
         lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});
       createNametagElement('monster_22','용궁의 습격자','해적상어',false,false,true);
     }
+    // ==========================================
+    // STAGE 6: 하둠 - 신수협곡
+    // 사용자 제공 스크린샷을 참고한 초록 협곡/야생 사냥터.
+    // 일반 몬스터: 삿갓다람쥐 / 춤추는선인장
+    // 보스: 신수협곡 수호령
+    // ==========================================
+    function createShinsuGorgeFloorTexture() {
+      const cvs = document.createElement('canvas');
+      cvs.width = 256; cvs.height = 256;
+      const ctx = cvs.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+
+      ctx.fillStyle = '#63b63f';
+      ctx.fillRect(0,0,256,256);
+
+      // 스크린샷처럼 작은 풀결/밝은 잎 무늬를 반복 배치
+      for (let i=0;i<170;i++) {
+        const x = Math.floor(Math.random()*256);
+        const y = Math.floor(Math.random()*256);
+        const greens = ['#4d9d36','#71c64a','#82d257','#3e8f31'];
+        ctx.fillStyle = greens[i%greens.length];
+        ctx.fillRect(x,y,2+(i%3),1);
+        if (i%4===0) ctx.fillRect(x+2,y-2,1,3);
+      }
+
+      // 흰색/연노랑 작은 야생화
+      for (let i=0;i<42;i++) {
+        const x = Math.floor(Math.random()*256);
+        const y = Math.floor(Math.random()*256);
+        ctx.fillStyle = '#e8f5d0';
+        ctx.fillRect(x,y,3,2);
+        ctx.fillRect(x+1,y-1,1,4);
+        ctx.fillStyle = '#f7e7a2';
+        ctx.fillRect(x+1,y,1,1);
+      }
+      return new THREE.CanvasTexture(cvs);
+    }
+
+    function createShinsuGorgeRockTexture() {
+      const cvs = document.createElement('canvas');
+      cvs.width = 128; cvs.height = 128;
+      const ctx = cvs.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      ctx.clearRect(0,0,128,128);
+      ctx.fillStyle='#547f36';
+      ctx.beginPath();
+      ctx.moveTo(8,105); ctx.lineTo(18,55); ctx.lineTo(36,34); ctx.lineTo(54,48);
+      ctx.lineTo(76,28); ctx.lineTo(104,49); ctx.lineTo(120,105); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#6e9948';
+      ctx.beginPath();
+      ctx.moveTo(22,96); ctx.lineTo(34,54); ctx.lineTo(52,42); ctx.lineTo(67,57);
+      ctx.lineTo(89,40); ctx.lineTo(108,61); ctx.lineTo(112,96); ctx.closePath(); ctx.fill();
+      ctx.fillStyle='#88b65a';
+      ctx.fillRect(39,49,17,8); ctx.fillRect(78,48,15,7);
+      return new THREE.CanvasTexture(cvs);
+    }
+
+    function createShinsuGorgeMonsterTexture(type, isBack=false, attackStage=0) {
+      const cvs=document.createElement('canvas');
+      cvs.width=128; cvs.height=128;
+      const ctx=cvs.getContext('2d');
+      ctx.imageSmoothingEnabled=false;
+      ctx.clearRect(0,0,128,128);
+
+      const bob = attackStage ? (attackStage%2===0 ? -2 : 2) : 0;
+      ctx.translate(bob,0);
+
+      if (type === 'hat_squirrel' || type === 'guardian') {
+        // 삿갓다람쥐: 갈색 다람쥐 + 녹색 삿갓/망토 + 작은 낫.
+        const fur='#b86b35', fur2='#d58a4b', dark='#5b3525', cap='#557d36', cap2='#7fa24b';
+        ctx.fillStyle=fur2; ctx.beginPath(); ctx.ellipse(64,61,27,30,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle=fur; ctx.beginPath(); ctx.ellipse(57,52,22,25,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle=dark; ctx.beginPath(); ctx.arc(47,39,10,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle=fur2; ctx.beginPath(); ctx.arc(47,39,6,0,Math.PI*2); ctx.fill();
+
+        // 얼굴
+        ctx.fillStyle='#f1c18b'; ctx.beginPath(); ctx.ellipse(66,57,17,14,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#211914'; ctx.fillRect(60,53,4,4); ctx.fillRect(72,53,4,4);
+        ctx.fillStyle='#3a2116'; ctx.fillRect(67,61,7,5);
+        ctx.fillStyle='#fff'; ctx.fillRect(62,66,12,3);
+
+        // 삿갓
+        ctx.fillStyle=cap; ctx.beginPath();
+        ctx.moveTo(28,35); ctx.lineTo(58,22); ctx.lineTo(96,34); ctx.lineTo(85,43); ctx.lineTo(43,43); ctx.closePath(); ctx.fill();
+        ctx.fillStyle=cap2; ctx.fillRect(43,34,44,5);
+        ctx.fillStyle='#3c5d29'; ctx.fillRect(53,28,18,4);
+
+        // 몸통/팔/다리
+        ctx.fillStyle='#3e4f37'; ctx.fillRect(48,73,31,27);
+        ctx.fillStyle='#a85e30'; ctx.fillRect(40,76,10,24); ctx.fillRect(78,76,10,24);
+        ctx.fillStyle='#6e3c27'; ctx.fillRect(51,98,9,18); ctx.fillRect(69,98,9,18);
+        ctx.fillStyle='#3b271e'; ctx.fillRect(47,113,17,6); ctx.fillRect(66,113,17,6);
+
+        // 작은 낫
+        ctx.save();
+        ctx.translate(89,76);
+        ctx.rotate(-0.45 + (attackStage?0.55:0));
+        ctx.fillStyle='#4b2f22'; ctx.fillRect(-2,-5,4,35);
+        ctx.fillStyle='#87939a';
+        ctx.beginPath(); ctx.moveTo(0,-6); ctx.quadraticCurveTo(22,-20,18,2); ctx.quadraticCurveTo(12,-9,0,3); ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#c8d1d5'; ctx.fillRect(3,-7,12,3);
+        ctx.restore();
+
+        // 꼬리
+        ctx.strokeStyle='#9a542d'; ctx.lineWidth=8;
+        ctx.beginPath(); ctx.arc(27,91,22,-1.2,1.3); ctx.stroke();
+        ctx.strokeStyle='#d18a4b'; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.arc(27,91,18,-1.2,1.3); ctx.stroke();
+
+        if (attackStage) {
+          ctx.fillStyle='#e8f4c8';
+          ctx.fillRect(93,48,3,3); ctx.fillRect(101,55,2,2); ctx.fillRect(98,66,3,3);
+        }
+      } else {
+        // 춤추는선인장: 스크린샷의 둥근 녹색 선인장 + 버섯/장식 + 양팔.
+        const green='#4f9f35', light='#77bd46', dark='#2f6e2b', cap='#d06d43', cream='#f3d79b';
+        ctx.fillStyle=dark; ctx.beginPath(); ctx.ellipse(64,72,27,38,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle=green; ctx.beginPath(); ctx.ellipse(64,69,23,34,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle=light; ctx.fillRect(56,45,9,39); ctx.fillRect(69,49,8,34);
+
+        // 얼굴/눈
+        ctx.fillStyle='#d9efc3'; ctx.fillRect(52,56,9,9); ctx.fillRect(68,56,9,9);
+        ctx.fillStyle='#163b20'; ctx.fillRect(55,59,4,4); ctx.fillRect(71,59,4,4);
+        ctx.fillStyle='#224b25'; ctx.fillRect(60,70,10,4);
+
+        // 양팔/춤 동작
+        ctx.strokeStyle=green; ctx.lineWidth=10; ctx.lineCap='square';
+        ctx.beginPath(); ctx.moveTo(42,72); ctx.lineTo(22,58); ctx.lineTo(17,43); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(86,72); ctx.lineTo(104,58); ctx.lineTo(111,42); ctx.stroke();
+
+        // 장식/머리의 버섯
+        ctx.fillStyle=cream; ctx.fillRect(46,34,36,12);
+        ctx.fillStyle=cap; ctx.beginPath(); ctx.arc(64,33,24,Math.PI,0); ctx.fill();
+        ctx.fillStyle='#e7a06e'; ctx.fillRect(50,25,6,5); ctx.fillRect(70,20,6,6);
+
+        // 하체
+        ctx.fillStyle=dark; ctx.fillRect(51,99,11,17); ctx.fillRect(67,99,11,17);
+        ctx.fillStyle='#35582b'; ctx.fillRect(47,113,18,6); ctx.fillRect(64,113,18,6);
+
+        if (attackStage) {
+          ctx.fillStyle='#f3d79b';
+          ctx.fillRect(104,32,5,5); ctx.fillRect(111,50,3,3);
+          ctx.fillStyle='#72d7ff';
+          ctx.fillRect(96,44,3,3); ctx.fillRect(108,60,3,3);
+        }
+      }
+
+      // Boss: enlarged guardian variant with both motifs.
+      if (type === 'guardian') {
+        ctx.fillStyle='rgba(255,208,90,0.7)';
+        ctx.fillRect(17,18,4,4); ctx.fillRect(105,23,5,5);
+        ctx.fillStyle='#b74b35'; ctx.fillRect(30,20,68,10);
+        ctx.fillStyle='#8b3a2d'; ctx.fillRect(42,27,45,7);
+        ctx.fillStyle='#d9a34d'; ctx.fillRect(50,35,28,5);
+      }
+
+      const tex=new THREE.CanvasTexture(cvs);
+      tex.colorSpace=THREE.SRGBColorSpace;
+      tex.magFilter=THREE.NearestFilter;
+      tex.minFilter=THREE.NearestFilter;
+      tex.generateMipmaps=false;
+      return tex;
+    }
+
+    function buildStage6ShinsuGorge(isHadum = false) {
+      // 신수협곡은 하둠6 전용 사냥터로 만든다.
+      if (!isHadum) return buildStage5DragonPalace(false);
+      clearStageObjects(); clearMonsters();
+      currentHadum = true;
+      document.body.style.backgroundColor = '#4e8f3d';
+      document.getElementById('stage-badge').innerText = '🔥 하둠: 신수협곡 ▾';
+      scene.background = new THREE.Color(0x67a94a);
+      scene.fog = new THREE.Fog(0x6db84f, 34, 96);
+
+      const floorG = new THREE.PlaneGeometry(floorSize, floorSize);
+      const floorM = new THREE.MeshLambertMaterial({map:createShinsuGorgeFloorTexture()});
+      floorMesh = new THREE.Mesh(floorG, floorM);
+      floorMesh.rotation.x=-Math.PI/2;
+      floorMesh.receiveShadow=true;
+      scene.add(floorMesh);
+
+      // 협곡 가장자리의 낮은 암벽/수목을 배치해 스크린샷의 야외 협곡 느낌을 만든다.
+      const rockTex=createShinsuGorgeRockTexture();
+      const rockPositions=[[-27,-25,7],[25,-28,8],[-30,20,6],[28,22,7],[-15,31,5],[12,32,5]];
+      rockPositions.forEach(([x,z,s])=>{
+        const r=new THREE.Sprite(new THREE.SpriteMaterial({map:rockTex,transparent:true}));
+        r.scale.set(s*1.4,s,1); r.position.set(x,s/2,z);
+        scene.add(r); stageObjects.push(r);
+      });
+
+      // 작은 잎/꽃 파티클
+      const count=qualityMode==='high'?110:55;
+      const geo=new THREE.BufferGeometry(); const pos=new Float32Array(count*3);
+      for(let i=0;i<count;i++){
+        pos[i*3]=(Math.random()-0.5)*68;
+        pos[i*3+1]=Math.random()*8+0.5;
+        pos[i*3+2]=(Math.random()-0.5)*68;
+      }
+      geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+      const pts=new THREE.Points(geo,new THREE.PointsMaterial({
+        color:0xdaf0a9,size:0.32,transparent:true,opacity:0.65,depthWrite:false
+      }));
+      scene.add(pts); stageObjects.push(pts);
+
+      const types=['hat_squirrel','dancing_cactus'];
+      const names={'hat_squirrel':'삿갓다람쥐','dancing_cactus':'춤추는선인장'};
+      const mobCount=38;
+      for(let i=0;i<mobCount;i++){
+        const type=types[i%types.length];
+        const sprite=new THREE.Sprite(new THREE.SpriteMaterial({
+          map:createShinsuGorgeMonsterTexture(type,false,0),transparent:true
+        }));
+        sprite.scale.set(3.6,3.6,1);
+        sprite.position.set((Math.random()-0.5)*62,1.8,(Math.random()-0.5)*62);
+        scene.add(sprite);
+        const shadow=createShadowDisk(2.8,1.45);
+        monsters.push({
+          id:`monster_${i}`,stageId:6,sprite,shadowDisk:shadow,type:names[type],tier:6,isBoss:false,isHadum:true,
+          hp:HADUM_NORMAL_STATS[6].hp,maxHp:HADUM_NORMAL_STATS[6].hp,goldReward:950,
+          attackPower:HADUM_NORMAL_STATS[6].atkMin,
+          attackPowerMin:HADUM_NORMAL_STATS[6].atkMin,attackPowerMax:HADUM_NORMAL_STATS[6].atkMax,
+          attackRange:2.8,attackSpeed:1100,lastAttackTime:0,alive:true,destroyed:false,
+          roamDir:new THREE.Vector3(),roamTimer:0
+        });
+        createNametagElement(`monster_${i}`,'',names[type],true);
+      }
+
+      // 보스: 스크린샷의 두 몬스터 모티프를 합친 대형 수호령.
+      const bossSprite=new THREE.Sprite(new THREE.SpriteMaterial({
+        map:createShinsuGorgeMonsterTexture('guardian',false,0),transparent:true
+      }));
+      const bossPos=getRandomBossSpawnPos(24,33);
+      bossSprite.scale.set(9.2,9.2,1);
+      bossSprite.position.set(bossPos.x,4.6,bossPos.z);
+      scene.add(bossSprite);
+      const bossShadow=createShadowDisk(7.6,3.8);
+      monsters.push({
+        id:'monster_26',stageId:6,sprite:bossSprite,shadowDisk:bossShadow,
+        type:'신수협곡 수호령',tier:6,isBoss:true,isHadum:true,
+        hp:300000,maxHp:300000,goldReward:25000,
+        attackPower:480,attackRange:4.7,attackSpeed:900,lastAttackTime:0,
+        alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0
+      });
+      createNametagElement('monster_26','신수협곡의 수호자','신수협곡 수호령',false,false,true);
+    }
+
+    // ==========================================
+    // STAGE 7: 하둠 - 신수협곡 2층
+    // 사용자 제공 스크린샷을 참고한 대나무/초록 협곡 2층.
+    // 일반 몬스터: 붉은깃털독수리 / 하얀깃털독수리
+    // 보스: 신수협곡 2층 수호령
+    // ==========================================
+    function createShinsuGorge2FloorTexture() {
+      const cvs=document.createElement('canvas'); cvs.width=256; cvs.height=256;
+      const ctx=cvs.getContext('2d'); ctx.imageSmoothingEnabled=false;
+      ctx.fillStyle='#5fb63f'; ctx.fillRect(0,0,256,256);
+      for(let i=0;i<220;i++){ const x=Math.floor(Math.random()*256),y=Math.floor(Math.random()*256); ctx.fillStyle=['#4b9b32','#6dc64a','#7bd352','#3d8d2d'][i%4]; ctx.fillRect(x,y,2+(i%3),1); if(i%5===0)ctx.fillRect(x+2,y-2,1,3); }
+      for(let i=0;i<48;i++){ const x=Math.floor(Math.random()*256),y=Math.floor(Math.random()*256); ctx.fillStyle='#eaf4cf'; ctx.fillRect(x,y,3,2);ctx.fillRect(x+1,y-1,1,4);ctx.fillStyle='#f6dfa0';ctx.fillRect(x+1,y,1,1); }
+      return new THREE.CanvasTexture(cvs);
+    }
+    function createBambooTexture(){
+      const cvs=document.createElement('canvas'); cvs.width=96;cvs.height=160; const ctx=cvs.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.clearRect(0,0,96,160);
+      [18,34,53,72].forEach((x,i)=>{ctx.fillStyle='#2f7e37';ctx.fillRect(x,18,7,124);ctx.fillStyle='#4fa64b';ctx.fillRect(x+2,18,3,124);ctx.fillStyle='#245f31';for(let y=35;y<140;y+=27)ctx.fillRect(x-1,y,9,3);ctx.fillStyle=i%2?'#4d9d39':'#68b94a';ctx.fillRect(x-10,20,12,4);ctx.fillRect(x+6,28,13,4);ctx.fillRect(x-12,48,14,4);ctx.fillRect(x+7,62,14,4);ctx.fillRect(x-11,88,13,4);ctx.fillRect(x+6,103,15,4);});
+      return new THREE.CanvasTexture(cvs);
+    }
+    function createShinsuGorge2MonsterTexture(type,attackStage=0){
+      const cvs=document.createElement('canvas');cvs.width=128;cvs.height=128;const ctx=cvs.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.clearRect(0,0,128,128);const bob=attackStage?(attackStage%2===0?-2:2):0;ctx.translate(bob,0);
+      if(type==='red_eagle'||type==='floor_guardian'){
+        const skin='#b66b3d',armor='#aeb3b3',armorDark='#6f777a',red='#b83c2f',red2='#e85a43',cloth='#5b3b31';
+        ctx.fillStyle=skin;ctx.fillRect(48,28,31,25);ctx.fillStyle=armorDark;ctx.fillRect(44,22,40,11);ctx.fillStyle=armor;ctx.fillRect(49,18,31,9);ctx.fillStyle='#d6d8d5';ctx.fillRect(57,14,18,7);
+        ctx.fillStyle='#f0c59a';ctx.fillRect(56,34,17,13);ctx.fillStyle='#1e1713';ctx.fillRect(60,37,4,4);ctx.fillRect(69,37,4,4);ctx.fillStyle='#7b3b22';ctx.fillRect(64,43,9,4);
+        ctx.fillStyle=cloth;ctx.fillRect(48,51,34,31);ctx.fillStyle=armorDark;ctx.fillRect(55,52,20,24);ctx.fillStyle=armor;ctx.fillRect(59,54,12,19);
+        ctx.fillStyle=red;ctx.beginPath();ctx.moveTo(47,55);ctx.lineTo(21,44);ctx.lineTo(8,56);ctx.lineTo(32,68);ctx.lineTo(46,75);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(81,55);ctx.lineTo(107,44);ctx.lineTo(120,56);ctx.lineTo(96,68);ctx.lineTo(82,75);ctx.closePath();ctx.fill();ctx.fillStyle=red2;ctx.fillRect(18,48,15,5);ctx.fillRect(93,48,15,5);ctx.fillRect(25,58,18,5);ctx.fillRect(85,58,18,5);
+        ctx.fillStyle=skin;ctx.fillRect(38,62,10,27);ctx.fillRect(80,62,10,27);ctx.fillStyle='#6b402b';ctx.fillRect(52,79,10,25);ctx.fillRect(69,79,10,25);ctx.fillStyle='#3b2b24';ctx.fillRect(47,101,19,7);ctx.fillRect(64,101,19,7);ctx.fillStyle=red2;ctx.fillRect(28,37,5,13);ctx.fillRect(91,37,5,13);
+      }else{
+        const skin='#d7b48e',armor='#c9cfd0',dark='#697377',blue='#668fba',blue2='#9ec4df',cloth='#725044';
+        ctx.fillStyle=skin;ctx.fillRect(48,28,31,25);ctx.fillStyle=dark;ctx.fillRect(44,22,40,11);ctx.fillStyle=armor;ctx.fillRect(49,18,31,9);ctx.fillStyle='#eef2f1';ctx.fillRect(57,14,18,7);ctx.fillStyle='#f3d4ae';ctx.fillRect(56,34,17,13);ctx.fillStyle='#1c1b19';ctx.fillRect(60,37,4,4);ctx.fillRect(69,37,4,4);ctx.fillStyle='#76503d';ctx.fillRect(64,43,9,4);
+        ctx.fillStyle=cloth;ctx.fillRect(48,51,34,31);ctx.fillStyle=armor;ctx.fillRect(55,52,20,24);ctx.fillStyle='#e9eded';ctx.fillRect(59,54,12,19);ctx.fillStyle=blue;ctx.beginPath();ctx.moveTo(47,55);ctx.lineTo(22,43);ctx.lineTo(8,55);ctx.lineTo(31,69);ctx.lineTo(46,75);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(81,55);ctx.lineTo(106,43);ctx.lineTo(120,55);ctx.lineTo(97,69);ctx.lineTo(82,75);ctx.closePath();ctx.fill();ctx.fillStyle=blue2;ctx.fillRect(17,48,18,5);ctx.fillRect(92,48,18,5);ctx.fillRect(25,58,17,5);ctx.fillRect(86,58,17,5);ctx.fillStyle=skin;ctx.fillRect(38,62,10,27);ctx.fillRect(80,62,10,27);ctx.fillStyle='#74523d';ctx.fillRect(52,79,10,25);ctx.fillRect(69,79,10,25);ctx.fillStyle='#3a2d28';ctx.fillRect(47,101,19,7);ctx.fillRect(64,101,19,7);ctx.fillStyle='#f4f5ef';ctx.fillRect(27,36,6,15);ctx.fillRect(90,36,6,15);
+      }
+      if(type==='floor_guardian'){ctx.fillStyle='rgba(255,215,90,0.8)';ctx.fillRect(16,16,5,5);ctx.fillRect(106,20,5,5);ctx.fillStyle='#b6372d';ctx.fillRect(31,22,66,9);ctx.fillStyle='#6b8eb4';ctx.fillRect(43,29,42,8);ctx.fillStyle='#e7d9b8';ctx.fillRect(50,38,28,6);}
+      const tex=new THREE.CanvasTexture(cvs);tex.colorSpace=THREE.SRGBColorSpace;tex.magFilter=THREE.NearestFilter;tex.minFilter=THREE.NearestFilter;tex.generateMipmaps=false;return tex;
+    }
+    function buildStage7ShinsuGorge2(isHadum=true){
+      if(!isHadum)return buildStage5DragonPalace(false);clearStageObjects();clearMonsters();currentHadum=true;document.body.style.backgroundColor='#4f8f3c';document.getElementById('stage-badge').innerText='🔥 하둠: 신수협곡 2층 ▾';scene.background=new THREE.Color(0x70ad53);scene.fog=new THREE.Fog(0x6db64f,34,96);
+      const floorG=new THREE.PlaneGeometry(floorSize,floorSize);const floorM=new THREE.MeshLambertMaterial({map:createShinsuGorge2FloorTexture()});floorMesh=new THREE.Mesh(floorG,floorM);floorMesh.rotation.x=-Math.PI/2;floorMesh.receiveShadow=true;scene.add(floorMesh);
+      const bambooTex=createBambooTexture();const bambooPos=[[-28,25,8],[-18,30,7],[-6,31,7],[8,30,7],[20,27,8],[29,20,7],[-30,-22,7],[-20,-28,6],[22,-26,7],[30,-12,7]];bambooPos.forEach(([x,z,s])=>{const b=new THREE.Sprite(new THREE.SpriteMaterial({map:bambooTex,transparent:true}));b.scale.set(s*.7,s*1.4,1);b.position.set(x,s*.7,z);scene.add(b);stageObjects.push(b);});
+      const pathMat=new THREE.MeshBasicMaterial({color:0xb78a5d});const path=new THREE.Mesh(new THREE.PlaneGeometry(18,floorSize*.92),pathMat);path.rotation.x=-Math.PI/2;path.position.set(0,.01,0);scene.add(path);stageObjects.push(path);
+      const count=qualityMode==='high'?125:65;const geo=new THREE.BufferGeometry();const pos=new Float32Array(count*3);for(let i=0;i<count;i++){pos[i*3]=(Math.random()-.5)*68;pos[i*3+1]=Math.random()*8+.5;pos[i*3+2]=(Math.random()-.5)*68;}geo.setAttribute('position',new THREE.BufferAttribute(pos,3));const pts=new THREE.Points(geo,new THREE.PointsMaterial({color:0xe0f4b7,size:.32,transparent:true,opacity:.65,depthWrite:false}));scene.add(pts);stageObjects.push(pts);
+      const types=['red_eagle','white_eagle'];const names={red_eagle:'붉은깃털독수리',white_eagle:'하얀깃털독수리'};const mobCount=40;for(let i=0;i<mobCount;i++){const type=types[i%2];const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createShinsuGorge2MonsterTexture(type,0),transparent:true}));sprite.scale.set(3.7,3.7,1);sprite.position.set((Math.random()-.5)*62,1.85,(Math.random()-.5)*62);scene.add(sprite);const shadow=createShadowDisk(2.9,1.5);monsters.push({id:`monster_${i}`,stageId:7,sprite,shadowDisk:shadow,type:names[type],tier:7,isBoss:false,isHadum:true,hp:HADUM_NORMAL_STATS[7].hp,maxHp:HADUM_NORMAL_STATS[7].hp,goldReward:1050,attackPower:HADUM_NORMAL_STATS[7].atkMin,attackPowerMin:HADUM_NORMAL_STATS[7].atkMin,attackPowerMax:HADUM_NORMAL_STATS[7].atkMax,attackRange:3,attackSpeed:1050,lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});createNametagElement(`monster_${i}`,'',names[type],true);}
+      const bossSprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createShinsuGorge2MonsterTexture('floor_guardian',0),transparent:true}));const bossPos=getRandomBossSpawnPos(26,34);bossSprite.scale.set(9.8,9.8,1);bossSprite.position.set(bossPos.x,4.9,bossPos.z);scene.add(bossSprite);const bossShadow=createShadowDisk(8,4);monsters.push({id:'monster_27',stageId:7,sprite:bossSprite,shadowDisk:bossShadow,type:'신수협곡 2층 수호령',tier:7,isBoss:true,isHadum:true,hp:390000,maxHp:390000,goldReward:30000,attackPower:540,attackRange:5,attackSpeed:880,lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});createNametagElement('monster_27','신수협곡 2층의 수호자','신수협곡 2층 수호령',false,false,true);
+    }
 
     function getExperienceDungeonDailyData() {
       const today = new Date().toISOString().slice(0,10);
@@ -5536,7 +5844,7 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       document.getElementById('stage-modal').style.display = 'block';
       const isJob2Done = playerState.tier === 3;
 
-      ['1', '2', '3', '4', '5'].forEach(sId => {
+      ['1', '2', '3', '4', '5', '6', '7'].forEach(sId => {
         const card = document.getElementById(`stage-card-${sId}`);
         if (card) {
           card.classList.toggle('active', !currentHadum && parseInt(sId) === currentStage);
@@ -5567,6 +5875,8 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       else if (stageNum === 3) buildStage3Baduk(isHadum);
       else if (stageNum === 4) buildStage4IceCastle(isHadum);
       else if (stageNum === 5) buildStage5DragonPalace(isHadum);
+      else if (stageNum === 6) buildStage6ShinsuGorge(isHadum);
+      else if (stageNum === 7) buildStage7ShinsuGorge2(isHadum);
 
       // 스테이지 전환 시 캐릭터를 맵 중앙 스폰 지점으로 되돌린다.
       // (안 그러면 이전 스테이지에서 서 있던 좌표에 그대로 남아, 새 맵의 지형/몬스터와 위치가 어긋나 보인다.)
