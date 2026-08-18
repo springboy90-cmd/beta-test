@@ -9241,19 +9241,7 @@ function mats(){
    playerState.craftingMaterials=playerState.craftingMaterials||{
      iron:0,wood:0,core:0,refined:0,boss:0,divine:0
    };
-   const inv=playerState.craftingMaterials;
-
-   // Legacy/localStorage material data is only used to fill missing/zero fields,
-   // never to overwrite a non-zero live game value.
-   try{
-     const saved=JSON.parse(localStorage.getItem('weaponCraftingMaterials_v2')||'null');
-     if(saved && typeof saved==='object'){
-       for(const k of ['iron','wood','core','refined','boss','divine']){
-         if((Number(inv[k])||0)===0 && Number(saved[k])>0) inv[k]=Number(saved[k]);
-       }
-     }
-   }catch(e){}
-   return inv;
+   return playerState.craftingMaterials;
  }
  return {iron:0,wood:0,core:0,refined:0,boss:0,divine:0};
 }
@@ -9525,6 +9513,7 @@ function open(){
  sync();
  document.getElementById('wc-modal').style.display='flex';
  render();
+ refreshCraftLiveInventory();
 }
 function close(){document.getElementById('wc-modal').style.display='none';}
 
@@ -9534,11 +9523,44 @@ window.getWeaponCraftAttackBonus=function(){
 };
 window.getWeaponCraftState=function(){sync();return st;};
 
+/* 제작창이 열려 있는 동안 게임의 실제 재료/게임머니 변화를 즉시 반영 */
+function refreshCraftLiveInventory(){
+ const modal=document.getElementById('wc-modal');
+ if(!modal || modal.style.display!=='flex' || !window.playerState)return;
+
+ const inv=mats();
+ const materials=document.getElementById('wc-materials');
+ if(materials){
+   materials.innerHTML=
+     `<div class="wc-mat">💰 보유 게임머니 <b>${gold().toLocaleString()} G</b> / 필요 ${RECIPE.gold.toLocaleString()} G</div>`+
+     Object.entries(RECIPE.m).map(([k,v])=>
+       `<div class="wc-mat">${matName(k)} ${Number(inv[k]||0).toLocaleString()} / ${v}</div>`
+     ).join('');
+ }
+
+ const live=document.getElementById('wc-live-inventory');
+ if(live){
+   live.innerHTML='<b style="color:#ffe08a">🎒 현재 보유 재료</b><br>'+
+     '철광석 '+Number(inv.iron||0).toLocaleString()+' · '+
+     '목재 '+Number(inv.wood||0).toLocaleString()+' · '+
+     '강화의 핵 '+Number(inv.core||0).toLocaleString()+' · '+
+     '정제철 '+Number(inv.refined||0).toLocaleString()+' · '+
+     '보스의 혼 '+Number(inv.boss||0).toLocaleString()+' · '+
+     '신수의 결정 '+Number(inv.divine||0).toLocaleString();
+ }
+
+ const craftBtn=document.getElementById('wc-craft');
+ if(craftBtn)craftBtn.disabled=!hasRecipe();
+}
+setInterval(refreshCraftLiveInventory,300);
+
+
 /* 기존 전투 드랍 시스템과 연결: 이 함수는 기존 호출부에서도 사용할 수 있음. */
 window.addWeaponCraftMaterial=function(k,n){
  addMat(k,n);
  saveMaterials();
  render();
+ refreshCraftLiveInventory();
 };
 
 /* 실제 하둠 재료 드랍은 기존 고정 드랍 테이블이 있으면 그것을 사용하도록 유지 */
