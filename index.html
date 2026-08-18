@@ -4867,6 +4867,7 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
     scene.add(targetArrowSprite);
 
     let siriSprite = null;
+    const HERO_MAX_LEVEL = 180;
     let siriFacing = 'front';
     let siriShadow = null;
     const siriState = { level: 1, exp: 0, maxExp: getRequiredExp(1), attackPowerMin: 70, attackPowerMax: 90, attackRange: 9, attackSpeed: 1300, lastAttackTime: 0 };
@@ -8079,9 +8080,9 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       [siriSprite, janggeumSprite, munyeahanaSprite].forEach((heroSprite, index) => {
         if (heroSprite) {
           const heroState = index === 0 ? siriState : (index === 1 ? janggeumState : munyeahanaState);
-          if (heroState.level < 150) {
+          if (heroState.level < HERO_MAX_LEVEL) {
             heroState.exp += exp;
-            while (heroState.level < 150 && heroState.exp >= heroState.maxExp) {
+            while (heroState.level < HERO_MAX_LEVEL && heroState.exp >= heroState.maxExp) {
               heroState.exp -= heroState.maxExp;
               heroState.level++;
               heroState.maxExp = getRequiredExp(heroState.level);
@@ -8393,15 +8394,15 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
 
       if (siriSprite) {
         const el = document.getElementById('hero_lv_hero_siri');
-        if (el) el.innerText = siriState.level >= 100 ? 'Lv.100 (MAX)' : `Lv.${siriState.level}`;
+        if (el) el.innerText = siriState.level >= HERO_MAX_LEVEL ? `Lv.${HERO_MAX_LEVEL} (MAX)` : `Lv.${siriState.level}`;
       }
       if (janggeumSprite) {
         const el = document.getElementById('hero_lv_hero_janggeum');
-        if (el) el.innerText = janggeumState.level >= 100 ? 'Lv.100 (MAX)' : `Lv.${janggeumState.level}`;
+        if (el) el.innerText = janggeumState.level >= HERO_MAX_LEVEL ? `Lv.${HERO_MAX_LEVEL} (MAX)` : `Lv.${janggeumState.level}`;
       }
       if (munyeahanaSprite) {
         const el = document.getElementById('hero_lv_hero_munyeahana');
-        if (el) el.innerText = munyeahanaState.level >= 100 ? 'Lv.100 (MAX)' : `Lv.${munyeahanaState.level}`;
+        if (el) el.innerText = munyeahanaState.level >= HERO_MAX_LEVEL ? `Lv.${HERO_MAX_LEVEL} (MAX)` : `Lv.${munyeahanaState.level}`;
       }
 
       const jobBtn = document.getElementById('btn-job-modal');
