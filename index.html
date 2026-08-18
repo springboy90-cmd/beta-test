@@ -4563,12 +4563,13 @@ window.playerState = playerState;
       const cvs = document.createElement('canvas'); cvs.width = 64; cvs.height = 96;
       const ctx = cvs.getContext('2d');
       ctx.clearRect(0,0,64,96);
-      // 위로 갈수록 좁아지는 불꽃 형태 (그라디언트로 붉은->주황->노랑 코어 표현)
+      // 캐릭터를 가리지 않도록 작은 붉은색 화염 파티클로 표현
+      // 기존 주황/노랑 중심의 큰 화염 대신 진한 레드 계열로 통일한다.
       const g = ctx.createLinearGradient(0,96,0,0);
-      g.addColorStop(0, 'rgba(255,90,20,0.95)');
-      g.addColorStop(0.45, 'rgba(255,150,30,0.85)');
-      g.addColorStop(0.8, 'rgba(255,220,90,0.7)');
-      g.addColorStop(1, 'rgba(255,255,200,0)');
+      g.addColorStop(0, 'rgba(180,20,25,0.78)');
+      g.addColorStop(0.42, 'rgba(235,35,40,0.62)');
+      g.addColorStop(0.72, 'rgba(255,80,65,0.42)');
+      g.addColorStop(1, 'rgba(255,130,110,0)');
       ctx.fillStyle = g;
       ctx.beginPath();
       ctx.moveTo(32,96);
@@ -4592,14 +4593,15 @@ window.playerState = playerState;
       for (let i = 0; i < maxFlameCount; i++) {
         const angle = (i / maxFlameCount) * Math.PI * 2;
         const mat = new THREE.SpriteMaterial({
-          map: fireTex, transparent: true, opacity: 0.85, depthWrite: false, depthTest: false,
+          map: fireTex, transparent: true, opacity: 0.68, depthWrite: false, depthTest: false,
           blending: THREE.AdditiveBlending, toneMapped: false
         });
         const sp = new THREE.Sprite(mat);
-        sp.scale.set(1.1, 1.7, 1);
+        // 기존 크기의 약 45% 수준으로 축소하여 캐릭터 실루엣을 가리지 않게 한다.
+        sp.scale.set(0.50, 0.78, 1);
         sp.renderOrder = 105;
         sp.userData.angle = angle;
-        sp.userData.radius = 1.35;
+        sp.userData.radius = 0.88;
         sp.userData.phase = i * 0.55;
         group.add(sp);
         guardianFireFlames.push(sp);
@@ -4620,7 +4622,7 @@ window.playerState = playerState;
       const t = now * 0.0022;
       const spin = now * 0.0016;
       const enhanceLv = Math.max(0, Math.min(5, getGuardianSetEnhanceLv()));
-      // 기본 2개 + 강화 1회당 2개: 2 → 4 → 6 → 8 → 10 → 10
+      // 화염 개수는 기존 밸런스 유지: 2 → 4 → 6 → 8 → 10 → 10. 크기/색상만 축소·변경.
       const activeFlameCount = Math.min(10, 2 + enhanceLv * 2);
       guardianFireFlames.forEach((sp, i) => {
         const visible = i < activeFlameCount;
@@ -4629,11 +4631,15 @@ window.playerState = playerState;
         // 활성 화염 수에 맞춰 원형 배치도 함께 재계산한다.
         const ang = (i / activeFlameCount) * Math.PI * 2 + spin;
         const r = sp.userData.radius;
-        sp.position.set(Math.cos(ang) * r, 0.9 + Math.sin(t + sp.userData.phase) * 0.35, Math.sin(ang) * r);
-        const flicker = 0.75 + Math.sin(t * 2.4 + sp.userData.phase) * 0.25;
+        sp.position.set(
+          Math.cos(ang) * r,
+          0.82 + Math.sin(t + sp.userData.phase) * 0.22,
+          Math.sin(ang) * r
+        );
+        const flicker = 0.52 + Math.sin(t * 2.4 + sp.userData.phase) * 0.18;
         sp.material.opacity = flicker;
-        const s = 1.0 + Math.sin(t * 2 + sp.userData.phase) * 0.18;
-        sp.scale.set(1.1 * s, 1.7 * s, 1);
+        const s = 0.92 + Math.sin(t * 2 + sp.userData.phase) * 0.10;
+        sp.scale.set(0.50 * s, 0.78 * s, 1);
       });
     }
     ensureGuardianFireAura();
@@ -8185,6 +8191,7 @@ window.playerState = playerState;
           subWeaponLevel: { ...(playerState.subWeaponLevel || {}) },
           subWeaponEquipped: playerState.subWeaponEquipped || '',
           weaponCrafting: playerState.weaponCrafting ? JSON.parse(JSON.stringify(playerState.weaponCrafting)) : null,
+          weaponCraftProficiency: playerState.weaponCraftProficiency ? { xp: Number(playerState.weaponCraftProficiency.xp)||0, level: Math.max(1, Math.min(20, Number(playerState.weaponCraftProficiency.level)||1)) } : { xp:0, level:1 },
           craftingMaterials: playerState.craftingMaterials ? { ...playerState.craftingMaterials } : { iron:0, wood:0, core:0, refined:0, boss:0, divine:0 }
         },
         heroes: {
@@ -8232,6 +8239,13 @@ window.playerState = playerState;
         isLoadingSave = true;
         const p = data.player;
         if (p.weaponCrafting && typeof p.weaponCrafting === 'object') playerState.weaponCrafting = p.weaponCrafting;
+        // 제작 숙련도(Lv.1~20)는 메인 게임 세이브에도 함께 저장/복원한다.
+        if (p.weaponCraftProficiency && typeof p.weaponCraftProficiency === 'object') {
+          playerState.weaponCraftProficiency = {
+            xp: Math.max(0, Number(p.weaponCraftProficiency.xp) || 0),
+            level: Math.max(1, Math.min(20, Number(p.weaponCraftProficiency.level) || 1))
+          };
+        }
         if (p.craftingMaterials && typeof p.craftingMaterials === 'object') playerState.craftingMaterials = { iron:0, wood:0, core:0, refined:0, boss:0, divine:0, ...p.craftingMaterials };
         const numericFields = ['level','maxLevel','tier','hp','maxHp','mp','maxMp','exp','maxExp','gold','talismanLoot','talismanLevel','enhanceCore','baseAttackSpeed','attackSpeed','weaponAtk','defensePower','weaponEnhanceLv','moveSpeed','attackRange','atkSpeedLv','firstSkillLv','martialTrainingLv','shamanStudyLv','dailyCoreBought','jobChangeCount','experienceDungeonTickets'];
         numericFields.forEach(k => { if (p[k] !== undefined && Number.isFinite(Number(p[k]))) playerState[k] = Number(p[k]); });
@@ -9793,10 +9807,26 @@ document.addEventListener('DOMContentLoaded',function(){
   function ensure(){
     if(!window.playerState) return null;
     if(!playerState.weaponCraftProficiency){
-      playerState.weaponCraftProficiency={xp:0,level:1};
+      let saved=null;
+      try{ saved=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){}
+      // 새 세이브에 값이 없더라도 기존 제작 시스템의 숙련도 값을 그대로 이어받는다.
+      // 단, 기존 숙련도는 최대 180이고 이 보조 숙련도는 최대 20이므로 범위만 맞춘다.
+      const legacy=playerState.weaponCrafting;
+      const legacyLevel=legacy && Number(legacy.mastery);
+      if(saved && typeof saved==='object'){
+        playerState.weaponCraftProficiency={
+          xp:Math.max(0,Number(saved.xp)||0),
+          level:Math.max(1,Math.min(20,Number(saved.level)||1))
+        };
+      }else if(Number.isFinite(legacyLevel) && legacyLevel>1){
+        const lv=Math.max(1,Math.min(20,Math.floor(legacyLevel)));
+        playerState.weaponCraftProficiency={xp:0,level:lv};
+      }else{
+        playerState.weaponCraftProficiency={xp:0,level:1};
+      }
     }
     const p=playerState.weaponCraftProficiency;
-    p.xp=Number(p.xp)||0;
+    p.xp=Math.max(0,Number(p.xp)||0);
     p.level=Math.max(1,Math.min(20,Number(p.level)||1));
     return p;
   }
@@ -9832,6 +9862,7 @@ document.addEventListener('DOMContentLoaded',function(){
     p.xp+=Math.max(0,Number(amount)||0);
     while(p.level<20 && p.xp>=XP_TABLE[p.level+1]) p.level++;
     try{localStorage.setItem(KEY,JSON.stringify(p));}catch(e){}
+    try{if(window.playerState && typeof saveGame==='function') saveGame();}catch(e){}
     try{if(typeof renderWeaponCraftProficiency==='function')renderWeaponCraftProficiency();}catch(e){}
   };
 
@@ -9957,13 +9988,22 @@ document.addEventListener('DOMContentLoaded',function(){
   function load(){
     if(!window.playerState)return;
     try{
+      // 메인 세이브에서 이미 복원된 값이 있으면 절대 덮어쓰지 않는다.
+      if(playerState.weaponCraftProficiency && Number(playerState.weaponCraftProficiency.level)>0){
+        const p=playerState.weaponCraftProficiency;
+        localStorage.setItem('weaponCraftProficiency_v1',JSON.stringify({xp:Number(p.xp)||0,level:Math.max(1,Math.min(20,Number(p.level)||1))}));
+        if(typeof renderWeaponCraftProficiency==='function') renderWeaponCraftProficiency();
+        return;
+      }
       const s=JSON.parse(localStorage.getItem('weaponCraftProficiency_v1')||'null');
       if(s && typeof s==='object'){
         playerState.weaponCraftProficiency={
-          xp:Number(s.xp)||0,
+          xp:Math.max(0,Number(s.xp)||0),
           level:Math.max(1,Math.min(20,Number(s.level)||1))
         };
+        try{if(typeof saveGame==='function')saveGame();}catch(e){}
       }
+      if(typeof renderWeaponCraftProficiency==='function') renderWeaponCraftProficiency();
     }catch(e){}
   }
   document.addEventListener('DOMContentLoaded',load);
