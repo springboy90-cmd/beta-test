@@ -4308,7 +4308,7 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       martialTrainingLv: 0, shamanStudyLv: 0,
       dailyCoreBought: 0, dailyResetDate: '',
       jobChangeCount: 0,
-      // 파수꾼셋트: 하둠 보스 전용 드랍(부위별 10%). 4부위(투구/갑옷/장갑/신발)를 모두 갖추면
+      // 파수꾼셋트: 하둠 보스 전용 드랍(하둠1~4 부위별 10%, 하둠5~7 부위별 12%). 4부위(투구/갑옷/장갑/신발)를 모두 갖추면
       // 공격력 +15%, 크리티컬 확률 +8%가 적용되고 캐릭터를 화염이 휘감는 외형이 활성화된다.
       guardianSet: { helm: false, armor: false, gloves: false, boots: false },
       // 파수꾼셋트 중복 수집: 각 부위의 보유 개수를 기록한다.
@@ -8079,9 +8079,9 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       [siriSprite, janggeumSprite, munyeahanaSprite].forEach((heroSprite, index) => {
         if (heroSprite) {
           const heroState = index === 0 ? siriState : (index === 1 ? janggeumState : munyeahanaState);
-          if (heroState.level < 100) {
+          if (heroState.level < 150) {
             heroState.exp += exp;
-            while (heroState.level < 100 && heroState.exp >= heroState.maxExp) {
+            while (heroState.level < 150 && heroState.exp >= heroState.maxExp) {
               heroState.exp -= heroState.maxExp;
               heroState.level++;
               heroState.maxExp = getRequiredExp(heroState.level);
@@ -8162,7 +8162,7 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
 
     function applyHeroSavedState(state, hero) {
       if (!state || !hero) return;
-      hero.level = Math.max(1, Math.min(100, Number(state.level) || 1));
+      hero.level = Math.max(1, Math.min(150, Number(state.level) || 1));
       hero.exp = Math.max(0, Number(state.exp) || 0);
       hero.maxExp = Number(state.maxExp) || getRequiredExp(hero.level);
     }
@@ -8761,7 +8761,7 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
           if (Math.random() < 0.92) {
             rewardGold += 500;
           }
-          if (Math.random() < 0.10) {
+          if (Math.random() < ((target && Number(target.stageId) >= 5 && Number(target.stageId) <= 7) ? 0.12 : 0.10)) {
             rewardGold += 40000;
             showHealText('+40,000 G (보스 보너스!)', target.sprite.position);
           }
@@ -8801,7 +8801,7 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
             }
 
             // 파수꾼셋트: 하둠 보스 처치 시, 유저 캐릭터 레벨 100 이상일 때만
-            // 부위(투구/갑옷/장갑/신발) 각각 독립적으로 10% 확률 드랍.
+            // 부위(투구/갑옷/장갑/신발) 각각 독립 드랍. 하둠 1~4는 10%, 하둠 5~7은 12%.
             // 이미 보유한 부위가 다시 뜨면 중복 획득이 무효화된다(아무 효과 없음, 안내 메시지만 표시).
             if (playerState.level >= 100) {
               Object.keys(GUARDIAN_SET_PIECE_NAMES).forEach((piece, idx) => {
