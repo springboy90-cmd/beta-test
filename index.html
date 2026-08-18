@@ -979,37 +979,7 @@
 </style>
 <style id="weapon-crafting-css">
 #wc-modal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);padding:12px}#wc-panel{width:min(920px,96vw);max-height:92vh;overflow:auto;background:#111923;border:2px solid #c89b52;border-radius:14px;color:#eee;font-family:inherit;box-shadow:0 15px 50px #000}#wc-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #3d4855}#wc-head h2{margin:0;color:#ffd166;font-size:21px}#wc-close{width:38px;height:34px;border:0;border-radius:7px;background:#333;color:#fff;font-size:21px}#wc-body{padding:12px}.wc-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.wc-tab,.wc-grade{border:1px solid #505a66;background:#18212b;color:#ddd;border-radius:8px;padding:8px;cursor:pointer}.wc-tab.active,.wc-grade.active{border-color:#ffd166;background:#302613;color:#ffe08a}.wc-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:10px}.wc-card{background:#0b1118;border:1px solid #394552;border-radius:10px;padding:11px}.wc-grades{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.wc-grade b{display:block}.wc-grade small{font-size:10px;color:#aab4c0}.wc-materials{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:9px}.wc-mat{background:#151d26;border-radius:6px;padding:7px;font-size:12px}.wc-preview{height:170px;display:flex;align-items:center;justify-content:center;position:relative;background:#060a0f;border-radius:8px;overflow:hidden}.wc-icon{font-size:72px}.wc-stats{line-height:1.65;margin-top:8px;font-size:13px}.wc-actions{display:flex;gap:7px;justify-content:center;margin-top:10px;flex-wrap:wrap}.wc-actions button{padding:10px 16px;border:0;border-radius:8px;background:#c9953e;color:#16100a;font-weight:900}.wc-actions button:disabled{opacity:.4}.wc-result{text-align:center;min-height:35px;margin-top:8px;color:#ffe08a;font-weight:800}.wc-history{max-height:110px;overflow:auto;font-size:11px;color:#aeb8c4;margin-top:8px}.wc-help{font-size:11px;color:#8f9aa8;line-height:1.5;margin-top:9px}@media(max-width:700px){.wc-grid{grid-template-columns:1fr}.wc-grades{grid-template-columns:repeat(3,1fr)}}
-</style>
-<style id="wc-mobile-update">
-@media (max-width:600px){
- #wc-modal{padding:4px;align-items:flex-start}
- #wc-panel{width:98vw;max-height:96vh;margin-top:2vh;border-radius:9px}
- #wc-head{padding:7px 9px}
- #wc-head h2{font-size:15px}
- #wc-close{width:30px;height:28px;font-size:18px}
- #wc-body{padding:6px}
- .wc-grid{grid-template-columns:1fr!important;gap:6px!important}
- .wc-card{padding:7px!important}
- .wc-grades{grid-template-columns:repeat(5,1fr)!important;gap:3px!important}
- .wc-grade{padding:5px 1px!important}
- .wc-grade b{font-size:9px!important}.wc-grade small{font-size:7px!important}
- .wc-materials{grid-template-columns:repeat(2,1fr)!important;gap:3px!important}
- .wc-mat{font-size:9px!important;padding:5px!important}
- .wc-actions{gap:4px!important}.wc-actions button{font-size:10px!important;padding:6px 8px!important}
- .wc-preview{min-height:60px!important}.wc-icon{font-size:40px!important}
- .wc-stats{font-size:10px!important;line-height:1.4!important}
- .wc-help,.wc-history{font-size:8px!important}
- .wc-tabs{gap:3px!important}.wc-tab{font-size:10px!important;padding:5px 7px!important}
-}
-#wc-bag-wrap{margin-top:7px}
-#wc-bag-toggle{padding:7px 11px;border:1px solid #66717e;border-radius:7px;background:#18202a;color:#eee;font-weight:800;cursor:pointer}
-#wc-bag-panel{display:none;margin-top:6px;padding:7px;background:#0c1117;border:1px solid #3f4a58;border-radius:8px}
-#wc-bag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
-.wc-bag-item{padding:7px;text-align:center;background:#151c24;border-radius:7px;border:1px solid #3b4652;font-size:11px}
-.wc-bag-item b{display:block;color:#ffe08a;font-size:17px;margin-top:2px}
-@media(max-width:600px){#wc-bag-grid{grid-template-columns:repeat(2,1fr)}.wc-bag-item{font-size:9px;padding:5px}.wc-bag-item b{font-size:14px}}
-</style>
-</head>
+</style></head>
 <body>
 
   <div id="canvas-container"></div>
@@ -4352,11 +4322,11 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       subWeaponOwned: { annihilator: false, judgement: false, gale: false },
       subWeaponLevel: { annihilator: 0, judgement: 0, gale: 0 },
       subWeaponEquipped: ''
-    };
-    // 무기 제작 스크립트(별도 <script> 블록)가 window.playerState로 참조하므로 명시적으로 노출한다.
-    // const/let 최상위 선언은 자동으로 window 프로퍼티가 되지 않기 때문에, 이 누락이 있으면
-    // 제작 재료 드랍/적립이 항상 실패한다(매번 새 임시 객체에만 기록되고 사라짐).
-    window.playerState = playerState;
+    }
+
+// 무기 제작 시스템과 메인 게임의 실제 playerState를 연결
+window.playerState = playerState;
+;
 
     function getCritChance() {
       let chance = talismanTable[playerState.talismanLevel].crit;
@@ -8116,9 +8086,9 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       [siriSprite, janggeumSprite, munyeahanaSprite].forEach((heroSprite, index) => {
         if (heroSprite) {
           const heroState = index === 0 ? siriState : (index === 1 ? janggeumState : munyeahanaState);
-          if (heroState.level < 180) {
+          if (heroState.level < 150) {
             heroState.exp += exp;
-            while (heroState.level < 180 && heroState.exp >= heroState.maxExp) {
+            while (heroState.level < 150 && heroState.exp >= heroState.maxExp) {
               heroState.exp -= heroState.maxExp;
               heroState.level++;
               heroState.maxExp = getRequiredExp(heroState.level);
@@ -8434,15 +8404,15 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
 
       if (siriSprite) {
         const el = document.getElementById('hero_lv_hero_siri');
-        if (el) el.innerText = siriState.level >= 180 ? 'Lv.180 (MAX)' : `Lv.${siriState.level}`;
+        if (el) el.innerText = siriState.level >= 100 ? 'Lv.100 (MAX)' : `Lv.${siriState.level}`;
       }
       if (janggeumSprite) {
         const el = document.getElementById('hero_lv_hero_janggeum');
-        if (el) el.innerText = janggeumState.level >= 180 ? 'Lv.180 (MAX)' : `Lv.${janggeumState.level}`;
+        if (el) el.innerText = janggeumState.level >= 100 ? 'Lv.100 (MAX)' : `Lv.${janggeumState.level}`;
       }
       if (munyeahanaSprite) {
         const el = document.getElementById('hero_lv_hero_munyeahana');
-        if (el) el.innerText = munyeahanaState.level >= 180 ? 'Lv.180 (MAX)' : `Lv.${munyeahanaState.level}`;
+        if (el) el.innerText = munyeahanaState.level >= 100 ? 'Lv.100 (MAX)' : `Lv.${munyeahanaState.level}`;
       }
 
       const jobBtn = document.getElementById('btn-job-modal');
@@ -8787,6 +8757,13 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       showDamageText(finalDmg, target.sprite.position, isCrit);
 
       if (target.hp <= 0) {
+
+      if(!target.__weaponCraftDropGiven){
+        target.__weaponCraftDropGiven=true;
+        if(typeof addWeaponCraftDrop==='function')
+          addWeaponCraftDrop(target.stageId,!!target.isBoss,target);
+      }
+
         target.alive = false;
         scene.remove(target.sprite);
         if (target.shadowDisk) scene.remove(target.shadowDisk);
@@ -9153,65 +9130,402 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       updateSkillCooldownOverlays();
     }, 100);
 </script>
-<div id="wc-modal"><div id="wc-panel"><div id="wc-head"><h2>⚒️ 무기 제작소</h2><button id="wc-close" type="button">×</button></div><div id="wc-body"><div class="wc-tabs"><button class="wc-tab active" data-wc-class="검사">⚔ 검사·검성</button><button class="wc-tab" data-wc-class="주술사">🔮 주술사·대도사</button></div><div class="wc-grid"><div class="wc-card"><div style="color:#ffe08a;font-weight:800">제작 등급</div><div id="wc-grades" class="wc-grades"></div><div id="wc-result" class="wc-result"></div><div style="color:#ffe08a;font-weight:800;margin-top:8px">필요 재료</div><div id="wc-materials" class="wc-materials"></div><div class="wc-actions"><button id="wc-craft" type="button">무기 제작</button><button id="wc-upgrade" type="button">강화 +1</button></div><div id="wc-bag-wrap"><button id="wc-bag-toggle" type="button">🎒 제작 재료 가방</button><div id="wc-bag-panel"><div id="wc-bag-grid"></div></div></div><div class="wc-help">제작은 선택 등급을 목표로 하되 결과 등급이 랜덤으로 결정됩니다. 제작 숙련도가 높을수록 상위 등급 확률이 상승합니다. 명품 제작은 숙련도 Lv.30부터 가능합니다. 제작무기 강화는 최대 +10입니다.</div></div><div class="wc-card"><div style="color:#ffe08a;font-weight:800">제작무기</div><div id="wc-preview" class="wc-preview"><span id="wc-icon" class="wc-icon">🗡️</span></div><div id="wc-stats" class="wc-stats"></div><div id="wc-history" class="wc-history"></div></div></div></div></div></div><script id="weapon-crafting-js">
+<div id="wc-modal"><div id="wc-panel"><div id="wc-head"><h2>⚒️ 무기 제작소</h2><button id="wc-close" type="button">×</button></div><div id="wc-body"><div class="wc-tabs"><button class="wc-tab active" data-wc-class="검사">⚔ 검사·검성</button><button class="wc-tab" data-wc-class="주술사">🔮 주술사·대도사</button></div><div class="wc-grid"><div class="wc-card"><div style="color:#ffe08a;font-weight:800">제작 결과 확률</div><div id="wc-grades" class="wc-grades"></div><div id="wc-result" class="wc-result"></div><div style="color:#ffe08a;font-weight:800;margin-top:8px">필요 재료</div><div id="wc-materials" class="wc-materials"></div><div id="wc-live-inventory" style="margin-top:7px;padding:7px 8px;border:1px solid rgba(255,224,138,.25);border-radius:7px;font-size:12px;color:#ddd">현재 보유 재료를 불러오는 중...</div><div class="wc-actions"><button id="wc-craft" type="button">⚒️ 무기 제작</button><button id="wc-dismantle" type="button">♻️ 무기 해체</button><button id="wc-upgrade" type="button">강화 +1</button></div><div class="wc-help">모든 등급은 동일한 제작 재료로 제작되며, 제작 시 일반~명품 중 하나가 확률적으로 결정됩니다. 제작 숙련도가 높아질수록 상위 등급 확률이 조금씩 상승합니다. 마음에 들지 않는 무기는 해체하여 제작 재료의 일부를 다시 획득할 수 있습니다.</div></div><div class="wc-card"><div style="color:#ffe08a;font-weight:800">제작무기</div><div id="wc-preview" class="wc-preview"><span id="wc-icon" class="wc-icon">🗡️</span></div><div id="wc-stats" class="wc-stats"></div><div id="wc-history" class="wc-history"></div></div></div></div></div></div><script id="weapon-crafting-js">
 (function(){
 'use strict';
-const KEY='weaponCrafting_v1', MAX=10;
+const KEY='weaponCrafting_v2', MAX=10;
+
+/* 모든 등급이 동일한 하나의 제작 레시피를 사용 */
+const RECIPE={
+  gold:200000,
+  m:{iron:60,wood:30,core:15,refined:8,boss:2},
+  masteryMin:1
+};
+
 const G={
- normal:{n:'일반',atk:100,cost:20000,min:1,m:{iron:20,wood:10},c:'#d8d8d8',i:{검사:'🗡️',주술사:'🪄'}},
- high:{n:'고급',atk:180,cost:50000,min:1,m:{iron:40,core:5},c:'#9fd3ff',i:{검사:'⚔️',주술사:'🔮'}},
- new:{n:'신품',atk:300,cost:100000,min:5,m:{refined:30,core:15,boss:3},c:'#b28cff',i:{검사:'🔥',주술사:'🟣'}},
- fine:{n:'호품',atk:450,cost:250000,min:15,m:{refined:60,core:30,boss:10},c:'#ff9c52',i:{검사:'🔥',주술사:'☄️'}},
- masterpiece:{n:'명품',atk:650,cost:500000,min:30,m:{divine:10,core:50,boss:20},c:'#ffe66d',i:{검사:'⚡',주술사:'🌌'}}
+ normal:{n:'일반',atk:100,cost:0,c:'#d8d8d8',i:{검사:'🗡️',주술사:'🪄'}},
+ high:{n:'고급',atk:180,cost:0,c:'#9fd3ff',i:{검사:'⚔️',주술사:'🔮'}},
+ new:{n:'신품',atk:300,cost:0,c:'#b28cff',i:{검사:'🔥',주술사:'🟣'}},
+ fine:{n:'호품',atk:450,cost:0,c:'#ff9c52',i:{검사:'🔥',주술사:'☄️'}},
+ masterpiece:{n:'명품',atk:650,cost:0,c:'#ffe66d',i:{검사:'⚡',주술사:'🌌'}}
 };
-const N={검사:{normal:'철검',high:'은빛검',new:'화염검',fine:'적염검',masterpiece:'신수검'},주술사:{normal:'마력봉',high:'청옥지팡이',new:'자색마력봉',fine:'흑염마력봉',masterpiece:'천뢰마봉'}};
-let st={class:'검사',sel:'normal',mastery:1,exp:0,weapon:null,hist:[]};
+
+const N={
+ 검사:{normal:'철검',high:'은빛검',new:'화염검',fine:'적염검',masterpiece:'신수검'},
+ 주술사:{normal:'마력봉',high:'청옥지팡이',new:'자색마력봉',fine:'흑염마력봉',masterpiece:'천뢰마봉'}
+};
+
+const BASE={normal:.50,high:.30,new:.14,fine:.05,masterpiece:.01};
+
+let st={
+ class:'검사',
+ mastery:1,
+ exp:0,
+ weapon:null,
+ hist:[]
+};
+
 function sync(){
- try{if(window.playerState){playerState.weaponCrafting=playerState.weaponCrafting||st;st=Object.assign(st,playerState.weaponCrafting);playerState.craftingMaterials=playerState.craftingMaterials||{iron:0,wood:0,core:0,refined:0,boss:0,divine:0};}else{st=Object.assign(st,JSON.parse(localStorage.getItem(KEY)||'{}'));}}catch(e){}
- st.mastery=Math.max(1,Number(st.mastery)||1);st.exp=Math.max(0,Number(st.exp)||0);st.hist=Array.isArray(st.hist)?st.hist:[];
+ try{
+   if(window.playerState){
+     playerState.weaponCrafting=playerState.weaponCrafting||{};
+     st=Object.assign(st,playerState.weaponCrafting);
+     playerState.craftingMaterials=playerState.craftingMaterials||{
+       iron:0,wood:0,core:0,refined:0,boss:0,divine:0
+     };
+   }else{
+     st=Object.assign(st,JSON.parse(localStorage.getItem(KEY)||'{}'));
+   }
+ }catch(e){}
+ st.mastery=Math.max(1,Number(st.mastery)||1);
+ st.exp=Math.max(0,Number(st.exp)||0);
+ st.hist=Array.isArray(st.hist)?st.hist:[];
 }
-function save(){if(window.playerState){playerState.weaponCrafting=st;try{if(typeof saveGame==='function')saveGame();}catch(e){}}try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
-function mats(){return window.playerState?(playerState.craftingMaterials=playerState.craftingMaterials||{iron:0,wood:0,core:0,refined:0,boss:0,divine:0}):{iron:0,wood:0,core:0,refined:0,boss:0,divine:0};}
+
+function save(){
+ if(window.playerState){
+   playerState.weaponCrafting=st;
+   try{if(typeof saveGame==='function')saveGame();}catch(e){}
+ }
+ try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}
+}
+
+function mats(){
+ if(window.playerState){
+   playerState.craftingMaterials=playerState.craftingMaterials||{
+     iron:0,wood:0,core:0,refined:0,boss:0,divine:0
+   };
+   const inv=playerState.craftingMaterials;
+
+   // Legacy/localStorage material data is only used to fill missing/zero fields,
+   // never to overwrite a non-zero live game value.
+   try{
+     const saved=JSON.parse(localStorage.getItem('weaponCraftingMaterials_v2')||'null');
+     if(saved && typeof saved==='object'){
+       for(const k of ['iron','wood','core','refined','boss','divine']){
+         if((Number(inv[k])||0)===0 && Number(saved[k])>0) inv[k]=Number(saved[k]);
+       }
+     }
+   }catch(e){}
+   return inv;
+ }
+ return {iron:0,wood:0,core:0,refined:0,boss:0,divine:0};
+}
+
 function gold(){return Number(window.playerState?.gold||0);}
-function spend(x){if(!window.playerState||gold()<x)return false;playerState.gold-=x;return true;}
-function matName(k){return({iron:'철광석',wood:'목재',core:'강화의 핵',refined:'정제철',boss:'보스의 혼',divine:'신수의 결정'})[k]||k}
-function rates(){let r={normal:.20,high:.35,new:.30,fine:.14,masterpiece:.01},m=st.mastery;r.high+=Math.min(.08,Math.max(0,m-1)*.003);r.new+=Math.min(.08,Math.max(0,m-5)*.0025);r.fine+=Math.min(.08,Math.max(0,m-10)*.002);r.masterpiece+=Math.min(.05,Math.max(0,m-20)*.002);let z=Object.values(r).reduce((a,b)=>a+b,0);Object.keys(r).forEach(k=>r[k]/=z);return r}
-function roll(target){let r=rates(),order=['normal','high','new','fine','masterpiece'],boost={normal:.1,high:.2,new:.35,fine:.5,masterpiece:.8}[target]||0,total=0;for(const k of order)total+=r[k]*(k===target?1+boost:1);let x=Math.random()*total;for(const k of order){x-=r[k]*(k===target?1+boost:1);if(x<=0)return k}return'normal'}
-function can(){let g=G[st.sel],inv=mats();return st.mastery>=g.min&&gold()>=g.cost&&Object.entries(g.m).every(([k,v])=>(inv[k]||0)>=v)}
-function result(t){let e=document.getElementById('wc-result');if(e)e.textContent=t}
-function craft(){let g=G[st.sel],inv=mats();if(!can()){result('재료·게임머니·숙련도 부족');return}Object.entries(g.m).forEach(([k,v])=>inv[k]-=v);if(!spend(g.cost))return;let q=roll(st.sel),rg=G[q];st.weapon={class:st.class,grade:q,name:N[st.class][q],atk:rg.atk,enhance:0};st.exp++;while(st.mastery<30&&st.exp>=st.mastery*100){st.exp-=st.mastery*100;st.mastery++}st.hist.unshift(`⚒ ${st.weapon.name} [${rg.n}] 제작 · 숙련 Lv.${st.mastery}`);st.hist=st.hist.slice(0,12);render();save();if(typeof updateCraftWeaponVisual==='function')updateCraftWeaponVisual()}
-function upgrade(){if(!st.weapon){result('먼저 제작무기를 만들어 주세요.');return}if(st.weapon.enhance>=MAX){result('+10 MAX');return}let cost=30000+st.weapon.enhance*25000;if(!spend(cost)){result(`${cost.toLocaleString()}G 필요`);return}let rate=st.weapon.enhance<5?.95:st.weapon.enhance<8?.75:.55;if(Math.random()<rate){st.weapon.enhance++;st.weapon.atk+=60+st.weapon.enhance*10;st.hist.unshift(`⚔ ${st.weapon.name} +${st.weapon.enhance} 성공`)}else st.hist.unshift(`강화 실패 · +${st.weapon.enhance}`);st.hist=st.hist.slice(0,12);render();save();if(typeof updateCraftWeaponVisual==='function')updateCraftWeaponVisual()}
-function render(){let r=document.getElementById('wc-grades');if(!r)return;r.innerHTML=Object.entries(G).map(([k,g])=>`<button type="button" class="wc-grade ${st.sel===k?'active':''}" data-wc-grade="${k}"><b>${g.n}</b><small>ATK +${g.atk}<br>숙련 Lv.${g.min}+</small></button>`).join('');let g=G[st.sel],inv=mats();document.getElementById('wc-materials').innerHTML=`<div class="wc-mat">💰 ${gold().toLocaleString()}G / ${g.cost.toLocaleString()}G</div>`+Object.entries(g.m).map(([k,v])=>`<div class="wc-mat">${matName(k)} ${inv[k]||0} / ${v}</div>`).join('');let w=st.weapon;document.getElementById('wc-stats').innerHTML=`제작 숙련도 <b>Lv.${st.mastery}/30</b> · EXP ${st.exp}/${st.mastery*100}<br>`+(w?`<span style="color:${G[w.grade].c}"><b>${w.name} [${G[w.grade].n}] +${w.enhance}</b></span><br>공격력 +${w.atk}`:'제작무기 없음');document.getElementById('wc-icon').textContent=w?G[w.grade].i[w.class]:G[st.sel].i[st.class];document.getElementById('wc-icon').style.color=w?G[w.grade].c:G[st.sel].c;document.getElementById('wc-history').innerHTML=st.hist.map(x=>`<div>${x}</div>`).join('');document.getElementById('wc-craft').disabled=!can();document.getElementById('wc-upgrade').disabled=!w||w.enhance>=MAX;renderCraftingBag();document.querySelectorAll('.wc-tab').forEach(x=>x.classList.toggle('active',x.dataset.wcClass===st.class))}
-function open(){sync();document.getElementById('wc-modal').style.display='flex';render();renderCraftingBag()}
-function close(){document.getElementById('wc-modal').style.display='none'}
-window.openWeaponCrafting=open;window.addWeaponCraftMaterial=function(k,n){let inv=mats();inv[k]=(inv[k]||0)+Number(n||0);save();render()};window.getWeaponCraftAttackBonus=function(){return st.weapon?Number(st.weapon.atk)||0:0};window.getWeaponCraftState=()=>st;
-window.WC_MATERIAL_DROP_TABLE={
-  1:{iron:.18,wood:.12,core:.015,refined:0,boss:0,divine:0},
-  2:{iron:.22,wood:.15,core:.025,refined:.005,boss:0,divine:0},
-  3:{iron:.20,wood:.12,core:.040,refined:.020,boss:.005,divine:0},
-  4:{iron:.18,wood:.10,core:.055,refined:.035,boss:.010,divine:0},
-  5:{iron:.14,wood:.08,core:.070,refined:.060,boss:.018,divine:.002},
-  6:{iron:.10,wood:.06,core:.085,refined:.085,boss:.030,divine:.008},
-  7:{iron:.08,wood:.04,core:.100,refined:.110,boss:.045,divine:.018}
+function spend(x){
+ if(!window.playerState||gold()<x)return false;
+ playerState.gold-=x;
+ return true;
+}
+function matName(k){
+ return({iron:'철광석',wood:'목재',core:'강화의 핵',refined:'정제철',boss:'보스의 혼',divine:'신수의 결정'})[k]||k;
+}
+function addMat(k,n){
+ const inv=mats();
+ inv[k]=(Number(inv[k])||0)+Math.max(0,Math.floor(n));
+}
+function hasRecipe(){
+ const inv=mats();
+ return st.mastery>=RECIPE.masteryMin &&
+        gold()>=RECIPE.gold &&
+        Object.entries(RECIPE.m).every(([k,v])=>(Number(inv[k])||0)>=v);
+}
+function deductRecipe(){
+ const inv=mats();
+ Object.entries(RECIPE.m).forEach(([k,v])=>inv[k]-=v);
+}
+function saveMaterials(){
+ try{
+   const inv=mats();
+   localStorage.setItem('weaponCraftingMaterials_v2',JSON.stringify(inv));
+ }catch(e){}
+ if(typeof renderCraftingBag==='function'){
+   try{renderCraftingBag();}catch(e){}
+ }
+ try{render();}catch(e){}
+}
+
+/* 숙련도에 따라 상위 등급으로 아주 조금씩 보정 */
+function rates(){
+ const m=Math.max(1,Number(st.mastery)||1);
+ let r=Object.assign({},BASE);
+
+ // Lv.1 기준: 50 / 30 / 14 / 5 / 1
+ // Lv.180까지 과도하게 명품이 쏟아지지 않도록 완만하게 증가
+ const highBoost=Math.min(.06,Math.max(0,m-1)*.00045);
+ const newBoost=Math.min(.04,Math.max(0,m-10)*.00030);
+ const fineBoost=Math.min(.025,Math.max(0,m-30)*.00018);
+ const masterBoost=Math.min(.015,Math.max(0,m-60)*.00012);
+
+ r.high+=highBoost;
+ r.new+=newBoost;
+ r.fine+=fineBoost;
+ r.masterpiece+=masterBoost;
+
+ r.normal=Math.max(.05,r.normal-(highBoost+newBoost+fineBoost+masterBoost)*.55);
+ r.high=Math.max(.01,r.high);
+ r.new=Math.max(.01,r.new);
+ r.fine=Math.max(.005,r.fine);
+
+ let z=Object.values(r).reduce((a,b)=>a+b,0);
+ Object.keys(r).forEach(k=>r[k]/=z);
+ return r;
+}
+
+function rateText(){
+ const r=rates();
+ return Object.entries(r).map(([k,v])=>
+   `<span style="color:${G[k].c};font-weight:800">${G[k].n} ${(v*100).toFixed(1)}%</span>`
+ ).join(' · ');
+}
+
+function roll(){
+ const r=rates();
+ let x=Math.random(),sum=0;
+ for(const k of ['normal','high','new','fine','masterpiece']){
+   sum+=r[k];
+   if(x<sum)return k;
+ }
+ return 'normal';
+}
+
+function result(t){
+ const e=document.getElementById('wc-result');
+ if(e)e.innerHTML=t;
+}
+
+function gainMastery(){
+ st.exp++;
+ while(st.mastery<180 && st.exp>=st.mastery*100){
+   st.exp-=st.mastery*100;
+   st.mastery++;
+ }
+}
+
+function craft(){
+ sync();
+ if(!hasRecipe()){
+   result('❌ 제작 재료, 게임머니 또는 숙련도가 부족합니다.');
+   render();
+   return;
+ }
+
+ deductRecipe();
+ if(!spend(RECIPE.gold)){
+   // 안전 복구
+   Object.entries(RECIPE.m).forEach(([k,v])=>addMat(k,v));
+   result('❌ 게임머니가 부족합니다.');
+   saveMaterials(); render(); return;
+ }
+
+ const q=roll();
+ const rg=G[q];
+
+ st.weapon={
+   class:st.class,
+   grade:q,
+   name:N[st.class][q],
+   atk:rg.atk,
+   enhance:0
+ };
+
+ gainMastery();
+
+ st.hist.unshift(
+   `⚒ ${st.weapon.name} [${rg.n}] 제작 성공 · 숙련 Lv.${st.mastery}`
+ );
+ st.hist=st.hist.slice(0,12);
+
+ result(
+   `✨ <b style="color:${rg.c}">${rg.n} ${st.weapon.name}</b>이(가) 제작되었습니다!`
+ );
+ saveMaterials();
+ save();
+ render();
+ if(typeof updateCraftWeaponVisual==='function')updateCraftWeaponVisual();
+}
+
+function dismantle(){
+ sync();
+ const w=st.weapon;
+ if(!w){
+   result('❌ 현재 해체할 제작무기가 없습니다.');
+   return;
+ }
+
+ const refund={
+   normal:.95,
+   high:.90,
+   new:.85,
+   fine:.80,
+   masterpiece:.75
+ }[w.grade]||.8;
+
+ Object.entries(RECIPE.m).forEach(([k,v])=>{
+   addMat(k,Math.floor(v*refund));
+ });
+
+ const gradeName=G[w.grade]?.n||w.grade;
+ st.hist.unshift(
+   `♻ ${w.name} [${gradeName}] 해체 · 제작재료 ${(refund*100).toFixed(0)}% 환급`
+ );
+ st.hist=st.hist.slice(0,12);
+
+ st.weapon=null;
+ result(`♻️ <b>${gradeName} ${N[st.class][w.grade]}</b>을 해체했습니다. 제작 재료의 <b>${Math.round(refund*100)}%</b>를 돌려받았습니다.`);
+ saveMaterials();
+ save();
+ render();
+ if(typeof updateCraftWeaponVisual==='function')updateCraftWeaponVisual();
+}
+
+function upgrade(){
+ sync();
+ if(!st.weapon){
+   result('먼저 제작무기를 만들어 주세요.');
+   return;
+ }
+ if(st.weapon.enhance>=MAX){
+   result('+10 MAX');
+   return;
+ }
+
+ const cost=30000+st.weapon.enhance*25000;
+ if(!spend(cost)){
+   result(`${cost.toLocaleString()}G 필요`);
+   return;
+ }
+
+ const rate=st.weapon.enhance<5?.95:st.weapon.enhance<8?.75:.55;
+ if(Math.random()<rate){
+   st.weapon.enhance++;
+   st.weapon.atk+=60+st.weapon.enhance*10;
+   st.hist.unshift(`⚔ ${st.weapon.name} +${st.weapon.enhance} 성공`);
+   result(`⚔️ 강화 성공! <b>+${st.weapon.enhance}</b>`);
+ }else{
+   st.hist.unshift(`강화 실패 · +${st.weapon.enhance}`);
+   result(`강화 실패 · 현재 +${st.weapon.enhance} 유지`);
+ }
+ st.hist=st.hist.slice(0,12);
+ save();render();
+ if(typeof updateCraftWeaponVisual==='function')updateCraftWeaponVisual();
+}
+
+function render(){
+ const r=document.getElementById('wc-grades');
+ if(!r)return;
+
+ const rt=rates();
+ r.innerHTML=Object.entries(G).map(([k,g])=>
+   `<div class="wc-grade" style="cursor:default;border-color:${g.c}">
+      <b style="color:${g.c}">${g.n}</b>
+      <small>${(rt[k]*100).toFixed(1)}% · ATK +${g.atk}</small>
+    </div>`
+ ).join('');
+
+ const inv=mats();
+
+ const live=document.getElementById('wc-live-inventory');
+ if(live){
+   live.innerHTML='<b style="color:#ffe08a">🎒 현재 보유 재료</b><br>'+
+     '철광석 '+Number(inv.iron||0).toLocaleString()+' · '+
+     '목재 '+Number(inv.wood||0).toLocaleString()+' · '+
+     '강화의 핵 '+Number(inv.core||0).toLocaleString()+' · '+
+     '정제철 '+Number(inv.refined||0).toLocaleString()+' · '+
+     '보스의 혼 '+Number(inv.boss||0).toLocaleString()+' · '+
+     '신수의 결정 '+Number(inv.divine||0).toLocaleString();
+ }
+
+ document.getElementById('wc-materials').innerHTML=
+   `<div class="wc-mat">💰 보유 게임머니 <b>${gold().toLocaleString()} G</b> / 필요 ${RECIPE.gold.toLocaleString()} G</div>`+
+   Object.entries(RECIPE.m).map(([k,v])=>
+     `<div class="wc-mat">${matName(k)} ${Number(inv[k]||0).toLocaleString()} / ${v}</div>`
+   ).join('');
+
+ const w=st.weapon;
+
+ document.getElementById('wc-stats').innerHTML=
+   `제작 숙련도 <b>Lv.${st.mastery}/180</b> · EXP ${st.exp}/${st.mastery*100}<br>`+
+   `<div style="margin-top:6px;font-size:.9em">현재 제작 확률: ${rateText()}</div>`+
+   (w?
+     `<div style="margin-top:8px">
+       <span style="color:${G[w.grade].c}">
+         <b>${w.name} [${G[w.grade].n}] +${w.enhance}</b>
+       </span><br>
+       공격력 +${w.atk}
+      </div>`
+     :'제작무기 없음');
+
+ document.getElementById('wc-icon').textContent=
+   w?G[w.grade].i[w.class]:G.normal.i[st.class];
+ document.getElementById('wc-icon').style.color=
+   w?G[w.grade].c:G.normal.c;
+
+ document.getElementById('wc-history').innerHTML=
+   st.hist.map(x=>`<div>${x}</div>`).join('');
+
+ document.getElementById('wc-craft').disabled=!hasRecipe();
+ const d=document.getElementById('wc-dismantle');
+ if(d)d.disabled=!w;
+ document.getElementById('wc-upgrade').disabled=!w||w.enhance>=MAX;
+
+ document.querySelectorAll('.wc-tab').forEach(x=>
+   x.classList.toggle('active',x.dataset.wcClass===st.class)
+ );
+}
+
+function open(){
+ sync();
+ document.getElementById('wc-modal').style.display='flex';
+ render();
+}
+function close(){document.getElementById('wc-modal').style.display='none';}
+
+window.openWeaponCrafting=open;
+window.getWeaponCraftAttackBonus=function(){
+ return st.weapon?Number(st.weapon.atk)||0:0;
 };
-window.addWeaponCraftDrop=function(stage,boss){
-  let s=Math.max(1,Math.min(7,Number(stage)||1)),t=window.WC_MATERIAL_DROP_TABLE[s],inv=mats();
-  Object.entries(t).forEach(([k,ch])=>{
-    let chance=ch;
-    if((k==='boss'||k==='divine')&&!boss) chance*=0.08;
-    if(Math.random()<chance) inv[k]=(Number(inv[k])||0)+1;
-  });
-  if(window.playerState) playerState.craftingMaterials=inv;
-  save();
-  if(typeof renderCraftingBag==='function') renderCraftingBag();
+window.getWeaponCraftState=function(){sync();return st;};
+
+/* 기존 전투 드랍 시스템과 연결: 이 함수는 기존 호출부에서도 사용할 수 있음. */
+window.addWeaponCraftMaterial=function(k,n){
+ addMat(k,n);
+ saveMaterials();
+ render();
 };
-window.renderCraftingBag=function(){
-  const grid=document.getElementById('wc-bag-grid');if(!grid)return;
-  const inv=mats(),labels={iron:'⛏️ 철광석',wood:'🪵 목재',core:'💠 강화의 핵',refined:'🔩 정제철',boss:'👹 보스의 혼',divine:'💎 신수의 결정'};
-  grid.innerHTML=Object.entries(labels).map(([k,n])=>`<div class="wc-bag-item">${n}<b>${Number(inv[k])||0}개</b></div>`).join('');
-};
-document.addEventListener('click',e=>{let b=e.target.closest('[data-wc-grade]');if(b){st.sel=b.dataset.wcGrade;render()}let t=e.target.closest('[data-wc-class]');if(t){st.class=t.dataset.wcClass;render()}if(e.target.id==='wc-close')close();if(e.target.id==='wc-craft')craft();if(e.target.id==='wc-upgrade')upgrade();if(e.target.id==='wc-bag-toggle'){let p=document.getElementById('wc-bag-panel');if(p){p.style.display=p.style.display==='block'?'none':'block';renderCraftingBag();}}});
-window.addEventListener('load',()=>{sync();let b=document.createElement('button');b.type='button';b.id='openWeaponCraftBtn';b.textContent='⚒️ 무기 제작';b.onclick=open;let a=[...document.querySelectorAll('button')].find(x=>/상점|사냥터|서고|스킬/.test(x.textContent||''));if(a?.parentElement)a.parentElement.appendChild(b);else{b.style.cssText='position:fixed;right:12px;bottom:12px;z-index:9998';document.body.appendChild(b)}});
+
+/* 실제 하둠 재료 드랍은 기존 고정 드랍 테이블이 있으면 그것을 사용하도록 유지 */
+document.addEventListener('click',e=>{
+ const b=e.target.closest('[data-wc-class]');
+ if(b){
+   st.class=b.dataset.wcClass;
+   save();
+   render();
+ }
+ if(e.target.id==='wc-close')close();
+ if(e.target.id==='wc-craft')craft();
+ if(e.target.id==='wc-dismantle')dismantle();
+ if(e.target.id==='wc-upgrade')upgrade();
+});
+
+window.addEventListener('load',()=>{
+ sync();
+ const b=document.getElementById('openWeaponCraftBtn');
+ if(!b){
+   const nb=document.createElement('button');
+   nb.type='button';
+   nb.id='openWeaponCraftBtn';
+   nb.textContent='⚒️ 무기 제작';
+   nb.onclick=open;
+   const a=[...document.querySelectorAll('button')].find(x=>/상점|사냥터|서고|스킬/.test(x.textContent||''));
+   if(a?.parentElement)a.parentElement.appendChild(nb);
+   else{
+     nb.style.cssText='position:fixed;right:12px;bottom:12px;z-index:9998';
+     document.body.appendChild(nb);
+   }
+ }else b.onclick=open;
+});
 })();
 </script><script>window.addEventListener('load',()=>{setTimeout(()=>{if(typeof updateCraftWeaponVisual==='function')updateCraftWeaponVisual()},100);});</script><script id="weapon-crafting-visual-js">
 (function(){
@@ -9230,4 +9544,359 @@ window.addEventListener('load',()=>{sync();let b=document.createElement('button'
  function sync(){if(!spr||!window.playerSprite)return;spr.position.copy(playerSprite.position);spr.position.x += (playerFacing==='back'?-0.8:0.8);spr.position.y += 0.15;spr.renderOrder=20;}
  window.addEventListener('load',()=>setInterval(sync,80));
 })();
-</script></body>
+</script>
+
+<script id="wc-real-material-drops-fixed">
+(function(){
+const T={
+1:{iron:.25,wood:.18,core:.03,refined:0,boss:0,divine:0},
+2:{iron:.23,wood:.16,core:.04,refined:.01,boss:0,divine:0},
+3:{iron:.20,wood:.14,core:.055,refined:.03,boss:.005,divine:0},
+4:{iron:.17,wood:.11,core:.07,refined:.05,boss:.012,divine:0},
+5:{iron:.14,wood:.09,core:.09,refined:.08,boss:.025,divine:.004},
+6:{iron:.12,wood:.07,core:.105,refined:.11,boss:.04,divine:.012},
+7:{iron:.10,wood:.05,core:.12,refined:.15,boss:.05,divine:.025}};
+const N={iron:'철광석',wood:'목재',core:'강화의 핵',refined:'정제철',boss:'보스의 혼',divine:'신수의 결정'};
+window.WC_MATERIAL_DROP_TABLE=T;
+window.addWeaponCraftDrop=function(stageId,isBoss,monster){
+ if(!window.playerState)return[];
+ window.playerState.craftingMaterials=window.playerState.craftingMaterials||{iron:0,wood:0,core:0,refined:0,boss:0,divine:0};
+ let s=Number(stageId);
+ if(!(s>=1&&s<=7)&&monster){
+   s=Number(monster.stageId??monster.stage);
+   if(!(s>=1&&s<=7)){
+     const m=String(monster.stageName??monster.area??monster.map??monster.name??'').match(/(?:하둠\s*)?([1-7])/);
+     if(m)s=Number(m[1]);
+   }
+ }
+ if(!(s>=1&&s<=7))s=1;
+ const t=T[Math.floor(s)],got=[];
+ Object.keys(t).forEach(k=>{
+   let c=t[k];
+   if((k==='boss'||k==='divine')&&!isBoss)c*=.05;
+   if(Math.random()<c){
+     window.playerState.craftingMaterials[k]=(Number(window.playerState.craftingMaterials[k])||0)+1;
+     got.push(N[k]);
+   }
+ });
+ try{localStorage.setItem('weaponCraftingMaterials_v2',JSON.stringify(window.playerState.craftingMaterials));}catch(e){}
+ if(typeof renderCraftingBag==='function')try{renderCraftingBag();}catch(e){}
+ return got;
+};
+})();
+</script>
+<script id="wc-divine-quality-bonus">
+(function(){
+  const BONUS_PP = 0.015; // +1.5 percentage points
+  const MAT_KEY = 'divine';
+
+  function ensureMaterials(){
+    if(typeof playerState==='undefined') return null;
+    playerState.craftingMaterials=playerState.craftingMaterials||{
+      iron:0,wood:0,core:0,refined:0,boss:0,divine:0
+    };
+    if(typeof playerState.craftingMaterials[MAT_KEY]!=='number')
+      playerState.craftingMaterials[MAT_KEY]=Number(playerState.craftingMaterials[MAT_KEY])||0;
+    return playerState.craftingMaterials;
+  }
+
+  // Expose calculation for the UI and craft system.
+  window.getWeaponCraftQualityRates=function(useDivine){
+    const base=[
+      ['일반',0.50],
+      ['고급',0.30],
+      ['신품',0.14],
+      ['호품',0.05],
+      ['명품',0.01]
+    ];
+
+    // Existing proficiency bonus, if the original system exposes one, is preserved
+    // by reading its final rates when available.
+    let rates=base.map(x=>({name:x[0],rate:x[1]}));
+    try{
+      if(typeof window.WC_CRAFT_RATES==='object' && Array.isArray(window.WC_CRAFT_RATES)){
+        rates=window.WC_CRAFT_RATES.map(x=>({name:x.name,rate:Number(x.rate)||0}));
+      }
+    }catch(e){}
+
+    if(useDivine){
+      const luxury=rates.find(x=>x.name==='명품');
+      if(luxury){
+        const add=Math.min(BONUS_PP, Math.max(0, 1-luxury.rate));
+        luxury.rate+=add;
+
+        // Reduce lower tiers proportionally so total remains 100%.
+        const others=rates.filter(x=>x!==luxury);
+        const total=others.reduce((a,x)=>a+x.rate,0);
+        if(total>0){
+          others.forEach(x=>x.rate-=add*(x.rate/total));
+        }
+      }
+    }
+    return rates;
+  };
+
+  window.getWeaponCraftDivineBonus=function(){
+    const m=ensureMaterials();
+    return {
+      owned:m?m[MAT_KEY]:0,
+      bonus:BONUS_PP,
+      label:'+1.5%p'
+    };
+  };
+
+  // If a known craft function exists, wrap it. The wrapper supplies the bonus flag
+  // and consumes exactly one crystal only when the user chooses to use it.
+  const candidates=['craftWeapon','createCraftWeapon','craftRandomWeapon','makeWeapon'];
+  for(const name of candidates){
+    if(typeof window[name]==='function' && !window[name].__divineWrapped){
+      const original=window[name];
+      const wrapped=function(){
+        // Optional last argument {useDivine:true}; otherwise keep original behavior.
+        let args=[...arguments];
+        let opts=args.length && args[args.length-1] && typeof args[args.length-1]==='object'
+          ? args[args.length-1] : {};
+        const use=!!opts.useDivine;
+        const m=ensureMaterials();
+        if(use && (!m || m.divine<1)){
+          alert('신수의 결정이 부족합니다.');
+          return null;
+        }
+
+        if(use && m){
+          // One crystal is reserved/consumed for this craft.
+          m.divine-=1;
+          try{localStorage.setItem('weaponCraftingMaterials_v2',JSON.stringify(m));}catch(e){}
+        }
+
+        try{
+          window.WC_USE_DIVINE_CRAFT_BONUS=use;
+          window.WC_DIVINE_BONUS_PP=use?BONUS_PP:0;
+          return original.apply(this,args);
+        }catch(e){
+          // Refund on unexpected craft error.
+          if(use && m){
+            m.divine+=1;
+            try{localStorage.setItem('weaponCraftingMaterials_v2',JSON.stringify(m));}catch(_){}
+          }
+          throw e;
+        }finally{
+          window.WC_USE_DIVINE_CRAFT_BONUS=false;
+          window.WC_DIVINE_BONUS_PP=0;
+        }
+      };
+      wrapped.__divineWrapped=true;
+      window[name]=wrapped;
+      break;
+    }
+  }
+
+  // UI helper: append a clear option next to the craft controls when a suitable
+  // container exists, without disrupting the existing layout.
+  window.renderDivineCraftOption=function(container){
+    if(!container || container.querySelector('#wc-use-divine-option')) return;
+    const m=ensureMaterials();
+    const el=document.createElement('label');
+    el.id='wc-use-divine-option';
+    el.style.cssText='display:flex;align-items:center;gap:7px;margin:8px 0;padding:8px 10px;border:1px solid #6b5b20;border-radius:8px;background:rgba(30,25,10,.9);font-size:13px;';
+    el.innerHTML='<input id="wcUseDivine" type="checkbox" style="width:18px;height:18px;"> <span>💎 신수의 결정 1개 사용 → <b>명품 확률 +1.5%p</b> (보유 '+(m?m.divine:0)+'개)</span>';
+    container.appendChild(el);
+  };
+})();
+</script>
+
+<script id="wc-divine-ui-hook">
+document.addEventListener('DOMContentLoaded',function(){
+  try{
+    const selectors=['#weaponCraftModal','#craftWeaponModal','.weapon-craft-modal','.craft-modal','#weaponCraftPanel','.weapon-craft-panel'];
+    let box=null;
+    for(const s of selectors){ box=document.querySelector(s); if(box) break; }
+    if(box && typeof renderDivineCraftOption==='function') renderDivineCraftOption(box);
+  }catch(e){}
+});
+</script>
+
+<script id="wc-state-sync-bridge">
+(function(){
+  function refresh(){
+    try{
+      if(window.playerState && window.openWeaponCrafting && document.getElementById('wc-modal')?.style.display==='flex'){
+        const e=document.getElementById('wc-modal');
+        if(e) e.dispatchEvent(new Event('wc-state-refresh'));
+      }
+    }catch(e){}
+  }
+  window.refreshWeaponCraftingUI=refresh;
+})();
+</script>
+
+<script id="wc-proficiency-system">
+(function(){
+  const KEY='weaponCraftProficiency_v1';
+  const state = window.playerState || null;
+
+  function ensure(){
+    if(!window.playerState) return null;
+    if(!playerState.weaponCraftProficiency){
+      playerState.weaponCraftProficiency={xp:0,level:1};
+    }
+    const p=playerState.weaponCraftProficiency;
+    p.xp=Number(p.xp)||0;
+    p.level=Math.max(1,Math.min(20,Number(p.level)||1));
+    return p;
+  }
+
+  const XP_TABLE=[0,100,250,450,700,1000,1400,1850,2350,2900,3500,4200,5000,5900,6900,8000,9200,10500,11900,13400,15000];
+
+  // Cheap practice recipe: no rare materials, no normal weapon-grade roll.
+  // It exists to level proficiency without consuming the main crafting economy.
+  window.WC_PRACTICE_RECIPE={
+    name:'연습용 철제검',
+    materials:{iron:8,wood:4},
+    gold:5000,
+    xp:35,
+    attack:25
+  };
+
+  window.getWeaponCraftProficiency=function(){
+    const p=ensure();
+    if(!p) return {level:1,xp:0,nextXp:100,progress:0};
+    const next=XP_TABLE[Math.min(20,p.level+1)] ?? XP_TABLE[20];
+    const cur=XP_TABLE[Math.min(20,p.level)] ?? XP_TABLE[20];
+    return {
+      level:p.level,
+      xp:p.xp,
+      nextXp:p.level>=20?cur:next,
+      progress:p.level>=20?1:Math.max(0,Math.min(1,(p.xp-cur)/(next-cur)))
+    };
+  };
+
+  window.addWeaponCraftProficiencyXP=function(amount){
+    const p=ensure();
+    if(!p)return;
+    p.xp+=Math.max(0,Number(amount)||0);
+    while(p.level<20 && p.xp>=XP_TABLE[p.level+1]) p.level++;
+    try{localStorage.setItem(KEY,JSON.stringify(p));}catch(e){}
+    try{if(typeof renderWeaponCraftProficiency==='function')renderWeaponCraftProficiency();}catch(e){}
+  };
+
+  window.craftPracticeWeapon=function(){
+    if(!window.playerState)return {ok:false,reason:'게임 상태를 찾을 수 없습니다.'};
+    const r=WC_PRACTICE_RECIPE;
+    playerState.craftingMaterials=playerState.craftingMaterials||{
+      iron:0,wood:0,core:0,refined:0,boss:0,divine:0
+    };
+    const inv=playerState.craftingMaterials;
+    if((Number(inv.iron)||0)<r.materials.iron || (Number(inv.wood)||0)<r.materials.wood)
+      return {ok:false,reason:'연습용 철제검 제작 재료가 부족합니다.'};
+
+    const moneyKey =
+      ('gold' in playerState)?'gold':
+      (('money' in playerState)?'money':
+      (('gameMoney' in playerState)?'gameMoney':null));
+    if(!moneyKey || (Number(playerState[moneyKey])||0)<r.gold)
+      return {ok:false,reason:'게임머니가 부족합니다.'};
+
+    inv.iron-=r.materials.iron;
+    inv.wood-=r.materials.wood;
+    playerState[moneyKey]-=r.gold;
+
+    // Practice weapons go into a separate count; they do not enter the main
+    // random-grade inventory and therefore cannot distort the main system.
+    playerState.practiceWeapons=(Number(playerState.practiceWeapons)||0)+1;
+    addWeaponCraftProficiencyXP(r.xp);
+
+    try{
+      localStorage.setItem('weaponCraftingMaterials_v2',JSON.stringify(inv));
+      localStorage.setItem(KEY,JSON.stringify(playerState.weaponCraftProficiency));
+    }catch(e){}
+
+    return {ok:true,name:r.name,xp:r.xp,attack:r.attack};
+  };
+
+  window.getWeaponCraftProficiencyBonus=function(){
+    const p=ensure();
+    if(!p)return {attackBonus:0,qualityBonus:0};
+    // Small, controlled benefit: every 5 levels gives +0.5%p to high-grade rolls,
+    // capped at +2%p at level 20. No direct attack inflation.
+    const qualityBonus=Math.floor(p.level/5)*0.005;
+    return {attackBonus:0,qualityBonus:qualityBonus};
+  };
+
+  window.renderWeaponCraftProficiency=function(){
+    const box=document.getElementById('wc-proficiency-box');
+    if(!box)return;
+    const p=getWeaponCraftProficiency();
+    const practice=(window.playerState && Number(playerState.practiceWeapons)||0);
+    box.innerHTML=
+      '<div style="font-weight:800;color:#ffe08a;font-size:14px">🔨 제작 숙련도</div>'+
+      '<div style="margin-top:4px">Lv.'+p.level+' / 20</div>'+
+      '<div style="height:7px;background:#222;border-radius:5px;overflow:hidden;margin:6px 0">'+
+        '<div style="height:100%;width:'+(p.progress*100).toFixed(1)+'%;background:#d6a94a"></div></div>'+
+      '<div style="font-size:11px;color:#bbb">'+
+        (p.level>=20?'MAX':'EXP '+p.xp.toLocaleString()+' / '+p.nextXp.toLocaleString())+
+        ' · 연습무기 제작 '+practice+'회</div>'+
+      '<div style="margin-top:8px;padding:7px;border:1px solid rgba(255,224,138,.2);border-radius:7px;font-size:11px;color:#ccc">'+
+        '숙련도 Lv.5/10/15/20 달성 시 상위 등급 제작 확률이 단계적으로 증가합니다.</div>';
+  };
+
+  // Insert UI into the existing craft modal.
+  function mount(){
+    if(document.getElementById('wc-proficiency-box'))return;
+    const modal=document.querySelector('#wc-modal,.weapon-craft-modal,.craft-modal,#weaponCraftModal,#weaponCraftPanel');
+    if(!modal)return;
+    const box=document.createElement('div');
+    box.id='wc-proficiency-box';
+    box.style.cssText='margin:8px 0;padding:9px;border:1px solid rgba(255,224,138,.25);border-radius:8px;background:rgba(15,12,8,.55);color:#eee;';
+    modal.appendChild(box);
+
+    const practice=document.createElement('button');
+    practice.type='button';
+    practice.id='wc-practice-craft-btn';
+    practice.style.cssText='width:100%;margin-top:7px;padding:9px;border-radius:8px;border:1px solid #8d6b2e;background:#2b2416;color:#ffe8a8;font-weight:800;';
+    practice.textContent='🔨 연습용 철제검 제작 · 철광석 8 + 목재 4 + 5,000G · 숙련도 +35';
+    practice.onclick=function(){
+      const result=window.craftPracticeWeapon();
+      if(!result.ok){alert(result.reason);return;}
+      alert('연습용 철제검 제작 완료!\\n숙련도 +'+result.xp);
+      renderWeaponCraftProficiency();
+      try{if(typeof render==='function')render();}catch(e){}
+    };
+    modal.appendChild(practice);
+    renderWeaponCraftProficiency();
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    ensure();
+    setTimeout(mount,300);
+  });
+
+  // Re-mount when the crafting popup is opened dynamically.
+  const obs=new MutationObserver(function(){
+    if(document.querySelector('#wc-modal,.weapon-craft-modal,.craft-modal,#weaponCraftModal,#weaponCraftPanel')){
+      mount();
+    }
+  });
+  try{obs.observe(document.body,{childList:true,subtree:true});}catch(e){}
+})();
+</script>
+
+<script id="wc-proficiency-load">
+(function(){
+  function load(){
+    if(!window.playerState)return;
+    try{
+      const s=JSON.parse(localStorage.getItem('weaponCraftProficiency_v1')||'null');
+      if(s && typeof s==='object'){
+        playerState.weaponCraftProficiency={
+          xp:Number(s.xp)||0,
+          level:Math.max(1,Math.min(20,Number(s.level)||1))
+        };
+      }
+    }catch(e){}
+  }
+  document.addEventListener('DOMContentLoaded',load);
+  setTimeout(load,500);
+})();
+</script>
+</body>
