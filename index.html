@@ -164,16 +164,19 @@
     .joystick-base { width: 100%; height: 100%; background: rgba(255, 255, 255, 0.6); border: 3px solid #ffffff; border-radius: 50%; position: relative; }
     .joystick-knob { width: 42px; height: 42px; background: var(--theme-primary); border: 3px solid #ffffff; border-radius: 50%; position: absolute; top: 34px; left: 34px; }
 
+    /* 모바일 전투 조작 영역: 버튼끼리 겹치지 않도록 2열 스킬 배열 + 공격 버튼을 분리 */
     #action-zone { 
-      position: absolute; bottom: 20px; right: 15px; 
-      width: 170px; height: 170px;
-      z-index: 20; pointer-events: auto; 
+      position: absolute; bottom: 16px; right: 10px; 
+      width: 220px; height: 220px;
+      z-index: 40; pointer-events: auto; touch-action: none;
     }
     .action-btn { 
       position: absolute;
       border-radius: 50%; display: flex; justify-content: center; align-items: center; 
       font-weight: bold; color: #fff; border: 3px solid #fff; cursor: pointer; 
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      touch-action: none; -webkit-user-select:none; user-select:none;
+      -webkit-tap-highlight-color: transparent;
     }
     .action-btn:active { transform: scale(0.92); }
 
@@ -182,10 +185,18 @@
     .btn-target { width: 42px; height: 42px; bottom: 60px; left: 15px; background: #40c4ff; font-size: 15px; }
 
     .btn-skill-slot { width: 46px; height: 46px; font-size: 9px; text-align: center; display: none; line-height: 1.1; }
-    .btn-skill-s2_1 { bottom: 78px; right: 10px; background: linear-gradient(135deg, #e53935, #d32f2f); }
-    .btn-skill-s2_2 { bottom: 65px; right: 65px; background: linear-gradient(135deg, #fb8c00, #f57c00); }
-    .btn-skill-s2_3 { bottom: 10px; right: 78px; background: linear-gradient(135deg, #8e24aa, #7b1fa2); }
-    .btn-skill-s2_4 { bottom: 10px; right: 135px; background: linear-gradient(135deg, #3949ab, #1e88e5); }
+    /* 공격 버튼과 최소 8px 이상 간격을 확보하고, 스킬끼리도 겹치지 않게 배치 */
+    .btn-skill-s2_1 { bottom: 78px; right: 0; background: linear-gradient(135deg, #e53935, #d32f2f); }
+    .btn-skill-s2_2 { bottom: 78px; right: 56px; background: linear-gradient(135deg, #fb8c00, #f57c00); }
+    .btn-skill-s2_3 { bottom: 22px; right: 56px; background: linear-gradient(135deg, #8e24aa, #7b1fa2); }
+    .btn-skill-s2_4 { bottom: 22px; right: 112px; background: linear-gradient(135deg, #3949ab, #1e88e5); }
+
+    @media (max-width:600px){
+      #action-zone { right: 8px; bottom: 12px; width: 220px; height: 220px; }
+    }
+    @media (max-width:380px){
+      #action-zone { right: 6px; bottom: 10px; width: 208px; height: 208px; transform: scale(.94); transform-origin: bottom right; }
+    }
 
     .skill-btn-name { display:inline-block; white-space:nowrap; font-size:8px; font-weight:700; text-shadow:0 1px 2px rgba(0,0,0,.8); }
     .skill-cd { display:none; position:absolute; inset:0; align-items:center; justify-content:center; border-radius:50%; background:rgba(0,0,0,.62); color:#fff; font-size:12px; font-weight:800; z-index:2; }
@@ -1105,12 +1116,12 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
     <div id="action-zone">
       <div class="action-btn btn-auto" id="btn-auto" onclick="toggleAutoHunt()">AUTO<br>OFF</div>
       <div class="action-btn btn-target" id="btn-target" onclick="targetNearestMonster()">🎯</div>
-      <div class="action-btn btn-attack" id="btn-attack" onclick="triggerAttackBtn()">⚔️</div>
+      <div class="action-btn btn-attack" id="btn-attack" role="button" aria-label="공격">⚔️</div>
 
-      <div class="action-btn btn-skill-slot btn-skill-s2_1" id="btn-skill-s2_1" onclick="useActiveSkill('s2_1')"><span class="skill-icon">⚡</span><br><span class="skill-btn-name">오의: 뇌전참</span><span class="skill-cd"></span></div>
-      <div class="action-btn btn-skill-slot btn-skill-s2_2" id="btn-skill-s2_2" onclick="useActiveSkill('s2_2')"><span class="skill-icon">🌀</span><br><span class="skill-btn-name">회풍참</span><span class="skill-cd"></span></div>
-      <div class="action-btn btn-skill-slot btn-skill-s2_3" id="btn-skill-s2_3" onclick="useActiveSkill('s2_3')"><span class="skill-icon">⚔️</span><br><span class="skill-btn-name">천검난무</span><span class="skill-cd"></span></div>
-      <div class="action-btn btn-skill-slot btn-skill-s2_4" id="btn-skill-s2_4" onclick="useActiveSkill('s2_4')"><span class="skill-icon">🛡️</span><br><span class="skill-btn-name">보호의막</span><span class="skill-cd"></span></div>
+      <div class="action-btn btn-skill-slot btn-skill-s2_1" id="btn-skill-s2_1" role="button" aria-label="오의: 뇌전참"><span class="skill-icon">⚡</span><br><span class="skill-btn-name">오의: 뇌전참</span><span class="skill-cd"></span></div>
+      <div class="action-btn btn-skill-slot btn-skill-s2_2" id="btn-skill-s2_2" role="button" aria-label="회풍참"><span class="skill-icon">🌀</span><br><span class="skill-btn-name">회풍참</span><span class="skill-cd"></span></div>
+      <div class="action-btn btn-skill-slot btn-skill-s2_3" id="btn-skill-s2_3" role="button" aria-label="천검난무"><span class="skill-icon">⚔️</span><br><span class="skill-btn-name">천검난무</span><span class="skill-cd"></span></div>
+      <div class="action-btn btn-skill-slot btn-skill-s2_4" id="btn-skill-s2_4" role="button" aria-label="보호의막"><span class="skill-icon">🛡️</span><br><span class="skill-btn-name">보호의막</span><span class="skill-cd"></span></div>
     </div>
   </div>
 
@@ -1359,12 +1370,8 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
     document.addEventListener('gesturechange', function (e) { e.preventDefault(); });
     document.addEventListener('gestureend', function (e) { e.preventDefault(); });
 
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', function (e) {
-      const now = Date.now();
-      if (now - lastTouchEnd <= 300) { e.preventDefault(); }
-      lastTouchEnd = now;
-    }, { passive: false });
+    /* 전역 double-tap touchend 차단 제거: 공격/스킬 버튼의 첫 터치를 소실시키는 원인이 될 수 있음.
+       확대 방지는 viewport 설정과 버튼별 touch-action:none으로 처리한다. */
 
     /* 모바일에서 사냥터 선택/경험의 서고 등 팝업 내부 스크롤이 막히는 문제 대응:
        .modal 요소 중 하나라도 display:block/flex 등으로 열려 있으면 body에 modal-open을 붙여
@@ -8616,6 +8623,42 @@ window.playerState = playerState;
     const joystickKnob = document.getElementById('joystick-knob');
     let joystickVector = { x: 0, y: 0 };
     let joystickTouchId = null;
+
+    /* 모바일 공격/스킬 입력 즉시 처리
+       기존 inline onclick은 iOS에서 touch -> click 변환을 기다리며 입력이 늦거나,
+       전역 double-tap 방지 touchend와 겹쳐 첫 입력이 소실될 수 있다.
+       터치/펜은 pointerdown에서 즉시 실행하고 뒤따르는 click은 500ms 동안 무시한다.
+       마우스는 기존 click 방식으로 동작시켜 PC 플레이도 유지한다. */
+    (function setupCombatPointerInput(){
+      const actionMap = {
+        'btn-attack': () => triggerAttackBtn(),
+        'btn-skill-s2_1': () => useActiveSkill('s2_1'),
+        'btn-skill-s2_2': () => useActiveSkill('s2_2'),
+        'btn-skill-s2_3': () => useActiveSkill('s2_3'),
+        'btn-skill-s2_4': () => useActiveSkill('s2_4')
+      };
+      Object.entries(actionMap).forEach(([id, fn]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        let suppressClickUntil = 0;
+        el.addEventListener('pointerdown', (e) => {
+          if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+            e.preventDefault();
+            e.stopPropagation();
+            suppressClickUntil = Date.now() + 500;
+            fn();
+          }
+        }, { passive:false });
+        el.addEventListener('click', (e) => {
+          if (Date.now() < suppressClickUntil) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+          }
+          fn();
+        });
+      });
+    })();
 
     joystickBase.addEventListener('touchstart', (e) => {
       e.preventDefault(); const touch = e.changedTouches[0]; joystickTouchId = touch.identifier; updateJoystick(touch);
