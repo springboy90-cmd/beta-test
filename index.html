@@ -8162,7 +8162,7 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
 
     function applyHeroSavedState(state, hero) {
       if (!state || !hero) return;
-      hero.level = Math.max(1, Math.min(150, Number(state.level) || 1));
+      hero.level = Math.max(1, Number(state.level) || 1);
       hero.exp = Math.max(0, Number(state.exp) || 0);
       hero.maxExp = Number(state.maxExp) || getRequiredExp(hero.level);
     }
