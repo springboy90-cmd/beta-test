@@ -1239,6 +1239,7 @@
         </div>
         <div style="font-size: 12px; font-weight: bold; color: #ff8a65;">이동 ➔</div>
       </div>
+    </div>
     <div style="text-align: center; margin-top: 10px;">
       <button class="btn-small" onclick="closeStageModal()">창 닫기</button>
     </div>
@@ -1381,6 +1382,19 @@
     let experienceDungeonEntryUsedTicket = false;
     let experienceDungeonDeathModalOpen = false;
     let experienceDungeonDeathPrevAutoHunt = true;
+
+    // 부활 직후 몬스터 사이에서 연속 사망하는 것을 막기 위한 무적 시간.
+    // 부활 시점부터 1.5초 동안 모든 몬스터의 직접 공격 피해를 무시한다.
+    let playerInvulnerableUntil = 0;
+    const PLAYER_REVIVE_INVULNERABILITY_MS = 1500;
+
+    function isPlayerInvulnerable() {
+      return performance.now() < playerInvulnerableUntil;
+    }
+
+    function startPlayerReviveInvulnerability() {
+      playerInvulnerableUntil = performance.now() + PLAYER_REVIVE_INVULNERABILITY_MS;
+    }
     const EXPERIENCE_DUNGEON_DAILY_LIMIT = 3;
     const EXPERIENCE_DUNGEON_DURATION = 180000;
     const EXPERIENCE_DUNGEON_STATS = {
@@ -7815,6 +7829,10 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
     }
 
     function monsterAttackPlayer(m) {
+      // 부활 직후 1.5초 동안은 몬스터 사이에 부활하더라도 모든 공격 피해를 무시한다.
+      // 공격 함수 진입 단계에서 차단하므로 여러 몬스터가 동시에 공격해도 연속 사망하지 않는다.
+      if (isPlayerInvulnerable()) return;
+
       // 경험의 서고 사망 선택 팝업이 떠 있는 동안에는 추가 공격을 무시한다.
       // 그렇지 않으면 팝업을 띄운 직후에도 다른 몬스터의 공격으로 계속 데미지/사망 처리가 겹쳐 일어날 수 있다.
       if (experienceDungeonDeathModalOpen) return;
@@ -7831,6 +7849,9 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       if (playerState.hp <= 0) {
         playerState.hp = playerState.maxHp;
         playerSprite.position.set(0, 1.5, 4);
+        // 부활 즉시 무적 타이머를 시작한다.
+        // 다음 프레임부터 1.5초 동안 몬스터 공격은 모두 무시된다.
+        startPlayerReviveInvulnerability();
 
         // 레벨 100 이상에서 사망 시, 현재 보유 경험치(%)에서 1%p를 직접 차감하는 페널티를 적용한다.
         // maxExp(다음 레벨업 필요 총량)는 건드리지 않고 exp(보유 경험치) 자체를 깎으며, 죽을 때마다 누적된다.
