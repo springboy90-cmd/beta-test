@@ -10085,6 +10085,8 @@ function gainMastery(){
  }
 }
 
+function gradeRank(g){ return ({normal:0,high:1,new:2,fine:3,masterpiece:4}[g] ?? -1); }
+
 function craft(){
  sync();
  const divineCheck=document.getElementById('wcUseDivine');
@@ -10092,86 +10094,80 @@ function craft(){
  const inv=mats();
  if(useDivine && (Number(inv.divine)||0)<1){
    result('❌ 신수의 결정이 부족합니다. 체크를 해제하거나 신수의 결정 1개를 준비하세요.');
-   render();
-   return;
+   render(); return;
  }
  if(!hasRecipe()){
    result('❌ 제작 재료, 게임머니 또는 숙련도가 부족합니다.');
-   render();
-   return;
+   render(); return;
  }
-
  deductRecipe();
- if(useDivine){
-   inv.divine=Math.max(0,(Number(inv.divine)||0)-1);
- }
+ if(useDivine) inv.divine=Math.max(0,(Number(inv.divine)||0)-1);
  if(!spend(RECIPE.gold)){
-   // 안전 복구
    Object.entries(RECIPE.m).forEach(([k,v])=>addMat(k,v));
    if(useDivine) addMat('divine',1);
    result('❌ 게임머니가 부족합니다.');
    saveMaterials(); render(); return;
  }
 
- const q=roll(useDivine);
- const rg=G[q];
+ const q=roll(useDivine), rg=G[q];
+ const newWeapon={class:st.class,grade:q,name:N[st.class][q],atk:rg.atk,enhance:0};
+ const old=st.weapon;
 
- st.weapon={
-   class:st.class,
-   grade:q,
-   name:N[st.class][q],
-   atk:rg.atk,
-   enhance:0
- };
+ // 일반~신품은 기존처럼 자유롭게 교체한다.
+ // 호품/명품은 더 이상 "해체해야만 다음 제작 가능"하지 않다.
+ // 다만 기존 호품/명품을 해체할 수 있는 조건은 새 제작 결과가 동일 등급 이상일 때만이다.
+ if(old && gradeRank(old.grade)>=3){
+   if(gradeRank(q) >= gradeRank(old.grade)){
+     // 동일/상위 등급 제작 성공: 새 무기를 장착하고 기존 고등급 무기를 해체 대기 상태로 보관
+     st.dismantleWeapon=old;
+     st.weapon=newWeapon;
+     result(`✨ <b style="color:${rg.c}">${rg.n} ${newWeapon.name}</b> 제작 성공!<br><small>기존 ${G[old.grade].n} 무기는 이제 해체할 수 있습니다.</small>`);
+     st.hist.unshift(`⚒ ${newWeapon.name} [${rg.n}] 제작 성공 · 기존 ${G[old.grade].n} 해체 가능`);
+   }else{
+     // 낮은 등급이 나오면 기존 고등급 무기는 그대로 유지한다. 제작 자체는 계속 가능하다.
+     st.lastCraftedWeapon=newWeapon;
+     result(`✨ <b style="color:${rg.c}">${rg.n} ${newWeapon.name}</b> 제작 완료.<br><small>현재 장착 중인 ${G[old.grade].n} 무기보다 낮은 등급이므로 기존 무기는 보호됩니다.</small>`);
+     st.hist.unshift(`⚒ ${newWeapon.name} [${rg.n}] 제작 · 기존 ${G[old.grade].n} 보호`);
+   }
+ }else{
+   st.weapon=newWeapon;
+   st.lastCraftedWeapon=null;
+   st.dismantleWeapon=null;
+   st.hist.unshift(`⚒ ${newWeapon.name} [${rg.n}] 제작 성공 · 숙련 Lv.${st.mastery}`);
+   result(`✨ <b style="color:${rg.c}">${rg.n} ${newWeapon.name}</b>이(가) 제작되었습니다!`);
+ }
 
  gainMastery();
-
- st.hist.unshift(
-   `⚒ ${st.weapon.name} [${rg.n}] 제작 성공 · 숙련 Lv.${st.mastery}`
- );
  st.hist=st.hist.slice(0,12);
-
- result(
-   `✨ <b style="color:${rg.c}">${rg.n} ${st.weapon.name}</b>이(가) 제작되었습니다!`
- );
- saveMaterials();
- save();
- render();
+ saveMaterials(); save(); render();
  if(typeof updateCraftWeaponVisual==='function')updateCraftWeaponVisual();
  if(typeof updateUI==='function')updateUI();
 }
 
 function dismantle(){
  sync();
- const w=st.weapon;
+ const w=st.dismantleWeapon || st.weapon;
+ const isProtectedHigh = !!st.weapon && gradeRank(st.weapon.grade)>=3 && !st.dismantleWeapon;
  if(!w){
-   result('❌ 현재 해체할 제작무기가 없습니다.');
+   result('❌ 현재 해체할 제작무기가 없습니다.'); return;
+ }
+ // 호품/명품은 동일 또는 상위 등급 제작 성공으로 해체 대기 상태가 된 경우에만 해체 가능
+ if(isProtectedHigh){
+   result(`🔒 현재 ${G[st.weapon.grade].n} 무기는 보호 중입니다. 동일 등급 또는 상위 등급 무기를 제작했을 때만 기존 무기를 해체할 수 있습니다.`);
    return;
  }
-
- const refund={
-   normal:.95,
-   high:.90,
-   new:.85,
-   fine:.80,
-   masterpiece:.75
- }[w.grade]||.8;
-
- Object.entries(RECIPE.m).forEach(([k,v])=>{
-   addMat(k,Math.floor(v*refund));
- });
-
+ const refund={normal:.95,high:.90,new:.85,fine:.80,masterpiece:.75}[w.grade]||.8;
+ Object.entries(RECIPE.m).forEach(([k,v])=>addMat(k,Math.floor(v*refund)));
  const gradeName=G[w.grade]?.n||w.grade;
- st.hist.unshift(
-   `♻ ${w.name} [${gradeName}] 해체 · 제작재료 ${(refund*100).toFixed(0)}% 환급`
- );
+ st.hist.unshift(`♻ ${w.name} [${gradeName}] 해체 · 제작재료 ${(refund*100).toFixed(0)}% 환급`);
  st.hist=st.hist.slice(0,12);
-
- st.weapon=null;
- result(`♻️ <b>${gradeName} ${N[st.class][w.grade]}</b>을 해체했습니다. 제작 재료의 <b>${Math.round(refund*100)}%</b>를 돌려받았습니다.`);
- saveMaterials();
- save();
- render();
+ if(st.dismantleWeapon){
+   st.dismantleWeapon=null;
+ }else{
+   st.weapon=null;
+ }
+ result(`♻️ <b>${gradeName} ${w.name}</b>을 해체했습니다. 제작 재료의 <b>${Math.round(refund*100)}%</b>를 돌려받았습니다.`);
+ saveMaterials(); save(); render();
  if(typeof updateCraftWeaponVisual==='function')updateCraftWeaponVisual();
  if(typeof updateUI==='function')updateUI();
 }
@@ -10272,7 +10268,12 @@ function render(){
 
  document.getElementById('wc-craft').disabled=!hasRecipe();
  const d=document.getElementById('wc-dismantle');
- if(d)d.disabled=!w;
+ if(d){
+   const protectedHigh=!!w && gradeRank(w.grade)>=3 && !st.dismantleWeapon;
+   d.disabled=!w && !st.dismantleWeapon;
+   d.textContent=st.dismantleWeapon ? `♻️ 이전 ${G[st.dismantleWeapon.grade]?.n||''} 무기 해체` : (protectedHigh ? '🔒 해체 조건 미충족' : '♻️ 무기 해체');
+   d.title=protectedHigh ? '호품 이상은 동일 또는 상위 등급 제작 성공 시에만 기존 무기 해체 가능' : '';
+ }
  document.getElementById('wc-upgrade').disabled=!w||w.enhance>=MAX;
 
  document.querySelectorAll('.wc-tab').forEach(x=>
