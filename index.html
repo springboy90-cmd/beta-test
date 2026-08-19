@@ -1221,6 +1221,7 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
             <span id="subweapon-status-val" style="color:#4a148c;">⚔️ 보조무기: 없음</span>
           </div>
           <div class="stat-row-item" id="protection-shield-status-row" style="display:none; justify-content: flex-end;"><span id="protection-shield-status-val" style="color:#1565c0;">🛡️ 보호의막: 비활성</span></div>
+          <div class="stat-row-item" id="sura-gangrim-status-row" style="display:none; justify-content: flex-end;"><span id="sura-gangrim-status-val" style="color:#b71c1c;">🔥 수라강림: 비활성</span></div>
           <div class="stat-row-item" id="craftweapon-status-row" style="display:none; justify-content: flex-end;">
             <span id="craftweapon-status-val" style="color:#ad7b00;">🗡️ 제작무기: 없음</span>
           </div>
@@ -1293,7 +1294,7 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
       <div class="action-btn btn-skill-slot btn-skill-s2_1" id="btn-skill-s2_1" role="button" aria-label="오의: 뇌전참"><span class="skill-icon">⚡</span><br><span class="skill-btn-name">오의: 뇌전참</span><span class="skill-cd"></span></div>
       <div class="action-btn btn-skill-slot btn-skill-s2_2" id="btn-skill-s2_2" role="button" aria-label="회풍참"><span class="skill-icon">🌀</span><br><span class="skill-btn-name">회풍참</span><span class="skill-cd"></span></div>
       <div class="action-btn btn-skill-slot btn-skill-s2_3" id="btn-skill-s2_3" role="button" aria-label="천검난무"><span class="skill-icon">⚔️</span><br><span class="skill-btn-name">천검난무</span><span class="skill-cd"></span></div>
-      <div class="action-btn btn-skill-slot btn-skill-s2_4" id="btn-skill-s2_4" role="button" aria-label="보호의막"><span class="skill-icon">🛡️</span><br><span class="skill-btn-name">보호의막</span><span class="skill-cd"></span></div>
+      <div class="action-btn btn-skill-slot btn-skill-s2_4" id="btn-skill-s2_4" role="button" aria-label="2차 버프"><span class="skill-icon">🔥</span><br><span class="skill-btn-name">2차 버프</span><span class="skill-cd"></span></div>
     </div>
   </div>
 
@@ -4570,12 +4571,12 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       lastAttackTime: 0, moveSpeed: 9, attackRange: 2.5,
       isAttacking: false, attackStage: 0, attackAnimTimer: 0,
       hasSiri: false, hasJanggeum: false, hasMunyeahana: false, hasRabbitGirl: false, rabbitForm: false,
-      hasAutoHeal: false, atkSpeedLv: 0, idleTimer: 0,
+      hasAutoHeal: false, atkSpeedLv: 0, idleTimer: 0, suraGangrimUntil: 0, suraGangrimCooldownAt: 0,
       skillsLearned: [],
       firstSkillLv: 0,
       skillCooldowns: { s1_1: 0, s2_1: 0, s2_2: 0, s2_3: 0, s2_4: 0 },
       protectionShieldUntil: 0, protectionShieldCooldownAt: 0,
-      skillLv: { s2_2: 0, s2_3: 0 },
+      skillLv: { s2_2: 0, s2_3: 0, s2_4: 0 },
       martialTrainingLv: 0, shamanStudyLv: 0,
       dailyCoreBought: 0, dailyResetDate: '',
       jobChangeCount: 0,
@@ -4597,10 +4598,76 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
 window.playerState = playerState;
 ;
 
+    function isSuraGangrimActive() {
+      return !isShamanClass() && playerState.skillsLearned.includes('s2_4') && Number(playerState.suraGangrimUntil || 0) > Date.now();
+    }
+
+    function getSuraGangrimDurationMs() {
+      const lv = Math.max(1, Math.min(5, Number(playerState.skillLv?.s2_4) || 1));
+      return [0, 5000, 6250, 7500, 8750, 10000][lv];
+    }
+
+    function getSuraGangrimLevel() {
+      return Math.max(1, Math.min(5, Number(playerState.skillLv?.s2_4) || 1));
+    }
+
+    const suraGangrimVfx = [];
+    let suraGangrimVfxTexture = null;
+    function getSuraGangrimParticleTexture() {
+      if (suraGangrimVfxTexture) return suraGangrimVfxTexture;
+      const cvs = document.createElement('canvas'); cvs.width = cvs.height = 64;
+      const ctx = cvs.getContext('2d');
+      ctx.clearRect(0,0,64,64);
+      const g = ctx.createRadialGradient(32,32,2,32,32,30);
+      g.addColorStop(0,'rgba(255,80,70,1)');
+      g.addColorStop(.35,'rgba(80,0,0,.95)');
+      g.addColorStop(.72,'rgba(10,0,0,.9)');
+      g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(32,32,29,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='rgba(255,55,45,.95)'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(32,32,25,0,Math.PI*2); ctx.stroke();
+      suraGangrimVfxTexture = new THREE.CanvasTexture(cvs);
+      suraGangrimVfxTexture.magFilter = THREE.LinearFilter;
+      return suraGangrimVfxTexture;
+    }
+
+    function spawnSuraGangrimVfx() {
+      clearSuraGangrimVfx();
+      const count = 14;
+      const tex = getSuraGangrimParticleTexture();
+      for (let i=0;i<count;i++) {
+        const angle = (Math.PI*2*i/count) + Math.random()*0.35;
+        const radius = 0.9 + Math.random()*1.25;
+        const sp = new THREE.Sprite(new THREE.SpriteMaterial({map:tex, transparent:true, opacity:0.72, depthWrite:false, blending:THREE.AdditiveBlending}));
+        sp.scale.setScalar(0.35 + Math.random()*0.38);
+        sp.position.copy(playerSprite.position).add(new THREE.Vector3(Math.cos(angle)*radius, 0.45+Math.random()*2.2, Math.sin(angle)*radius));
+        scene.add(sp);
+        suraGangrimVfx.push({sprite:sp, angle, radius, height:0.45+Math.random()*2.2, speed:(Math.random()-.5)*0.65, phase:Math.random()*Math.PI*2});
+      }
+    }
+
+    function clearSuraGangrimVfx() {
+      for (const v of suraGangrimVfx) scene.remove(v.sprite);
+      suraGangrimVfx.length = 0;
+    }
+
+    function updateSuraGangrimVfx(now) {
+      if (!isSuraGangrimActive()) { if (suraGangrimVfx.length) clearSuraGangrimVfx(); return; }
+      if (!suraGangrimVfx.length) spawnSuraGangrimVfx();
+      const base = playerSprite.position;
+      suraGangrimVfx.forEach((v,i) => {
+        v.angle += v.speed * 0.016;
+        const bob = Math.sin(now*0.003 + v.phase) * 0.16;
+        v.sprite.position.set(base.x + Math.cos(v.angle)*v.radius, base.y + v.height + bob, base.z + Math.sin(v.angle)*v.radius);
+        v.sprite.material.opacity = 0.58 + Math.sin(now*0.005 + v.phase)*0.16;
+      });
+    }
+
+
     function getCritChance() {
       let chance = talismanTable[playerState.talismanLevel].crit;
       if (isGuardianSetComplete()) chance += GUARDIAN_SET_CRIT_BONUS;
-      return chance;
+      if (isSuraGangrimActive()) chance *= 1.5;
+      return Math.min(1, chance);
     }
 
     // 파수꾼셋트(투구/갑옷/장갑/신발) 4부위를 모두 갖췄는지 판정.
@@ -4664,6 +4731,7 @@ window.playerState = playerState;
         atk += getGuardianEnhanceAtk();
       }
       if (typeof getWeaponCraftAttackBonus === 'function') atk += getWeaponCraftAttackBonus();
+      if (isSuraGangrimActive()) atk *= 1.5;
       return Math.round(atk);
     }
 
@@ -6758,7 +6826,8 @@ window.playerState = playerState;
       ] : [
         { id: 's2_1', name: '오의: 뇌전참 (단일)', desc: '단일 대상에게 350~400% 뇌전 검격. 사거리 3m / MP 30 / 재사용 3초', price: 10000, reqTier: 3, maxLv: 1 },
         { id: 's2_2', name: '회풍참 (범위 1)', desc: '주변 6m 이내 모든 적에게 180~220% 회전 검기. MP 25 / 재사용 4초', price: 15000, reqTier: 3, maxLv: 5 },
-        { id: 's2_3', name: '천검난무 (범위 2)', desc: '전방 8m 부채꼴에 250~300% 다중 검기. MP 40 / 재사용 7초', price: 20000, reqTier: 3, maxLv: 5 }
+        { id: 's2_3', name: '천검난무 (범위 2)', desc: '전방 8m 부채꼴에 250~300% 다중 검기. MP 40 / 재사용 7초', price: 20000, reqTier: 3, maxLv: 5 },
+        { id: 's2_4', name: '수라강림 (버프)', desc: '공격력 및 크리티컬 확률 현재값의 +50%. 지속 5~10초 / 재사용 15초 / MP 50', price: 20000, reqTier: 3, maxLv: 5 }
       ];
 
       j2Skills.forEach(sk => {
@@ -6768,7 +6837,9 @@ window.playerState = playerState;
         const isMax = currentLv >= sk.maxLv;
         const levelDesc = sk.id === 's2_2' || sk.id === 's2_3'
           ? `현재 Lv.${currentLv}/5 · 공격력 ${[0,100,120,140,160,200][currentLv]}% · MP 15`
-          : sk.desc;
+          : sk.id === 's2_4' && !isDaedosa
+            ? `현재 Lv.${currentLv}/5 · 공격력 +50% · 크리티컬 +50% · 지속 ${[0,5,6.25,7.5,8.75,10][currentLv]}초 · MP 50`
+            : sk.desc;
         const card = document.createElement('div'); card.className = 'shop-item-card';
         card.innerHTML = `
           <div>
@@ -6815,9 +6886,18 @@ window.playerState = playerState;
       }
 
       if (skillId === 's2_4') {
-        if (!isShamanClass() || playerState.tier < 3 || playerState.gold < price || playerState.skillsLearned.includes(skillId)) return;
-        playerState.gold -= price;
-        playerState.skillsLearned.push(skillId);
+        if (playerState.tier < 3 || playerState.gold < price) return;
+        if (isShamanClass()) {
+          if (playerState.skillsLearned.includes(skillId)) return;
+          playerState.gold -= price;
+          playerState.skillsLearned.push(skillId);
+        } else {
+          const currentLv = Math.max(0, Math.min(5, Number(playerState.skillLv.s2_4) || 0));
+          if (currentLv >= 5) return;
+          playerState.gold -= price;
+          playerState.skillLv.s2_4 = currentLv + 1;
+          if (!playerState.skillsLearned.includes(skillId)) playerState.skillsLearned.push(skillId);
+        }
         const btn = document.getElementById(`btn-skill-${skillId}`);
         if (btn) btn.style.display = 'flex';
         updateUI();
@@ -6912,7 +6992,8 @@ window.playerState = playerState;
       fighter: {
         s2_1: { name: '오의: 뇌전참', icon: '⚡', cooldownMs: 3000, mp: 30 },
         s2_2: { name: '회풍참', icon: '🌀', cooldownMs: 4000, mp: 25 },
-        s2_3: { name: '천검난무', icon: '⚔️', cooldownMs: 7000, mp: 40 }
+        s2_3: { name: '천검난무', icon: '⚔️', cooldownMs: 7000, mp: 40 },
+        s2_4: { name: '수라강림', icon: '🔥', cooldownMs: 15000, mp: 50, durationByLv: [0,5000,6250,7500,8750,10000] }
       },
       shaman: {
         s2_1: { name: '멸천화', icon: '🔥', cooldownMs: 5000, mp: 50 },
@@ -6935,6 +7016,9 @@ window.playerState = playerState;
         if (!btn || !cfg) return;
         const nameEl = btn.querySelector('.skill-btn-name');
         if (nameEl) nameEl.textContent = cfg.name;
+        const iconEl = btn.querySelector('.skill-icon');
+        if (iconEl) iconEl.textContent = cfg.icon;
+        btn.setAttribute('aria-label', cfg.name);
         const cdEl = btn.querySelector('.skill-cd');
         if (cdEl) cdEl.textContent = '';
         btn.title = `${cfg.name} · MP ${cfg.mp} · 재사용 ${cfg.cooldownMs / 1000}초`;
@@ -6958,7 +7042,7 @@ window.playerState = playerState;
         const last = Number(playerState.skillCooldowns?.[id] || 0);
         const remain = Math.max(0, cfg.cooldownMs - (Date.now() - last));
         const status = remain > 0 ? `${(remain / 1000).toFixed(1)}초 남음` : '사용 가능';
-        const extra = id === 's2_4' ? ' · 피해 25% MP 분담 · 지속 120초' : '';
+        const extra = id === 's2_4' ? (isShamanClass() ? ' · 피해 25% MP 분담 · 지속 120초' : ` · 공격/크리 +50% · 지속 ${getSuraGangrimDurationMs()/1000}초`) : '';
         return `<div><b>${cfg.icon} ${cfg.name}</b> — ${status} · 쿨타임 ${cfg.cooldownMs / 1000}초 · MP ${cfg.mp}${extra}</div>`;
       }).join('');
     }
@@ -7566,6 +7650,7 @@ window.playerState = playerState;
         if (!btn) return;
         btn.style.display = (!playerState.rabbitForm && playerState.skillsLearned.includes(skId)) ? 'flex' : 'none';
       });
+      refreshSecondSkillButtons();
     }
 
     function selectJob2(job2Name) {
@@ -8805,7 +8890,7 @@ window.playerState = playerState;
           moveSpeed: playerState.moveSpeed, attackRange: playerState.attackRange,
           hasSiri: playerState.hasSiri, hasJanggeum: playerState.hasJanggeum,
           hasMunyeahana: playerState.hasMunyeahana, hasRabbitGirl: playerState.hasRabbitGirl, rabbitForm: playerState.rabbitForm, hasAutoHeal: playerState.hasAutoHeal,
-          atkSpeedLv: playerState.atkSpeedLv, firstSkillLv: playerState.firstSkillLv, jobChangeCount: playerState.jobChangeCount, skillLv: { s2_2: playerState.skillLv.s2_2, s2_3: playerState.skillLv.s2_3 }, skillsLearned: Array.isArray(playerState.skillsLearned) ? [...playerState.skillsLearned].filter(id => id !== 's1_2') : [],
+          atkSpeedLv: playerState.atkSpeedLv, firstSkillLv: playerState.firstSkillLv, jobChangeCount: playerState.jobChangeCount, skillLv: { s2_2: playerState.skillLv.s2_2, s2_3: playerState.skillLv.s2_3, s2_4: playerState.skillLv.s2_4 }, suraGangrimUntil: Number(playerState.suraGangrimUntil)||0, suraGangrimCooldownAt: Number(playerState.suraGangrimCooldownAt)||0, skillsLearned: Array.isArray(playerState.skillsLearned) ? [...playerState.skillsLearned].filter(id => id !== 's1_2') : [],
           skillCooldowns: { s1_1: 0, s2_1: 0, s2_2: 0, s2_3: 0, s2_4: Number(playerState.skillCooldowns?.s2_4)||0 },
           protectionShieldUntil: Number(playerState.protectionShieldUntil)||0,
           protectionShieldCooldownAt: Number(playerState.protectionShieldCooldownAt)||0,
@@ -8866,6 +8951,8 @@ window.playerState = playerState;
         const p = data.player;
         if (p.weaponCrafting && typeof p.weaponCrafting === 'object') playerState.weaponCrafting = p.weaponCrafting;
         if (p.skillCooldowns && typeof p.skillCooldowns === 'object') playerState.skillCooldowns = { ...playerState.skillCooldowns, ...p.skillCooldowns };
+        playerState.suraGangrimUntil = Number(p.suraGangrimUntil) || 0;
+        playerState.suraGangrimCooldownAt = Number(p.suraGangrimCooldownAt) || 0;
         playerState.protectionShieldUntil = Math.max(0, Number(p.protectionShieldUntil) || 0);
         playerState.protectionShieldCooldownAt = Math.max(0, Number(p.protectionShieldCooldownAt) || 0);
         // 제작 숙련도(Lv.1~20)는 메인 게임 세이브에도 함께 저장/복원한다.
@@ -8895,6 +8982,7 @@ window.playerState = playerState;
         if (p.skillLv && typeof p.skillLv === 'object') {
           playerState.skillLv.s2_2 = Math.max(0, Math.min(5, Number(p.skillLv.s2_2) || 0));
           playerState.skillLv.s2_3 = Math.max(0, Math.min(5, Number(p.skillLv.s2_3) || 0));
+          playerState.skillLv.s2_4 = Math.max(0, Math.min(5, Number(p.skillLv.s2_4) || 0));
         }
         if (p.guardianSet && typeof p.guardianSet === 'object') {
           playerState.guardianSet = {
@@ -9035,6 +9123,20 @@ window.playerState = playerState;
           else if (cdRemain > 0) shieldVal.innerText = `🛡️ 보호의막: 재사용 ${Math.ceil(cdRemain/1000)}초`;
           else shieldVal.innerText = '🛡️ 보호의막: 사용 가능 · 피해 25% MP';
         } else shieldRow.style.display = 'none';
+      }
+
+      const suraRow = document.getElementById('sura-gangrim-status-row');
+      const suraVal = document.getElementById('sura-gangrim-status-val');
+      if (suraRow && suraVal) {
+        const known = !isShamanClass() && playerState.skillsLearned.includes('s2_4');
+        const remain = Math.max(0, Number(playerState.suraGangrimUntil || 0) - Date.now());
+        const cdRemain = Math.max(0, 15000 - (Date.now() - Number(playerState.suraGangrimCooldownAt || 0)));
+        if (known) {
+          suraRow.style.display = 'flex';
+          if (remain > 0) suraVal.innerText = `🔥 수라강림: 활성 ${Math.ceil(remain/1000)}초 · 공격/크리 +50%`;
+          else if (cdRemain > 0) suraVal.innerText = `🔥 수라강림: 재사용 ${Math.ceil(cdRemain/1000)}초`;
+          else suraVal.innerText = `🔥 수라강림 Lv.${getSuraGangrimLevel()}: 사용 가능`;
+        } else suraRow.style.display = 'none';
       }
 
       const guardianRow = document.getElementById('guardian-set-row');
@@ -9793,6 +9895,7 @@ window.playerState = playerState;
       processMonsterAI(delta, now);
       processHeroAI(delta, now);
       processProjectilesAndVfx(delta);
+      updateSuraGangrimVfx(now);
         updateRabbitFormAura(now);
         updateGuardianFireAura(now);
 
