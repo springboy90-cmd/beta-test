@@ -4602,6 +4602,10 @@ window.playerState = playerState;
       return !isShamanClass() && playerState.skillsLearned.includes('s2_4') && Number(playerState.suraGangrimUntil || 0) > Date.now();
     }
 
+    function isProtectionShieldActive() {
+      return isShamanClass() && playerState.skillsLearned.includes('s2_4') && Number(playerState.protectionShieldUntil || 0) > Date.now();
+    }
+
     function getSuraGangrimDurationMs() {
       const lv = Math.max(1, Math.min(5, Number(playerState.skillLv?.s2_4) || 1));
       return [0, 5000, 6250, 7500, 8750, 10000][lv];
@@ -4655,6 +4659,61 @@ window.playerState = playerState;
       if (!suraGangrimVfx.length) spawnSuraGangrimVfx();
       const base = playerSprite.position;
       suraGangrimVfx.forEach((v,i) => {
+        v.angle += v.speed * 0.016;
+        const bob = Math.sin(now*0.003 + v.phase) * 0.16;
+        v.sprite.position.set(base.x + Math.cos(v.angle)*v.radius, base.y + v.height + bob, base.z + Math.sin(v.angle)*v.radius);
+        v.sprite.material.opacity = 0.58 + Math.sin(now*0.005 + v.phase)*0.16;
+      });
+    }
+
+    // 보호의막(주술사/대도사 s2_4): 수라강림과 동일한 방식의 지속형 오라.
+    // 기존 spawnProtectionShieldVfx()는 0.7초짜리 일회성 이펙트라 120초 지속되는
+    // 버프 시간 동안 외형이 곧바로 사라져 보이는 문제가 있어, 버프가 켜져 있는 동안
+    // 계속 유지되는 파티클 오라로 교체한다.
+    const protectionShieldVfx = [];
+    let protectionShieldVfxTexture = null;
+    function getProtectionShieldParticleTexture() {
+      if (protectionShieldVfxTexture) return protectionShieldVfxTexture;
+      const cvs = document.createElement('canvas'); cvs.width = cvs.height = 64;
+      const ctx = cvs.getContext('2d');
+      ctx.clearRect(0,0,64,64);
+      const g = ctx.createRadialGradient(32,32,2,32,32,30);
+      g.addColorStop(0,'rgba(150,220,255,1)');
+      g.addColorStop(.35,'rgba(40,140,255,.95)');
+      g.addColorStop(.72,'rgba(10,40,120,.9)');
+      g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(32,32,29,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='rgba(180,235,255,.95)'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(32,32,25,0,Math.PI*2); ctx.stroke();
+      protectionShieldVfxTexture = new THREE.CanvasTexture(cvs);
+      protectionShieldVfxTexture.magFilter = THREE.LinearFilter;
+      return protectionShieldVfxTexture;
+    }
+
+    function spawnProtectionShieldAura() {
+      clearProtectionShieldAura();
+      const count = 14;
+      const tex = getProtectionShieldParticleTexture();
+      for (let i=0;i<count;i++) {
+        const angle = (Math.PI*2*i/count) + Math.random()*0.35;
+        const radius = 0.9 + Math.random()*1.25;
+        const sp = new THREE.Sprite(new THREE.SpriteMaterial({map:tex, transparent:true, opacity:0.72, depthWrite:false, blending:THREE.AdditiveBlending}));
+        sp.scale.setScalar(0.35 + Math.random()*0.38);
+        sp.position.copy(playerSprite.position).add(new THREE.Vector3(Math.cos(angle)*radius, 0.45+Math.random()*2.2, Math.sin(angle)*radius));
+        scene.add(sp);
+        protectionShieldVfx.push({sprite:sp, angle, radius, height:0.45+Math.random()*2.2, speed:(Math.random()-.5)*0.65, phase:Math.random()*Math.PI*2});
+      }
+    }
+
+    function clearProtectionShieldAura() {
+      for (const v of protectionShieldVfx) scene.remove(v.sprite);
+      protectionShieldVfx.length = 0;
+    }
+
+    function updateProtectionShieldAura(now) {
+      if (!isProtectionShieldActive()) { if (protectionShieldVfx.length) clearProtectionShieldAura(); return; }
+      if (!protectionShieldVfx.length) spawnProtectionShieldAura();
+      const base = playerSprite.position;
+      protectionShieldVfx.forEach((v,i) => {
         v.angle += v.speed * 0.016;
         const bob = Math.sin(now*0.003 + v.phase) * 0.16;
         v.sprite.position.set(base.x + Math.cos(v.angle)*v.radius, base.y + v.height + bob, base.z + Math.sin(v.angle)*v.radius);
@@ -7425,31 +7484,23 @@ window.playerState = playerState;
       playerState.skillCooldowns[skillId] = now;
 
       if (skillId === 's2_4') {
-        // s2_4는 직업별로 완전히 분리:
-        // 주술사/대도사 = 보호의막, 검사/검성 = 수라강림
-        if (playerState.tier < 3) return;
-
         if (isShamanClass()) {
-          // 🛡️ 보호의막: 기존 주술사/대도사 전용 버프
+          if (playerState.tier < 3) return;
           playerState.protectionShieldUntil = now + 120000;
           playerState.protectionShieldCooldownAt = now;
           playerState.skillCooldowns.s2_4 = now;
           spawnProtectionShieldVfx();
+          spawnProtectionShieldAura();
           showHealText('🛡️ 보호의막 발동! 받는 피해의 25%를 MP로 분담합니다.', playerSprite.position);
-        } else {
-          // 🔥 수라강림: 검사/검성 전용 버프
-          const lv = getSuraGangrimLevel();
-          const durationMs = getSuraGangrimDurationMs();
-          playerState.suraGangrimUntil = now + durationMs;
-          playerState.suraGangrimCooldownAt = now;
-          playerState.skillCooldowns.s2_4 = now;
-          spawnSuraGangrimVfx();
-          showHealText(
-            `🔥 수라강림 Lv.${lv} 발동! 공격력 +50% · 크리티컬 +50% · ${durationMs / 1000}초`,
-            playerSprite.position
-          );
+          updateUI();
+          return;
         }
-
+        if (playerState.tier < 3) return;
+        playerState.suraGangrimUntil = now + getSuraGangrimDurationMs();
+        playerState.suraGangrimCooldownAt = now;
+        playerState.skillCooldowns.s2_4 = now;
+        spawnSuraGangrimVfx();
+        showHealText('🔥 수라강림 발동! 공격력 및 크리티컬 확률 +50%.', playerSprite.position);
         updateUI();
         return;
       }
@@ -9915,6 +9966,7 @@ window.playerState = playerState;
       processHeroAI(delta, now);
       processProjectilesAndVfx(delta);
       updateSuraGangrimVfx(now);
+      updateProtectionShieldAura(now);
         updateRabbitFormAura(now);
         updateGuardianFireAura(now);
 
