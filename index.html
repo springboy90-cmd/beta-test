@@ -7425,12 +7425,31 @@ window.playerState = playerState;
       playerState.skillCooldowns[skillId] = now;
 
       if (skillId === 's2_4') {
-        if (!isShamanClass() || playerState.tier < 3) return;
-        playerState.protectionShieldUntil = now + 120000;
-        playerState.protectionShieldCooldownAt = now;
-        playerState.skillCooldowns.s2_4 = now;
-        spawnProtectionShieldVfx();
-        showHealText('🛡️ 보호의막 발동! 받는 피해의 25%를 MP로 분담합니다.', playerSprite.position);
+        // s2_4는 직업별로 완전히 분리:
+        // 주술사/대도사 = 보호의막, 검사/검성 = 수라강림
+        if (playerState.tier < 3) return;
+
+        if (isShamanClass()) {
+          // 🛡️ 보호의막: 기존 주술사/대도사 전용 버프
+          playerState.protectionShieldUntil = now + 120000;
+          playerState.protectionShieldCooldownAt = now;
+          playerState.skillCooldowns.s2_4 = now;
+          spawnProtectionShieldVfx();
+          showHealText('🛡️ 보호의막 발동! 받는 피해의 25%를 MP로 분담합니다.', playerSprite.position);
+        } else {
+          // 🔥 수라강림: 검사/검성 전용 버프
+          const lv = getSuraGangrimLevel();
+          const durationMs = getSuraGangrimDurationMs();
+          playerState.suraGangrimUntil = now + durationMs;
+          playerState.suraGangrimCooldownAt = now;
+          playerState.skillCooldowns.s2_4 = now;
+          spawnSuraGangrimVfx();
+          showHealText(
+            `🔥 수라강림 Lv.${lv} 발동! 공격력 +50% · 크리티컬 +50% · ${durationMs / 1000}초`,
+            playerSprite.position
+          );
+        }
+
         updateUI();
         return;
       }
