@@ -711,6 +711,71 @@
 </style>
 
 
+<style id="craft-gold-modal-mobile-final-fix">
+/* 제작·금화 보급 던전: JS에서 display:flex로 열리므로 기본 방향을 반드시 세로로 고정 */
+#craft-gold-dungeon-modal {
+  display: none;
+  flex-direction: column !important;
+  box-sizing: border-box !important;
+  width: min(92vw, 480px) !important;
+  max-width: calc(100vw - 24px) !important;
+  max-height: 82vh !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+#craft-gold-dungeon-modal .modal-title,
+#craft-gold-dungeon-modal .craft-gold-dungeon-info,
+#craft-gold-dungeon-modal > div {
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+#craft-gold-dungeon-modal .craft-gold-dungeon-info {
+  width: 100% !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+@media (max-width: 600px) {
+  #craft-gold-dungeon-modal {
+    width: calc(100vw - 24px) !important;
+    max-width: calc(100vw - 24px) !important;
+    max-height: 76vh !important;
+    padding: 10px !important;
+    border-width: 2px !important;
+    border-radius: 12px !important;
+  }
+  #craft-gold-dungeon-modal .modal-title {
+    font-size: 14px !important;
+    line-height: 1.25 !important;
+    margin-bottom: 7px !important;
+    padding-bottom: 6px !important;
+  }
+  #craft-gold-dungeon-modal .craft-gold-dungeon-info {
+    padding: 8px !important;
+    margin-bottom: 7px !important;
+    font-size: 9px !important;
+    line-height: 1.45 !important;
+  }
+  #craft-gold-dungeon-modal > div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 5px !important;
+  }
+  #craft-gold-dungeon-modal > div[style*="grid-template-columns"] > div {
+    padding: 6px !important;
+    font-size: 9px !important;
+  }
+  #craft-gold-dungeon-modal #craft-gold-dungeon-entry-info {
+    font-size: 9px !important;
+    line-height: 1.35 !important;
+    margin: 5px 0 7px !important;
+  }
+  #craft-gold-dungeon-modal .btn-small {
+    min-height: 32px !important;
+    padding: 6px 10px !important;
+    font-size: 10px !important;
+  }
+}
+</style>
+
 <style id="mobile-popup-compact-final">
 /* iPhone급 모바일 화면용 팝업 컴팩트 설정
    대상: 스테이지 / 스킬 / 경험의 서고 / 저자거리 상점 */
@@ -6875,7 +6940,13 @@ window.playerState = playerState;
         ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,72,0,Math.PI*2); ctx.fill();
       }
       ctx.globalCompositeOperation = 'source-over';
-      const tex = new THREE.CanvasTexture(cvs); tex.magFilter = THREE.LinearFilter; return tex;
+      const tex = new THREE.CanvasTexture(cvs);
+      tex.magFilter = THREE.LinearFilter;
+      tex.minFilter = THREE.LinearFilter;
+      tex.generateMipmaps = false;
+      tex.needsUpdate = true;
+      swordsmanVfxTextureCache[cacheKey] = tex;
+      return tex;
     }
 
     function spawnDaedosaSkillVfx(worldPos, skillId, radius = 5) {
@@ -6902,7 +6973,13 @@ window.playerState = playerState;
       }
     }
 
+    const swordsmanVfxTextureCache = {};
     function createSwordsmanVfxTexture(skillId, variant = 0) {
+      /* 같은 스킬 VFX를 몬스터 수만큼 Canvas로 다시 그리던 병목 제거.
+         천검난무는 특히 1회 사용 시 여러 CanvasTexture를 즉시 생성해 모바일에서
+         짧은 프레임 정지를 만들 수 있었으므로 스킬별 텍스처를 1회만 생성하고 공유한다. */
+      const cacheKey = String(skillId);
+      if (swordsmanVfxTextureCache[cacheKey]) return swordsmanVfxTextureCache[cacheKey];
       const cvs = document.createElement('canvas'); cvs.width = 420; cvs.height = 420;
       const ctx = cvs.getContext('2d');
       ctx.clearRect(0, 0, 420, 420);
@@ -7013,19 +7090,52 @@ window.playerState = playerState;
           glow(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 10, '#ffffff', 'rgba(80,210,255,0)');
         }
       } else {
-        // 천검난무 — 화면을 가르는 거대한 다중 검격 + 교차 참격 + 충격파
-        glow(cx, cy, 165, '#ffffff', 'rgba(80,120,255,0)');
-        [-0.7, -0.35, 0, 0.35, 0.7].forEach((a, i) => swordArc(a + variant * 0.04, 112 + (i % 2) * 16, 14, 0.92));
-        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 14;
-        ctx.beginPath(); ctx.moveTo(40, 275); ctx.lineTo(300, 65); ctx.stroke();
-        ctx.strokeStyle = '#7dd3fc'; ctx.lineWidth = 7;
-        ctx.beginPath(); ctx.moveTo(45, 280); ctx.lineTo(305, 70); ctx.stroke();
-        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 14;
-        ctx.beginPath(); ctx.moveTo(65, 65); ctx.lineTo(295, 285); ctx.stroke();
-        ctx.strokeStyle = '#a5f3fc'; ctx.lineWidth = 7;
-        ctx.beginPath(); ctx.moveTo(70, 70); ctx.lineTo(300, 290); ctx.stroke();
-        ctx.strokeStyle = '#8be9ff'; ctx.lineWidth = 5;
-        ctx.beginPath(); ctx.arc(cx, cy, 140, 0, Math.PI * 2); ctx.stroke();
+        // 천검난무 — 전방 부채꼴 형태의 암흑 검기. 스킬의 공격 방향은
+        // spawnSwordsmanSkillVfx에서 플레이어→타겟 방향으로 회전시킨다.
+        glow(cx, cy, 145, 'rgba(255,255,255,.95)', 'rgba(80,20,140,0)');
+
+        // 부채꼴 암흑 기운
+        ctx.save();
+        ctx.translate(cx, cy);
+        const fan = ctx.createRadialGradient(0, 0, 12, 0, 0, 175);
+        fan.addColorStop(0, 'rgba(235,210,255,.92)');
+        fan.addColorStop(.18, 'rgba(100,35,150,.78)');
+        fan.addColorStop(.62, 'rgba(35,8,60,.58)');
+        fan.addColorStop(1, 'rgba(10,0,20,0)');
+        ctx.fillStyle = fan;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, 175, -0.82, 0.82);
+        ctx.closePath(); ctx.fill();
+
+        // 9개의 서로 다른 길이/각도의 검은 검기
+        for (let i = 0; i < 9; i++) {
+          const a = -0.78 + i * 0.195 + (variant % 3 - 1) * 0.018;
+          const len = 92 + (i % 3) * 22;
+          const x1 = Math.cos(a) * 20, y1 = Math.sin(a) * 20;
+          const x2 = Math.cos(a) * len, y2 = Math.sin(a) * len;
+          ctx.strokeStyle = 'rgba(15,5,25,.92)'; ctx.lineWidth = 16; ctx.lineCap = 'round';
+          ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+          ctx.strokeStyle = i % 2 ? 'rgba(145,70,210,.85)' : 'rgba(220,180,255,.88)'; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        }
+
+        // 중앙 핵심 검기와 충격파
+        ctx.strokeStyle = '#16051f'; ctx.lineWidth = 24;
+        ctx.beginPath(); ctx.moveTo(8, 0); ctx.lineTo(170, 0); ctx.stroke();
+        ctx.strokeStyle = '#d8b4ff'; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.moveTo(12, 0); ctx.lineTo(155, 0); ctx.stroke();
+        ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.arc(0, 0, 48, -0.82, 0.82); ctx.stroke();
+
+        // 암흑 입자
+        for (let i = 0; i < 18; i++) {
+          const a = -0.82 + Math.random() * 1.64;
+          const r = 55 + Math.random() * 105;
+          glow(Math.cos(a) * r, Math.sin(a) * r, 3 + Math.random() * 5,
+            i % 3 === 0 ? '#e7c7ff' : '#7d35a8', 'rgba(30,0,45,0)');
+        }
+        ctx.restore();
       }
 
       ctx.globalCompositeOperation = 'source-over';
@@ -7167,7 +7277,7 @@ window.playerState = playerState;
         if (playerState.job === '대도사') spawnDaedosaSkillVfx(playerSprite.position, 's2_2', 6.0); else spawnSwordsmanSkillVfx(playerSprite.position, 's2_2', 6.0);
         monsters.forEach(m => {
           if (m.alive && playerSprite.position.distanceTo(m.sprite.position) <= 6.0) {
-            if (playerState.job === '대도사') spawnHitVfx(m.sprite.position, 'explosion', 2.0); else spawnSwordsmanSkillVfx(m.sprite.position, 's2_1', 1.8);
+            if (playerState.job === '대도사') spawnHitVfx(m.sprite.position, 'explosion', 2.0); else spawnHitVfx(m.sprite.position, 'slash', 1.45);
             applyDamage(m, getPlayerActualDmg(mult));
           }
         });
@@ -7180,7 +7290,7 @@ window.playerState = playerState;
         if (playerState.job === '대도사') spawnDaedosaSkillVfx(centerPos, 's2_3', 8.0); else spawnSwordsmanSkillVfx(centerPos, 's2_3', 8.0);
         monsters.forEach(m => {
           if (m.alive && m.sprite.position.distanceTo(centerPos) <= 8.0) {
-            if (playerState.job !== '대도사') spawnSwordsmanSkillVfx(m.sprite.position, 's2_1', 1.6);
+            if (playerState.job !== '대도사') spawnHitVfx(m.sprite.position, 'slash', 1.25);
             applyDamage(m, getPlayerActualDmg(mult));
           }
         });
