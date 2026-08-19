@@ -143,6 +143,12 @@
     .btn-potion:active { transform: translateY(2px); box-shadow: none; }
 
     .top-right-controls { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+    /* 상단 UI 하위 메뉴 */
+    .ui-menu-group { position: relative; display:flex; flex-direction:column; align-items:flex-end; }
+    .ui-menu-toggle { min-width:132px; }
+    .ui-submenu { display:none; flex-direction:column; gap:4px; margin-top:4px; padding:5px; background:rgba(18,28,40,.97); border:2px solid #8ea0b5; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,.35); width:170px; box-sizing:border-box; z-index:10050; }
+    .ui-menu-group.open .ui-submenu { display:flex; }
+    .ui-submenu .btn-small { width:100%; box-sizing:border-box; text-align:center; }
     .btn-small { background: var(--panel-bg); border: 2px solid var(--panel-border); color: var(--text-main); padding: 6px 12px; font-size: 10px; font-weight: bold; border-radius: 10px; cursor: pointer; box-shadow: 0 2px 0 var(--panel-border); }
     .btn-small:active { transform: translateY(2px); box-shadow: none; }
     .btn-job { background: linear-gradient(135deg, #ffd54f, #ffb74d); border-color: #f57f17; color: #5d4037; font-weight: bold; animation: stagePulse 1.2s infinite; }
@@ -1021,6 +1027,40 @@
 </style>
 
 
+<style id="minimap-dungeon-ui-final">
+/* 던전 메뉴를 미니맵 내부로 이동: 작은 버튼 + 미니맵 안쪽 드롭다운 */
+#minimap-box { position:absolute !important; top:145px !important; right:10px !important; width:110px !important; height:110px !important; display:block !important; overflow:visible !important; z-index:15 !important; }
+#minimap-box .minimap-dungeon-menu {
+  position:absolute !important; left:4px !important; top:4px !important; z-index:10060 !important;
+  display:flex; flex-direction:column; align-items:flex-start;
+}
+#minimap-box .minimap-dungeon-toggle {
+  width:48px !important; height:24px !important; min-width:48px !important;
+  padding:2px 4px !important; margin:0 !important;
+  border:1px solid #ffb74d !important; border-radius:7px !important;
+  background:rgba(255,243,224,.94) !important; color:#e65100 !important;
+  font-size:8px !important; line-height:1 !important; font-weight:800 !important;
+  box-shadow:0 1px 3px rgba(0,0,0,.35) !important;
+}
+#minimap-box .minimap-dungeon-submenu {
+  display:none; width:104px !important; padding:3px !important; margin-top:3px !important;
+  gap:3px !important; border:1px solid #8ea0b5 !important; border-radius:7px !important;
+  background:rgba(18,28,40,.96) !important; box-sizing:border-box !important;
+  box-shadow:0 3px 8px rgba(0,0,0,.4) !important;
+}
+#minimap-box .ui-menu-group.open .minimap-dungeon-submenu { display:flex !important; }
+#minimap-box .minimap-dungeon-submenu .btn-small {
+  width:100% !important; min-width:0 !important; padding:4px 3px !important;
+  border-width:1px !important; border-radius:5px !important;
+  font-size:7px !important; line-height:1.1 !important; box-shadow:none !important;
+  white-space:nowrap !important;
+}
+@media(max-width:380px){
+ #minimap-box .minimap-dungeon-toggle{width:44px!important;height:22px!important;min-width:44px!important;font-size:7px!important}
+ #minimap-box .minimap-dungeon-submenu{width:96px!important}
+ #minimap-box .minimap-dungeon-submenu .btn-small{font-size:6.5px!important;padding:3px 2px!important}
+}
+</style>
 <style id="mobile-ui-80-final">
 /* iPhone급 모바일 HUD 축소/재배치: 상단 상태창과 우측 버튼이 게임 시야를 가리지 않도록 약 80% */
 @media (max-width: 600px) {
@@ -1106,7 +1146,29 @@
 #wc-proficiency-box{margin:5px 0!important;padding:6px!important;border-radius:7px!important}#wc-practice-craft-btn{margin-top:5px!important;padding:7px 5px!important;font-size:10px!important;line-height:1.2!important;white-space:normal!important}
 html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!important}
 @media(max-width:430px){#wc-panel{width:100%!important}#wc-head h2{font-size:16px!important}}
-</style></head>
+</style>
+<style id="minimap-restore-final">
+/* 미니맵 복구: 기존 absolute HUD 위치를 유지하고 던전 메뉴만 내부에 배치 */
+#minimap-box {
+  position:absolute !important;
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  top:145px !important;
+  right:10px !important;
+  width:110px !important;
+  height:110px !important;
+  z-index:15 !important;
+}
+#minimap-canvas { display:block !important; visibility:visible !important; width:100% !important; height:100% !important; }
+@media (max-width:600px){
+  #minimap-box { top:125px !important; right:8px !important; width:110px !important; height:110px !important; }
+}
+@media (max-width:380px){
+  #minimap-box { top:116px !important; right:8px !important; width:110px !important; height:110px !important; }
+}
+</style>
+</head>
 <body>
 
   <div id="canvas-container"></div>
@@ -1149,8 +1211,6 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
           <div class="stat-row-item status-main-action-row">
             <button class="stage-badge" id="stage-badge" onclick="openStageModal()" title="클릭하여 스테이지 선택">초보자 사냥터 ▾</button>
             <button class="btn-skill-badge" onclick="openSkillModal()">✨ 스킬</button>
-            <button class="btn-exp-dungeon" onclick="openExpDungeonModal()">📕 경험의 서고</button>
-            <button class="btn-craft-gold-dungeon" onclick="openCraftGoldDungeonModal()">⚒️ 제작·금화</button>
             <span class="stat-gold"><span id="gold-val">200</span> G</span>
           </div>
           <div class="stat-row-item" style="justify-content: flex-end;">
@@ -1187,14 +1247,26 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
         <button class="btn-small btn-job" id="btn-job2-modal" style="display: none;" onclick="openJob2Modal()">📜 2차 전직하기 (Lv.40)</button>
         <button class="btn-small btn-job" id="btn-job-change" style="display: none; background:#fff3e0; border-color:#ffb74d; color:#e65100;" onclick="openJobChangeModal()">🔄 직업 변경</button>
         <button class="btn-small btn-rabbit" id="btn-rabbit-transform" style="display:none;" onclick="toggleRabbitForm()">🐰 토끼소녀 강림</button>
-        <button class="btn-small" style="background:#f3e5f5; border-color:#ce93d8; color:#6a1b9a;" onclick="openHeroManager()">👥 영웅 관리</button>
-        <button class="btn-small" id="btn-hero-recall" onclick="recallHeroesToPlayer()" style="background:#e3f2fd; border-color:#64b5f6; color:#1565c0;">🔔 영웅 호출</button>
-        <button class="btn-small" id="btn-hero-auto" onclick="toggleHeroAutoHunt()" style="background: #fff9c4; border-color: #fbc02d; color: #f57f17;">영웅 자율사냥: OFF</button>
+        <div class="ui-menu-group" id="hero-menu-group">
+          <button class="btn-small ui-menu-toggle" onclick="toggleUiSubmenu('hero-menu-group')" style="background:#f3e5f5; border-color:#ce93d8; color:#6a1b9a;">👥 영웅 관리 ▾</button>
+          <div class="ui-submenu">
+            <button class="btn-small" onclick="openHeroManager(); closeUiSubmenus();" style="background:#f3e5f5; border-color:#ce93d8; color:#6a1b9a;">👥 영웅 관리</button>
+            <button class="btn-small" id="btn-hero-recall" onclick="recallHeroesToPlayer(); closeUiSubmenus();" style="background:#e3f2fd; border-color:#64b5f6; color:#1565c0;">🔔 영웅 호출</button>
+            <button class="btn-small" id="btn-hero-auto" onclick="toggleHeroAutoHunt(); closeUiSubmenus();" style="background:#fff9c4; border-color:#fbc02d; color:#f57f17;">영웅 자율사냥: OFF</button>
+          </div>
+        </div>
       </div>
     </div>
 
     <div id="minimap-box" class="interactive">
       <canvas id="minimap-canvas" width="110" height="110"></canvas>
+      <div class="minimap-dungeon-menu ui-menu-group" id="dungeon-menu-group">
+        <button class="minimap-dungeon-toggle ui-menu-toggle" onclick="toggleUiSubmenu('dungeon-menu-group')" title="던전">🏰 던전</button>
+        <div class="minimap-dungeon-submenu ui-submenu">
+          <button class="btn-small" onclick="openExpDungeonModal(); closeUiSubmenus();">📕 경험의 서고</button>
+          <button class="btn-small" onclick="openCraftGoldDungeonModal(); closeUiSubmenus();">⚒️💰 제작·금화</button>
+        </div>
+      </div>
     </div>
 
     <div class="zoom-controls interactive">
@@ -5186,6 +5258,21 @@ window.playerState = playerState;
     let munyeahanaFacing = 'front';
     let munyeahanaShadow = null;
     const munyeahanaState = { level: 1, exp: 0, maxExp: getRequiredExp(1), attackPowerMin: 80, attackPowerMax: 100, attackRange: 3.2, attackSpeed: 1100, lastAttackTime: 0 };
+
+    // 상단 UI 하위 메뉴: 던전/영웅 관련 버튼을 한 곳으로 정리
+    function closeUiSubmenus() {
+      document.querySelectorAll('.ui-menu-group.open').forEach(g => g.classList.remove('open'));
+    }
+    function toggleUiSubmenu(id) {
+      const target = document.getElementById(id);
+      if (!target) return;
+      const wasOpen = target.classList.contains('open');
+      closeUiSubmenus();
+      if (!wasOpen) target.classList.add('open');
+    }
+    document.addEventListener('pointerdown', function(e) {
+      if (!e.target.closest('.ui-menu-group')) closeUiSubmenus();
+    });
 
     let heroAutoHunt = false;
     function toggleHeroAutoHunt() {
