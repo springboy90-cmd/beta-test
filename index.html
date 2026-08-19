@@ -368,7 +368,7 @@
     /* ===== 상태창 버튼 UI 정리 ===== */
     .status-main-action-row {
       display: grid !important;
-      grid-template-columns: minmax(0, 1.25fr) 0.62fr minmax(0, 1.45fr) auto;
+      grid-template-columns: minmax(0, 1.15fr) 0.58fr minmax(0, 1.25fr) minmax(0, 1.05fr);
       gap: 4px;
       width: 100%;
       align-items: stretch;
@@ -415,6 +415,24 @@
       color: #fff;
       cursor: pointer;
       box-shadow: 0 1px 2px rgba(0,0,0,.15);
+    }
+    .status-main-action-row .btn-craft-gold-dungeon {
+      background: linear-gradient(135deg, #ffb300, #ef6c00);
+      border: 1px solid #e65100;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0,0,0,.15);
+    }
+    .craft-gold-dungeon-info { margin:0 0 10px; padding:10px; border-radius:10px; background:#fff8e1; border:1px solid #ffca28; color:#6d4c00; font-size:11px; line-height:1.6; }
+    .craft-gold-dungeon-hud { position:fixed; top:76px; left:50%; transform:translateX(-50%); z-index:50; display:none; min-width:245px; padding:7px 12px; border-radius:12px; background:rgba(68,42,8,.94); color:#fff; border:2px solid #ffca28; text-align:center; font-weight:800; box-shadow:0 3px 12px rgba(0,0,0,.35); pointer-events:auto; }
+    .craft-gold-dungeon-hud .timer { color:#ffe082; font-size:16px; margin-left:7px; }
+    .craft-gold-dungeon-hud .count { color:#ffcc80; font-size:10px; margin-left:7px; }
+    .craft-gold-dungeon-hud .exit-btn { display:inline-block; margin-left:7px; padding:2px 7px; border-radius:8px; background:#d84315; border:1px solid #ffccbc; color:#fff; font-size:10px; font-weight:800; cursor:pointer; vertical-align:middle; }
+    @media (max-width: 600px) {
+      .craft-gold-dungeon-hud { top:6px; min-width:0; padding:3px 8px; border-radius:9px; font-size:10px; }
+      .craft-gold-dungeon-hud .timer { font-size:11px; margin-left:4px; }
+      .craft-gold-dungeon-hud .count { font-size:9px; margin-left:4px; }
+      .craft-gold-dungeon-hud .exit-btn { margin-left:4px; padding:1px 5px; font-size:9px; border-radius:6px; }
     }
 
     .status-main-action-row .stat-gold {
@@ -1031,6 +1049,7 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
 
   <div id="ui-layer">
     <div id="exp-dungeon-hud" class="exp-dungeon-hud">📕 경험의 서고 <span class="timer" id="exp-dungeon-timer">03:00</span><span class="count" id="exp-dungeon-kills">0마리</span><span class="exp-dungeon-exit-btn" onclick="requestExitExperienceDungeon()">나가기</span></div>
+    <div id="craft-gold-dungeon-hud" class="craft-gold-dungeon-hud">⚒️💰 제작·금화 보급 던전 <span class="timer" id="craft-gold-dungeon-timer">05:00</span><span class="count" id="craft-gold-dungeon-kills">0마리</span><span class="exit-btn" onclick="exitCraftGoldDungeon()">나가기</span></div>
     <div style="display: flex; justify-content: space-between; width: 100%;">
       <div class="status-panel interactive">
         <div class="character-info">
@@ -1066,6 +1085,7 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
             <button class="stage-badge" id="stage-badge" onclick="openStageModal()" title="클릭하여 스테이지 선택">초보자 사냥터 ▾</button>
             <button class="btn-skill-badge" onclick="openSkillModal()">✨ 스킬</button>
             <button class="btn-exp-dungeon" onclick="openExpDungeonModal()">📕 경험의 서고</button>
+            <button class="btn-craft-gold-dungeon" onclick="openCraftGoldDungeonModal()">⚒️ 제작·금화</button>
             <span class="stat-gold"><span id="gold-val">200</span> G</span>
           </div>
           <div class="stat-row-item" style="justify-content: flex-end;">
@@ -1189,6 +1209,27 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
     <div class="stage-cards" id="exp-dungeon-cards"></div>
     <div style="text-align:center; margin-top:10px;">
       <button class="btn-small" onclick="closeExpDungeonModal()">창 닫기</button>
+    </div>
+  </div>
+
+  <!-- Craft + Gold Dungeon Modal -->
+  <div class="modal interactive" id="craft-gold-dungeon-modal">
+    <div class="modal-title">⚒️💰 제작·금화 보급 던전</div>
+    <div class="craft-gold-dungeon-info">
+      <b>무기 제작 재료와 게임머니 파밍 전용 던전</b><br>
+      기존 사냥터의 <b>배경과 몬스터 외형을 그대로 재사용</b>하고, 몬스터 능력치는 낮게 조정했습니다.<br>
+      입장 시 기존 1~7 스테이지 중 하나의 비주얼을 랜덤으로 사용합니다.<br>
+      <b>하루 3회</b> 입장 · 1회 <b>5분</b> · 경험치는 거의 지급하지 않습니다.<br>
+      철광석·목재·강화의 핵·정제철·보스의 혼·신수의 결정과 게임머니가 기존보다 높은 확률로 드랍됩니다.
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+      <div style="padding:7px;background:#fffde7;border:1px solid #ffe082;border-radius:8px;text-align:center;font-size:10px;">⚒️ 제작 재료 <b>상향 드랍</b></div>
+      <div style="padding:7px;background:#fff3e0;border:1px solid #ffcc80;border-radius:8px;text-align:center;font-size:10px;">💰 골드 <b>4,000~80,000G</b></div>
+    </div>
+    <div id="craft-gold-dungeon-entry-info" style="text-align:center;font-size:11px;color:#8d6e00;margin:6px 0 10px;"></div>
+    <div style="text-align:center;">
+      <button id="craft-gold-dungeon-enter-btn" class="btn-small" style="background:linear-gradient(135deg,#ffb300,#ef6c00);border-color:#e65100;color:#fff;min-width:180px;font-weight:800;" onclick="enterCraftGoldDungeon()">⚒️💰 입장</button>
+      <button class="btn-small" style="margin-left:5px;" onclick="closeCraftGoldDungeonModal()">창 닫기</button>
     </div>
   </div>
 
@@ -1437,6 +1478,24 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
     let experienceDungeonEntryUsedTicket = false;
     let experienceDungeonDeathModalOpen = false;
     let experienceDungeonDeathPrevAutoHunt = true;
+
+    // 제작·금화 보급 던전
+    let craftGoldDungeonActive = false;
+    let craftGoldDungeonEndsAt = 0;
+    let craftGoldDungeonTimer = null;
+    let craftGoldDungeonKills = 0;
+    let craftGoldDungeonReturnStage = 1;
+    let craftGoldDungeonReturnHadum = false;
+    const CRAFT_GOLD_DUNGEON_DAILY_LIMIT = 3;
+    const CRAFT_GOLD_DUNGEON_DURATION = 300000;
+    const CRAFT_GOLD_DUNGEON_SAVE_KEY = 'craftGoldDungeonDaily';
+    const CRAFT_GOLD_DUNGEON_MATERIAL_RATES = {
+      iron:0.70, wood:0.60, core:0.25, refined:0.15, boss:0.035, divine:0.005
+    };
+    const CRAFT_GOLD_DUNGEON_BOSS_RATES = {
+      iron:1.00, wood:0.90, core:0.60, refined:0.40, boss:0.20, divine:0.05
+    };
+
     const EXPERIENCE_DUNGEON_DAILY_LIMIT = 3;
     const EXPERIENCE_DUNGEON_DURATION = 180000;
     const EXPERIENCE_DUNGEON_STATS = {
@@ -5818,6 +5877,170 @@ window.playerState = playerState;
       return Math.max(0, EXPERIENCE_DUNGEON_DAILY_LIMIT - getExperienceDungeonDailyData().count);
     }
 
+    function getCraftGoldDungeonDailyData() {
+      const today = new Date().toISOString().slice(0,10);
+      let data = null;
+      try { data = JSON.parse(localStorage.getItem(CRAFT_GOLD_DUNGEON_SAVE_KEY) || 'null'); } catch(e) {}
+      if (!data || data.date !== today) data = { date: today, count: 0 };
+      return data;
+    }
+
+    function getCraftGoldDungeonRemaining() {
+      return Math.max(0, CRAFT_GOLD_DUNGEON_DAILY_LIMIT - getCraftGoldDungeonDailyData().count);
+    }
+
+    function openCraftGoldDungeonModal() {
+      if (craftGoldDungeonActive) return;
+      renderCraftGoldDungeonInfo();
+      document.getElementById('craft-gold-dungeon-modal').style.display = 'flex';
+    }
+
+    function closeCraftGoldDungeonModal() {
+      document.getElementById('craft-gold-dungeon-modal').style.display = 'none';
+    }
+
+    function renderCraftGoldDungeonInfo() {
+      const remain = getCraftGoldDungeonRemaining();
+      const info = document.getElementById('craft-gold-dungeon-entry-info');
+      const btn = document.getElementById('craft-gold-dungeon-enter-btn');
+      if (info) info.innerHTML = `오늘 남은 입장 횟수: <b>${remain}/3회</b> · 현재 보유 게임머니: <b>${Number(playerState.gold||0).toLocaleString()} G</b>`;
+      if (btn) {
+        btn.disabled = remain <= 0 || craftGoldDungeonActive;
+        btn.innerText = remain > 0 ? '⚒️💰 입장' : '오늘 입장 완료';
+      }
+    }
+
+    function getCraftGoldDungeonVisualStage() {
+      // 기존 사냥터의 외형을 그대로 재사용한다. 하둠 전용 6/7은 하둠 외형으로 사용.
+      return Math.floor(Math.random() * 7) + 1;
+    }
+
+    function buildCraftGoldDungeonVisual(stage) {
+      if (stage === 1) buildStage1Field(false);
+      else if (stage === 2) buildStage2Cave(false);
+      else if (stage === 3) buildStage3Baduk(false);
+      else if (stage === 4) buildStage4IceCastle(false);
+      else if (stage === 5) buildStage5DragonPalace(false);
+      else if (stage === 6) buildStage6ShinsuGorge(true);
+      else buildStage7ShinsuGorge2(true);
+    }
+
+    function tuneCraftGoldDungeonMonsters() {
+      monsters.forEach(m => {
+        m.isCraftGoldDungeon = true;
+        m.isExperienceDungeon = false;
+        // 파밍 목적의 낮은 전투 난이도
+        if (m.isBoss) {
+          m.hp = 30000;
+          m.maxHp = 30000;
+          m.defense = 250;
+          m.attackPower = 220;
+          m.attackPowerMin = 190;
+          m.attackPowerMax = 250;
+          m.goldReward = 0;
+          m.attackRange = Math.min(Number(m.attackRange || 4.5), 4.5);
+        } else {
+          m.hp = 2500;
+          m.maxHp = 2500;
+          m.defense = 100;
+          m.attackPower = 100;
+          m.attackPowerMin = 80;
+          m.attackPowerMax = 120;
+          m.goldReward = 0;
+          m.attackRange = Math.min(Number(m.attackRange || 2.6), 2.8);
+        }
+        m.__weaponCraftDropGiven = false;
+        m.alive = true;
+        m.destroyed = false;
+      });
+    }
+
+    function addCraftGoldDungeonDrops(target) {
+      if (!target || !playerState) return;
+      playerState.craftingMaterials = playerState.craftingMaterials || {iron:0,wood:0,core:0,refined:0,boss:0,divine:0};
+      const rates = target.isBoss ? CRAFT_GOLD_DUNGEON_BOSS_RATES : CRAFT_GOLD_DUNGEON_MATERIAL_RATES;
+      const names = {iron:'철광석',wood:'목재',core:'강화의 핵',refined:'정제철',boss:'보스의 혼',divine:'신수의 결정'};
+      const got = [];
+      Object.keys(rates).forEach(k => {
+        if (Math.random() < rates[k]) {
+          playerState.craftingMaterials[k] = (Number(playerState.craftingMaterials[k]) || 0) + 1;
+          got.push(names[k]);
+        }
+      });
+      try { localStorage.setItem('weaponCraftingMaterials_v2', JSON.stringify(playerState.craftingMaterials)); } catch(e) {}
+      if (typeof renderCraftingBag === 'function') { try { renderCraftingBag(); } catch(e) {} }
+      return got;
+    }
+
+    function openCraftGoldDungeonHud() {
+      const hud = document.getElementById('craft-gold-dungeon-hud');
+      if (hud) hud.style.display = 'block';
+      updateCraftGoldDungeonHud();
+    }
+
+    function updateCraftGoldDungeonHud() {
+      const remain = Math.max(0, craftGoldDungeonEndsAt - Date.now());
+      const sec = Math.ceil(remain / 1000);
+      const mm = String(Math.floor(sec / 60)).padStart(2,'0');
+      const ss = String(sec % 60).padStart(2,'0');
+      const timer = document.getElementById('craft-gold-dungeon-timer');
+      const kills = document.getElementById('craft-gold-dungeon-kills');
+      if (timer) timer.innerText = `${mm}:${ss}`;
+      if (kills) kills.innerText = `${craftGoldDungeonKills}마리 처치`;
+    }
+
+    function enterCraftGoldDungeon() {
+      if (craftGoldDungeonActive || experienceDungeonActive) return;
+      const data = getCraftGoldDungeonDailyData();
+      if (data.count >= CRAFT_GOLD_DUNGEON_DAILY_LIMIT) {
+        alert('제작·금화 보급 던전은 하루 3회까지만 입장할 수 있습니다.');
+        renderCraftGoldDungeonInfo();
+        return;
+      }
+      data.count++;
+      localStorage.setItem(CRAFT_GOLD_DUNGEON_SAVE_KEY, JSON.stringify(data));
+
+      craftGoldDungeonActive = true;
+      craftGoldDungeonKills = 0;
+      craftGoldDungeonEndsAt = Date.now() + CRAFT_GOLD_DUNGEON_DURATION;
+      craftGoldDungeonReturnStage = currentStage;
+      craftGoldDungeonReturnHadum = currentHadum;
+
+      const visualStage = getCraftGoldDungeonVisualStage();
+      buildCraftGoldDungeonVisual(visualStage);
+      tuneCraftGoldDungeonMonsters();
+      document.getElementById('stage-badge').innerText = '⚒️ 제작·금화 보급 던전 ▾';
+      document.getElementById('craft-gold-dungeon-hud').style.display = 'block';
+      closeCraftGoldDungeonModal();
+      selectedTarget = null;
+      targetArrowSprite.visible = false;
+      autoHuntPatrolTarget = null;
+      playerSprite.position.set(0,1.6,4);
+      recallHeroesToPlayer(true);
+      updateCraftGoldDungeonHud();
+      updateUI();
+
+      if (craftGoldDungeonTimer) clearInterval(craftGoldDungeonTimer);
+      craftGoldDungeonTimer = setInterval(() => {
+        if (!craftGoldDungeonActive) return;
+        if (Date.now() >= craftGoldDungeonEndsAt) exitCraftGoldDungeon();
+        else updateCraftGoldDungeonHud();
+      }, 250);
+    }
+
+    function exitCraftGoldDungeon() {
+      if (!craftGoldDungeonActive) return;
+      craftGoldDungeonActive = false;
+      if (craftGoldDungeonTimer) { clearInterval(craftGoldDungeonTimer); craftGoldDungeonTimer = null; }
+      const hud = document.getElementById('craft-gold-dungeon-hud');
+      if (hud) hud.style.display = 'none';
+      clearMonsters();
+      if (craftGoldDungeonReturnHadum) selectStage(craftGoldDungeonReturnStage,true);
+      else selectStage(craftGoldDungeonReturnStage,false);
+      showHealText('⚒️💰 제작·금화 보급 던전 종료 · 일반 필드로 복귀', playerSprite.position);
+      updateUI();
+    }
+
     function getExperienceDungeonTicketData() {
       const today = new Date().toISOString().slice(0,10);
       let data = null;
@@ -6082,7 +6305,7 @@ window.playerState = playerState;
     }
 
     function selectStage(stageNum, isHadum = false, keepPosition = false) {
-      if (experienceDungeonActive && !keepPosition) return;
+      if ((experienceDungeonActive || craftGoldDungeonActive) && !keepPosition) return;
       if (isHadum && playerState.tier !== 3) {
         alert('2차 전직을 완료해야 하둠의 영역에 입장할 수 있습니다.');
         return;
@@ -7077,6 +7300,11 @@ window.playerState = playerState;
       return playerState.job === '주술사' || playerState.job === '대도사';
     }
 
+    // 검사 계열(검사/검성) 여부. 조선 두정갑처럼 검사 계열 전용 방어구 판별에 사용한다.
+    function isWarriorClass() {
+      return playerState.job === '검사' || playerState.job === '검성';
+    }
+
     function selectJob(jobName) {
       playerState.job = jobName;
       playerState.tier = 2;
@@ -7222,7 +7450,8 @@ window.playerState = playerState;
       ],
       armor: [
         { id: 'a1', name: '철갑 도포', desc: '최대 체력 +80, 방어력 +6', price: 5000, currency: 'gold', type: 'armor', valHp: 80, valDef: 6, reqLv: 20 },
-        { id: 'a2', name: '조선 두정갑', desc: '최대 체력 +180, 방어력 +14', price: 15000, currency: 'gold', type: 'armor', valHp: 180, valDef: 14, reqLv: 50 },
+        { id: 'a2', name: '조선 두정갑', desc: '최대 체력 +180, 방어력 +14 (검사 계열 전용)', price: 15000, currency: 'gold', type: 'armor', valHp: 180, valDef: 14, reqLv: 50, reqWarrior: true },
+        { id: 'a3', name: '조선 유생포', desc: '최대 마력 +260, 방어력 +10 (주술사 계열 전용)', price: 15000, currency: 'gold', type: 'armorShaman', valMp: 260, valDef: 10, reqLv: 50, reqShaman: true },
         { id: 'mp1', name: '마력 증대 I', desc: '최대 MP +100 (주술사 계열 전용)', price: 1000, currency: 'gold', type: 'maxMp', valMp: 100, reqShaman: true },
         { id: 'mp2', name: '마력 증대 II', desc: '최대 MP +200 (주술사 계열 전용)', price: 1900, currency: 'gold', type: 'maxMp', valMp: 200, reqShaman: true }
       ],
@@ -7322,7 +7551,7 @@ window.playerState = playerState;
         return;
       }
 
-      shopCatalog[cat].filter(item => !item.reqShaman || isShamanClass()).forEach(item => {
+      shopCatalog[cat].filter(item => (!item.reqShaman || isShamanClass()) && (!item.reqWarrior || isWarriorClass())).forEach(item => {
         const card = document.createElement('div'); card.className = 'shop-item-card';
 
         if (item.type === 'talisman') {
@@ -7739,6 +7968,10 @@ window.playerState = playerState;
         alert('주술사 계열 전직 후 구매할 수 있습니다.');
         return;
       }
+      if (item.reqWarrior && !isWarriorClass()) {
+        alert('검사 계열 전직 후 구매할 수 있습니다.');
+        return;
+      }
 
       playerState.gold -= item.price;
 
@@ -7747,6 +7980,7 @@ window.playerState = playerState;
       else if (id === 'h3') { playerState.hasMunyeahana = true; spawnMunyeahanaHero(); }
       else if (item.type === 'atk') playerState.weaponAtk += item.val;
       else if (item.type === 'armor') { playerState.maxHp += item.valHp; playerState.hp += item.valHp; playerState.defensePower += item.valDef; }
+      else if (item.type === 'armorShaman') { playerState.maxMp += item.valMp; playerState.mp += item.valMp; playerState.defensePower += item.valDef; }
       else if (item.type === 'maxMp') { playerState.maxMp += item.valMp; playerState.mp += item.valMp; }
 
       updateUI();
@@ -8130,7 +8364,9 @@ window.playerState = playerState;
           }
         }
 
-        if (experienceDungeonActive) {
+        if (craftGoldDungeonActive) {
+          showHealText(deathPenaltyApplied ? '💀 부활 · 경험치 1% 감소' : '💀 부활', playerSprite.position);
+        } else if (experienceDungeonActive) {
           // 경험의 서고는 저레벨 구간에서 몬스터에게 반복적으로 죽기 쉬워, alert()를 그대로 쓰면
           // 자동사냥이 계속 죽음을 유발하며 alert가 겹겹이 쌓여 화면이 막히는 문제가 있었다.
           // alert 대신 "계속 진행 / 일반 필드로 나가기"를 고를 수 있는 팝업을 띄운다.
@@ -9085,7 +9321,7 @@ window.playerState = playerState;
 
       if (target.hp <= 0) {
 
-      if(!target.__weaponCraftDropGiven){
+      if(!target.__weaponCraftDropGiven && !target.isCraftGoldDungeon){
         target.__weaponCraftDropGiven=true;
         if(typeof addWeaponCraftDrop==='function')
           addWeaponCraftDrop(target.stageId,!!target.isBoss,target);
@@ -9095,7 +9331,7 @@ window.playerState = playerState;
         scene.remove(target.sprite);
         if (target.shadowDisk) scene.remove(target.shadowDisk);
         
-        const expGained = getMonsterExpReward(target);
+        const expGained = target.isCraftGoldDungeon ? 0 : getMonsterExpReward(target);
 
         // ===== 골드 보상 =====
         // 경험의 서고는 EXP 전용이므로 골드/전리품을 지급하지 않는다.
@@ -9103,7 +9339,16 @@ window.playerState = playerState;
         // 하둠 스테이지(1~4) 일반몹: 850G 고정 지급.
         // 보스: 92% 확률로 500G, 별개로 10% 확률로 40,000G 보너스 지급.
         let rewardGold = 0;
-        if (target.isExperienceDungeon) {
+        if (target.isCraftGoldDungeon) {
+          rewardGold = target.isBoss
+            ? (60000 + Math.floor(Math.random() * 20001))
+            : (4000 + Math.floor(Math.random() * 3001));
+          const got = addCraftGoldDungeonDrops(target);
+          craftGoldDungeonKills++;
+          if (got.length) showHealText(`💰 +${rewardGold.toLocaleString()}G · ⚒️ ${got.join(', ')}`, target.sprite.position);
+          else showHealText(`💰 +${rewardGold.toLocaleString()}G`, target.sprite.position);
+          updateCraftGoldDungeonHud();
+        } else if (target.isExperienceDungeon) {
           rewardGold = 0;
         } else if (target.isBoss) {
           if (Math.random() < 0.92) {
@@ -9125,7 +9370,7 @@ window.playerState = playerState;
 
         // ===== 무기 제작 재료 보상 =====
         // 하둠1~2: 철광석/목재, 하둠3~4: 철광석/강화의 핵, 하둠5~6: 정제철/강화의 핵/보스의 혼, 하둠7: 신수의 결정 추가
-        if (!target.isExperienceDungeon && typeof addWeaponCraftDrop === 'function') {
+        if (!target.isExperienceDungeon && !target.isCraftGoldDungeon && typeof addWeaponCraftDrop === 'function') {
           addWeaponCraftDrop(target.stageId, !!target.isBoss);
         }
 
@@ -9239,6 +9484,19 @@ window.playerState = playerState;
         if (selectedTarget === target) {
           selectedTarget = null;
           targetArrowSprite.visible = false;
+        }
+
+        if (target.isCraftGoldDungeon && craftGoldDungeonActive) {
+          target.hp = target.maxHp;
+          target.alive = true;
+          target.destroyed = false;
+          target.__weaponCraftDropGiven = false;
+          target.sprite.position.set((Math.random()-0.5)*60, target.isBoss ? 3.0 : 1.3, (Math.random()-0.5)*60);
+          scene.add(target.sprite);
+          if (target.shadowDisk && qualityMode === 'high') scene.add(target.shadowDisk);
+          if (target.shadowDisk) target.shadowDisk.position.set(target.sprite.position.x,0.02,target.sprite.position.z);
+          updateCraftGoldDungeonHud();
+          return;
         }
 
         if (target.isExperienceDungeon && experienceDungeonActive) {
