@@ -4524,59 +4524,21 @@ window.playerState = playerState;
       playerSprite.scale.z = 1;
     }
 
-    // 🐰 토끼소녀 강림 전용 푸른 지면 광원
-    // 기존 Sprite 방식은 세로 billboard라 바닥에 눕는 지면 광원으로 보이지 않을 수 있어
-    // 실제 수평 PlaneGeometry + 투명 CanvasTexture로 구현한다.
+    // 🐰 토끼소녀 강림 전용 파티클(분홍/핑크 계열). 원형 회전 링과 바닥 광원(glow)은 제거하고
+    // 반짝이는 파티클만 남긴다.
     let rabbitFormAura = null;
-    let rabbitFormAuraRing = null;
     const rabbitFormSparkles = [];
 
-    function createRabbitGroundTexture() {
-      const cvs = document.createElement('canvas');
-      cvs.width = 512; cvs.height = 256;
-      const ctx = cvs.getContext('2d');
-      ctx.clearRect(0, 0, cvs.width, cvs.height);
-
-      // 바닥에 넓게 퍼지는 푸른 광원
-      const g = ctx.createRadialGradient(256, 128, 8, 256, 128, 245);
-      g.addColorStop(0, 'rgba(235,255,255,0.96)');
-      g.addColorStop(0.18, 'rgba(105,225,255,0.78)');
-      g.addColorStop(0.48, 'rgba(25,155,255,0.42)');
-      g.addColorStop(0.78, 'rgba(30,100,255,0.16)');
-      g.addColorStop(1, 'rgba(0,70,255,0)');
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, cvs.width, cvs.height);
-
-      return new THREE.CanvasTexture(cvs);
-    }
-
-    function createRabbitGroundRingTexture() {
-      const cvs = document.createElement('canvas');
-      cvs.width = 512; cvs.height = 256;
-      const ctx = cvs.getContext('2d');
-      ctx.clearRect(0,0,512,256);
-      ctx.save();
-      ctx.translate(256,128);
-      ctx.shadowColor = 'rgba(40,190,255,0.95)';
-      ctx.shadowBlur = 16;
-      ctx.strokeStyle = 'rgba(105,230,255,0.92)';
-      ctx.lineWidth = 5;
-      ctx.beginPath(); ctx.ellipse(190,70,190,70,0,0,Math.PI*2); ctx.stroke();
-      ctx.strokeStyle = 'rgba(220,255,255,0.76)';
-      ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.ellipse(155,54,155,54,0,0,Math.PI*2); ctx.stroke();
-      ctx.restore();
-      return new THREE.CanvasTexture(cvs);
-    }
-
+    // 토끼소녀강림 파티클 전용 텍스처(분홍/핑크 계열). 원형 회전 링과 바닥 glow는 제거하고
+    // 반짝이는 파티클만 남긴다.
     function createRabbitSparkTexture() {
       const cvs=document.createElement('canvas'); cvs.width=64; cvs.height=64;
       const ctx=cvs.getContext('2d');
       const g=ctx.createRadialGradient(32,32,0,32,32,30);
       g.addColorStop(0,'rgba(255,255,255,1)');
-      g.addColorStop(0.18,'rgba(190,250,255,1)');
-      g.addColorStop(0.55,'rgba(70,190,255,0.55)');
-      g.addColorStop(1,'rgba(0,120,255,0)');
+      g.addColorStop(0.18,'rgba(255,210,235,1)');
+      g.addColorStop(0.55,'rgba(255,105,180,0.55)');
+      g.addColorStop(1,'rgba(255,20,147,0)');
       ctx.fillStyle=g; ctx.fillRect(0,0,64,64);
       ctx.strokeStyle='rgba(255,255,255,0.95)'; ctx.lineWidth=3;
       ctx.beginPath(); ctx.moveTo(32,5); ctx.lineTo(32,59); ctx.moveTo(5,32); ctx.lineTo(59,32); ctx.stroke();
@@ -4679,39 +4641,6 @@ window.playerState = playerState;
       const group = new THREE.Group();
       group.renderOrder = 100;
 
-      const glowMat = new THREE.MeshBasicMaterial({
-        map: createRabbitGroundTexture(),
-        transparent: true,
-        opacity: 0.34,
-        depthWrite: false,
-        depthTest: false,
-        blending: THREE.AdditiveBlending,
-        toneMapped: false,
-        side: THREE.DoubleSide
-      });
-      const glow = new THREE.Mesh(new THREE.PlaneGeometry(7.04, 3.68), glowMat);
-      glow.rotation.x = -Math.PI / 2;
-      glow.position.y = 0.045;
-      glow.renderOrder = 100;
-      group.add(glow);
-
-      const ringMat = new THREE.MeshBasicMaterial({
-        map: createRabbitGroundRingTexture(),
-        transparent: true,
-        opacity: 0.68,
-        depthWrite: false,
-        depthTest: false,
-        blending: THREE.AdditiveBlending,
-        toneMapped: false,
-        side: THREE.DoubleSide
-      });
-      const ring = new THREE.Mesh(new THREE.PlaneGeometry(6.56, 3.20), ringMat);
-      ring.rotation.x = -Math.PI / 2;
-      ring.position.y = 0.075;
-      ring.renderOrder = 101;
-      group.add(ring);
-      rabbitFormAuraRing = ring;
-
       const sparkTex = createRabbitSparkTexture();
       const sparkPositions = [
         [-2.32,0.18,-0.56],[2.24,0.16,-0.40],[-1.68,0.12,0.72],[1.76,0.14,0.76],
@@ -4743,9 +4672,6 @@ window.playerState = playerState;
       }
 
       rabbitFormAura.position.set(playerSprite.position.x, 0, playerSprite.position.z);
-      const pulse = 1 + Math.sin(now * 0.005) * 0.055;
-      rabbitFormAura.scale.set(pulse, 1, pulse);
-      rabbitFormAuraRing.rotation.z = now * 0.00045;
 
       const t = now * 0.004;
       rabbitFormSparkles.forEach((sp, i) => {
@@ -4760,48 +4686,173 @@ window.playerState = playerState;
     ensureRabbitFormAura();
 
     let munyeahanaBuffAura = null;
-    let munyeahanaBuffAuraBase = 1;
+    let munyeahanaBuffSparkles = [];
+    let munyeahanaBuffBurst = null;
 
-    function createMunyeahanaBuffAuraTexture() {
+    // 캐릭터 발밑 중심에서 강하게 퍼지는 백색/황금색/푸른색 원형 발광 텍스처
+    function createMunyeahanaGroundTexture() {
       const cvs = document.createElement('canvas');
-      cvs.width = 128; cvs.height = 128;
+      cvs.width = 512; cvs.height = 512;
       const ctx = cvs.getContext('2d');
-      const grad = ctx.createRadialGradient(64, 64, 8, 64, 64, 58);
-      grad.addColorStop(0, 'rgba(255,245,157,0.72)');
-      grad.addColorStop(0.32, 'rgba(255,224,130,0.38)');
-      grad.addColorStop(0.68, 'rgba(255,193,7,0.16)');
-      grad.addColorStop(1, 'rgba(255,193,7,0)');
-      ctx.fillStyle = grad;
-      ctx.beginPath(); ctx.arc(64, 64, 58, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = 'rgba(255,235,59,0.85)';
-      ctx.lineWidth = 4;
-      ctx.beginPath(); ctx.arc(64, 64, 42, 0, Math.PI * 2); ctx.stroke();
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
+      const g = ctx.createRadialGradient(256, 256, 4, 256, 256, 250);
+      g.addColorStop(0,    'rgba(255,255,255,1)');
+      g.addColorStop(0.14, 'rgba(255,248,210,0.95)');
+      g.addColorStop(0.32, 'rgba(255,221,120,0.72)');
+      g.addColorStop(0.55, 'rgba(160,210,255,0.42)');
+      g.addColorStop(0.8,  'rgba(100,160,255,0.14)');
+      g.addColorStop(1,    'rgba(90,140,255,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, cvs.width, cvs.height);
       return new THREE.CanvasTexture(cvs);
     }
 
+    // 중심에서 사방으로 뻗는 방사형 빛줄기(스타버스트) 텍스처
+    function createMunyeahanaRayBurstTexture() {
+      const cvs = document.createElement('canvas');
+      cvs.width = 512; cvs.height = 512;
+      const ctx = cvs.getContext('2d');
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
+      ctx.translate(256, 256);
+      const rays = 10;
+      for (let i = 0; i < rays; i++) {
+        const angle = (Math.PI * 2 / rays) * i;
+        ctx.save();
+        ctx.rotate(angle);
+        const grad = ctx.createLinearGradient(0, 0, 0, -248);
+        grad.addColorStop(0, 'rgba(255,255,255,0.95)');
+        grad.addColorStop(0.22, 'rgba(255,236,170,0.65)');
+        grad.addColorStop(0.6, 'rgba(180,215,255,0.22)');
+        grad.addColorStop(1, 'rgba(180,215,255,0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(-9, 0);
+        ctx.lineTo(9, 0);
+        ctx.lineTo(2.5, -248);
+        ctx.lineTo(-2.5, -248);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+      return new THREE.CanvasTexture(cvs);
+    }
+
+    // 작은 십자형(+) 별빛 스파클 텍스처
+    function createMunyeahanaSparkTexture() {
+      const cvs=document.createElement('canvas'); cvs.width=64; cvs.height=64;
+      const ctx=cvs.getContext('2d');
+      ctx.clearRect(0,0,64,64);
+      ctx.translate(32,32);
+      // 중심 발광
+      const g=ctx.createRadialGradient(0,0,0,0,0,10);
+      g.addColorStop(0,'rgba(255,255,255,1)');
+      g.addColorStop(0.5,'rgba(255,240,190,0.85)');
+      g.addColorStop(1,'rgba(255,205,60,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,10,0,Math.PI*2); ctx.fill();
+      // 십자 빛줄기
+      const armGrad=ctx.createLinearGradient(0,-30,0,30);
+      armGrad.addColorStop(0,'rgba(220,240,255,0)');
+      armGrad.addColorStop(0.5,'rgba(255,255,255,0.95)');
+      armGrad.addColorStop(1,'rgba(220,240,255,0)');
+      ctx.fillStyle=armGrad;
+      ctx.fillRect(-1.6,-30,3.2,60);
+      ctx.fillRect(-30,-1.6,60,3.2);
+      return new THREE.CanvasTexture(cvs);
+    }
+
+    // 무녀시리 버프: 캐릭터를 감싸던 노란 막을 없애고, 캐릭터 외형을 가리지 않도록
+    // 지면에만 표시되는 발광(중심 코어 + 방사형 빛줄기 + 십자형 별빛)으로 표현.
+    // 회전 요소 없이 발광 세기(opacity/scale)만 아주 미세하게 맥동한다.
+    // (사용자 요청으로 전체 밝기를 기존 대비 30% 낮춤: opacity 값들에 0.7 배율 적용)
     function ensureMunyeahanaBuffAura() {
       if (munyeahanaBuffAura) return;
-      const tex = createMunyeahanaBuffAuraTexture();
-      const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0.75, depthWrite: false });
-      munyeahanaBuffAura = new THREE.Sprite(mat);
-      munyeahanaBuffAura.scale.set(4.8, 4.8, 1);
+
+      const group = new THREE.Group();
+      group.renderOrder = 100;
+
+      const glowMat = new THREE.MeshBasicMaterial({
+        map: createMunyeahanaGroundTexture(),
+        transparent: true,
+        opacity: 0.595,
+        depthWrite: false,
+        depthTest: false,
+        blending: THREE.AdditiveBlending,
+        toneMapped: false,
+        side: THREE.DoubleSide
+      });
+      const glow = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 3.6), glowMat);
+      glow.rotation.x = -Math.PI / 2;
+      glow.position.y = 0.03;
+      glow.renderOrder = 100;
+      group.add(glow);
+
+      const burstMat = new THREE.MeshBasicMaterial({
+        map: createMunyeahanaRayBurstTexture(),
+        transparent: true,
+        opacity: 0.49,
+        depthWrite: false,
+        depthTest: false,
+        blending: THREE.AdditiveBlending,
+        toneMapped: false,
+        side: THREE.DoubleSide
+      });
+      const burst = new THREE.Mesh(new THREE.PlaneGeometry(6.4, 6.4), burstMat);
+      burst.rotation.x = -Math.PI / 2;
+      burst.position.y = 0.05;
+      burst.renderOrder = 101;
+      group.add(burst);
+      munyeahanaBuffBurst = burst;
+
+      const sparkTex = createMunyeahanaSparkTexture();
+      const sparkPositions = [
+        [-2.1,0.14,-0.5],[2.05,0.12,-0.35],[-1.5,0.10,0.65],[1.6,0.12,0.7],
+        [-0.65,0.16,-0.95],[0.6,0.15,-1.05],[-2.35,0.10,0.25],[2.35,0.10,0.18],
+        [0,0.20,-1.5],[0.15,0.13,1.35]
+      ];
+      sparkPositions.forEach((pos, i) => {
+        const mat = new THREE.SpriteMaterial({map:sparkTex, transparent:true, opacity:0.0, depthWrite:false, depthTest:false, blending:THREE.AdditiveBlending, toneMapped:false});
+        const sp = new THREE.Sprite(mat);
+        sp.scale.set(0.4,0.4,1);
+        sp.renderOrder = 102;
+        sp.position.set(pos[0],pos[1],pos[2]);
+        sp.userData.phase = i * 0.63;
+        group.add(sp);
+        munyeahanaBuffSparkles.push(sp);
+      });
+
+      munyeahanaBuffAura = group;
       munyeahanaBuffAura.visible = false;
       scene.add(munyeahanaBuffAura);
     }
 
     function updateMunyeahanaBuffAura() {
-      if (!munyeahanaBuffAura) return;
+      ensureMunyeahanaBuffAura();
       const active = isMunyeahanaBuffActive();
       munyeahanaBuffAura.visible = active;
-      if (!active) return;
-      munyeahanaBuffAura.position.set(playerSprite.position.x, 2.35, playerSprite.position.z);
-      const pulse = 1 + Math.sin(Date.now() * 0.004) * 0.045;
-      munyeahanaBuffAura.scale.set(4.8 * pulse, 4.8 * pulse, 1);
+      if (!active) {
+        munyeahanaBuffSparkles.forEach(sp => sp.material.opacity = 0);
+        return;
+      }
+      const now = Date.now();
+      munyeahanaBuffAura.position.set(playerSprite.position.x, 0, playerSprite.position.z);
+      // 발광 세기만 아주 미세하게 변화 (회전 없음)
+      const pulse = 1 + Math.sin(now * 0.004) * 0.035;
+      munyeahanaBuffAura.scale.set(pulse, 1, pulse);
       munyeahanaBuffAuraBase = pulse;
-      munyeahanaBuffAura.material.opacity = 0.62 + Math.sin(Date.now() * 0.004) * 0.10;
+      munyeahanaBuffBurst.material.opacity = 0.42 + Math.sin(now * 0.0035) * 0.07;
+
+      const t = now * 0.004;
+      munyeahanaBuffSparkles.forEach((sp, i) => {
+        const phase = sp.userData.phase || 0;
+        const wave = (Math.sin(t + phase) + 1) * 0.5;
+        sp.material.opacity = 0.14 + wave * 0.525;
+        const s = 0.28 + wave * 0.22;
+        sp.scale.set(s,s,1);
+      });
     }
 
     ensureMunyeahanaBuffAura();
+;
 
     // ===== 무기 +10강 반짝이는 발광 효과 =====
     // +10강 이상 달성 시 활성화되는 캐릭터 손 근처 스파클 이펙트.
@@ -4957,6 +5008,50 @@ window.playerState = playerState;
     let siriShadow = null;
     const siriState = { level: 1, exp: 0, maxExp: getRequiredExp(1), attackPowerMin: 70, attackPowerMax: 90, attackRange: 9, attackSpeed: 1300, lastAttackTime: 0 };
     let siriAttackPulse = 0;
+
+    // ===== 소환영웅 이동 제약 =====
+    // 유저 캐릭터를 하나의 충돌체로 취급해 소환영웅이 겹치지 않도록 밀어내고,
+    // 유저 캐릭터를 중심으로 한 최대 반경 밖으로는 벗어나지 못하게 제한한다.
+    const HERO_MIN_DIST_FROM_PLAYER = 1.7;   // 유저 캐릭터와 겹치지 않는 최소 거리
+    const HERO_MAX_RANGE_FROM_PLAYER = 7.5;  // 유저 캐릭터 기준 최대 이동 반경
+    const HERO_MIN_DIST_FROM_HERO = 1.4;     // 소환영웅끼리도 서로 겹치지 않는 최소 거리
+    function constrainHeroPosition(sprite, otherHeroSprites) {
+      if (!sprite || !playerSprite) return;
+      // 1) 유저 캐릭터 기준 최대 반경 clamp
+      const toPlayer = sprite.position.clone().sub(playerSprite.position);
+      toPlayer.y = 0;
+      const distFromPlayer = toPlayer.length();
+      if (distFromPlayer > HERO_MAX_RANGE_FROM_PLAYER) {
+        toPlayer.setLength(HERO_MAX_RANGE_FROM_PLAYER);
+        sprite.position.x = playerSprite.position.x + toPlayer.x;
+        sprite.position.z = playerSprite.position.z + toPlayer.z;
+      }
+      // 2) 유저 캐릭터와 겹치지 않도록 최소 거리 밖으로 밀어내기
+      const pushFromPlayer = sprite.position.clone().sub(playerSprite.position);
+      pushFromPlayer.y = 0;
+      const curDist = pushFromPlayer.length();
+      if (curDist < HERO_MIN_DIST_FROM_PLAYER) {
+        if (curDist < 0.0001) { pushFromPlayer.set(1, 0, 0); }
+        pushFromPlayer.setLength(HERO_MIN_DIST_FROM_PLAYER);
+        sprite.position.x = playerSprite.position.x + pushFromPlayer.x;
+        sprite.position.z = playerSprite.position.z + pushFromPlayer.z;
+      }
+      // 3) 다른 소환영웅과도 겹치지 않도록 밀어내기
+      if (otherHeroSprites) {
+        otherHeroSprites.forEach(other => {
+          if (!other || other === sprite) return;
+          const diff = sprite.position.clone().sub(other.position);
+          diff.y = 0;
+          const d = diff.length();
+          if (d < HERO_MIN_DIST_FROM_HERO) {
+            if (d < 0.0001) { diff.set(1, 0, 0); }
+            diff.setLength(HERO_MIN_DIST_FROM_HERO);
+            sprite.position.x = other.position.x + diff.x;
+            sprite.position.z = other.position.z + diff.z;
+          }
+        });
+      }
+    }
 
     let janggeumSprite = null;
     let janggeumFacing = 'front';
@@ -6084,9 +6179,9 @@ window.playerState = playerState;
     // silent=true일 경우(스테이지 자동 전환 시) 영웅이 없어도 알림을 띄우지 않는다.
     function recallHeroesToPlayer(silent = false) {
       const recallOffsets = [
-        new THREE.Vector3(-1.8, 0, 1.2),
-        new THREE.Vector3(1.8, 0, 1.2),
-        new THREE.Vector3(0, 0, 2.2)
+        new THREE.Vector3(-1.6, 0, -1.6),
+        new THREE.Vector3(1.6, 0, -1.6),
+        new THREE.Vector3(0, 0, -2.2)
       ];
       let recalledCount = 0;
 
@@ -6148,7 +6243,7 @@ window.playerState = playerState;
       if (siriSprite) return;
       siriSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: createSiriHeroTexture(false, 0), transparent: true }));
       siriSprite.scale.set(2.8, 2.8, 1);
-      siriSprite.position.copy(playerSprite.position).add(new THREE.Vector3(-1.8, 0, 1.2));
+      siriSprite.position.copy(playerSprite.position).add(new THREE.Vector3(-1.6, 0, -1.6));
       scene.add(siriSprite);
       siriShadow = createShadowDisk(2.0, 1.1);
       createNametagElement('hero_siri', '소환영웅', '시리', false, true);
@@ -6158,7 +6253,7 @@ window.playerState = playerState;
       if (janggeumSprite) return;
       janggeumSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: createPixelSpriteTexture('janggeum', false) }));
       janggeumSprite.scale.set(3.05, 3.05, 1);
-      janggeumSprite.position.copy(playerSprite.position).add(new THREE.Vector3(1.8, 0, 1.2));
+      janggeumSprite.position.copy(playerSprite.position).add(new THREE.Vector3(1.6, 0, -1.6));
       scene.add(janggeumSprite);
       janggeumShadow = createShadowDisk(2.0, 1.1);
       createNametagElement('hero_janggeum', '소환영웅', '의녀장금', false, true);
@@ -6168,7 +6263,7 @@ window.playerState = playerState;
       if (munyeahanaSprite) return;
       munyeahanaSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: createMunyeahanaHeroTexture(false, 0) }));
       munyeahanaSprite.scale.set(2.8, 2.8, 1);
-      munyeahanaSprite.position.copy(playerSprite.position).add(new THREE.Vector3(0, 0, 1.8));
+      munyeahanaSprite.position.copy(playerSprite.position).add(new THREE.Vector3(0, 0, -2.2));
       scene.add(munyeahanaSprite);
       munyeahanaShadow = createShadowDisk(2.0, 1.1);
       createNametagElement('hero_munyeahana', '소환영웅', '무녀하나', false, true);
@@ -7738,8 +7833,10 @@ window.playerState = playerState;
         }
 
         if (!target) {
-          siriSprite.position.lerp(playerSprite.position.clone().add(new THREE.Vector3(-1.8, 0, 1.2)), 0.08);
+          siriSprite.position.lerp(playerSprite.position.clone().add(new THREE.Vector3(-1.6, 0, -1.6)), 0.08);
         }
+
+        constrainHeroPosition(siriSprite, [janggeumSprite, munyeahanaSprite]);
 
         if (siriShadow) {
           siriShadow.position.set(siriSprite.position.x, 0.02, siriSprite.position.z);
@@ -7803,8 +7900,10 @@ window.playerState = playerState;
         }
 
         if (!target) {
-          janggeumSprite.position.lerp(playerSprite.position.clone().add(new THREE.Vector3(1.8, 0, 1.2)), 0.08);
+          janggeumSprite.position.lerp(playerSprite.position.clone().add(new THREE.Vector3(1.6, 0, -1.6)), 0.08);
         }
+
+        constrainHeroPosition(janggeumSprite, [siriSprite, munyeahanaSprite]);
 
         if (janggeumShadow) {
           janggeumShadow.position.set(janggeumSprite.position.x, 0.02, janggeumSprite.position.z);
@@ -7860,8 +7959,10 @@ window.playerState = playerState;
         }
 
         if (!target) {
-          munyeahanaSprite.position.lerp(playerSprite.position.clone().add(new THREE.Vector3(0, 0, 1.8)), 0.08);
+          munyeahanaSprite.position.lerp(playerSprite.position.clone().add(new THREE.Vector3(0, 0, -2.2)), 0.08);
         }
+
+        constrainHeroPosition(munyeahanaSprite, [siriSprite, janggeumSprite]);
 
         if (munyeahanaShadow) {
           munyeahanaShadow.position.set(munyeahanaSprite.position.x, 0.02, munyeahanaSprite.position.z);
@@ -7872,7 +7973,7 @@ window.playerState = playerState;
           let newFacingM = moveZM < 0 ? 'back' : 'front';
           if (newFacingM !== munyeahanaFacing) {
             munyeahanaFacing = newFacingM;
-            munyeahanaSprite.material.map = createMunyeahanaHeroTexture(newFacingM === 'back', munyeahanaVisualStage);
+            munyeahanaSprite.material.map = createMunyeahanaHeroTexture(newFacingM === 'back', 0);
             munyeahanaSprite.material.needsUpdate = true;
           }
         }
