@@ -7135,9 +7135,87 @@ window.playerState = playerState;
       ctx.clearRect(0, 0, 256, 256);
       const cx = 128, cy = 128;
       ctx.globalCompositeOperation = 'lighter';
+      const cacheKey = `daedosa_${skillId}_${variant}`;
+      if (swordsmanVfxTextureCache[cacheKey]) return swordsmanVfxTextureCache[cacheKey];
 
       if (skillId === 's2_1') {
-        const g = ctx.createRadialGradient(cx, cy, 4, cx, cy, 112);
+        // 멸천화: 피격 몬스터의 지면에서 불기둥이 수직으로 솟아오르는 형태.
+        // 중앙은 백황색, 내부는 황금색, 외곽은 주홍/진홍색으로 겹쳐 화염 기둥의 깊이를 만든다.
+        const glow = ctx.createRadialGradient(cx, 215, 4, cx, 215, 120);
+        glow.addColorStop(0, 'rgba(255,255,220,.95)');
+        glow.addColorStop(.20, 'rgba(255,214,70,.90)');
+        glow.addColorStop(.55, 'rgba(255,75,0,.42)');
+        glow.addColorStop(1, 'rgba(170,0,0,0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath(); ctx.ellipse(cx, 218, 112, 38, 0, 0, Math.PI*2); ctx.fill();
+
+        // 지면의 화염 원형 충격광
+        ctx.strokeStyle = 'rgba(255,220,120,.95)'; ctx.lineWidth = 7;
+        ctx.beginPath(); ctx.ellipse(cx, 226, 82, 20, 0, 0, Math.PI*2); ctx.stroke();
+        ctx.strokeStyle = 'rgba(255,70,0,.72)'; ctx.lineWidth = 12;
+        ctx.beginPath(); ctx.ellipse(cx, 229, 103, 28, 0, 0, Math.PI*2); ctx.stroke();
+
+        const flame = (offsetX, width, topY, colorOuter, colorInner, alpha=1) => {
+          ctx.save(); ctx.globalAlpha = alpha;
+          ctx.beginPath();
+          ctx.moveTo(cx + offsetX - width*.45, 225);
+          ctx.bezierCurveTo(cx + offsetX - width*.65, 188, cx + offsetX - width*.30, 166, cx + offsetX - width*.05, 138);
+          ctx.bezierCurveTo(cx + offsetX + width*.10, 116, cx + offsetX - width*.10, 92, cx + offsetX + width*.18, topY);
+          ctx.bezierCurveTo(cx + offsetX + width*.32, topY+35, cx + offsetX + width*.78, 75, cx + offsetX + width*.45, 128);
+          ctx.bezierCurveTo(cx + offsetX + width*.82, 166, cx + offsetX + width*.60, 195, cx + offsetX + width*.48, 225);
+          ctx.closePath();
+          const g = ctx.createLinearGradient(0, topY, 0, 225);
+          g.addColorStop(0, colorInner);
+          g.addColorStop(.42, colorInner);
+          g.addColorStop(1, colorOuter);
+          ctx.fillStyle = g; ctx.fill();
+          ctx.restore();
+        };
+
+        // 외곽 화염 → 내부 화염 순서로 중첩
+        flame(-42, 76, 52, '#d71900', '#ff5a00', .82);
+        flame(42, 82, 42, '#d71900', '#ff6a00', .84);
+        flame(0, 118, 25, '#ef2500', '#ff8a00', .98);
+
+        // 백황색 중심부
+        ctx.save();
+        ctx.globalAlpha = .96;
+        ctx.beginPath();
+        ctx.moveTo(cx-28,225);
+        ctx.bezierCurveTo(cx-45,180,cx-18,151,cx-5,120);
+        ctx.bezierCurveTo(cx+5,98,cx-3,73,cx+12,48);
+        ctx.bezierCurveTo(cx+25,88,cx+45,116,cx+30,151);
+        ctx.bezierCurveTo(cx+48,181,cx+38,205,cx+28,225);
+        ctx.closePath();
+        const core = ctx.createLinearGradient(0,48,0,225);
+        core.addColorStop(0,'#fff7c2'); core.addColorStop(.32,'#fff1a0');
+        core.addColorStop(.72,'#ffd23f'); core.addColorStop(1,'#ff7a00');
+        ctx.fillStyle=core; ctx.fill();
+        ctx.restore();
+
+        // 위로 튀는 불꽃 끝부분
+        const tongues = [
+          [-74,92,-18],[72,105,5],[-25,74,12],[28,70,-8],[-105,55,18],[103,58,8]
+        ];
+        for (const [x,y,lean] of tongues) {
+          ctx.strokeStyle='rgba(255,175,40,.92)'; ctx.lineWidth=5; ctx.lineCap='round';
+          ctx.beginPath(); ctx.moveTo(cx+x,225); ctx.quadraticCurveTo(cx+x+lean, y+28, cx+x+lean*1.4, y); ctx.stroke();
+          ctx.strokeStyle='rgba(255,238,170,.75)'; ctx.lineWidth=2;
+          ctx.beginPath(); ctx.moveTo(cx+x+2,220); ctx.quadraticCurveTo(cx+x+lean, y+34, cx+x+lean*1.4, y+3); ctx.stroke();
+        }
+
+        // 작은 불씨
+        for (let i=0;i<18;i++) {
+          const x = cx + (Math.random()-0.5)*150;
+          const y = 35 + Math.random()*175;
+          const r = 2 + Math.random()*4;
+          const pg = ctx.createRadialGradient(x,y,0,x,y,r*3);
+          pg.addColorStop(0,'rgba(255,255,210,.98)');
+          pg.addColorStop(.35,'rgba(255,155,35,.9)');
+          pg.addColorStop(1,'rgba(255,40,0,0)');
+          ctx.fillStyle=pg; ctx.beginPath(); ctx.arc(x,y,r*3,0,Math.PI*2); ctx.fill();
+        }
+      } else if (skillId === 's2_2') {
         g.addColorStop(0, '#fff7c2'); g.addColorStop(0.18, '#ffd166');
         g.addColorStop(0.48, '#ff6b00'); g.addColorStop(0.78, '#d81b60');
         g.addColorStop(1, 'rgba(80,0,120,0)');
@@ -7180,7 +7258,46 @@ window.playerState = playerState;
     }
 
     function spawnDaedosaSkillVfx(worldPos, skillId, radius = 5) {
-      // 대도사: 수련원 카드/하단 버튼은 기존 UI로 유지하고, 실제 스킬 사용 순간에만 대형 주술 이펙트를 출력.
+      // 멸천화는 피격 몬스터의 '지면'에서 불기둥이 솟아오르도록 별도 연출한다.
+      if (skillId === 's2_1') {
+        const mat = new THREE.SpriteMaterial({
+          map: createDaedosaVfxTexture('s2_1', 0), transparent: true, opacity: 1.0, depthWrite: false,
+          blending: THREE.AdditiveBlending
+        });
+        const main = new THREE.Sprite(mat);
+        const s = radius * 0.92;
+        main.scale.set(s, s, 1);
+        main.position.copy(worldPos).add(new THREE.Vector3(0, s * 0.48, 0));
+        scene.add(main);
+        activeHitVfx.push({
+          sprite: main, timer: 0, duration: 0.72,
+          fireRise: true, baseScale: s * 0.55, growTo: s,
+          startY: worldPos.y + s * 0.22, endY: worldPos.y + s * 0.48
+        });
+
+        // 좌우의 작은 불기둥을 시간차로 추가해 한 번에 폭발하는 느낌을 줄인다.
+        for (let i = 0; i < 4; i++) {
+          const a = (Math.PI * 2 * i) / 4 + 0.3;
+          const dist = radius * (0.20 + Math.random() * 0.30);
+          const p = worldPos.clone().add(new THREE.Vector3(Math.cos(a)*dist, 0, Math.sin(a)*dist));
+          const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+            map: createDaedosaVfxTexture('s2_1', i + 1), transparent: true, opacity: 0.65,
+            depthWrite: false, blending: THREE.AdditiveBlending
+          }));
+          const ss = radius * (0.42 + Math.random() * 0.16);
+          sp.scale.set(ss, ss, 1);
+          sp.position.copy(p).add(new THREE.Vector3(0, ss * 0.40, 0));
+          scene.add(sp);
+          activeHitVfx.push({
+            sprite: sp, timer: -0.04 * i, duration: 0.48 + Math.random() * 0.14,
+            fireRise: true, baseScale: ss * 0.45, growTo: ss,
+            startY: p.y + ss * 0.18, endY: p.y + ss * 0.40
+          });
+        }
+        return;
+      }
+
+      // 기존 대도사 스킬 연출은 그대로 유지.
       const main = new THREE.Sprite(new THREE.SpriteMaterial({
         map: createDaedosaVfxTexture(skillId, 0), transparent: true, opacity: 1.0, depthWrite: false
       }));
@@ -7236,90 +7353,124 @@ window.playerState = playerState;
       };
 
       if (skillId === 's2_1') {
-        /*
-         * 오의: 뇌전참
-         * 원거리 검기처럼 보이지 않도록 '검 자체'를 중심으로 연출한다.
-         * 거대한 검신 + 푸른 검기 + 검신을 타고 흐르는 번개가
-         * 플레이어가 바로 앞의 적을 베는 순간 겹쳐 보이도록 제작.
-         */
-        glow(cx, cy, 180, '#ffffff', 'rgba(0,160,255,0)');
+        // 오의: 뇌전참 — 참고 이미지와 같은 청색 낙뢰 폭발형 VFX.
+        // 이 함수는 '스킬 외형용 CanvasTexture'만 생성하므로 전투/저장/UI 로직에는 영향을 주지 않는다.
+        glow(cx, cy + 112, 155, 'rgba(255,255,255,.98)', 'rgba(0,170,255,0)');
 
+        // 지면 충격광 + 전기 링
         ctx.save();
-        ctx.translate(cx, cy + 12);
-        ctx.rotate(-0.42);
-
-        // 검 주변의 거대한 푸른 오라
-        const bladeGlow = ctx.createLinearGradient(-22, 118, 22, -150);
-        bladeGlow.addColorStop(0, 'rgba(0,80,255,0)');
-        bladeGlow.addColorStop(0.35, 'rgba(20,190,255,.72)');
-        bladeGlow.addColorStop(0.72, 'rgba(120,235,255,.92)');
-        bladeGlow.addColorStop(1, 'rgba(255,255,255,.15)');
-        ctx.fillStyle = bladeGlow;
-        ctx.beginPath();
-        ctx.moveTo(-30, 125); ctx.lineTo(-42, -130); ctx.lineTo(0, -175);
-        ctx.lineTo(42, -130); ctx.lineTo(30, 125); ctx.closePath(); ctx.fill();
-
-        // 거대한 검신
-        const blade = ctx.createLinearGradient(-15, 115, 15, -165);
-        blade.addColorStop(0, '#1266ff');
-        blade.addColorStop(0.32, '#43c7ff');
-        blade.addColorStop(0.68, '#baf5ff');
-        blade.addColorStop(1, '#ffffff');
-        ctx.fillStyle = blade;
-        ctx.beginPath();
-        ctx.moveTo(-17, 105); ctx.lineTo(-24, -128); ctx.lineTo(0, -174);
-        ctx.lineTo(24, -128); ctx.lineTo(17, 105); ctx.closePath(); ctx.fill();
-
-        // 검신 중앙의 밝은 날
-        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 7;
-        ctx.beginPath(); ctx.moveTo(0, 102); ctx.lineTo(0, -154); ctx.stroke();
-        ctx.strokeStyle = '#7be7ff'; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.moveTo(8, 92); ctx.lineTo(8, -137); ctx.stroke();
-
-        // 손잡이/가드
-        ctx.strokeStyle = '#dffbff'; ctx.lineWidth = 15; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(-43, 103); ctx.lineTo(43, 103); ctx.stroke();
-        const grip = ctx.createLinearGradient(-12, 110, 12, 165);
-        grip.addColorStop(0, '#e7faff'); grip.addColorStop(.45, '#5cc9ff'); grip.addColorStop(1, '#0b49b5');
-        ctx.fillStyle = grip; ctx.fillRect(-11, 108, 22, 62);
-        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 5;
-        ctx.beginPath(); ctx.arc(0, 170, 16, 0, Math.PI * 2); ctx.stroke();
+        ctx.translate(cx, cy + 125);
+        const ground = ctx.createRadialGradient(0, 0, 3, 0, 0, 105);
+        ground.addColorStop(0, 'rgba(255,255,255,.98)');
+        ground.addColorStop(.16, 'rgba(100,235,255,.95)');
+        ground.addColorStop(.52, 'rgba(0,150,255,.38)');
+        ground.addColorStop(1, 'rgba(0,120,255,0)');
+        ctx.fillStyle = ground;
+        ctx.beginPath(); ctx.ellipse(0, 0, 102, 30, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(110,235,255,.95)'; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.ellipse(0, 0, 82, 19, 0, 0, Math.PI * 2); ctx.stroke();
+        ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.ellipse(0, -1, 58, 12, 0, 0, Math.PI * 2); ctx.stroke();
         ctx.restore();
 
-        // 검신을 감싸며 흐르는 번개 3줄
-        const lightning = (offset, color, width) => {
-          ctx.save(); ctx.translate(cx + offset, cy - 2); ctx.rotate(-0.42);
-          ctx.strokeStyle = color; ctx.lineWidth = width; ctx.lineCap = 'round';
-          ctx.beginPath();
-          ctx.moveTo(-8, 110);
-          ctx.lineTo(18, 68); ctx.lineTo(-9, 42); ctx.lineTo(22, 5);
-          ctx.lineTo(-8, -28); ctx.lineTo(17, -70); ctx.lineTo(-2, -112);
+        const drawBolt = (points, outerW, innerW, alpha = 1) => {
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+          ctx.strokeStyle = 'rgba(30,190,255,.28)'; ctx.lineWidth = outerW + 18;
+          ctx.beginPath(); ctx.moveTo(points[0][0], points[0][1]);
+          for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
+          ctx.stroke();
+          ctx.strokeStyle = '#16baff'; ctx.lineWidth = outerW;
+          ctx.beginPath(); ctx.moveTo(points[0][0], points[0][1]);
+          for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
+          ctx.stroke();
+          ctx.strokeStyle = '#d8fbff'; ctx.lineWidth = innerW;
+          ctx.beginPath(); ctx.moveTo(points[0][0], points[0][1]);
+          for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
+          ctx.stroke();
+          ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(2, innerW * .35);
+          ctx.beginPath(); ctx.moveTo(points[0][0], points[0][1]);
+          for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
           ctx.stroke();
           ctx.restore();
         };
-        lightning(-25, '#ffffff', 7);
-        lightning(3, '#7de8ff', 5);
-        lightning(27, '#fff36b', 3);
 
-        // 근거리 일격임을 강조하는 짧은 반달 검격
-        swordArc(-0.12 + variant * 0.03, 116, 16, 0.95);
+        // 중앙 대형 낙뢰
+        drawBolt([
+          [cx-8,cy+128],[cx+18,cy+90],[cx-5,cy+62],[cx+25,cy+28],
+          [cx-13,cy-4],[cx+18,cy-38],[cx-3,cy-76],[cx+26,cy-116],[cx+8,cy-160]
+        ], 13, 5, 1);
 
-        // 손에서 터지는 번개/파편
+        // 좌우 보조 낙뢰
+        drawBolt([
+          [cx-48,cy+124],[cx-78,cy+94],[cx-60,cy+62],[cx-94,cy+28],
+          [cx-72,cy-8],[cx-102,cy-44],[cx-86,cy-84],[cx-108,cy-116]
+        ], 9, 3.5, .94);
+        drawBolt([
+          [cx+46,cy+124],[cx+76,cy+94],[cx+58,cy+64],[cx+92,cy+30],
+          [cx+70,cy-5],[cx+103,cy-38],[cx+86,cy-78],[cx+108,cy-108]
+        ], 10, 3.5, .92);
+
+        // 짧은 번개 파편
+        const shards = [
+          [-132,68,-105,44],[-118,10,-92,-12],[-94,-66,-74,-92],
+          [132,70,105,46],[118,12,94,-10],[96,-50,76,-76],
+          [-46,-108,-25,-132],[48,-94,68,-120]
+        ];
+        for (const [x1,y1,x2,y2] of shards) {
+          ctx.save();
+          ctx.strokeStyle = '#63ddff'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+          ctx.shadowColor = '#00bfff'; ctx.shadowBlur = 14;
+          ctx.beginPath(); ctx.moveTo(cx+x1,cy+y1); ctx.lineTo(cx+x2,cy+y2); ctx.stroke();
+          ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.8;
+          ctx.beginPath(); ctx.moveTo(cx+x1,cy+y1); ctx.lineTo(cx+x2,cy+y2); ctx.stroke();
+          ctx.restore();
+        }
+
+        // 바닥에서 튀는 전기 입자
         for (let i = 0; i < 18; i++) {
           const a = Math.random() * Math.PI * 2;
-          const r = 55 + Math.random() * 115;
-          glow(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 5 + Math.random() * 6,
-            i % 3 === 0 ? '#fff36b' : '#b8f4ff', 'rgba(0,150,255,0)');
+          const r = 35 + Math.random() * 100;
+          glow(cx + Math.cos(a) * r, cy + 115 + Math.sin(a) * 24 - Math.random() * 28,
+            3 + Math.random() * 4, i % 4 === 0 ? '#ffffff' : '#58dfff', 'rgba(0,150,255,0)');
         }
+        glow(cx, cy + 110, 28, '#ffffff', 'rgba(60,210,255,0)');
       } else if (skillId === 's2_2') {
-        // 회풍참 — 검기가 회전하며 여러 겹으로 휘몰아치는 근거리 광역 검무
-        glow(cx, cy, 150, '#d9f7ff', 'rgba(0,160,255,0)');
-        for (let i = 0; i < 4; i++) swordArc((Math.PI * 2 * i) / 4 + variant * 0.18, 88 + i * 15, 10 - i * 0.7, 0.9);
-        for (let i = 0; i < 12; i++) {
-          const a = Math.random() * Math.PI * 2, r = 80 + Math.random() * 70;
-          glow(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 10, '#ffffff', 'rgba(80,210,255,0)');
+        // 회풍참 — 캐릭터 중심 360도 화염 참격 링
+        // 한쪽은 두껍게 타오르고 반대쪽은 가늘게 빠지는 꼬리 + 회색 연기 잔상.
+        glow(cx, cy, 135, 'rgba(255,210,150,.42)', 'rgba(80,20,10,0)');
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(Number(variant || 0) * 0.08);
+        ctx.globalCompositeOperation = 'lighter';
+        const rx = 104, ry = 60, start = -0.58, sweep = Math.PI * 1.72, segs = 54;
+        for (let k=0;k<segs;k++) {
+          const t=k/segs, a1=start+sweep*t, a2=start+sweep*((k+1)/segs);
+          const thick=2+Math.pow(t,1.75)*24, alpha=.12+t*.88;
+          ctx.lineCap='round';
+          ctx.strokeStyle=`rgba(110,35,20,${alpha*.72})`; ctx.lineWidth=thick+12; ctx.shadowColor='#4b1610'; ctx.shadowBlur=16;
+          ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,a1,a2);ctx.stroke();
+          ctx.strokeStyle=`rgba(255,55,5,${alpha})`;ctx.lineWidth=thick+4;ctx.shadowColor='#ff2b00';ctx.shadowBlur=12;
+          ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,a1,a2);ctx.stroke();
+          ctx.strokeStyle=`rgba(255,155,20,${alpha})`;ctx.lineWidth=Math.max(2,thick*.5);ctx.shadowColor='#ff9d18';ctx.shadowBlur=8;
+          ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,a1,a2);ctx.stroke();
+          if(t>.25){ctx.strokeStyle=`rgba(255,245,180,${alpha*.9})`;ctx.lineWidth=Math.max(1.2,thick*.17);ctx.shadowColor='#fff5c0';ctx.shadowBlur=4;ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,a1,a2);ctx.stroke();}
         }
-      } else {
+        ctx.globalCompositeOperation='source-over';
+        for(let k=0;k<20;k++){
+          const a=start+Math.random()*sweep,r=82+Math.random()*34,x=Math.cos(a)*r,y=Math.sin(a)*r*.58,sr=6+Math.random()*10;
+          const sg=ctx.createRadialGradient(x,y,1,x,y,sr);sg.addColorStop(0,'rgba(90,82,88,.34)');sg.addColorStop(1,'rgba(55,50,58,0)');
+          ctx.fillStyle=sg;ctx.beginPath();ctx.arc(x,y,sr,0,Math.PI*2);ctx.fill();
+        }
+        ctx.globalCompositeOperation='lighter';
+        for(let k=0;k<16;k++){
+          const a=start+Math.random()*sweep,r=72+Math.random()*38,x=Math.cos(a)*r,y=Math.sin(a)*r*.58;
+          ctx.fillStyle=k%3===0?'rgba(255,240,150,.95)':'rgba(255,75,8,.86)';ctx.shadowColor='#ff3d00';ctx.shadowBlur=6;
+          ctx.beginPath();ctx.arc(x,y,1.5+Math.random()*2,0,Math.PI*2);ctx.fill();
+        }
+        ctx.restore();
+
         // 천검난무 — 전방 부채꼴 형태의 암흑 검기. 스킬의 공격 방향은
         // spawnSwordsmanSkillVfx에서 플레이어→타겟 방향으로 회전시킨다.
         glow(cx, cy, 145, 'rgba(255,255,255,.95)', 'rgba(80,20,140,0)');
@@ -7407,6 +7558,33 @@ window.playerState = playerState;
         impact.position.copy(target).add(new THREE.Vector3(0, 1.2, 0.22));
         scene.add(impact);
         activeHitVfx.push({ sprite: impact, timer: -0.08, duration: 0.3 });
+        return;
+      }
+
+      if (skillId === 's2_2') {
+        // 회풍참: 캐릭터 중심에서 실제로 360도 이상 회전하는 '화염 참격 헤드 + 꼬리' VFX.
+        // 참고 코드의 FlameSlashRing 구조를 CanvasTexture로 이식해, 정적인 링 이미지가 아니라
+        // 매 프레임 sweep/head 위치가 진행되도록 만든다. 전투 판정은 기존 useActiveSkill을 그대로 사용한다.
+        const origin = sourcePos ? sourcePos.clone() : playerSprite.position.clone();
+        const cvs = document.createElement('canvas');
+        cvs.width = 512; cvs.height = 256;
+        const c = cvs.getContext('2d');
+        const tex = new THREE.CanvasTexture(cvs);
+        tex.magFilter = THREE.LinearFilter;
+        tex.minFilter = THREE.LinearFilter;
+        tex.needsUpdate = true;
+        const mat = new THREE.SpriteMaterial({map:tex, transparent:true, opacity:1, depthWrite:false, blending:THREE.AdditiveBlending});
+        const sp = new THREE.Sprite(mat);
+        const scale = radius * 2.15;
+        sp.scale.set(scale, scale * 0.68, 1);
+        sp.position.copy(origin).add(new THREE.Vector3(0,1.28,0.16));
+        scene.add(sp);
+        activeHitVfx.push({
+          sprite:sp, timer:0, duration:0.92, flameSlashRing:true,
+          canvas:c, texture:tex, startAngle:-Math.PI*0.55, sweep:0,
+          maxSweep:Math.PI*2.22, speed:Math.PI*2.22/0.58,
+          radiusX:205, radiusY:86, embers:[]
+        });
         return;
       }
 
@@ -8601,7 +8779,80 @@ window.playerState = playerState;
           v.sprite.position.addScaledVector(v.vel, delta);
         }
 
-        if (v.growTo) {
+        if (v.flameSlashRing) {
+          const progress = Math.min(1, v.timer / 0.58);
+          v.sweep = Math.min(v.maxSweep, v.maxSweep * progress);
+          const ctx = v.canvas;
+          ctx.clearRect(0,0,512,256);
+          ctx.save();
+          ctx.translate(256,128);
+          ctx.globalCompositeOperation = 'lighter';
+          const head = v.startAngle + v.sweep;
+          const trail = Math.min(v.sweep, Math.PI * 1.65);
+          const segments = 54;
+          for (let j=0;j<segments;j++) {
+            const t=j/segments;
+            const a1=head-(1-t)*trail;
+            const a2=head-(1-(j+1)/segments)*trail;
+            const thick=(Math.pow(t,1.75)*27)*(1-Math.max(0,(v.timer-0.58)/0.34));
+            const alpha=Math.max(0,Math.min(1,t*(1-v.timer/v.duration)*1.35));
+            if (thick<0.4 || alpha<=0) continue;
+            ctx.lineCap='round';
+            ctx.lineWidth=thick;
+            ctx.strokeStyle=`rgba(255,${Math.floor(42+78*t)},0,${alpha*0.92})`;
+            ctx.shadowColor='#ff2600'; ctx.shadowBlur=15;
+            ctx.beginPath(); ctx.ellipse(0,0,v.radiusX,v.radiusY,0,a1,a2); ctx.stroke();
+            ctx.lineWidth=thick*0.58;
+            ctx.strokeStyle=`rgba(255,${Math.floor(125+100*t)},0,${alpha})`;
+            ctx.shadowBlur=8;
+            ctx.beginPath(); ctx.ellipse(0,0,v.radiusX,v.radiusY,0,a1,a2); ctx.stroke();
+            if (t>0.28) {
+              ctx.lineWidth=thick*0.23; ctx.strokeStyle=`rgba(255,255,${Math.floor(170+70*t)},${alpha})`; ctx.shadowColor='#fff'; ctx.shadowBlur=5;
+              ctx.beginPath(); ctx.ellipse(0,0,v.radiusX,v.radiusY,0,a1,a2); ctx.stroke();
+            }
+          }
+          // 회전 헤드 주변의 잿빛 연기 잔상
+          const hx=Math.cos(head)*v.radiusX, hy=Math.sin(head)*v.radiusY;
+          for(let q=0;q<8;q++){
+            const oa=head-Math.random()*0.32; const rr=4+Math.random()*11;
+            const sx=Math.cos(oa)*v.radiusX + (Math.random()-.5)*14;
+            const sy=Math.sin(oa)*v.radiusY + (Math.random()-.5)*8;
+            ctx.globalAlpha=0.22+Math.random()*0.16; ctx.fillStyle='#554d55'; ctx.beginPath(); ctx.arc(sx,sy,rr,0,Math.PI*2); ctx.fill();
+          }
+          // 칼날 헤드의 강한 불꽃
+          const hg=ctx.createRadialGradient(hx,hy,2,hx,hy,32);
+          hg.addColorStop(0,'rgba(255,255,235,.98)'); hg.addColorStop(.25,'rgba(255,235,80,.95)'); hg.addColorStop(.62,'rgba(255,90,0,.75)'); hg.addColorStop(1,'rgba(255,25,0,0)');
+          ctx.fillStyle=hg; ctx.beginPath(); ctx.arc(hx,hy,32,0,Math.PI*2); ctx.fill();
+          ctx.restore();
+          v.texture.needsUpdate=true;
+          if (v.timer < 0.58) {
+            if (Math.random()<0.75) {
+              const a=head+(Math.random()-.5)*0.28;
+              const ex=256+Math.cos(a)*v.radiusX, ey=128+Math.sin(a)*v.radiusY;
+              v.embers.push({x:ex,y:ey,vx:(Math.random()-.5)*5,vy:-Math.random()*2.5,life:.75,r:2+Math.random()*3});
+            }
+          }
+          for(let q=v.embers.length-1;q>=0;q--){
+            const e=v.embers[q]; e.x+=e.vx*.25; e.y+=e.vy*.25; e.vy+=.05; e.life-=.055;
+            if(e.life<=0){v.embers.splice(q,1);continue;}
+            ctx.globalAlpha=e.life; ctx.fillStyle='#ffe35a'; ctx.shadowColor='#ff3a00'; ctx.shadowBlur=6; ctx.beginPath(); ctx.arc(e.x,e.y,e.r,0,Math.PI*2); ctx.fill();
+          }
+          ctx.globalAlpha=1;
+        }
+
+        if (v.fireRise) {
+          const progress = Math.min(1, Math.max(0, v.timer / v.duration));
+          const eased = 1 - Math.pow(1 - progress, 3);
+          if (v.startY !== undefined && v.endY !== undefined) {
+            v.sprite.position.y = v.startY + (v.endY - v.startY) * eased;
+          }
+          if (v.baseScale && v.growTo) {
+            const s = v.baseScale + (v.growTo - v.baseScale) * eased;
+            v.sprite.scale.set(s, s, 1);
+          }
+        }
+
+        if (v.growTo && !v.fireRise) {
           // 크리티컬 광원처럼 시간에 따라 baseScale에서 growTo까지 확산되는 이펙트를 처리한다.
           const progress = Math.min(1, Math.max(0, v.timer / v.duration));
           const eased = 1 - Math.pow(1 - progress, 3); // ease-out
