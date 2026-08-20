@@ -45,6 +45,16 @@
     #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 8px; }
     .interactive { pointer-events: auto; }
 
+    /* ===== 캐릭터 상태창 탭 최소화 ===== */
+    .status-panel.status-compact { padding:5px 7px!important; width:185px!important; border-width:2px!important; border-radius:9px!important; }
+    .status-panel.status-compact .character-info,
+    .status-panel.status-compact .stat-row-item:not(:first-child) { display:none!important; }
+    .status-panel.status-compact .stat-rows { border-top:0!important; margin-top:0!important; padding-top:0!important; gap:0!important; }
+    .status-panel.status-compact .stat-rows > .stat-row-item:first-child { display:flex!important; justify-content:space-between!important; align-items:center!important; gap:4px!important; font-size:10px!important; }
+    .status-panel.status-compact .bar-container { height:9px!important; margin-bottom:3px!important; }
+    .status-panel.status-compact .bar-text { font-size:7px!important; line-height:9px!important; }
+    .status-panel.status-compact::after { content:'탭하여 전체 상태창'; display:block; text-align:center; margin-top:3px; font-size:7px; color:#8d6e63; opacity:.75; }
+
     .status-panel {
       background: var(--panel-bg);
       border: 3px solid var(--panel-border);
@@ -1178,7 +1188,7 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
     <div id="exp-dungeon-hud" class="exp-dungeon-hud">📕 경험의 서고 <span class="timer" id="exp-dungeon-timer">03:00</span><span class="count" id="exp-dungeon-kills">0마리</span><span class="exp-dungeon-exit-btn" onclick="requestExitExperienceDungeon()">나가기</span></div>
     <div id="craft-gold-dungeon-hud" class="craft-gold-dungeon-hud">⚒️💰 제작·금화 보급 던전 <span class="timer" id="craft-gold-dungeon-timer">05:00</span><span class="count" id="craft-gold-dungeon-kills">0마리</span><span class="exit-btn" onclick="exitCraftGoldDungeon()">나가기</span></div>
     <div style="display: flex; justify-content: space-between; width: 100%;">
-      <div class="status-panel interactive">
+      <div class="status-panel interactive" onclick="toggleStatusPanel(event)" title="탭하여 상태창 최소화/복원">
         <div class="character-info">
           <span>
             <strong id="player-name">조선유생</strong> 
@@ -9768,6 +9778,13 @@ window.playerState = playerState;
       // URL로 이동시키면 캐시된 페이지가 아닌 완전한 재실행이 강제된다.
       const base = location.href.split('#')[0].replace(/[?&]_reset=\d+/, '');
       location.href = base + (base.includes('?') ? '&' : '?') + '_reset=' + Date.now();
+    }
+
+    // 상태창을 탭하면 HP/MP/EXP와 공격력/방어력/크리티컬만 남긴 최소화 상태로 전환
+    function toggleStatusPanel(event) {
+      if (event && event.target && event.target.closest('button, .stage-badge, .btn-skill-badge')) return;
+      const panel=document.querySelector('.status-panel.interactive');
+      if (panel) panel.classList.toggle('status-compact');
     }
 
     function updateUI() {
