@@ -479,50 +479,6 @@
       box-sizing: border-box;
     }
 
-    /* ===== 캐릭터 상태창 탭 최소화 =====
-       펼침: 기존 전체 상태창
-       최소화: 이름/직업 + HP/MP/EXP + 공격력/방어력/크리티컬만 표시
-    */
-    .status-panel {
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      transition: width .16s ease, padding .16s ease, max-height .16s ease;
-    }
-    .status-panel .status-essential {
-      display: block;
-    }
-    .status-panel .status-collapse-toggle {
-      cursor: pointer;
-      user-select: none;
-    }
-    .status-panel.status-collapsed {
-      width: 185px !important;
-      padding: 6px 8px !important;
-      max-height: none !important;
-      overflow: hidden !important;
-    }
-    .status-panel.status-collapsed .status-collapse-hide {
-      display: none !important;
-    }
-    .status-panel.status-collapsed .character-info {
-      margin-bottom: 3px !important;
-    }
-    .status-panel.status-collapsed .bar-container {
-      margin-bottom: 2px !important;
-    }
-    .status-panel.status-collapsed .stat-rows > .stat-row-item:first-child {
-      margin-top: 2px !important;
-    }
-    .status-panel.status-collapsed::after {
-      content: '탭하여 펼치기';
-      display: block;
-      text-align: right;
-      color: rgba(90,90,90,.72);
-      font-size: 7px;
-      line-height: 9px;
-      margin-top: 2px;
-    }
-
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
@@ -1223,7 +1179,7 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
     <div id="craft-gold-dungeon-hud" class="craft-gold-dungeon-hud">⚒️💰 제작·금화 보급 던전 <span class="timer" id="craft-gold-dungeon-timer">05:00</span><span class="count" id="craft-gold-dungeon-kills">0마리</span><span class="exit-btn" onclick="exitCraftGoldDungeon()">나가기</span></div>
     <div style="display: flex; justify-content: space-between; width: 100%;">
       <div class="status-panel interactive">
-        <div class="character-info status-collapse-toggle">
+        <div class="character-info">
           <span>
             <strong id="player-name">조선유생</strong> 
             <span style="color:#8d6e63;" id="player-lv">Lv.1</span>
@@ -1249,30 +1205,30 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
             <span class="stat-def">🛡️<span id="def-val">5</span></span>
             <span class="stat-crit">💥<span id="crit-val">5</span>%</span>
           </div>
-          <div class="stat-row-item status-collapse-hide" id="munyeahana-buff-row" style="display:none; justify-content:center;">
+          <div class="stat-row-item" id="munyeahana-buff-row" style="display:none; justify-content:center;">
             <span class="stat-buff munyeahana-buff-active">✨ 무녀하나 버프 <span id="munyeahana-buff-pct">+0%</span> · ⚔️+<span id="munyeahana-atk-buff">0</span> / 🛡️+<span id="munyeahana-def-buff">0</span></span>
           </div>
-          <div class="stat-row-item status-main-action-row status-collapse-hide">
+          <div class="stat-row-item status-main-action-row">
             <button class="stage-badge" id="stage-badge" onclick="openStageModal()" title="클릭하여 스테이지 선택">초보자 사냥터 ▾</button>
             <button class="btn-skill-badge" onclick="openSkillModal()">✨ 스킬</button>
             <span class="stat-gold"><span id="gold-val">200</span> G</span>
           </div>
-          <div class="stat-row-item status-collapse-hide" style="justify-content: flex-end;">
+          <div class="stat-row-item" style="justify-content: flex-end;">
             <span class="stat-loot">📜 전리품: <span id="loot-val">0</span>개</span>
             <span class="stat-loot">🔷 강화의 핵: <span id="core-val">0</span>개</span>
           </div>
-          <div class="stat-row-item status-collapse-hide" id="subweapon-status-row" style="display:none; justify-content: flex-end;">
+          <div class="stat-row-item" id="subweapon-status-row" style="display:none; justify-content: flex-end;">
             <span id="subweapon-status-val" style="color:#4a148c;">⚔️ 보조무기: 없음</span>
           </div>
-          <div class="stat-row-item status-collapse-hide" id="protection-shield-status-row" style="display:none; justify-content: flex-end;"><span id="protection-shield-status-val" style="color:#1565c0;">🛡️ 보호의막: 비활성</span></div>
-          <div class="stat-row-item status-collapse-hide" id="sura-gangrim-status-row" style="display:none; justify-content: flex-end;"><span id="sura-gangrim-status-val" style="color:#b71c1c;">🔥 수라강림: 비활성</span></div>
-          <div class="stat-row-item status-collapse-hide" id="craftweapon-status-row" style="display:none; justify-content: flex-end;">
+          <div class="stat-row-item" id="protection-shield-status-row" style="display:none; justify-content: flex-end;"><span id="protection-shield-status-val" style="color:#1565c0;">🛡️ 보호의막: 비활성</span></div>
+          <div class="stat-row-item" id="sura-gangrim-status-row" style="display:none; justify-content: flex-end;"><span id="sura-gangrim-status-val" style="color:#b71c1c;">🔥 수라강림: 비활성</span></div>
+          <div class="stat-row-item" id="craftweapon-status-row" style="display:none; justify-content: flex-end;">
             <span id="craftweapon-status-val" style="color:#ad7b00;">🗡️ 제작무기: 없음</span>
           </div>
-          <div class="stat-row-item status-collapse-hide" id="guardian-set-row" style="display:none; justify-content: flex-end;">
+          <div class="stat-row-item" id="guardian-set-row" style="display:none; justify-content: flex-end;">
             <span class="stat-loot" id="guardian-set-val" style="color:#d84315;">🔥 파수꾼셋트: 0/4</span>
           </div>
-          <div class="stat-row-item status-collapse-hide" id="guardian-equip-row" style="display:none; justify-content:flex-end; margin-top:2px;">
+          <div class="stat-row-item" id="guardian-equip-row" style="display:none; justify-content:flex-end; margin-top:2px;">
             <button id="guardian-equip-btn"
                     class="status-action-btn"
                     onclick="toggleGuardianSetEquip()"
@@ -7259,83 +7215,52 @@ window.playerState = playerState;
           pg.addColorStop(1,'rgba(255,40,0,0)');
           ctx.fillStyle=pg; ctx.beginPath(); ctx.arc(x,y,r*3,0,Math.PI*2); ctx.fill();
         }
-      } else if (skillId === 's2_2_ring') {
-        // 화염폭우 착탄 지점: 타겟 주변에만 보이는 붉은-주황 마법진/충격광.
-        const rg = ctx.createRadialGradient(cx, cy, 4, cx, cy, 118);
-        rg.addColorStop(0, 'rgba(255,245,190,.88)');
-        rg.addColorStop(.18, 'rgba(255,150,20,.65)');
-        rg.addColorStop(.55, 'rgba(255,45,0,.28)');
-        rg.addColorStop(1, 'rgba(170,0,30,0)');
-        ctx.fillStyle = rg; ctx.beginPath(); ctx.ellipse(cx, cy+78, 108, 32, 0, 0, Math.PI*2); ctx.fill();
-        ctx.strokeStyle='rgba(255,225,130,.95)'; ctx.lineWidth=5;
-        ctx.setLineDash([13,8]);
-        ctx.beginPath(); ctx.ellipse(cx, cy+78, 92, 24, 0, 0, Math.PI*2); ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.strokeStyle='rgba(255,65,0,.78)'; ctx.lineWidth=9;
-        ctx.beginPath(); ctx.ellipse(cx, cy+80, 112, 30, 0, 0, Math.PI*2); ctx.stroke();
-        for(let i=0;i<12;i++){
-          const a=Math.random()*Math.PI*2, r=42+Math.random()*62;
-          const x=cx+Math.cos(a)*r, y=cy+78+Math.sin(a)*r*.28;
-          ctx.fillStyle=i%2?'#ff6a00':'#fff0a0';
-          ctx.beginPath();ctx.arc(x,y,1.5+Math.random()*2.5,0,Math.PI*2);ctx.fill();
-        }
       } else if (skillId === 's2_2') {
-        // 화염폭우: 타겟 몬스터 상공에서 일정한 방향으로 떨어지는 화염 유성우.
-        // 텍스처는 '유성 머리 + 긴 화염 꼬리'만 담당하고, 실제 낙하/각도/착탄 위치는
-        // spawnDaedosaSkillVfx에서 Three.js Sprite의 위치를 프레임마다 갱신한다.
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate(-Math.PI * 0.22);
-        ctx.globalCompositeOperation = 'lighter';
+        // 화염폭우: 하늘에서 큰 화염 덩어리가 몬스터를 향해 떨어지는 실시간 VFX.
+        // 한 장짜리 원형 이미지가 아니라 낙하/꼬리/불씨가 움직이도록 텍스처 자체를 불덩이로 만든다.
+        const g = ctx.createRadialGradient(cx, cy - 12, 3, cx, cy - 8, 72);
+        g.addColorStop(0, '#fffde7');
+        g.addColorStop(0.16, '#fff3a0');
+        g.addColorStop(0.42, '#ffb000');
+        g.addColorStop(0.70, '#ff4b00');
+        g.addColorStop(0.88, '#c71900');
+        g.addColorStop(1, 'rgba(90,0,0,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(cx, cy - 8, 68, 0, Math.PI * 2); ctx.fill();
 
-        const tail = ctx.createLinearGradient(0, 105, 0, -105);
-        tail.addColorStop(0, 'rgba(255,40,0,0)');
-        tail.addColorStop(.28, 'rgba(190,0,40,.20)');
-        tail.addColorStop(.62, 'rgba(255,70,0,.62)');
-        tail.addColorStop(.86, 'rgba(255,185,40,.92)');
-        tail.addColorStop(1, 'rgba(255,255,225,1)');
-        ctx.strokeStyle = tail;
-        ctx.lineCap = 'round';
-        ctx.lineWidth = 22;
-        ctx.beginPath(); ctx.moveTo(0,96); ctx.lineTo(0,-74); ctx.stroke();
+        // 불덩이의 불규칙한 외곽
+        ctx.fillStyle = '#ff5a00';
+        ctx.beginPath();
+        ctx.moveTo(cx-48,cy+30); ctx.quadraticCurveTo(cx-72,cy+5,cx-46,cy-20);
+        ctx.quadraticCurveTo(cx-62,cy-55,cx-25,cy-48); ctx.quadraticCurveTo(cx-5,cy-78,cx+18,cy-48);
+        ctx.quadraticCurveTo(cx+56,cy-58,cx+48,cy-20); ctx.quadraticCurveTo(cx+74,cy+8,cx+44,cy+32);
+        ctx.quadraticCurveTo(cx+4,cy+58,cx-48,cy+30); ctx.closePath(); ctx.fill();
 
-        // 가늘게 갈라지는 고속 화염 꼬리
-        for (let i=-4;i<=4;i++) {
-          const x=i*7;
-          const grad=ctx.createLinearGradient(x,82,x,-72);
-          grad.addColorStop(0,'rgba(255,40,0,0)');
-          grad.addColorStop(.5,'rgba(255,80,0,.35)');
-          grad.addColorStop(1,'rgba(255,235,150,.95)');
-          ctx.strokeStyle=grad; ctx.lineWidth=1.5+Math.abs(i)*.45;
-          ctx.beginPath(); ctx.moveTo(x,78);
-          ctx.quadraticCurveTo(x+(i*3),10,x*0.35,-65); ctx.stroke();
-        }
+        // 중심부
+        const core = ctx.createRadialGradient(cx-10,cy-18,2,cx-10,cy-18,38);
+        core.addColorStop(0,'#ffffff'); core.addColorStop(.22,'#fff8c7');
+        core.addColorStop(.55,'#ffd43b'); core.addColorStop(1,'rgba(255,105,0,0)');
+        ctx.fillStyle = core; ctx.beginPath(); ctx.arc(cx-10,cy-18,40,0,Math.PI*2); ctx.fill();
 
-        // 메테오 헤드: 붉은 외곽 → 주황 → 백황색 코어
-        const mg=ctx.createRadialGradient(0,-76,2,0,-76,38);
-        mg.addColorStop(0,'#ffffff'); mg.addColorStop(.18,'#fff1a0');
-        mg.addColorStop(.42,'#ffb000'); mg.addColorStop(.72,'#ff3b00');
-        mg.addColorStop(1,'rgba(170,0,30,0)');
-        ctx.fillStyle=mg; ctx.beginPath(); ctx.arc(0,-76,38,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='#fff9d0'; ctx.shadowColor='#ff4a00'; ctx.shadowBlur=22;
-        ctx.beginPath(); ctx.arc(0,-78,11,0,Math.PI*2); ctx.fill();
-
-        // 작은 불씨 파편
-        for(let i=0;i<14;i++){
-          const a=Math.random()*Math.PI*2, r=12+Math.random()*28;
-          const x=Math.cos(a)*r, y=-76+Math.sin(a)*r*.7;
-          ctx.fillStyle=i%3===0?'#fff5b0':'#ff5a00';
-          ctx.beginPath(); ctx.arc(x,y,1.5+Math.random()*2.5,0,Math.PI*2); ctx.fill();
+        // 아래쪽으로 길게 끌리는 화염 꼬리
+        ctx.save(); ctx.globalAlpha = .9;
+        for (let i=0;i<8;i++) {
+          const x = cx + (i-4)*8 + (variant%3-1)*5;
+          const len = 45 + (i%3)*14;
+          const w = 5 + (i%2)*3;
+          ctx.fillStyle = i%2 ? '#ff7a00' : '#ffd43b';
+          ctx.beginPath(); ctx.moveTo(x-w,cy+30); ctx.quadraticCurveTo(x-3,cy+len*.45,x+(i%3-1)*6,cy+len); ctx.quadraticCurveTo(x+5,cy+len*.45,x+w,cy+30); ctx.closePath(); ctx.fill();
         }
         ctx.restore();
 
-        // 착탄 지면의 불꽃 충격 링
-        const impact=ctx.createRadialGradient(cx,cy+104,3,cx,cy+104,70);
-        impact.addColorStop(0,'rgba(255,255,220,.95)');
-        impact.addColorStop(.18,'rgba(255,180,30,.85)');
-        impact.addColorStop(.52,'rgba(255,55,0,.38)');
-        impact.addColorStop(1,'rgba(180,0,40,0)');
-        ctx.fillStyle=impact; ctx.beginPath(); ctx.ellipse(cx,cy+104,62,18,0,0,Math.PI*2); ctx.fill();
+        // 빠르게 흩어지는 작은 불씨
+        for (let i=0;i<14;i++) {
+          const a = Math.random()*Math.PI*2, r = 38+Math.random()*48;
+          const x = cx + Math.cos(a)*r, y = cy-8 + Math.sin(a)*r;
+          const pg = ctx.createRadialGradient(x,y,0,x,y,6);
+          pg.addColorStop(0,'#fff8b0'); pg.addColorStop(.35,'#ff9d00'); pg.addColorStop(1,'rgba(255,45,0,0)');
+          ctx.fillStyle=pg; ctx.beginPath(); ctx.arc(x,y,6,0,Math.PI*2); ctx.fill();
+        }
       } else {
         ctx.strokeStyle = '#c084fc'; ctx.lineWidth = 8;
         ctx.beginPath(); ctx.arc(cx,cy,96,0,Math.PI*2); ctx.stroke();
@@ -7358,6 +7283,119 @@ window.playerState = playerState;
       return tex;
     }
 
+    // 천지개벽 전용 불/얼음 원소 기둥 텍스처.
+    // 외부 이미지가 아니라 Canvas로 직접 그려 모바일에서도 별도 파일 없이 동작한다.
+    const elementalPillarTextureCache = {};
+    function createElementalPillarTexture(type, variant = 0) {
+      const key = `${type}_${variant % 3}`;
+      if (elementalPillarTextureCache[key]) return elementalPillarTextureCache[key];
+
+      const cvs = document.createElement('canvas');
+      cvs.width = 360; cvs.height = 520;
+      const c = cvs.getContext('2d');
+      const cx = 180, bottom = 455, top = 55;
+      const fire = type === 'fire';
+      c.clearRect(0,0,cvs.width,cvs.height);
+      c.globalCompositeOperation = 'lighter';
+
+      // 지면 발광
+      const bg = c.createRadialGradient(cx,bottom,4,cx,bottom,110);
+      if (fire) {
+        bg.addColorStop(0,'rgba(255,220,100,.95)');
+        bg.addColorStop(.22,'rgba(255,90,0,.65)');
+        bg.addColorStop(1,'rgba(255,20,0,0)');
+      } else {
+        bg.addColorStop(0,'rgba(230,255,255,.95)');
+        bg.addColorStop(.25,'rgba(0,190,255,.65)');
+        bg.addColorStop(1,'rgba(0,50,255,0)');
+      }
+      c.fillStyle=bg;
+      c.beginPath(); c.ellipse(cx,bottom,105,30,0,0,Math.PI*2); c.fill();
+
+      // 기둥 외곽
+      const body=c.createLinearGradient(cx,bottom,cx,top);
+      if (fire) {
+        body.addColorStop(0,'rgba(255,70,0,.92)');
+        body.addColorStop(.35,'rgba(255,35,0,.78)');
+        body.addColorStop(.75,'rgba(210,0,35,.45)');
+        body.addColorStop(1,'rgba(255,0,0,0)');
+      } else {
+        body.addColorStop(0,'rgba(0,220,255,.92)');
+        body.addColorStop(.35,'rgba(0,130,255,.75)');
+        body.addColorStop(.75,'rgba(40,60,255,.42)');
+        body.addColorStop(1,'rgba(0,40,200,0)');
+      }
+      c.fillStyle=body;
+      c.shadowColor=fire?'#ff3000':'#00cfff'; c.shadowBlur=28;
+      c.beginPath();
+      c.moveTo(cx-48,bottom); c.lineTo(cx-32,top+18); c.quadraticCurveTo(cx,top-12,cx+34,top+20);
+      c.lineTo(cx+48,bottom); c.closePath(); c.fill();
+
+      // 백황/백청 코어
+      const core=c.createLinearGradient(cx,bottom,cx,top+20);
+      core.addColorStop(0,'rgba(255,255,255,.98)');
+      core.addColorStop(.45,fire?'rgba(255,230,130,.78)':'rgba(190,245,255,.78)');
+      core.addColorStop(1,'rgba(255,255,255,0)');
+      c.fillStyle=core; c.shadowBlur=12;
+      c.beginPath();
+      c.moveTo(cx-18,bottom); c.lineTo(cx-11,top+35); c.quadraticCurveTo(cx,top+5,cx+12,top+35); c.lineTo(cx+18,bottom); c.closePath(); c.fill();
+
+      // 원소별 문양/결정
+      if (fire) {
+        for(let i=0;i<7;i++){
+          const x=cx+(i-3)*17;
+          c.strokeStyle=i%2?'rgba(255,210,80,.8)':'rgba(255,120,20,.75)';
+          c.lineWidth=2.2; c.beginPath();
+          c.moveTo(x,bottom-10); c.quadraticCurveTo(x-10,300,x+(i%3-1)*12,170); c.stroke();
+        }
+      } else {
+        for(let i=0;i<6;i++){
+          const x=cx+(i-2.5)*20;
+          c.strokeStyle=i%2?'rgba(220,255,255,.9)':'rgba(50,210,255,.8)';
+          c.lineWidth=2.5; c.beginPath();
+          c.moveTo(x,bottom-12); c.lineTo(x-12,330); c.lineTo(x+5,245); c.lineTo(x-5,165); c.stroke();
+        }
+      }
+
+      // 살아있는 듯한 불씨/빙결 파편을 텍스처에도 일부 포함
+      for(let i=0;i<18;i++){
+        const a=Math.random()*Math.PI*2, rr=18+Math.random()*70;
+        const x=cx+Math.cos(a)*rr, y=150+Math.random()*270;
+        const r=1.5+Math.random()*4;
+        c.fillStyle=fire?(i%2?'rgba(255,240,170,.9)':'rgba(255,80,0,.8)'):(i%2?'rgba(255,255,255,.95)':'rgba(0,220,255,.85)');
+        c.beginPath();
+        if(!fire){
+          c.moveTo(x,y-r*1.8); c.lineTo(x+r,y); c.lineTo(x,y+r*1.8); c.lineTo(x-r,y); c.closePath();
+        }else c.arc(x,y,r,0,Math.PI*2);
+        c.fill();
+      }
+
+      const tex=new THREE.CanvasTexture(cvs);
+      tex.magFilter=THREE.LinearFilter; tex.minFilter=THREE.LinearFilter; tex.generateMipmaps=false; tex.needsUpdate=true;
+      elementalPillarTextureCache[key]=tex;
+      return tex;
+    }
+
+    const elementalDebrisTextureCache = {};
+    function createElementalDebrisTexture(type, variant = 0) {
+      const key = `${type}_${variant % 6}`;
+      if (elementalDebrisTextureCache[key]) return elementalDebrisTextureCache[key];
+      const cvs=document.createElement('canvas'); cvs.width=96; cvs.height=96;
+      const c=cvs.getContext('2d'); c.clearRect(0,0,96,96); c.globalCompositeOperation='lighter';
+      const fire=type==='fire';
+      const g=c.createRadialGradient(48,48,1,48,48,34);
+      g.addColorStop(0,fire?'rgba(255,255,210,.98)':'rgba(255,255,255,.98)');
+      g.addColorStop(.28,fire?'rgba(255,190,40,.9)':'rgba(90,230,255,.9)');
+      g.addColorStop(1,fire?'rgba(255,30,0,0)':'rgba(0,90,255,0)');
+      c.fillStyle=g; c.shadowColor=fire?'#ff3700':'#00d9ff'; c.shadowBlur=14;
+      c.beginPath();
+      if(fire){ c.arc(48,48,12+variant%3*2,0,Math.PI*2); }
+      else { c.moveTo(48,28); c.lineTo(62,48); c.lineTo(48,68); c.lineTo(34,48); c.closePath(); }
+      c.fill();
+      const tex=new THREE.CanvasTexture(cvs); tex.magFilter=THREE.LinearFilter; tex.minFilter=THREE.LinearFilter; tex.generateMipmaps=false; tex.needsUpdate=true;
+      elementalDebrisTextureCache[key]=tex; return tex;
+    }
+
     function spawnDaedosaSkillVfx(worldPos, skillId, radius = 5) {
       // 멸천화는 피격 몬스터의 '지면'에서 불기둥이 솟아오르도록 별도 연출한다.
       if (skillId === 's2_1') {
@@ -7376,6 +7414,7 @@ window.playerState = playerState;
           startY: worldPos.y + s * 0.22, endY: worldPos.y + s * 0.48
         });
 
+        // 좌우의 작은 불기둥을 시간차로 추가해 한 번에 폭발하는 느낌을 줄인다.
         for (let i = 0; i < 4; i++) {
           const a = (Math.PI * 2 * i) / 4 + 0.3;
           const dist = radius * (0.20 + Math.random() * 0.30);
@@ -7397,54 +7436,99 @@ window.playerState = playerState;
         return;
       }
 
-      // 화염폭우: 호출 위치를 중심으로 하지 않고, 호출된 타겟 몬스터의 상공에서
-      // 여러 개의 유성이 같은 하강각으로 떨어지게 한다.
+      // 화염폭우: 각 피격 몬스터의 상공에서 큰 화염 덩어리가 시간차로 낙하한다.
       if (skillId === 's2_2') {
-        const meteorTex = createDaedosaVfxTexture('s2_2', 0);
-        const meteorCount = 16;
-        const stormRadius = Math.max(2.8, radius * 0.82);
-        const downAngle = THREE.MathUtils.degToRad(38);
-
-        // 지면 착탄 지점을 먼저 결정하고, 모든 유성은 동일한 방향의 사선으로 진입한다.
-        for (let i = 0; i < meteorCount; i++) {
-          const a = Math.random() * Math.PI * 2;
-          const r = Math.sqrt(Math.random()) * stormRadius;
-          const impact = worldPos.clone().add(new THREE.Vector3(Math.cos(a) * r, 0, Math.sin(a) * r));
-
-          const horizontalDir = new THREE.Vector3(0.72, 0, 0.69).normalize();
-          const fallDir = new THREE.Vector3(horizontalDir.x * Math.cos(downAngle), -Math.sin(downAngle), horizontalDir.z * Math.cos(downAngle)).normalize();
-          const travel = 11 + Math.random() * 4;
-          const start = impact.clone().sub(fallDir.clone().multiplyScalar(travel));
-          start.y += 1.5;
-
+        const count = 5;
+        for (let i = 0; i < count; i++) {
+          // 각 몬스터를 중심으로 작은 범위만 흔들어, 화염이 해당 타겟을 직접 노리는 느낌을 유지한다.
+          const spread = radius * (0.28 + Math.random() * 0.42);
+          const p = worldPos.clone().add(new THREE.Vector3(
+            (Math.random() - 0.5) * spread,
+            0,
+            (Math.random() - 0.5) * spread
+          ));
           const sp = new THREE.Sprite(new THREE.SpriteMaterial({
-            map: meteorTex, transparent: true, opacity: 0, depthWrite: false,
-            blending: THREE.AdditiveBlending
+            map: createDaedosaVfxTexture('s2_2', i + 1), transparent: true, opacity: 1.0,
+            depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false
           }));
-          const scale = 1.25 + Math.random() * 0.85;
-          sp.scale.set(scale, scale, 1);
-          sp.position.copy(start);
-          // Canvas 텍스처의 유성 꼬리 방향을 실제 낙하 방향과 맞춘다.
-          sp.material.rotation = Math.atan2(fallDir.x, fallDir.y) + Math.PI * 0.5;
+          const sc = radius * (0.34 + Math.random() * 0.20);
+          sp.scale.set(sc, sc, 1);
+          const startY = worldPos.y + 7.0 + Math.random() * 4.0;
+          const endY = p.y + 0.65;
+          sp.position.set(p.x, startY, p.z);
+          scene.add(sp);
+          activeHitVfx.push({
+            sprite: sp,
+            timer: -i * 0.075,
+            duration: 0.48 + Math.random() * 0.18,
+            fireRain: true,
+            startY,
+            endY,
+            baseScale: sc * 0.72,
+            growTo: sc,
+            impactScale: sc * 1.25,
+            impactFlash: true,
+            driftX: (Math.random() - 0.5) * 0.8,
+            driftZ: (Math.random() - 0.5) * 0.8
+          });
+        }
+        return;
+      }
+
+      // 천지개벽: 선택된 타겟 몬스터의 지면에서 불/얼음 기둥이 동시에 솟구친다.
+      // 60fps 기준 정확히 120프레임(2초) 동안 유지하며 0.25초 페이드인/0.30초 페이드아웃.
+      if (skillId === 's2_3') {
+        const offsets = [
+          { x: -radius*0.42, z: -radius*0.18, type: 'fire',  delay: 0.00 },
+          { x:  radius*0.42, z: -radius*0.18, type: 'ice',   delay: 0.07 },
+          { x: -radius*0.32, z:  radius*0.30, type: 'ice',   delay: 0.14 },
+          { x:  radius*0.32, z:  radius*0.30, type: 'fire',  delay: 0.04 }
+        ];
+
+        offsets.forEach((o, idx) => {
+          const p = worldPos.clone().add(new THREE.Vector3(o.x, 0, o.z));
+          const tex = createElementalPillarTexture(o.type, idx);
+          const mat = new THREE.SpriteMaterial({
+            map: tex, transparent: true, opacity: 0,
+            depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false
+          });
+          const sp = new THREE.Sprite(mat);
+          const width = radius * 0.78;
+          const height = radius * 2.75;
+          sp.scale.set(width, height * 0.08, 1);
+          sp.position.set(p.x, p.y + height * 0.04, p.z);
           scene.add(sp);
 
           activeHitVfx.push({
-            sprite: sp, timer: -i * 0.055, duration: 0.72 + Math.random() * 0.18,
-            meteor: true, startPos: start, endPos: impact,
-            impactScale: scale, impactRadius: stormRadius
+            sprite: sp, timer: -o.delay, duration: 2.0,
+            elementalPillar: true, baseX: p.x, baseY: p.y, baseZ: p.z,
+            fullWidth: width, fullHeight: height, type: o.type,
+            riseHeight: height * 0.92, phase: idx * 1.7
           });
-        }
 
-        // 타겟 지면에 약한 마법진을 깔아 '여기에서 유성우가 시작된다'는 시각적 기준점을 만든다.
-        const ring = new THREE.Sprite(new THREE.SpriteMaterial({
-          map: createDaedosaVfxTexture('s2_2_ring', 0), transparent: true, opacity: 0.72, depthWrite: false,
-          blending: THREE.AdditiveBlending
-        }));
-        const ringScale = Math.max(3.2, radius * 1.05);
-        ring.scale.set(ringScale, ringScale * 0.62, 1);
-        ring.position.copy(worldPos).add(new THREE.Vector3(0, 0.12, 0));
-        scene.add(ring);
-        activeHitVfx.push({ sprite:ring, timer:0, duration:0.95, baseScale:ringScale*0.65, growTo:ringScale, impactRing:true });
+          // 기둥 주변을 실제로 움직이는 원소 파편.
+          for(let j=0;j<8;j++){
+            const dmat = new THREE.SpriteMaterial({
+              map: createElementalDebrisTexture(o.type, idx + j + 1),
+              transparent:true, opacity:0, depthWrite:false,
+              blending:THREE.AdditiveBlending, toneMapped:false
+            });
+            const debris = new THREE.Sprite(dmat);
+            const ds = radius * (0.10 + Math.random()*0.09);
+            debris.scale.set(ds, ds, 1);
+            const ang=Math.random()*Math.PI*2;
+            const rr=radius*(0.08+Math.random()*0.36);
+            debris.position.set(p.x+Math.cos(ang)*rr, p.y+0.15+Math.random()*0.7, p.z+Math.sin(ang)*rr);
+            scene.add(debris);
+            activeHitVfx.push({
+              sprite:debris, timer:-o.delay-Math.random()*0.18, duration:2.0,
+              elementalDebris:true, baseX:p.x, baseY:p.y, baseZ:p.z,
+              angle:ang, orbit:rr, height:Math.random()*0.3,
+              riseSpeed:0.65+Math.random()*0.55, angularSpeed:(o.type==='fire'?1.6:0.9)*(Math.random()>.5?1:-1),
+              size:ds, type:o.type, phase:Math.random()*Math.PI*2
+            });
+          }
+        });
         return;
       }
 
@@ -7457,7 +7541,7 @@ window.playerState = playerState;
       scene.add(main);
       activeHitVfx.push({ sprite: main, timer: 0, duration: 0.55 });
 
-      const burstCount = skillId === 's2_1' ? 3 : skillId === 's2_2' ? 7 : 10;
+      const burstCount = skillId === 's2_1' ? 3 : 10;
       for (let i = 0; i < burstCount; i++) {
         const a = Math.random() * Math.PI * 2;
         const dist = radius * (0.35 + Math.random() * 0.75);
@@ -7588,40 +7672,14 @@ window.playerState = playerState;
         }
         glow(cx, cy + 110, 28, '#ffffff', 'rgba(60,210,255,0)');
       } else if (skillId === 's2_2') {
-        // 회풍참 — 캐릭터 중심 360도 화염 참격 링
-        // 한쪽은 두껍게 타오르고 반대쪽은 가늘게 빠지는 꼬리 + 회색 연기 잔상.
-        glow(cx, cy, 135, 'rgba(255,210,150,.42)', 'rgba(80,20,10,0)');
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate(Number(variant || 0) * 0.08);
-        ctx.globalCompositeOperation = 'lighter';
-        const rx = 104, ry = 60, start = -0.58, sweep = Math.PI * 1.72, segs = 54;
-        for (let k=0;k<segs;k++) {
-          const t=k/segs, a1=start+sweep*t, a2=start+sweep*((k+1)/segs);
-          const thick=2+Math.pow(t,1.75)*24, alpha=.12+t*.88;
-          ctx.lineCap='round';
-          ctx.strokeStyle=`rgba(110,35,20,${alpha*.72})`; ctx.lineWidth=thick+12; ctx.shadowColor='#4b1610'; ctx.shadowBlur=16;
-          ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,a1,a2);ctx.stroke();
-          ctx.strokeStyle=`rgba(255,55,5,${alpha})`;ctx.lineWidth=thick+4;ctx.shadowColor='#ff2b00';ctx.shadowBlur=12;
-          ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,a1,a2);ctx.stroke();
-          ctx.strokeStyle=`rgba(255,155,20,${alpha})`;ctx.lineWidth=Math.max(2,thick*.5);ctx.shadowColor='#ff9d18';ctx.shadowBlur=8;
-          ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,a1,a2);ctx.stroke();
-          if(t>.25){ctx.strokeStyle=`rgba(255,245,180,${alpha*.9})`;ctx.lineWidth=Math.max(1.2,thick*.17);ctx.shadowColor='#fff5c0';ctx.shadowBlur=4;ctx.beginPath();ctx.ellipse(0,0,rx,ry,0,a1,a2);ctx.stroke();}
+        // 회풍참 — 검기가 회전하며 여러 겹으로 휘몰아치는 근거리 광역 검무
+        glow(cx, cy, 150, '#d9f7ff', 'rgba(0,160,255,0)');
+        for (let i = 0; i < 4; i++) swordArc((Math.PI * 2 * i) / 4 + variant * 0.18, 88 + i * 15, 10 - i * 0.7, 0.9);
+        for (let i = 0; i < 12; i++) {
+          const a = Math.random() * Math.PI * 2, r = 80 + Math.random() * 70;
+          glow(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 10, '#ffffff', 'rgba(80,210,255,0)');
         }
-        ctx.globalCompositeOperation='source-over';
-        for(let k=0;k<20;k++){
-          const a=start+Math.random()*sweep,r=82+Math.random()*34,x=Math.cos(a)*r,y=Math.sin(a)*r*.58,sr=6+Math.random()*10;
-          const sg=ctx.createRadialGradient(x,y,1,x,y,sr);sg.addColorStop(0,'rgba(90,82,88,.34)');sg.addColorStop(1,'rgba(55,50,58,0)');
-          ctx.fillStyle=sg;ctx.beginPath();ctx.arc(x,y,sr,0,Math.PI*2);ctx.fill();
-        }
-        ctx.globalCompositeOperation='lighter';
-        for(let k=0;k<16;k++){
-          const a=start+Math.random()*sweep,r=72+Math.random()*38,x=Math.cos(a)*r,y=Math.sin(a)*r*.58;
-          ctx.fillStyle=k%3===0?'rgba(255,240,150,.95)':'rgba(255,75,8,.86)';ctx.shadowColor='#ff3d00';ctx.shadowBlur=6;
-          ctx.beginPath();ctx.arc(x,y,1.5+Math.random()*2,0,Math.PI*2);ctx.fill();
-        }
-        ctx.restore();
-
+      } else {
         // 천검난무 — 전방 부채꼴 형태의 암흑 검기. 스킬의 공격 방향은
         // spawnSwordsmanSkillVfx에서 플레이어→타겟 방향으로 회전시킨다.
         glow(cx, cy, 145, 'rgba(255,255,255,.95)', 'rgba(80,20,140,0)');
@@ -7674,10 +7732,172 @@ window.playerState = playerState;
       const tex = new THREE.CanvasTexture(cvs); tex.magFilter = THREE.LinearFilter; return tex;
     }
 
+    // 검성 천검난무 전용 3방향 화염 파동 VFX.
+    // 제공된 StylizedFlameEruption / TripleFlameWave의 외형을 Three.js 전투 씬에 맞게 이식한다.
+    // 핵심: VFX의 시작점은 플레이어가 아니라 '선택된 타겟 몬스터'의 지면이며,
+    // 그 지점에서 전방 3방향으로 화염 파동이 연속 분출된다.
+    let triFlameTexture = null;
+    let triFlameDropletTexture = null;
+
+    function createTriFlameTexture() {
+      if (triFlameTexture) return triFlameTexture;
+      const cvs = document.createElement('canvas'); cvs.width = 256; cvs.height = 256;
+      const c = cvs.getContext('2d');
+      c.clearRect(0, 0, 256, 256);
+      c.globalCompositeOperation = 'lighter';
+      const cx = 128, baseY = 224;
+
+      const glow = c.createRadialGradient(cx, baseY, 4, cx, baseY, 95);
+      glow.addColorStop(0, 'rgba(255,220,80,.95)');
+      glow.addColorStop(.28, 'rgba(255,70,0,.65)');
+      glow.addColorStop(1, 'rgba(255,20,0,0)');
+      c.fillStyle = glow;
+      c.beginPath(); c.ellipse(cx, baseY, 86, 28, 0, 0, Math.PI * 2); c.fill();
+
+      // 제공 코드의 유기적인 외곽 화염 곡선.
+      c.fillStyle = '#ff5100';
+      c.strokeStyle = '#d61b00';
+      c.lineWidth = 6;
+      c.beginPath();
+      c.moveTo(52, baseY);
+      c.bezierCurveTo(36, 184, 78, 122, 128, 54);
+      c.bezierCurveTo(150, 86, 208, 132, 204, baseY);
+      c.closePath(); c.fill(); c.stroke();
+
+      // 황금 코어.
+      c.fillStyle = '#ffd000';
+      c.beginPath();
+      c.moveTo(82, baseY);
+      c.bezierCurveTo(72, 190, 101, 130, 128, 78);
+      c.bezierCurveTo(146, 112, 176, 170, 174, baseY);
+      c.closePath(); c.fill();
+
+      // 백열 코어.
+      c.fillStyle = '#ffffff';
+      c.beginPath();
+      c.moveTo(111, baseY);
+      c.bezierCurveTo(105, 195, 121, 158, 128, 120);
+      c.bezierCurveTo(139, 150, 148, 187, 145, baseY);
+      c.closePath(); c.fill();
+
+      // 작은 불똥.
+      for (let i = 0; i < 12; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const r = 28 + Math.random() * 65;
+        const x = cx + Math.cos(a) * r;
+        const y = baseY - Math.random() * 125 + Math.sin(a) * 12;
+        const rr = 2 + Math.random() * 4;
+        c.fillStyle = i % 3 === 0 ? '#fff4b8' : '#ff6a00';
+        c.beginPath(); c.arc(x, y, rr, 0, Math.PI * 2); c.fill();
+      }
+
+      c.globalCompositeOperation = 'source-over';
+      triFlameTexture = new THREE.CanvasTexture(cvs);
+      triFlameTexture.magFilter = THREE.LinearFilter;
+      triFlameTexture.minFilter = THREE.LinearFilter;
+      triFlameTexture.generateMipmaps = false;
+      triFlameTexture.needsUpdate = true;
+      return triFlameTexture;
+    }
+
+    function createTriFlameDropletTexture() {
+      if (triFlameDropletTexture) return triFlameDropletTexture;
+      const cvs = document.createElement('canvas'); cvs.width = 64; cvs.height = 64;
+      const c = cvs.getContext('2d');
+      const g = c.createRadialGradient(32,32,2,32,32,28);
+      g.addColorStop(0, '#ffffff'); g.addColorStop(.35, '#ffe600');
+      g.addColorStop(.7, '#ff4d00'); g.addColorStop(1, 'rgba(255,30,0,0)');
+      c.fillStyle = g; c.beginPath(); c.arc(32,32,28,0,Math.PI*2); c.fill();
+      triFlameDropletTexture = new THREE.CanvasTexture(cvs);
+      triFlameDropletTexture.magFilter = THREE.LinearFilter;
+      triFlameDropletTexture.minFilter = THREE.LinearFilter;
+      triFlameDropletTexture.generateMipmaps = false;
+      return triFlameDropletTexture;
+    }
+
+    function radiusSafeTriFlameScale(scale) {
+      return Math.max(0.6, scale * 0.52);
+    }
+
+    function spawnTriFlameWaveVfx(targetPos, radius = 8.0, sourcePos = null) {
+      const root = new THREE.Group();
+      root.position.copy(targetPos);
+      scene.add(root);
+
+      const origin = sourcePos ? sourcePos.clone() : playerSprite.position.clone();
+      const dir = targetPos.clone().sub(origin);
+      dir.y = 0;
+      if (dir.lengthSq() < 0.01) dir.set(0, 0, 1);
+      dir.normalize();
+      const forward = new THREE.Vector3(dir.x, 0, dir.z);
+      const side = new THREE.Vector3(-forward.z, 0, forward.x);
+      const angles = [-0.38, 0, 0.38];
+      const eruptions = [];
+      const texture = createTriFlameTexture();
+      const dropletTexture = createTriFlameDropletTexture();
+
+      for (let step = 1; step <= 6; step++) {
+        const dist = step * (radius * 0.115);
+        const scale = 0.72 + step * 0.15;
+        angles.forEach((angle, lane) => {
+          const waveDir = forward.clone().multiplyScalar(Math.cos(angle)).add(side.clone().multiplyScalar(Math.sin(angle))).normalize();
+          const p = waveDir.multiplyScalar(dist);
+          const mat = new THREE.SpriteMaterial({
+            map: texture, transparent: true, opacity: 0,
+            depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false
+          });
+          const sp = new THREE.Sprite(mat);
+          const size = radius * 0.52 * scale;
+          sp.scale.set(size * 0.72, size, 1);
+          sp.position.set(p.x, 0.08, p.z);
+          root.add(sp);
+
+          const droplets = [];
+          for (let j = 0; j < 4; j++) {
+            const dmat = new THREE.SpriteMaterial({
+              map: dropletTexture, transparent: true, opacity: 0,
+              depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false
+            });
+            const d = new THREE.Sprite(dmat);
+            const ds = radius * (0.055 + Math.random() * 0.045);
+            d.scale.set(ds, ds, 1);
+            d.position.set(p.x, 0.18, p.z);
+            root.add(d);
+            droplets.push({
+              sprite: d,
+              offset: new THREE.Vector3((Math.random()-0.5)*0.45, Math.random()*0.25, (Math.random()-0.5)*0.45),
+              velocity: waveDir.clone().multiplyScalar(0.35 + Math.random()*0.65).add(new THREE.Vector3((Math.random()-0.5)*0.8, 1.2+Math.random()*1.5, (Math.random()-0.5)*0.8)),
+              spin: (Math.random()-0.5)*5,
+              phase: Math.random()*Math.PI*2
+            });
+          }
+
+          eruptions.push({ sprite: sp, droplets, start: (step-1)*0.07, life: 0.47, scale, phase: lane*0.9 + step*0.45 });
+        });
+      }
+
+      // 플레이어→타겟 방향을 기준으로 파동이 퍼져 나가도록 root를 회전시키는 대신,
+      // 각 분출점 자체를 월드 좌표로 계산해 캐릭터 방향과 타겟 위치가 정확히 맞는다.
+      activeHitVfx.push({
+        sprite: root,
+        timer: 0,
+        duration: 0.47 + 5*0.07 + 0.08,
+        triFlameWave: true,
+        eruptions,
+        targetPos: targetPos.clone()
+      });
+    }
+
     function spawnSwordsmanSkillVfx(worldPos, skillId, radius = 4, sourcePos = null) {
-      // 검성: UI는 그대로 유지. 실제 전투에서만 근거리 검격 VFX 출력.
+      // 천검난무만 제공된 3방향 화염 파동 VFX로 교체한다.
+      // 다른 검성 스킬의 기존 외형은 건드리지 않는다.
+      if (skillId === 's2_3') {
+        spawnTriFlameWaveVfx(worldPos, radius, sourcePos);
+        return;
+      }
+
+      // 검성: UI는 그대로 유지. 실제 전투에서만 기존 근거리 검격 VFX 출력.
       if (skillId === 's2_1') {
-        // 뇌전참은 적 위치에 원거리 검기를 띄우지 않고, 플레이어 손에 거대한 번개검이 생기는 연출.
         const origin = sourcePos ? sourcePos.clone() : playerSprite.position.clone();
         const target = worldPos.clone();
         const dir = target.clone().sub(origin);
@@ -7691,7 +7911,6 @@ window.playerState = playerState;
         scene.add(main);
         activeHitVfx.push({ sprite: main, timer: 0, duration: 0.42 });
 
-        // 바로 이어지는 근거리 참격의 잔상 — 플레이어와 적 사이에만 짧게 발생
         const slash = new THREE.Sprite(new THREE.SpriteMaterial({
           map: createHitVfxTexture('slash'), transparent: true, opacity: 0.95, depthWrite: false
         }));
@@ -7701,7 +7920,6 @@ window.playerState = playerState;
         scene.add(slash);
         activeHitVfx.push({ sprite: slash, timer: -0.04, duration: 0.28 });
 
-        // 타격 순간에는 적 바로 앞에서 작은 충격파만 추가
         const impact = new THREE.Sprite(new THREE.SpriteMaterial({
           map: createSwordsmanVfxTexture('s2_1', 3), transparent: true, opacity: 0.8, depthWrite: false
         }));
@@ -7712,33 +7930,16 @@ window.playerState = playerState;
         return;
       }
 
-      if (skillId === 's2_2') {
-        const origin = sourcePos ? sourcePos.clone() : playerSprite.position.clone();
-        const rings = [
-          {scale:2.0, opacity:1.0, rot:8.6, duration:.72, delay:0},
-          {scale:1.72, opacity:.46, rot:-7.0, duration:.82, delay:-.06},
-          {scale:1.48, opacity:.24, rot:5.4, duration:.92, delay:-.12}
-        ];
-        rings.forEach((cfg,idx)=>{
-          const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:createSwordsmanVfxTexture('s2_2',idx),transparent:true,opacity:cfg.opacity,depthWrite:false}));
-          sp.scale.set(radius*cfg.scale,radius*cfg.scale*.70,1);
-          sp.position.copy(origin).add(new THREE.Vector3(0,1.35+idx*.08,.12));
-          sp.material.rotation=idx*.65; scene.add(sp);
-          activeHitVfx.push({sprite:sp,timer:cfg.delay,duration:cfg.duration,rotateSpeed:cfg.rot});
-        });
-        return;
-      }
-
       const main = new THREE.Sprite(new THREE.SpriteMaterial({
         map: createSwordsmanVfxTexture(skillId, 0), transparent: true, opacity: 1.0, depthWrite: false
       }));
-      const mainScale = skillId === 's2_3' ? radius * 1.45 : radius;
+      const mainScale = radius;
       main.scale.set(mainScale, mainScale, 1);
       main.position.copy(worldPos).add(new THREE.Vector3(0, 1.7, 0.15));
       scene.add(main);
-      activeHitVfx.push({ sprite: main, timer: 0, duration: skillId === 's2_3' ? 0.7 : 0.5 });
+      activeHitVfx.push({ sprite: main, timer: 0, duration: 0.5 });
 
-      const burstCount = skillId === 's2_2' ? 8 : 14;
+      const burstCount = 8;
       for (let i = 0; i < burstCount; i++) {
         const a = (Math.PI * 2 * i) / burstCount + Math.random() * 0.2;
         const dist = radius * (0.35 + Math.random() * 0.9);
@@ -7746,19 +7947,9 @@ window.playerState = playerState;
         const sp = new THREE.Sprite(new THREE.SpriteMaterial({
           map: createSwordsmanVfxTexture(skillId, i + 1), transparent: true, opacity: 0.9, depthWrite: false
         }));
-        const sc = (skillId === 's2_3' ? 1.4 : 0.9) + Math.random() * 0.7;
+        const sc = 0.9 + Math.random() * 0.7;
         sp.scale.set(sc, sc, 1); sp.position.copy(p); scene.add(sp);
         activeHitVfx.push({ sprite: sp, timer: -Math.random() * 0.08, duration: 0.38 + Math.random() * 0.25 });
-      }
-
-      if (skillId === 's2_3') {
-        const ring = new THREE.Sprite(new THREE.SpriteMaterial({
-          map: createSwordsmanVfxTexture('s2_2', 9), transparent: true, opacity: 0.75, depthWrite: false
-        }));
-        ring.scale.set(radius * 1.8, radius * 1.8, 1);
-        ring.position.copy(worldPos).add(new THREE.Vector3(0, 0.35, 0.1));
-        scene.add(ring);
-        activeHitVfx.push({ sprite: ring, timer: 0.05, duration: 0.55 });
       }
     }
 
@@ -7834,25 +8025,20 @@ window.playerState = playerState;
         const lv = Math.max(1, Math.min(5, Number(playerState.skillLv.s2_2) || 1));
         const multTable = [0, 1.00, 1.20, 1.40, 1.60, 2.00];
         const mult = multTable[lv];
-        if (playerState.job === '대도사') {
-          // 화염폭우는 가장 가까운 적을 기준점으로 삼아 타겟 상공에서 유성우가 시작된다.
-          if (!selectedTarget || !selectedTarget.alive) targetNearestMonster();
-          const stormCenter = selectedTarget && selectedTarget.alive ? selectedTarget.sprite.position : playerSprite.position;
-          spawnDaedosaSkillVfx(stormCenter, 's2_2', 6.0);
-          monsters.forEach(m => {
-            if (m.alive && stormCenter.distanceTo(m.sprite.position) <= 6.0) {
-              applyDamage(m, getPlayerActualDmg(mult));
-            }
-          });
-        } else {
-          spawnSwordsmanSkillVfx(playerSprite.position, 's2_2', 6.0);
-          monsters.forEach(m => {
-            if (m.alive && playerSprite.position.distanceTo(m.sprite.position) <= 6.0) {
+        // 화염폭우는 시전자인 플레이어 주변이 아니라, 실제 피격 대상 몬스터의 위치를 중심으로 낙하한다.
+        // 공격 판정은 기존처럼 플레이어 기준 6m 범위를 유지하고, VFX만 각 타겟의 상공에서 시작한다.
+        monsters.forEach(m => {
+          if (m.alive && playerSprite.position.distanceTo(m.sprite.position) <= 6.0) {
+            if (playerState.job === '대도사') {
+              spawnDaedosaSkillVfx(m.sprite.position, 's2_2', 2.8);
+              spawnHitVfx(m.sprite.position, 'explosion', 2.0);
+            } else {
+              spawnSwordsmanSkillVfx(m.sprite.position, 's2_2', 2.8);
               spawnHitVfx(m.sprite.position, 'slash', 1.45);
-              applyDamage(m, getPlayerActualDmg(mult));
             }
-          });
-        }
+            applyDamage(m, getPlayerActualDmg(mult));
+          }
+        });
       } else if (skillId === 's2_3') {
         const lv = Math.max(1, Math.min(5, Number(playerState.skillLv.s2_3) || 1));
         const multTable = [0, 1.00, 1.20, 1.40, 1.60, 2.00];
@@ -8932,14 +9118,78 @@ window.playerState = playerState;
           v.sprite.position.addScaledVector(v.vel, delta);
         }
 
-        if (v.meteor) {
-          const progress = Math.min(1, Math.max(0, v.timer / v.duration));
-          const eased = progress * progress * (3 - 2 * progress);
-          v.sprite.position.lerpVectors(v.startPos, v.endPos, eased);
-          // 낙하하면서 불덩이가 살짝 커지고, 착탄 직전 밝아진다.
-          const s = v.impactScale * (0.72 + eased * 0.38);
-          v.sprite.scale.set(s, s, 1);
-          v.sprite.material.opacity = Math.min(1, Math.max(0, progress * 1.8)) * (progress > 0.82 ? (1 - progress) * 5.5 : 1);
+        if (v.triFlameWave) {
+          const t = v.timer;
+          v.eruptions.forEach(er => {
+            const local = t - er.start;
+            if (local < 0 || local > er.life) {
+              er.sprite.material.opacity = 0;
+              er.droplets.forEach(d => d.sprite.material.opacity = 0);
+              return;
+            }
+
+            const progress = Math.max(0, Math.min(1, local / er.life));
+            // 제공 코드의 heightFactor = sin(progress * PI)를 Three.js의
+            // 수직 상승/수축과 스케일 변화에 대응시킨다.
+            const heightFactor = Math.sin(progress * Math.PI);
+            const alpha = Math.sin(progress * Math.PI);
+            const pulse = 0.94 + Math.sin(local * 34 + er.phase) * 0.08;
+            const baseScale = radiusSafeTriFlameScale(er.scale);
+            er.sprite.scale.set(baseScale * 0.72, baseScale * (0.35 + heightFactor * 0.95), 1);
+            er.sprite.position.y = 0.06 + heightFactor * 0.24;
+            er.sprite.material.opacity = Math.max(0, alpha * pulse);
+            er.sprite.material.rotation = Math.sin(local * 13 + er.phase) * 0.08;
+
+            er.droplets.forEach(d => {
+              const dp = Math.max(0, Math.min(1, local / er.life));
+              const eased = 1 - Math.pow(1 - dp, 1.15);
+              d.sprite.position.x = er.sprite.position.x + d.offset.x + d.velocity.x * eased * 0.42;
+              d.sprite.position.z = er.sprite.position.z + d.offset.z + d.velocity.z * eased * 0.42;
+              d.sprite.position.y = 0.14 + d.offset.y + d.velocity.y * eased * 0.36;
+              const ds = 0.72 + Math.sin(dp * Math.PI) * 0.48;
+              d.sprite.scale.set(ds, ds, 1);
+              d.sprite.material.opacity = alpha * (1 - dp * 0.35);
+              d.sprite.material.rotation += d.spin * delta;
+            });
+          });
+
+          // 마지막 파동의 잔상이 끝난 뒤 한 번에 정리.
+          if (v.timer >= v.duration) {
+            scene.remove(v.sprite);
+            activeHitVfx.splice(i, 1);
+          }
+          continue;
+        }
+
+        if (v.elementalPillar) {
+          const local = v.timer;
+          const fadeIn = Math.max(0, Math.min(1, local / 0.25));
+          const fadeOut = Math.max(0, Math.min(1, (2.0 - local) / 0.30));
+          const alpha = Math.min(fadeIn, fadeOut);
+          const rise = local < 0.25 ? (1 - Math.pow(1 - fadeIn, 3)) : 1;
+          const sink = local > 1.70 ? Math.max(0, (2.0 - local) / 0.30) : 1;
+          const h = v.fullHeight * Math.max(0.04, rise * sink);
+          v.sprite.scale.set(v.fullWidth * (0.86 + 0.14 * rise), h, 1);
+          v.sprite.position.set(v.baseX, v.baseY + h * 0.46, v.baseZ);
+          v.sprite.material.opacity = alpha * (v.type === 'fire' ? 0.94 : 0.88);
+          v.sprite.material.rotation = Math.sin(local * 8 + v.phase) * 0.035;
+        }
+
+        if (v.elementalDebris) {
+          const local = v.timer;
+          const fadeIn = Math.max(0, Math.min(1, local / 0.25));
+          const fadeOut = Math.max(0, Math.min(1, (2.0 - local) / 0.30));
+          const alpha = Math.min(fadeIn, fadeOut);
+          v.angle += v.angularSpeed * delta;
+          v.height += v.riseSpeed * delta;
+          const orbit = v.orbit * (0.88 + 0.12 * Math.sin(local * 3 + v.phase));
+          v.sprite.position.x = v.baseX + Math.cos(v.angle) * orbit;
+          v.sprite.position.z = v.baseZ + Math.sin(v.angle) * orbit;
+          v.sprite.position.y = v.baseY + 0.2 + v.height;
+          const bob = 0.85 + 0.22 * Math.sin(local * 8 + v.phase);
+          v.sprite.scale.set(v.size*bob, v.size*bob, 1);
+          v.sprite.material.opacity = alpha * (v.type === 'fire' ? 0.90 : 0.82);
+          v.sprite.material.rotation += (v.type === 'ice' ? 0.9 : 1.8) * delta;
         }
 
         if (v.fireRise) {
@@ -8954,6 +9204,23 @@ window.playerState = playerState;
           }
         }
 
+        if (v.fireRain) {
+          const progress = Math.min(1, Math.max(0, v.timer / v.duration));
+          // 처음에는 가속해서 떨어지고, 충돌 직전 살짝 속도를 줄여 타격이 보이게 한다.
+          const eased = 1 - Math.pow(1 - progress, 2.4);
+          v.sprite.position.y = v.startY + (v.endY - v.startY) * eased;
+          v.sprite.position.x += (v.driftX || 0) * delta;
+          v.sprite.position.z += (v.driftZ || 0) * delta;
+          const s = (v.baseScale || 1) * (0.92 + 0.16 * Math.sin(progress * Math.PI));
+          v.sprite.scale.set(s, s, 1);
+          // 낙하 후반부에 불덩이가 살짝 흔들리며 타격감을 준다.
+          v.sprite.material.rotation = Math.sin(progress * Math.PI * 5) * 0.10;
+          if (progress > 0.84) {
+            const hit = (progress - 0.84) / 0.16;
+            v.sprite.scale.set(s * (1 + hit * 0.28), s * (1 + hit * 0.28), 1);
+          }
+        }
+
         if (v.growTo && !v.fireRise) {
           // 크리티컬 광원처럼 시간에 따라 baseScale에서 growTo까지 확산되는 이펙트를 처리한다.
           const progress = Math.min(1, Math.max(0, v.timer / v.duration));
@@ -8962,14 +9229,8 @@ window.playerState = playerState;
           v.sprite.scale.set(s, s, 1);
         }
 
-        if (!v.meteor) {
-          v.sprite.material.opacity = Math.max(0, 1.0 - (v.timer / v.duration));
-        }
+        v.sprite.material.opacity = Math.max(0, 1.0 - (v.timer / v.duration));
         if (v.timer >= v.duration) {
-          if (v.meteor) {
-            // 착탄 순간의 작은 폭발은 타겟 지점에서만 발생시킨다.
-            spawnHitVfx(v.endPos, 'explosion', 1.55);
-          }
           scene.remove(v.sprite);
           activeHitVfx.splice(i, 1);
         }
@@ -11336,33 +11597,6 @@ document.addEventListener('DOMContentLoaded',function(){
   }
   document.addEventListener('DOMContentLoaded',load);
   setTimeout(load,500);
-})();
-</script>
-
-<script id="status-panel-collapse-script">
-(function(){
-  const KEY = 'statusPanelCollapsed';
-  function initStatusCollapse(){
-    const panel = document.querySelector('#ui-layer .status-panel');
-    if(!panel || panel.dataset.collapseReady === '1') return;
-    panel.dataset.collapseReady = '1';
-
-    const saved = localStorage.getItem(KEY);
-    if(saved === '1') panel.classList.add('status-collapsed');
-
-    panel.addEventListener('click', function(e){
-      // 내부 조작 버튼/링크를 누른 경우에는 최소화 토글을 실행하지 않는다.
-      if(e.target.closest('button, a, input, select, textarea, .status-main-action-row')) return;
-      panel.classList.toggle('status-collapsed');
-      localStorage.setItem(KEY, panel.classList.contains('status-collapsed') ? '1' : '0');
-    });
-  }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initStatusCollapse);
-  else initStatusCollapse();
-  // 게임 초기화/렌더링보다 먼저 또는 늦게 DOM이 만들어지는 경우를 대비
-  const obs = new MutationObserver(initStatusCollapse);
-  obs.observe(document.documentElement, {childList:true, subtree:true});
-  setTimeout(()=>obs.disconnect(), 10000);
 })();
 </script>
 </body>
