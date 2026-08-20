@@ -7637,6 +7637,7 @@ window.playerState = playerState;
       playerState.jobChangeCount += 1;
       setPlayerJobVisuals(newJob);
       refreshSkillButtonVisibility();
+      if (typeof updateCraftWeaponVisual === 'function') updateCraftWeaponVisual();
       updateUI();
       closeJobChangeModal();
       saveGame();
@@ -9243,7 +9244,7 @@ window.playerState = playerState;
             const gradeNames = {normal:'일반', high:'고급', new:'신품', fine:'호품', masterpiece:'명품'};
             const gradeName = gradeNames[cw.grade] || cw.grade;
             const enhance = Number(cw.enhance)||0;
-            craftWeaponStatusVal.innerText = `🗡️ 제작무기 장착: ${gradeName} ${cw.name || ''} +${enhance} (공격력 +${Number(cw.atk).toLocaleString()})`;
+            craftWeaponStatusVal.innerText = `🗡️ 제작무기 장착: ${gradeName} ${(typeof getWeaponDisplayName === 'function' ? getWeaponDisplayName(cw) : (cw.name || ''))} +${enhance} (공격력 +${Number(cw.atk).toLocaleString()})`;
             craftWeaponStatusRow.style.display = 'flex';
           } else {
             craftWeaponStatusRow.style.display = 'none';
@@ -10098,18 +10099,30 @@ const RECIPE={
   masteryMin:1
 };
 
+/* 직업 구분 없이 통일된 제작무기 체계. 검사/주술사 모두 동일한 이름·아이콘을 사용하며,
+   등급별 공격력 수치만 그대로 유지한다. (기존에는 직업별로 이름/아이콘이 달라
+   전직 후에도 이전 직업 무기 이름이 그대로 남아있는 문제가 있었음) */
 const G={
- normal:{n:'일반',atk:100,cost:0,c:'#d8d8d8',i:{검사:'🗡️',주술사:'🪄'}},
- high:{n:'고급',atk:180,cost:0,c:'#9fd3ff',i:{검사:'⚔️',주술사:'🔮'}},
- new:{n:'신품',atk:300,cost:0,c:'#b28cff',i:{검사:'🔥',주술사:'🟣'}},
- fine:{n:'호품',atk:450,cost:0,c:'#ff9c52',i:{검사:'🔥',주술사:'☄️'}},
- masterpiece:{n:'명품',atk:650,cost:0,c:'#ffe66d',i:{검사:'⚡',주술사:'🌌'}}
+ normal:{n:'일반',atk:100,cost:0,c:'#d8d8d8',i:'🗡️'},
+ high:{n:'고급',atk:180,cost:0,c:'#9fd3ff',i:'⚔️'},
+ new:{n:'신품',atk:300,cost:0,c:'#b28cff',i:'🔥'},
+ fine:{n:'호품',atk:450,cost:0,c:'#ff9c52',i:'☄️'},
+ masterpiece:{n:'명품',atk:650,cost:0,c:'#ffe66d',i:'⚡'}
 };
 
-const N={
- 검사:{normal:'철검',high:'은빛검',new:'화염검',fine:'적염검',masterpiece:'신수검'},
- 주술사:{normal:'마력봉',high:'청옥지팡이',new:'자색마력봉',fine:'흑염마력봉',masterpiece:'천뢰마봉'}
-};
+const N={normal:'천명',high:'천명·강',new:'천명·진',fine:'천명·극',masterpiece:'천명·천'};
+
+// 과거 직업별 이름 체계로 저장된 기존 무기(class별 N 맵)를 새 공통 이름으로 표시 변환하기 위한 참고용.
+// 실제 표시는 getWeaponDisplayName()이 담당하며, 무기의 등급(grade)만으로 새 이름을 결정한다.
+function getWeaponDisplayName(weapon){
+ if(!weapon) return '';
+ return N[weapon.grade] || weapon.name || '';
+}
+function getWeaponDisplayIcon(weapon){
+ if(!weapon) return '';
+ return (G[weapon.grade] && G[weapon.grade].i) || '🗡️';
+}
+
 
 const BASE={normal:.50,high:.30,new:.14,fine:.05,masterpiece:.01};
 
@@ -10284,7 +10297,7 @@ function craft(){
  }
 
  const q=roll(useDivine), rg=G[q];
- const newWeapon={class:st.class,grade:q,name:N[st.class][q],atk:rg.atk,enhance:0};
+ const newWeapon={class:st.class,grade:q,name:N[q],atk:rg.atk,enhance:0};
  const old=st.weapon;
 
  // 일반~신품은 기존처럼 자유롭게 교체한다.
@@ -10333,14 +10346,15 @@ function dismantle(){
  const refund={normal:.95,high:.90,new:.85,fine:.80,masterpiece:.75}[w.grade]||.8;
  Object.entries(RECIPE.m).forEach(([k,v])=>addMat(k,Math.floor(v*refund)));
  const gradeName=G[w.grade]?.n||w.grade;
- st.hist.unshift(`♻ ${w.name} [${gradeName}] 해체 · 제작재료 ${(refund*100).toFixed(0)}% 환급`);
+ const displayName=getWeaponDisplayName(w);
+ st.hist.unshift(`♻ ${displayName} [${gradeName}] 해체 · 제작재료 ${(refund*100).toFixed(0)}% 환급`);
  st.hist=st.hist.slice(0,12);
  if(st.dismantleWeapon){
    st.dismantleWeapon=null;
  }else{
    st.weapon=null;
  }
- result(`♻️ <b>${gradeName} ${w.name}</b>을 해체했습니다. 제작 재료의 <b>${Math.round(refund*100)}%</b>를 돌려받았습니다.`);
+ result(`♻️ <b>${gradeName} ${displayName}</b>을 해체했습니다. 제작 재료의 <b>${Math.round(refund*100)}%</b>를 돌려받았습니다.`);
  saveMaterials(); save(); render();
  if(typeof updateCraftWeaponVisual==='function')updateCraftWeaponVisual();
  if(typeof updateUI==='function')updateUI();
@@ -10367,7 +10381,7 @@ function upgrade(){
  if(Math.random()<rate){
    st.weapon.enhance++;
    st.weapon.atk+=60+st.weapon.enhance*10;
-   st.hist.unshift(`⚔ ${st.weapon.name} +${st.weapon.enhance} 성공`);
+   st.hist.unshift(`⚔ ${getWeaponDisplayName(st.weapon)} +${st.weapon.enhance} 성공`);
    result(`⚔️ 강화 성공! <b>+${st.weapon.enhance}</b>`);
  }else{
    st.hist.unshift(`강화 실패 · +${st.weapon.enhance}`);
@@ -10426,14 +10440,14 @@ function render(){
    (w?
      `<div style="margin-top:8px">
        <span style="color:${G[w.grade].c}">
-         <b>${w.name} [${G[w.grade].n}] +${w.enhance}</b>
+         <b>${getWeaponDisplayName(w)} [${G[w.grade].n}] +${w.enhance}</b>
        </span><br>
        공격력 +${w.atk}
       </div>`
      :'제작무기 없음');
 
  document.getElementById('wc-icon').textContent=
-   w?G[w.grade].i[w.class]:G.normal.i[st.class];
+   w?getWeaponDisplayIcon(w):G.normal.i;
  document.getElementById('wc-icon').style.color=
    w?G[w.grade].c:G.normal.c;
 
@@ -10565,7 +10579,17 @@ window.addEventListener('load',()=>{
   return new THREE.CanvasTexture(c);
  }
  window.updateCraftWeaponVisual=function(){
-  try{if(!window.playerSprite||!window.getWeaponCraftState)return;const w=getWeaponCraftState().weapon;if(spr){scene.remove(spr);spr.material.map?.dispose();spr.material.dispose();spr=null}if(!w)return;spr=new THREE.Sprite(new THREE.SpriteMaterial({map:tex(w.class,w.grade,window.playerFacing==='back'),transparent:true,depthWrite:false}));spr.scale.set(.9,.9,1);scene.add(spr);sync();}
+  try{
+   if(!window.playerSprite||!window.getWeaponCraftState)return;
+   const w=getWeaponCraftState().weapon;
+   if(spr){scene.remove(spr);spr.material.map?.dispose();spr.material.dispose();spr=null}
+   if(!w)return;
+   // 무기 이름/공격력은 직업 구분 없이 통일되지만, 캐릭터가 들고 있는 그래픽(검/지팡이 모양)은
+   // 저장 당시 직업(w.class)이 아니라 "현재 전직 상태"를 따라간다. 전직 시 즉시 모양이 바뀐다.
+   const kind=(typeof isShamanClass==='function' && isShamanClass())?'주술사':'검사';
+   spr=new THREE.Sprite(new THREE.SpriteMaterial({map:tex(kind,w.grade,window.playerFacing==='back'),transparent:true,depthWrite:false}));
+   spr.scale.set(.9,.9,1);scene.add(spr);sync();
+  }
   catch(e){}
  };
  function sync(){if(!spr||!window.playerSprite)return;spr.position.copy(playerSprite.position);spr.position.x += (playerFacing==='back'?-0.8:0.8);spr.position.y += 0.15;spr.renderOrder=20;}
