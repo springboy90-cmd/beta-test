@@ -7259,26 +7259,83 @@ window.playerState = playerState;
           pg.addColorStop(1,'rgba(255,40,0,0)');
           ctx.fillStyle=pg; ctx.beginPath(); ctx.arc(x,y,r*3,0,Math.PI*2); ctx.fill();
         }
-      } else if (skillId === 's2_2') {
-        g.addColorStop(0, '#fff7c2'); g.addColorStop(0.18, '#ffd166');
-        g.addColorStop(0.48, '#ff6b00'); g.addColorStop(0.78, '#d81b60');
-        g.addColorStop(1, 'rgba(80,0,120,0)');
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, 112, 0, Math.PI*2); ctx.fill();
-        ctx.strokeStyle = '#fff3b0'; ctx.lineWidth = 9;
-        ctx.beginPath(); ctx.arc(cx, cy, 82 + variant * 6, 0, Math.PI*2); ctx.stroke();
-        ctx.strokeStyle = '#ff4d00'; ctx.lineWidth = 5;
-        ctx.beginPath(); ctx.arc(cx, cy, 56, 0.2, Math.PI*1.8); ctx.stroke();
-      } else if (skillId === 's2_2') {
-        for (let i = 0; i < 7; i++) {
-          const a = (Math.PI * 2 * i) / 7 + variant * 0.18;
-          const r = 38 + i * 12;
-          const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
-          const g = ctx.createRadialGradient(x,y,2,x,y,26);
-          g.addColorStop(0,'#fff7c2'); g.addColorStop(0.25,'#ffb000'); g.addColorStop(0.65,'#ff3d00'); g.addColorStop(1,'rgba(255,0,0,0)');
-          ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x,y,26,0,Math.PI*2); ctx.fill();
+      } else if (skillId === 's2_2_ring') {
+        // 화염폭우 착탄 지점: 타겟 주변에만 보이는 붉은-주황 마법진/충격광.
+        const rg = ctx.createRadialGradient(cx, cy, 4, cx, cy, 118);
+        rg.addColorStop(0, 'rgba(255,245,190,.88)');
+        rg.addColorStop(.18, 'rgba(255,150,20,.65)');
+        rg.addColorStop(.55, 'rgba(255,45,0,.28)');
+        rg.addColorStop(1, 'rgba(170,0,30,0)');
+        ctx.fillStyle = rg; ctx.beginPath(); ctx.ellipse(cx, cy+78, 108, 32, 0, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle='rgba(255,225,130,.95)'; ctx.lineWidth=5;
+        ctx.setLineDash([13,8]);
+        ctx.beginPath(); ctx.ellipse(cx, cy+78, 92, 24, 0, 0, Math.PI*2); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.strokeStyle='rgba(255,65,0,.78)'; ctx.lineWidth=9;
+        ctx.beginPath(); ctx.ellipse(cx, cy+80, 112, 30, 0, 0, Math.PI*2); ctx.stroke();
+        for(let i=0;i<12;i++){
+          const a=Math.random()*Math.PI*2, r=42+Math.random()*62;
+          const x=cx+Math.cos(a)*r, y=cy+78+Math.sin(a)*r*.28;
+          ctx.fillStyle=i%2?'#ff6a00':'#fff0a0';
+          ctx.beginPath();ctx.arc(x,y,1.5+Math.random()*2.5,0,Math.PI*2);ctx.fill();
         }
-        ctx.strokeStyle = '#ff7a00'; ctx.lineWidth = 6;
-        ctx.beginPath(); ctx.arc(cx,cy,92,0,Math.PI*2); ctx.stroke();
+      } else if (skillId === 's2_2') {
+        // 화염폭우: 타겟 몬스터 상공에서 일정한 방향으로 떨어지는 화염 유성우.
+        // 텍스처는 '유성 머리 + 긴 화염 꼬리'만 담당하고, 실제 낙하/각도/착탄 위치는
+        // spawnDaedosaSkillVfx에서 Three.js Sprite의 위치를 프레임마다 갱신한다.
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(-Math.PI * 0.22);
+        ctx.globalCompositeOperation = 'lighter';
+
+        const tail = ctx.createLinearGradient(0, 105, 0, -105);
+        tail.addColorStop(0, 'rgba(255,40,0,0)');
+        tail.addColorStop(.28, 'rgba(190,0,40,.20)');
+        tail.addColorStop(.62, 'rgba(255,70,0,.62)');
+        tail.addColorStop(.86, 'rgba(255,185,40,.92)');
+        tail.addColorStop(1, 'rgba(255,255,225,1)');
+        ctx.strokeStyle = tail;
+        ctx.lineCap = 'round';
+        ctx.lineWidth = 22;
+        ctx.beginPath(); ctx.moveTo(0,96); ctx.lineTo(0,-74); ctx.stroke();
+
+        // 가늘게 갈라지는 고속 화염 꼬리
+        for (let i=-4;i<=4;i++) {
+          const x=i*7;
+          const grad=ctx.createLinearGradient(x,82,x,-72);
+          grad.addColorStop(0,'rgba(255,40,0,0)');
+          grad.addColorStop(.5,'rgba(255,80,0,.35)');
+          grad.addColorStop(1,'rgba(255,235,150,.95)');
+          ctx.strokeStyle=grad; ctx.lineWidth=1.5+Math.abs(i)*.45;
+          ctx.beginPath(); ctx.moveTo(x,78);
+          ctx.quadraticCurveTo(x+(i*3),10,x*0.35,-65); ctx.stroke();
+        }
+
+        // 메테오 헤드: 붉은 외곽 → 주황 → 백황색 코어
+        const mg=ctx.createRadialGradient(0,-76,2,0,-76,38);
+        mg.addColorStop(0,'#ffffff'); mg.addColorStop(.18,'#fff1a0');
+        mg.addColorStop(.42,'#ffb000'); mg.addColorStop(.72,'#ff3b00');
+        mg.addColorStop(1,'rgba(170,0,30,0)');
+        ctx.fillStyle=mg; ctx.beginPath(); ctx.arc(0,-76,38,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#fff9d0'; ctx.shadowColor='#ff4a00'; ctx.shadowBlur=22;
+        ctx.beginPath(); ctx.arc(0,-78,11,0,Math.PI*2); ctx.fill();
+
+        // 작은 불씨 파편
+        for(let i=0;i<14;i++){
+          const a=Math.random()*Math.PI*2, r=12+Math.random()*28;
+          const x=Math.cos(a)*r, y=-76+Math.sin(a)*r*.7;
+          ctx.fillStyle=i%3===0?'#fff5b0':'#ff5a00';
+          ctx.beginPath(); ctx.arc(x,y,1.5+Math.random()*2.5,0,Math.PI*2); ctx.fill();
+        }
+        ctx.restore();
+
+        // 착탄 지면의 불꽃 충격 링
+        const impact=ctx.createRadialGradient(cx,cy+104,3,cx,cy+104,70);
+        impact.addColorStop(0,'rgba(255,255,220,.95)');
+        impact.addColorStop(.18,'rgba(255,180,30,.85)');
+        impact.addColorStop(.52,'rgba(255,55,0,.38)');
+        impact.addColorStop(1,'rgba(180,0,40,0)');
+        ctx.fillStyle=impact; ctx.beginPath(); ctx.ellipse(cx,cy+104,62,18,0,0,Math.PI*2); ctx.fill();
       } else {
         ctx.strokeStyle = '#c084fc'; ctx.lineWidth = 8;
         ctx.beginPath(); ctx.arc(cx,cy,96,0,Math.PI*2); ctx.stroke();
@@ -7319,7 +7376,6 @@ window.playerState = playerState;
           startY: worldPos.y + s * 0.22, endY: worldPos.y + s * 0.48
         });
 
-        // 좌우의 작은 불기둥을 시간차로 추가해 한 번에 폭발하는 느낌을 줄인다.
         for (let i = 0; i < 4; i++) {
           const a = (Math.PI * 2 * i) / 4 + 0.3;
           const dist = radius * (0.20 + Math.random() * 0.30);
@@ -7338,6 +7394,57 @@ window.playerState = playerState;
             startY: p.y + ss * 0.18, endY: p.y + ss * 0.40
           });
         }
+        return;
+      }
+
+      // 화염폭우: 호출 위치를 중심으로 하지 않고, 호출된 타겟 몬스터의 상공에서
+      // 여러 개의 유성이 같은 하강각으로 떨어지게 한다.
+      if (skillId === 's2_2') {
+        const meteorTex = createDaedosaVfxTexture('s2_2', 0);
+        const meteorCount = 16;
+        const stormRadius = Math.max(2.8, radius * 0.82);
+        const downAngle = THREE.MathUtils.degToRad(38);
+
+        // 지면 착탄 지점을 먼저 결정하고, 모든 유성은 동일한 방향의 사선으로 진입한다.
+        for (let i = 0; i < meteorCount; i++) {
+          const a = Math.random() * Math.PI * 2;
+          const r = Math.sqrt(Math.random()) * stormRadius;
+          const impact = worldPos.clone().add(new THREE.Vector3(Math.cos(a) * r, 0, Math.sin(a) * r));
+
+          const horizontalDir = new THREE.Vector3(0.72, 0, 0.69).normalize();
+          const fallDir = new THREE.Vector3(horizontalDir.x * Math.cos(downAngle), -Math.sin(downAngle), horizontalDir.z * Math.cos(downAngle)).normalize();
+          const travel = 11 + Math.random() * 4;
+          const start = impact.clone().sub(fallDir.clone().multiplyScalar(travel));
+          start.y += 1.5;
+
+          const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+            map: meteorTex, transparent: true, opacity: 0, depthWrite: false,
+            blending: THREE.AdditiveBlending
+          }));
+          const scale = 1.25 + Math.random() * 0.85;
+          sp.scale.set(scale, scale, 1);
+          sp.position.copy(start);
+          // Canvas 텍스처의 유성 꼬리 방향을 실제 낙하 방향과 맞춘다.
+          sp.material.rotation = Math.atan2(fallDir.x, fallDir.y) + Math.PI * 0.5;
+          scene.add(sp);
+
+          activeHitVfx.push({
+            sprite: sp, timer: -i * 0.055, duration: 0.72 + Math.random() * 0.18,
+            meteor: true, startPos: start, endPos: impact,
+            impactScale: scale, impactRadius: stormRadius
+          });
+        }
+
+        // 타겟 지면에 약한 마법진을 깔아 '여기에서 유성우가 시작된다'는 시각적 기준점을 만든다.
+        const ring = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: createDaedosaVfxTexture('s2_2_ring', 0), transparent: true, opacity: 0.72, depthWrite: false,
+          blending: THREE.AdditiveBlending
+        }));
+        const ringScale = Math.max(3.2, radius * 1.05);
+        ring.scale.set(ringScale, ringScale * 0.62, 1);
+        ring.position.copy(worldPos).add(new THREE.Vector3(0, 0.12, 0));
+        scene.add(ring);
+        activeHitVfx.push({ sprite:ring, timer:0, duration:0.95, baseScale:ringScale*0.65, growTo:ringScale, impactRing:true });
         return;
       }
 
@@ -7727,13 +7834,25 @@ window.playerState = playerState;
         const lv = Math.max(1, Math.min(5, Number(playerState.skillLv.s2_2) || 1));
         const multTable = [0, 1.00, 1.20, 1.40, 1.60, 2.00];
         const mult = multTable[lv];
-        if (playerState.job === '대도사') spawnDaedosaSkillVfx(playerSprite.position, 's2_2', 6.0); else spawnSwordsmanSkillVfx(playerSprite.position, 's2_2', 6.0);
-        monsters.forEach(m => {
-          if (m.alive && playerSprite.position.distanceTo(m.sprite.position) <= 6.0) {
-            if (playerState.job === '대도사') spawnHitVfx(m.sprite.position, 'explosion', 2.0); else spawnHitVfx(m.sprite.position, 'slash', 1.45);
-            applyDamage(m, getPlayerActualDmg(mult));
-          }
-        });
+        if (playerState.job === '대도사') {
+          // 화염폭우는 가장 가까운 적을 기준점으로 삼아 타겟 상공에서 유성우가 시작된다.
+          if (!selectedTarget || !selectedTarget.alive) targetNearestMonster();
+          const stormCenter = selectedTarget && selectedTarget.alive ? selectedTarget.sprite.position : playerSprite.position;
+          spawnDaedosaSkillVfx(stormCenter, 's2_2', 6.0);
+          monsters.forEach(m => {
+            if (m.alive && stormCenter.distanceTo(m.sprite.position) <= 6.0) {
+              applyDamage(m, getPlayerActualDmg(mult));
+            }
+          });
+        } else {
+          spawnSwordsmanSkillVfx(playerSprite.position, 's2_2', 6.0);
+          monsters.forEach(m => {
+            if (m.alive && playerSprite.position.distanceTo(m.sprite.position) <= 6.0) {
+              spawnHitVfx(m.sprite.position, 'slash', 1.45);
+              applyDamage(m, getPlayerActualDmg(mult));
+            }
+          });
+        }
       } else if (skillId === 's2_3') {
         const lv = Math.max(1, Math.min(5, Number(playerState.skillLv.s2_3) || 1));
         const multTable = [0, 1.00, 1.20, 1.40, 1.60, 2.00];
@@ -8813,6 +8932,16 @@ window.playerState = playerState;
           v.sprite.position.addScaledVector(v.vel, delta);
         }
 
+        if (v.meteor) {
+          const progress = Math.min(1, Math.max(0, v.timer / v.duration));
+          const eased = progress * progress * (3 - 2 * progress);
+          v.sprite.position.lerpVectors(v.startPos, v.endPos, eased);
+          // 낙하하면서 불덩이가 살짝 커지고, 착탄 직전 밝아진다.
+          const s = v.impactScale * (0.72 + eased * 0.38);
+          v.sprite.scale.set(s, s, 1);
+          v.sprite.material.opacity = Math.min(1, Math.max(0, progress * 1.8)) * (progress > 0.82 ? (1 - progress) * 5.5 : 1);
+        }
+
         if (v.fireRise) {
           const progress = Math.min(1, Math.max(0, v.timer / v.duration));
           const eased = 1 - Math.pow(1 - progress, 3);
@@ -8833,8 +8962,14 @@ window.playerState = playerState;
           v.sprite.scale.set(s, s, 1);
         }
 
-        v.sprite.material.opacity = Math.max(0, 1.0 - (v.timer / v.duration));
+        if (!v.meteor) {
+          v.sprite.material.opacity = Math.max(0, 1.0 - (v.timer / v.duration));
+        }
         if (v.timer >= v.duration) {
+          if (v.meteor) {
+            // 착탄 순간의 작은 폭발은 타겟 지점에서만 발생시킨다.
+            spawnHitVfx(v.endPos, 'explosion', 1.55);
+          }
           scene.remove(v.sprite);
           activeHitVfx.splice(i, 1);
         }
