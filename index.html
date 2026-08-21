@@ -10856,16 +10856,24 @@ function saveMaterials(){
  * 그 증가분은 일반 등급에서 차감한다. 따라서 Lv.5라면 상위 등급 전체가 +2.0%p가 된다.
  * 증가분은 기존 상위 등급 비율대로 분배하여 모든 상위 등급의 확률이 함께 실시간 상승한다.
  */
+function getLiveCraftProficiencyLevel(){
+ const p=typeof window.getWeaponCraftProficiency==='function' ? window.getWeaponCraftProficiency() : null;
+ if(p && Number.isFinite(Number(p.level))) return Math.max(1,Math.min(20,Number(p.level)));
+ return Math.max(1,Math.min(20,Number(st.mastery)||1));
+}
+
 function rates(useDivine=false){
- const m=Math.max(1,Math.min(180,Number(st.mastery)||1));
+ // 제작소 팝업에 표시되는 "제작 숙련도 Lv.X/20"과 동일한 값을 사용한다.
+ // Lv.1 기본 확률: 일반 50 / 고급 30 / 신품 14 / 호품 5 / 명품 1 (%)
+ // 숙련도 1레벨 상승마다 상위 등급 풀(고급~명품)에 +0.5%p를 적용하고,
+ // 그 증가분은 일반 등급에서 차감한다. 상위 4개 등급은 기존 비율대로 재분배한다.
+ const m=getLiveCraftProficiencyLevel();
  const r=Object.assign({},BASE);
  const upperKeys=['high','new','fine','masterpiece'];
  const upperBase=upperKeys.reduce((sum,k)=>sum+BASE[k],0);
-
- const masteryUpperBoost=Math.min(0.895,Math.max(0,m-1)*0.005);
+ const masteryUpperBoost=Math.min(0.495,Math.max(0,m-1)*0.005);
  const upperTotal=Math.min(0.995,upperBase+masteryUpperBoost);
  const upperScale=upperTotal/upperBase;
-
  upperKeys.forEach(k=>{ r[k]=BASE[k]*upperScale; });
  r.normal=Math.max(0.005,1-upperTotal);
 
@@ -10884,7 +10892,7 @@ function rates(useDivine=false){
 
 function rateText(useDivine=false){
  const r=rates(useDivine);
- const m=Math.max(1,Math.min(180,Number(st.mastery)||1));
+ const m=getLiveCraftProficiencyLevel();
  const boost=Math.max(0,m-1)*0.5;
  const boostLabel=boost>0 ? ` <span style="color:#9fe7ff;font-weight:700">(숙련 보정 +${boost.toFixed(1)}%p)</span>` : '';
  return Object.entries(r).map(([k,v])=>
@@ -11251,13 +11259,13 @@ window.addEventListener('load',()=>{
 <script id="wc-real-material-drops-fixed">
 (function(){
 const T={
-1:{iron:.25,wood:.18,core:.03,refined:0,boss:0,divine:0},
-2:{iron:.23,wood:.16,core:.04,refined:.01,boss:0,divine:0},
-3:{iron:.20,wood:.14,core:.055,refined:.03,boss:.005,divine:0},
-4:{iron:.17,wood:.11,core:.07,refined:.05,boss:.012,divine:0},
-5:{iron:.14,wood:.09,core:.09,refined:.08,boss:.025,divine:.004},
-6:{iron:.12,wood:.07,core:.105,refined:.11,boss:.04,divine:.012},
-7:{iron:.10,wood:.05,core:.12,refined:.15,boss:.05,divine:.025}};
+1:{iron:.30,wood:.18,core:.03,refined:0,boss:0,divine:0},
+2:{iron:.28,wood:.16,core:.04,refined:.01,boss:0,divine:0},
+3:{iron:.25,wood:.14,core:.055,refined:.03,boss:.005,divine:0},
+4:{iron:.22,wood:.11,core:.07,refined:.05,boss:.012,divine:0},
+5:{iron:.19,wood:.09,core:.09,refined:.08,boss:.025,divine:.004},
+6:{iron:.17,wood:.07,core:.105,refined:.11,boss:.04,divine:.012},
+7:{iron:.15,wood:.05,core:.12,refined:.15,boss:.05,divine:.025}};
 const N={iron:'철광석',wood:'목재',core:'강화의 핵',refined:'정제철',boss:'보스의 혼',divine:'신수의 결정'};
 window.WC_MATERIAL_DROP_TABLE=T;
 window.addWeaponCraftDrop=function(stageId,isBoss,monster){
@@ -11319,8 +11327,8 @@ window.addWeaponCraftDrop=function(stageId,isBoss,monster){
       if(typeof window.WC_CRAFT_RATES==='object' && Array.isArray(window.WC_CRAFT_RATES) && window.WC_CRAFT_RATES.length===5){
         rates=window.WC_CRAFT_RATES.map(x=>({name:x.name,rate:Number(x.rate)||0}));
       } else {
-        const m=Math.max(1,Math.min(180,Number(window.playerState?.weaponCrafting?.mastery)||1));
-        const upperBoost=Math.min(0.895,Math.max(0,m-1)*0.005);
+        const m=Math.max(1,Math.min(20,Number(window.playerState?.weaponCraftProficiency?.level)||Number(window.playerState?.weaponCrafting?.mastery)||1));
+        const upperBoost=Math.min(0.495,Math.max(0,m-1)*0.005);
         const upperScale=(0.50+upperBoost)/0.50;
         rates=[
           {name:'일반',rate:Math.max(0.005,1-(0.50+upperBoost))},
@@ -11534,9 +11542,9 @@ document.addEventListener('DOMContentLoaded',function(){
   window.getWeaponCraftProficiencyBonus=function(){
     const p=ensure();
     if(!p)return {attackBonus:0,qualityBonus:0};
-    // Small, controlled benefit: every 5 levels gives +0.5%p to high-grade rolls,
-    // capped at +2%p at level 20. No direct attack inflation.
-    const qualityBonus=Math.floor(p.level/5)*0.005;
+    // Small, controlled benefit: every proficiency level above Lv.1 adds +0.5%p
+    // to the upper-grade pool (high~masterpiece), capped at Lv.20.
+    const qualityBonus=Math.max(0,p.level-1)*0.005;
     return {attackBonus:0,qualityBonus:qualityBonus};
   };
 
@@ -11554,7 +11562,7 @@ document.addEventListener('DOMContentLoaded',function(){
         (p.level>=20?'MAX':'EXP '+p.xp.toLocaleString()+' / '+p.nextXp.toLocaleString())+
         ' · 연습무기 제작 '+practice+'회</div>'+
       '<div style="margin-top:8px;padding:7px;border:1px solid rgba(255,224,138,.2);border-radius:7px;font-size:11px;color:#ccc">'+
-        '숙련도 Lv.5/10/15/20 달성 시 상위 등급 제작 확률이 단계적으로 증가합니다.</div>';
+        '숙련도 Lv.2부터 레벨이 1 오를 때마다 상위 등급 제작 확률이 +0.5%p씩 증가합니다.</div>';
   };
 
   // Insert UI into the existing craft modal.
