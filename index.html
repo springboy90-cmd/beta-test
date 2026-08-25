@@ -1654,12 +1654,12 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
     const EXPERIENCE_DUNGEON_DAILY_LIMIT = 3;
     const EXPERIENCE_DUNGEON_DURATION = 180000;
     const EXPERIENCE_DUNGEON_STATS = {
-      1: { minLv:1, maxLv:30, hp:500, def:50, atkMin:30, atkMax:40, expRate:0.05 },
-      2: { minLv:31, maxLv:60, hp:1500, def:120, atkMin:70, atkMax:90, expRate:0.06 },
-      3: { minLv:61, maxLv:90, hp:3500, def:250, atkMin:140, atkMax:180, expRate:0.07 },
-      4: { minLv:91, maxLv:120, hp:7000, def:450, atkMin:250, atkMax:320, expRate:0.075 },
-      5: { minLv:121, maxLv:150, hp:12000, def:700, atkMin:450, atkMax:550, expRate:0.08 },
-      6: { minLv:150, maxLv:250, hp:18000, def:1050, atkMin:675, atkMax:825, expRate:0.085 }
+      1: { minLv:1, maxLv:30, hp:500, def:50, atkMin:30, atkMax:40, expRate:0.04 },
+      2: { minLv:31, maxLv:60, hp:1500, def:120, atkMin:70, atkMax:90, expRate:0.05 },
+      3: { minLv:61, maxLv:90, hp:3500, def:250, atkMin:140, atkMax:180, expRate:0.06 },
+      4: { minLv:91, maxLv:120, hp:7000, def:450, atkMin:250, atkMax:320, expRate:0.065 },
+      5: { minLv:121, maxLv:150, hp:12000, def:700, atkMin:450, atkMax:550, expRate:0.07 },
+      6: { minLv:150, maxLv:250, hp:18000, def:1050, atkMin:675, atkMax:825, expRate:0.075 }
     };
     const EXPERIENCE_DUNGEON_BG_NAMES = {1:'초보자 사냥터',2:'웅녀동굴',3:'바둑골 산길',4:'얼음성'};
     const EXPERIENCE_DUNGEON_MOBS = [
@@ -9716,10 +9716,10 @@ window.playerState = playerState;
        ========================================== */
     // 스테이지별 일반 몬스터 고정 경험치 테이블 (일반: 1~4스테이지, 하둠: 1~4스테이지)
     const STAGE_NORMAL_EXP = { 1: 20, 2: 40, 3: 60, 4: 80, 5: 190 };
-    const STAGE_HADUM_EXP = { 1: 300, 2: 450, 3: 700, 4: 850, 5: 1050 };
+    const STAGE_HADUM_EXP = { 1: 300, 2: 450, 3: 700, 4: 850, 5: 1050, 6: 1350, 7: 1700 };
     const STAGE_BOSS_EXP = {
       normal: { 1: 1500, 2: 2500, 3: 4000, 4: 6000, 5: 8250 },
-      hadum: { 1: 10500, 2: 13500, 3: 16500, 4: 22500, 5: 27000 }
+      hadum: { 1: 10500, 2: 13500, 3: 16500, 4: 22500, 5: 27000, 6: 35000, 7: 45000 }
     };
 
     function getMonsterExpReward(monster) {
