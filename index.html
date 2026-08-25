@@ -1261,7 +1261,10 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
           </div>
           <div class="stat-row-item" id="guardian-set-row" style="display:none; justify-content: space-between; align-items:center; gap:6px;">
             <span class="stat-loot" id="guardian-set-val" style="color:#d84315;">🔥 파수꾼셋트: 0/4</span>
-            <button class="status-action-btn" onclick="openGuardianInventoryModal()" style="padding:4px 7px;font-size:10px;background:#fff3e0;border-color:#ffb74d;color:#bf360c;">🎒 장비 옵션</button>
+            <button class="status-action-btn" onclick="openGuardianInventoryModal()" style="padding:5px 9px;font-size:11px;background:#fff3e0;border-color:#ff8a65;color:#bf360c;font-weight:800;">🎒 장비 가방</button>
+          </div>
+          <div class="stat-row-item" id="guardian-bag-row" style="display:flex; justify-content:center; margin-top:2px;">
+            <button class="status-action-btn" onclick="openGuardianInventoryModal()" style="width:100%;padding:7px 10px;font-size:11px;background:#fff8e1;border-color:#ffb74d;color:#bf360c;font-weight:900;">🎒 파수꾼 장비 가방 · 옵션 확인 / 장착 / 분해</button>
           </div>
           <div class="stat-row-item" id="guardian-resist-row" style="display:none; justify-content:center;">
             <span id="guardian-resist-val" style="font-size:10px;color:#6d4c41;">🔥 0% · ❄️ 0% · 🌪️ 0%</span>
@@ -4829,13 +4832,24 @@ window.playerState = playerState;
     function openGuardianInventoryModal() {
       const modal = document.getElementById('guardian-inventory-modal');
       if (!modal) return;
+      // 모바일 브라우저에서 상위 UI 레이어의 position/transform 영향을 받지 않도록
+      // 모달을 body 최상위로 이동한 뒤 viewport 기준으로 표시한다.
+      if (modal.parentElement !== document.body) document.body.appendChild(modal);
       renderGuardianInventory();
       modal.style.display = 'flex';
+      document.body.classList.add('modal-open');
+      // iOS Safari의 이전 스크롤/포커스 위치 영향을 최소화한다.
+      requestAnimationFrame(() => {
+        modal.scrollTop = 0;
+        const panel = document.getElementById('guardian-inventory-panel');
+        if (panel) panel.scrollTop = 0;
+      });
     }
 
     function closeGuardianInventoryModal() {
       const modal = document.getElementById('guardian-inventory-modal');
       if (modal) modal.style.display = 'none';
+      document.body.classList.remove('modal-open');
     }
 
     function equipGuardianItem(id) {
@@ -10122,9 +10136,13 @@ window.playerState = playerState;
         Object.keys(GUARDIAN_SET_PIECE_NAMES).forEach(piece => {
           playerState.guardianSet[piece] = playerState.guardianSetPieceCounts[piece] > 0;
         });
-        // 기존 저장 데이터와의 호환: 장착 상태가 없는 예전 세이브는 해체 상태로 시작.
-        playerState.guardianSetEquipped = p.guardianSetEquipped === true;
-        // 신규 파수꾼 개별 장비 데이터. 기존 세이브는 빈 인벤토리로 안전하게 시작한다.
+        // 기존 저장 데이터와의 호환: 예전 세이브는 개별 장비 ID가 없으므로
+        // 4부위를 모두 보유한 저장 데이터라면 기존에 갖고 있던 파수꾼 풀세트를 그대로 복원한다.
+        // 명시적인 guardianSetEquipped 값이 있으면 그 값을 우선한다.
+        const legacyFullGuardianSet = ['helm','armor','gloves','boots'].every(piece => playerState.guardianSet[piece]);
+        const hasExplicitGuardianEquipState = typeof p.guardianSetEquipped === 'boolean';
+        playerState.guardianSetEquipped = hasExplicitGuardianEquipState ? p.guardianSetEquipped : legacyFullGuardianSet;
+        // 신규 파수꾼 개별 장비 데이터. 기존 세이브는 아래에서 기존 보유 부위를 실제 장비로 복원한다.
         playerState.guardianInventory = Array.isArray(p.guardianInventory) ? p.guardianInventory.filter(i => i && GUARDIAN_SET_PIECE_NAMES[i.piece] && GUARDIAN_RESIST_KEYS.includes(i.optionType)).map(i => ({
           id: String(i.id), piece: i.piece, optionType: i.optionType, optionValue: Math.max(GUARDIAN_OPTION_MIN, Math.min(GUARDIAN_OPTION_MAX, Number(i.optionValue)||GUARDIAN_OPTION_MIN)), enhance: 0
         })).slice(0, GUARDIAN_INVENTORY_MAX) : [];
@@ -10136,11 +10154,14 @@ window.playerState = playerState;
             for (let n = 0; n < count; n++) playerState.guardianInventory.push(createGuardianItem(piece));
           });
         }
-        playerState.guardianEquippedItems = { helm:null, armor:null, gloves:null, boots:null, ...(p.guardianEquippedItems || {}) };
-        if (!Object.values(playerState.guardianEquippedItems).some(Boolean) && playerState.guardianSetEquipped) {
+        const savedGuardianEquippedItems = (p.guardianEquippedItems && typeof p.guardianEquippedItems === 'object') ? p.guardianEquippedItems : {};
+        playerState.guardianEquippedItems = { helm:null, armor:null, gloves:null, boots:null, ...savedGuardianEquippedItems };
+        // 구버전 세이브 복원: 기존에는 개별 장비 ID가 없었으므로 각 부위의 첫 장비를 장착시켜
+        // 기존에 보유하던 파수꾼 세트가 업데이트 후 사라지지 않도록 한다.
+        if (playerState.guardianSetEquipped) {
           ['helm','armor','gloves','boots'].forEach(piece => {
             const first = playerState.guardianInventory.find(i => i.piece === piece);
-            if (first) playerState.guardianEquippedItems[piece] = first.id;
+            if (first && !playerState.guardianEquippedItems[piece]) playerState.guardianEquippedItems[piece] = first.id;
           });
         }
         Object.keys(playerState.guardianEquippedItems).forEach(piece => {
@@ -10343,7 +10364,7 @@ window.playerState = playerState;
           guardianEquipBtn.style.color = playerState.guardianSetEquipped ? '#424242' : '#bf360c';
         }
 
-        if (ownedCount > 0) {
+        if (ownedCount > 0 || (playerState.guardianInventory || []).length > 0) {
           guardianRow.style.display = 'flex';
           const counts = playerState.guardianSetPieceCounts || {};
           const pieces = ['helm','armor','gloves','boots'].map(k => `${GUARDIAN_SET_PIECE_NAMES[k]}${counts[k] || 0}`).join(' ');
@@ -12124,8 +12145,39 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script>
 <style id="guardian-inventory-css">
-#guardian-inventory-modal{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.58);display:none;align-items:center;justify-content:center;padding:12px}
-#guardian-inventory-panel{width:min(430px,96vw);max-height:86vh;overflow:auto;background:#fffaf2;border:2px solid #ff8a65;border-radius:14px;box-shadow:0 10px 35px rgba(0,0,0,.35);padding:12px;color:#4e342e}
+/* 파수꾼 장비 가방: 모든 상위 UI 레이어/transform의 영향을 받지 않는 viewport 고정 모달 */
+#guardian-inventory-modal{
+  position:fixed!important;
+  top:0!important;left:0!important;right:0!important;bottom:0!important;
+  width:100vw!important;height:100vh!important;height:100dvh!important;
+  max-width:none!important;max-height:none!important;
+  transform:none!important;
+  margin:0!important;padding:12px!important;
+  z-index:2147483000!important;
+  background:rgba(0,0,0,.58)!important;
+  display:none;
+  align-items:center!important;justify-content:center!important;
+  overflow:hidden!important;
+  color:#4e342e;
+  pointer-events:auto!important;
+}
+#guardian-inventory-modal[style*='display: flex']{display:flex!important}
+#guardian-inventory-panel{
+  position:relative!important;
+  width:min(430px,calc(100vw - 24px))!important;
+  max-width:430px!important;
+  height:auto!important;
+  max-height:calc(100dvh - 24px)!important;
+  overflow-x:hidden!important;overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  touch-action:pan-y!important;
+  background:#fffaf2!important;
+  border:2px solid #ff8a65!important;border-radius:14px!important;
+  box-shadow:0 10px 35px rgba(0,0,0,.35)!important;
+  padding:12px!important;color:#4e342e!important;
+  margin:auto!important;
+  transform:none!important;
+}
 #guardian-inventory-panel h2{margin:0 0 8px;color:#bf360c;font-size:18px}
 .guardian-resist-summary{padding:8px;border-radius:9px;background:#fff3e0;border:1px solid #ffcc80;font-size:12px;text-align:center;margin-bottom:8px}
 .guardian-inv-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px;border:1px solid #ead7c6;border-radius:9px;background:#fff;margin:6px 0;font-size:11px}
@@ -12135,7 +12187,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </style>
 <div id="guardian-inventory-modal" class="modal interactive" onclick="if(event.target===this)closeGuardianInventoryModal()">
   <div id="guardian-inventory-panel">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2>🔥 파수꾼 장비</h2><button onclick="closeGuardianInventoryModal()" style="font-size:20px;border:0;background:none;cursor:pointer">×</button></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2>🎒 파수꾼 장비 가방</h2><button onclick="closeGuardianInventoryModal()" style="font-size:20px;border:0;background:none;cursor:pointer">×</button></div>
     <div style="font-size:11px;color:#795548;margin-bottom:8px">드랍 시 🔥/❄️/🌪️ 중 1종의 저항 옵션이 2~4%로 랜덤 부여됩니다.</div>
     <div id="guardian-resist-summary" class="guardian-resist-summary"></div>
     <div id="guardian-inventory-list"></div>
