@@ -1277,6 +1277,9 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
               🔥 파수꾼셋트 장착
             </button>
           </div>
+          <div class="stat-row-item" id="weapon-enhance-action-row" style="display:flex; justify-content:center; margin-top:3px;">
+            <button class="status-action-btn" onclick="openWeaponEnhanceModal()" style="width:100%;padding:7px 10px;font-size:11px;background:#e3f2fd;border-color:#64b5f6;color:#1565c0;font-weight:900;">⚒️ 무기 강화 · 파수꾼 부위 강화</button>
+          </div>
           <div class="status-action-row">
             <button class="status-action-btn status-shop-btn" onclick="openShopModal()">🛒 저자거리 상점</button>
             <button class="status-action-btn status-settings-btn" onclick="openSettingsModal()">⚙️ 설정</button>
@@ -4602,6 +4605,9 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       guardianInventory: [],
       guardianEquippedItems: { helm: null, armor: null, gloves: null, boots: null },
       guardianInventoryNextId: 1,
+      // 파수꾼 개별 장비 강화 레벨은 각 장비에 저장하며 최대 +20.
+      // 구버전의 세트 통합 강화 수치는 로드 시 각 보유 장비의 초기 강화 레벨로 안전하게 변환한다.
+      guardianEnhanceMigrationDone: false,
       // 속성 저항은 장착 중인 파수꾼 장비 + 세트 효과를 합산하고 50%로 제한한다.
       elementalResist: { fire: 0, ice: 0, wind: 0 },
       // 보조무기: 3종 중 1종만 장착. 각 보조무기는 별도 강화 레벨을 가진다.
@@ -4759,9 +4765,17 @@ window.playerState = playerState;
     const GUARDIAN_SET_PIECE_NAMES = { helm: '투구', armor: '갑옷', gloves: '장갑', boots: '신발' };
     const GUARDIAN_SET_ATK_BONUS = 0.15; // 기본 풀세트 공격력 +15%
     const GUARDIAN_SET_CRIT_BONUS = 0.08; // 기본 풀세트 크리티컬 확률 +8%
-    const GUARDIAN_SET_ENHANCE_MAX = 5;
-    const GUARDIAN_SET_ENHANCE_ATK = 200;
-    const GUARDIAN_SET_ENHANCE_DEF = 200;
+    // 파수꾼 개별 장비 강화: 각 부위를 강화의 핵으로 +20까지 강화한다.
+    // 부위별 역할을 분리해 공격/방어가 한쪽으로 과도하게 몰리지 않도록 조정했다.
+    const GUARDIAN_SET_ENHANCE_MAX = 20;
+    const GUARDIAN_ENHANCE_STAT = {
+      helm:  { atk: 0,  def: 15 },
+      armor: { atk: 0,  def: 30 },
+      gloves:{ atk: 10, def: 0 },
+      boots: { atk: 10, def: 0 }
+    };
+    // 기존 구버전 +0~+5 세트강화의 수치를 보존하기 위해 로드 시 레벨을 유지하되,
+    // 새 시스템에서는 개별 장비의 강화 레벨 합산 방식으로 계산한다.
     const GUARDIAN_RESIST_BONUS_2SET = 0.05;
     const GUARDIAN_RESIST_BONUS_4SET = 0.10;
     const GUARDIAN_RESIST_BONUS_PLUS5 = 0.05;
@@ -4784,6 +4798,38 @@ window.playerState = playerState;
       };
       playerState.guardianInventoryNextId = (Number(playerState.guardianInventoryNextId) || 1) + 1;
       return item;
+    }
+
+    function getGuardianEnhanceStat(piece, stat) {
+      return Number(GUARDIAN_ENHANCE_STAT[piece]?.[stat] || 0);
+    }
+
+    function getGuardianItemEnhanceLevel(item) {
+      return Math.max(0, Math.min(GUARDIAN_SET_ENHANCE_MAX, Number(item?.enhance) || 0));
+    }
+
+    function getGuardianEnhanceRate(level) {
+      // +1~+20 성공률. 실패해도 강화 단계는 하락하지 않는다.
+      const rates = [1.00,1.00,1.00,0.95,0.90,0.85,0.80,0.75,0.70,0.65,0.60,0.55,0.50,0.45,0.40,0.35,0.30,0.25,0.20,0.15];
+      return rates[Math.max(0, Math.min(19, Number(level) || 0))] ?? 0.15;
+    }
+
+    function getGuardianEnhanceCoreCost(level) {
+      const costs = [1,1,1,1,2,2,2,3,3,3,4,4,5,5,6,6,8,8,10,12];
+      return costs[Math.max(0, Math.min(19, Number(level) || 0))] ?? 12;
+    }
+
+    function getGuardianEnhancePreview(item) {
+      const lv = getGuardianItemEnhanceLevel(item);
+      const nextLv = Math.min(GUARDIAN_SET_ENHANCE_MAX, lv + 1);
+      const piece = item?.piece;
+      return {
+        level: lv, nextLevel: nextLv,
+        rate: lv < GUARDIAN_SET_ENHANCE_MAX ? getGuardianEnhanceRate(lv) : 0,
+        core: lv < GUARDIAN_SET_ENHANCE_MAX ? getGuardianEnhanceCoreCost(lv) : 0,
+        atk: getGuardianEnhanceStat(piece,'atk'),
+        def: getGuardianEnhanceStat(piece,'def')
+      };
     }
 
     function getGuardianEquippedItem(piece) {
@@ -4891,31 +4937,125 @@ window.playerState = playerState;
         const equippedNow = equipped[item.piece] === item.id;
         const pieceName = GUARDIAN_SET_PIECE_NAMES[item.piece] || item.piece;
         const option = `${GUARDIAN_RESIST_LABELS[item.optionType]} +${Math.round(item.optionValue*100)}%`;
+        const ep = getGuardianEnhancePreview(item);
+        const statText = `${ep.atk ? `⚔️ +${ep.atk}/강` : ''}${ep.def ? `${ep.atk ? ' · ' : ''}🛡️ +${ep.def}/강` : ''}`;
         return `<div class="guardian-inv-item ${equippedNow?'equipped':''}">
-          <div><b>🔥 파수꾼 ${pieceName}</b>${equippedNow?' <span style="color:#2e7d32">[장착]</span>':''}<br><span style="color:#d84315">${option}</span></div>
+          <div style="min-width:0;flex:1"><b>🔥 파수꾼 ${pieceName} +${ep.level}/${GUARDIAN_SET_ENHANCE_MAX}</b>${equippedNow?' <span style="color:#2e7d32">[장착]</span>':''}<br><span style="color:#d84315">${option}</span><br><span style="font-size:9px;color:#666">${statText}</span></div>
           <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end">
             ${equippedNow?'':'<button onclick="equipGuardianItem(\''+item.id+'\')">장착</button>'}
+            ${ep.level < GUARDIAN_SET_ENHANCE_MAX ? '<button style="background:#e3f2fd;border-color:#64b5f6;color:#1565c0" onclick="enhanceGuardianItem(\''+item.id+'\')">강화</button>' : '<button disabled style="opacity:.6">MAX</button>'}
             ${equippedNow?'':'<button class="danger" onclick="dismantleGuardianItem(\''+item.id+'\')">분해</button>'}
           </div>
         </div>`;
       }).join('');
     }
 
+    function enhanceGuardianItem(id) {
+      const item = (playerState.guardianInventory || []).find(i => i.id === id);
+      if (!item) return;
+      const lv = getGuardianItemEnhanceLevel(item);
+      if (lv >= GUARDIAN_SET_ENHANCE_MAX) return;
+      const cost = getGuardianEnhanceCoreCost(lv);
+      if ((playerState.enhanceCore || 0) < cost) {
+        alert(`강화의 핵이 부족합니다. (${cost}개 필요)`);
+        return;
+      }
+      playerState.enhanceCore -= cost;
+      const rate = getGuardianEnhanceRate(lv);
+      if (Math.random() < rate) {
+        item.enhance = lv + 1;
+        const pieceName = GUARDIAN_SET_PIECE_NAMES[item.piece];
+        const stat = getGuardianEnhanceStat(item.piece,'atk') || getGuardianEnhanceStat(item.piece,'def');
+        const statLabel = getGuardianEnhanceStat(item.piece,'atk') ? '공격력' : '방어력';
+        showHealText(`✨ 파수꾼 ${pieceName} +${item.enhance} 강화 성공! ${statLabel} +${stat}`, playerSprite.position);
+      } else {
+        showPlayerDamageText(`💥 파수꾼 강화 실패... (+${lv} 유지)`, playerSprite.position);
+      }
+      updatePlayerFacingTexture();
+      updateUI();
+      saveGame();
+      renderGuardianInventory();
+      renderWeaponEnhanceModal();
+    }
+
+    function openWeaponEnhanceModal() {
+      const modal = document.getElementById('weapon-enhance-modal');
+      if (!modal) return;
+      if (modal.parentElement !== document.body) document.body.appendChild(modal);
+      renderWeaponEnhanceModal();
+      modal.style.display = 'flex';
+      document.body.classList.add('modal-open');
+    }
+
+    function closeWeaponEnhanceModal() {
+      const modal = document.getElementById('weapon-enhance-modal');
+      if (modal) modal.style.display = 'none';
+      document.body.classList.remove('modal-open');
+    }
+
+    function renderWeaponEnhanceModal() {
+      const list = document.getElementById('weapon-enhance-guardian-list');
+      const core = document.getElementById('weapon-enhance-core');
+      if (!list) return;
+      if (core) core.textContent = Number(playerState.enhanceCore || 0).toLocaleString();
+      const main = document.getElementById('weapon-enhance-main-weapon');
+      if (main) {
+        const lv = Math.max(0, Math.min(WEAPON_ENHANCE_MAX_LV, Number(playerState.weaponEnhanceLv) || 0));
+        const next = Math.min(WEAPON_ENHANCE_MAX_LV, lv + 1);
+        const data = weaponEnhanceTable[lv];
+        const nextData = weaponEnhanceTable[next];
+        const canUse = lv < WEAPON_ENHANCE_MAX_LV && (playerState.enhanceCore || 0) >= WEAPON_ENHANCE_CORE_COST && (getPlayerAvgAtk() >= WEAPON_ENHANCE_UNLOCK_ATK || lv > 0);
+        main.innerHTML = `<div class="weapon-enhance-card" style="border-color:#ffb74d;background:#fffaf2">
+          <div class="weapon-enhance-head"><b>⚔️ 현재 무기 +${lv}/${WEAPON_ENHANCE_MAX_LV}</b><span>공격력 보너스 +${Number(data?.bonus||0).toLocaleString()}</span></div>
+          <div class="weapon-enhance-next">${lv>=WEAPON_ENHANCE_MAX_LV ? '최대 강화 달성' : `다음 +${next}: 성공률 ${Math.round(Number(data?.nextRate||0)*100)}% · 🔷 핵 ${WEAPON_ENHANCE_CORE_COST}개 · 공격력 보너스 +${Number(nextData?.bonus||0).toLocaleString()}`}</div>
+          <button class="weapon-enhance-action" ${canUse?'':'disabled'} onclick="enhanceWeapon(); setTimeout(renderWeaponEnhanceModal,0)">${lv>=WEAPON_ENHANCE_MAX_LV?'무기 강화 MAX':'⚔️ 무기 +'+next+' 강화'}</button>
+        </div>`;
+      }
+      const inv = playerState.guardianInventory || [];
+      const equipped = playerState.guardianEquippedItems || {};
+      const pieces = ['helm','armor','gloves','boots'];
+      list.innerHTML = pieces.map(piece => {
+        const item = inv.find(i => i.id === equipped[piece] && i.piece === piece);
+        if (!item) return `<div class="weapon-enhance-empty">${GUARDIAN_SET_PIECE_NAMES[piece]} · 장착할 파수꾼 장비가 없습니다.<br><small>🎒 장비 가방에서 먼저 장착하세요.</small></div>`;
+        const ep = getGuardianEnhancePreview(item);
+        const statName = ep.atk ? '공격력' : '방어력';
+        const stat = ep.atk || ep.def;
+        const nextText = ep.level >= GUARDIAN_SET_ENHANCE_MAX ? 'MAX' : `다음 +${ep.nextLevel}: ${Math.round(ep.rate*100)}% 성공 · 🔷 핵 ${ep.core}개`;
+        return `<div class="weapon-enhance-card">
+          <div class="weapon-enhance-head"><b>🔥 ${GUARDIAN_SET_PIECE_NAMES[piece]} +${ep.level}/${GUARDIAN_SET_ENHANCE_MAX}</b><span>${statName} +${stat}/강</span></div>
+          <div class="weapon-enhance-bar"><div style="width:${Math.min(100,ep.level/GUARDIAN_SET_ENHANCE_MAX*100)}%"></div></div>
+          <div class="weapon-enhance-next">${nextText}</div>
+          <button class="weapon-enhance-action" ${ep.level>=GUARDIAN_SET_ENHANCE_MAX || (playerState.enhanceCore||0)<ep.core?'disabled':''} onclick="enhanceGuardianItem(\'${item.id}\')">${ep.level>=GUARDIAN_SET_ENHANCE_MAX?'강화 MAX':`🔷 ${ep.core}개로 +${ep.nextLevel} 강화`}</button>
+        </div>`;
+      }).join('');
+    }
+
     function getGuardianSetEnhanceLv() {
-      const counts = playerState.guardianSetPieceCounts || {};
-      const extraSets = ['helm','armor','gloves','boots'].reduce((min, piece) => {
-        const count = Math.max(0, Number(counts[piece]) || 0);
-        return Math.min(min, Math.max(0, count - 1));
-      }, GUARDIAN_SET_ENHANCE_MAX);
-      return Math.max(0, Math.min(GUARDIAN_SET_ENHANCE_MAX, extraSets));
+      // 호환용: 새 시스템에서는 '세트 전체 강화레벨'이 없으므로
+      // 장착된 4부위 중 최저 강화레벨을 세트 강화레벨처럼 표시한다.
+      const levels = ['helm','armor','gloves','boots'].map(piece => {
+        const item = getGuardianEquippedItem(piece);
+        return item ? getGuardianItemEnhanceLevel(item) : 0;
+      });
+      return levels.length ? Math.min(...levels) : 0;
     }
 
     function getGuardianEnhanceAtk() {
-      return isGuardianSetComplete() ? getGuardianSetEnhanceLv() * GUARDIAN_SET_ENHANCE_ATK : 0;
+      let atk = 0;
+      ['helm','armor','gloves','boots'].forEach(piece => {
+        const item = getGuardianEquippedItem(piece);
+        if (item) atk += getGuardianItemEnhanceLevel(item) * getGuardianEnhanceStat(piece,'atk');
+      });
+      return atk;
     }
 
     function getGuardianEnhanceDef() {
-      return isGuardianSetComplete() ? getGuardianSetEnhanceLv() * GUARDIAN_SET_ENHANCE_DEF : 0;
+      let def = 0;
+      ['helm','armor','gloves','boots'].forEach(piece => {
+        const item = getGuardianEquippedItem(piece);
+        if (item) def += getGuardianItemEnhanceLevel(item) * getGuardianEnhanceStat(piece,'def');
+      });
+      return def;
     }
 
     function getCritMultiplier() {
@@ -10144,7 +10284,7 @@ window.playerState = playerState;
         playerState.guardianSetEquipped = hasExplicitGuardianEquipState ? p.guardianSetEquipped : legacyFullGuardianSet;
         // 신규 파수꾼 개별 장비 데이터. 기존 세이브는 아래에서 기존 보유 부위를 실제 장비로 복원한다.
         playerState.guardianInventory = Array.isArray(p.guardianInventory) ? p.guardianInventory.filter(i => i && GUARDIAN_SET_PIECE_NAMES[i.piece] && GUARDIAN_RESIST_KEYS.includes(i.optionType)).map(i => ({
-          id: String(i.id), piece: i.piece, optionType: i.optionType, optionValue: Math.max(GUARDIAN_OPTION_MIN, Math.min(GUARDIAN_OPTION_MAX, Number(i.optionValue)||GUARDIAN_OPTION_MIN)), enhance: 0
+          id: String(i.id), piece: i.piece, optionType: i.optionType, optionValue: Math.max(GUARDIAN_OPTION_MIN, Math.min(GUARDIAN_OPTION_MAX, Number(i.optionValue)||GUARDIAN_OPTION_MIN)), enhance: Math.max(0, Math.min(GUARDIAN_SET_ENHANCE_MAX, Number(i.enhance)||0))
         })).slice(0, GUARDIAN_INVENTORY_MAX) : [];
         playerState.guardianInventoryNextId = Math.max(1, Number(p.guardianInventoryNextId) || playerState.guardianInventory.length + 1);
         // 구버전 세이브 호환: 기존에는 부위 보유 수량만 저장했으므로, 보유 수량만큼 개별 장비를 생성해 가방으로 옮긴다.
@@ -10154,6 +10294,15 @@ window.playerState = playerState;
             for (let n = 0; n < count; n++) playerState.guardianInventory.push(createGuardianItem(piece));
           });
         }
+        // 구버전의 '세트강화 +1~+5'를 새 개별 장비 강화로 변환한다.
+        // 기존 강화가 사라지지 않도록 각 기존 보유 장비에 동일한 레벨을 1회만 이관한다.
+        const legacyEnhanceLv = Math.max(0, Math.min(GUARDIAN_SET_ENHANCE_MAX, Number(p.guardianSetEnhanceLv) || 0));
+        if (legacyEnhanceLv > 0 && Array.isArray(playerState.guardianInventory)) {
+          playerState.guardianInventory.forEach(item => {
+            if (item && (!Number.isFinite(Number(item.enhance)) || Number(item.enhance) <= 0)) item.enhance = legacyEnhanceLv;
+          });
+        }
+
         const savedGuardianEquippedItems = (p.guardianEquippedItems && typeof p.guardianEquippedItems === 'object') ? p.guardianEquippedItems : {};
         playerState.guardianEquippedItems = { helm:null, armor:null, gloves:null, boots:null, ...savedGuardianEquippedItems };
         // 구버전 세이브 복원: 기존에는 개별 장비 ID가 없었으므로 각 부위의 첫 장비를 장착시켜
@@ -10370,7 +10519,7 @@ window.playerState = playerState;
           const pieces = ['helm','armor','gloves','boots'].map(k => `${GUARDIAN_SET_PIECE_NAMES[k]}${counts[k] || 0}`).join(' ');
           const enhanceLv = getGuardianSetEnhanceLv();
           const enhanceText = hasGuardianFullSet()
-            ? ` · 셋트강화 ${enhanceLv}/${GUARDIAN_SET_ENHANCE_MAX} (+공격력 ${enhanceLv * GUARDIAN_SET_ENHANCE_ATK} · 방어 ${enhanceLv * GUARDIAN_SET_ENHANCE_DEF})`
+            ? ` · 개별강화 최대 +${GUARDIAN_SET_ENHANCE_MAX} · ⚔️+${getGuardianEnhanceAtk()} · 🛡️+${getGuardianEnhanceDef()}`
             : '';
           guardianVal.innerText = `🔥 파수꾼셋트: ${ownedCount}/4 (${pieces})${isGuardianSetComplete() ? ' · 풀세트 효과 적용중' : ''}${enhanceText}`;
         } else {
@@ -10898,34 +11047,20 @@ window.playerState = playerState;
                 if (Math.random() < 0.10) {
                   const pieceName = GUARDIAN_SET_PIECE_NAMES[piece];
                   const currentCount = Math.max(0, Number(playerState.guardianSetPieceCounts[piece]) || 0);
-                  const maxPieceCount = GUARDIAN_SET_ENHANCE_MAX + 1; // 기본 1세트 + 최대 5회 강화분
-                  if (currentCount >= maxPieceCount) {
-                    showHealText(`🔥 파수꾼의 ${pieceName}은 셋트강화 MAX!`, new THREE.Vector3(target.sprite.position.x, target.sprite.position.y + 0.6 + idx * 0.4, target.sprite.position.z));
+                  if ((playerState.guardianInventory || []).length >= GUARDIAN_INVENTORY_MAX) {
+                    showHealText(`🎒 장비 가방이 가득 찼습니다. 파수꾼 ${pieceName} 획득 취소`, new THREE.Vector3(target.sprite.position.x, target.sprite.position.y + 0.6 + idx * 0.4, target.sprite.position.z));
                   } else {
-                    // 기존 세트 중복/강화 진행은 유지하되, 이번 드랍은 실제 장비 아이템으로도 보관한다.
-                    const beforeEnhance = getGuardianSetEnhanceLv();
                     const guardianItem = createGuardianItem(piece);
-                    if ((playerState.guardianInventory || []).length < GUARDIAN_INVENTORY_MAX) {
-                      playerState.guardianInventory.push(guardianItem);
-                      // 해당 부위의 첫 장비는 자동으로 장착한다. 이후 중복 장비는 가방에 보관한다.
-                      if (!playerState.guardianEquippedItems[piece]) {
-                        playerState.guardianEquippedItems[piece] = guardianItem.id;
-                      }
-                    }
+                    playerState.guardianInventory.push(guardianItem);
+                    // 해당 부위의 첫 장비는 자동으로 장착한다. 이후 중복 장비는 가방에 보관한다.
+                    if (!playerState.guardianEquippedItems[piece]) playerState.guardianEquippedItems[piece] = guardianItem.id;
                     playerState.guardianSetPieceCounts[piece] = currentCount + 1;
                     playerState.guardianSet[piece] = true;
-                    const afterEnhance = getGuardianSetEnhanceLv();
-                    playerState.guardianSetEnhanceLv = afterEnhance;
                     playItemGetSfx();
 
                     if (currentCount === 0) {
                       const optText = `${GUARDIAN_RESIST_LABELS[guardianItem.optionType]} +${Math.round(guardianItem.optionValue*100)}%`;
                       showHealText(`🔥 파수꾼의 ${pieceName} 획득! ${optText}`, new THREE.Vector3(target.sprite.position.x, target.sprite.position.y + 0.6 + idx * 0.4, target.sprite.position.z));
-                    } else if (afterEnhance > beforeEnhance) {
-                      showHealText(`🔥 파수꾼 셋트 강화 +${afterEnhance}!`, new THREE.Vector3(target.sprite.position.x, target.sprite.position.y + 0.6 + idx * 0.4, target.sprite.position.z));
-                      setTimeout(() => {
-                        showHealText(`⚔ 공격력 +${GUARDIAN_SET_ENHANCE_ATK} · 🛡 방어 +${GUARDIAN_SET_ENHANCE_DEF}`, new THREE.Vector3(target.sprite.position.x, target.sprite.position.y + 1.0, target.sprite.position.z));
-                      }, 350);
                     } else {
                       const optText = `${GUARDIAN_RESIST_LABELS[guardianItem.optionType]} +${Math.round(guardianItem.optionValue*100)}%`;
                       showHealText(`🔥 파수꾼 ${pieceName} 추가 획득 · ${optText}`, new THREE.Vector3(target.sprite.position.x, target.sprite.position.y + 0.6 + idx * 0.4, target.sprite.position.z));
@@ -12144,6 +12279,28 @@ document.addEventListener('DOMContentLoaded',function(){
   setTimeout(load,500);
 })();
 </script>
+<style id="weapon-enhance-css">
+#weapon-enhance-modal{position:fixed!important;inset:0!important;top:0!important;left:0!important;right:0!important;bottom:0!important;width:100vw!important;height:100vh!important;height:100dvh!important;margin:0!important;transform:none!important;z-index:2147482990!important;background:rgba(0,0,0,.58)!important;display:none;align-items:center!important;justify-content:center!important;padding:12px!important;box-sizing:border-box!important;overflow:hidden!important;pointer-events:auto!important}
+#weapon-enhance-modal[style*='display: flex']{display:flex!important}
+#weapon-enhance-panel{position:relative!important;left:auto!important;top:auto!important;transform:none!important;margin:0 auto!important;width:min(460px,calc(100vw - 24px));max-width:calc(100vw - 24px)!important;max-height:calc(100dvh - 24px);overflow-y:auto;-webkit-overflow-scrolling:touch;background:#f7fbff;border:2px solid #64b5f6;border-radius:16px;box-shadow:0 10px 35px rgba(0,0,0,.35);padding:12px;box-sizing:border-box;color:#263238}
+#weapon-enhance-panel h2{margin:0;color:#1565c0;font-size:18px}
+.weapon-enhance-core-box{margin:8px 0;padding:8px;border-radius:10px;background:#e3f2fd;border:1px solid #90caf9;text-align:center;font-weight:900;color:#1565c0}
+.weapon-enhance-card{margin:8px 0;padding:10px;border:1px solid #b0bec5;border-radius:11px;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.08)}
+.weapon-enhance-head{display:flex;justify-content:space-between;gap:8px;font-size:12px}.weapon-enhance-head span{color:#546e7a}
+.weapon-enhance-bar{height:7px;background:#eceff1;border-radius:8px;overflow:hidden;margin:8px 0}.weapon-enhance-bar>div{height:100%;background:#42a5f5;border-radius:8px}
+.weapon-enhance-next{font-size:10px;color:#455a64;margin-bottom:7px}.weapon-enhance-action{width:100%;padding:8px;border:1px solid #42a5f5;border-radius:8px;background:#e3f2fd;color:#1565c0;font-weight:900;font-size:11px}.weapon-enhance-action:disabled{opacity:.5}.weapon-enhance-empty{padding:10px;margin:8px 0;border:1px dashed #b0bec5;border-radius:10px;background:#fafafa;color:#78909c;font-size:11px;text-align:center}
+@media(max-width:380px){#weapon-enhance-panel{padding:9px}.weapon-enhance-card{padding:8px}.weapon-enhance-head{font-size:11px}}
+</style>
+<div id="weapon-enhance-modal" class="modal interactive" onclick="if(event.target===this)closeWeaponEnhanceModal()">
+  <div id="weapon-enhance-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2>⚒️ 무기 강화</h2><button onclick="closeWeaponEnhanceModal()" style="font-size:20px;border:0;background:none;cursor:pointer">×</button></div>
+    <div style="font-size:11px;color:#546e7a;margin-top:3px">현재 무기와 파수꾼 4부위를 강화의 핵으로 강화합니다. 파수꾼은 각 부위별 최대 +20이며, 실패해도 강화 단계는 하락하지 않습니다.</div>
+    <div class="weapon-enhance-core-box">🔷 보유 강화의 핵 <span id="weapon-enhance-core">0</span>개</div>
+    <div id="weapon-enhance-main-weapon"></div>
+    <div style="font-size:13px;font-weight:900;color:#bf360c;margin:10px 0 5px">🔥 파수꾼 부위 강화</div>
+    <div id="weapon-enhance-guardian-list"></div>
+  </div>
+</div>
 <style id="guardian-inventory-css">
 /* 파수꾼 장비 가방: 모든 상위 UI 레이어/transform의 영향을 받지 않는 viewport 고정 모달 */
 #guardian-inventory-modal{
