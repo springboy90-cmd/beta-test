@@ -1213,7 +1213,7 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
 
   <div id="ui-layer">
     <div id="exp-dungeon-hud" class="exp-dungeon-hud">📕 경험의 서고 <span class="timer" id="exp-dungeon-timer">03:00</span><span class="count" id="exp-dungeon-kills">0마리</span><span class="exp-dungeon-exit-btn" onclick="requestExitExperienceDungeon()">나가기</span></div>
-    <div id="craft-gold-dungeon-hud" class="craft-gold-dungeon-hud">⚒️💰 제작·금화 보급 던전 <span class="timer" id="craft-gold-dungeon-timer">05:00</span><span class="count" id="craft-gold-dungeon-kills">0마리</span><span class="exit-btn" onclick="exitCraftGoldDungeon(true)">나가기</span></div>
+    <div id="craft-gold-dungeon-hud" class="craft-gold-dungeon-hud">⚒️💰 제작·금화 보급 던전 <span class="timer" id="craft-gold-dungeon-timer">04:00</span><span class="count" id="craft-gold-dungeon-kills">0마리</span><span class="exit-btn" onclick="exitCraftGoldDungeon(true)">나가기</span></div>
     <div style="display: flex; justify-content: space-between; width: 100%;">
       <div class="status-panel interactive" onclick="toggleStatusPanel(event)" title="탭하여 상태창 최소화/복원">
         <div class="character-info">
@@ -1640,7 +1640,7 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
     let craftGoldDungeonDeathOccurred = false;
     let craftGoldDungeonEntryCountConsumed = false;
     const CRAFT_GOLD_DUNGEON_DAILY_LIMIT = 3;
-    const CRAFT_GOLD_DUNGEON_DURATION = 300000;
+    const CRAFT_GOLD_DUNGEON_DURATION = 240000;
     const CRAFT_GOLD_DUNGEON_SAVE_KEY = 'craftGoldDungeonDaily';
     const CRAFT_GOLD_DUNGEON_MATERIAL_RATES = {
       iron:0.70, wood:0.60, core:0.25, refined:0.15, boss:0.035, divine:0.005
@@ -4914,6 +4914,16 @@ window.playerState = playerState;
       renderGuardianInventory();
     }
 
+    function getGuardianDismantleCoreReward(item) {
+      const lv = getGuardianItemEnhanceLevel(item);
+      if (lv >= 20) return 12;
+      if (lv >= 15) return 8;
+      if (lv >= 10) return 5;
+      if (lv >= 5) return 3;
+      if (lv >= 1) return 2;
+      return 1;
+    }
+
     function dismantleGuardianItem(id) {
       const item = (playerState.guardianInventory || []).find(i => i.id === id);
       if (!item) return;
@@ -4921,10 +4931,25 @@ window.playerState = playerState;
         showHealText('⚠️ 장착 중인 장비는 분해할 수 없습니다.', playerSprite.position);
         return;
       }
+
+      const pieceName = GUARDIAN_SET_PIECE_NAMES[item.piece] || item.piece;
+      const lv = getGuardianItemEnhanceLevel(item);
+      const reward = getGuardianDismantleCoreReward(item);
+      const optionText = `${GUARDIAN_RESIST_LABELS[item.optionType] || ''} +${Math.round(Number(item.optionValue || 0) * 100)}%`;
+      const ok = window.confirm(`🔥 파수꾼 ${pieceName} +${lv}을(를) 분해하시겠습니까?\n\n${optionText}\n\n🔷 강화의 핵 +${reward}개를 획득합니다.\n\n※ 분해한 장비는 복구할 수 없습니다.`);
+      if (!ok) return;
+
       const idx = playerState.guardianInventory.findIndex(i => i.id === id);
-      if (idx >= 0) playerState.guardianInventory.splice(idx,1);
-      saveGame(); updateUI(); renderGuardianInventory();
-      showHealText('♻️ 파수꾼 장비를 분해했습니다.', playerSprite.position);
+      if (idx < 0) return;
+      playerState.guardianInventory.splice(idx, 1);
+      playerState.enhanceCore = Math.max(0, Number(playerState.enhanceCore) || 0) + reward;
+
+      saveGame();
+      updateUI();
+      renderGuardianInventory();
+      renderWeaponEnhanceModal();
+      try { renderCraftingBag(); } catch (e) {}
+      showHealText(`♻️ 파수꾼 ${pieceName} +${lv} 분해 완료 · 🔷 강화의 핵 +${reward}`, playerSprite.position);
     }
 
     function renderGuardianInventory() {
@@ -4934,7 +4959,7 @@ window.playerState = playerState;
       const pieces = ['helm','armor','gloves','boots'];
       const inv = playerState.guardianInventory || [];
       const equipped = playerState.guardianEquippedItems || {};
-      if (stats) stats.innerHTML = GUARDIAN_RESIST_KEYS.map(k => `${GUARDIAN_RESIST_LABELS[k]} <b>${Math.round(getPlayerElementalResistance(k)*100)}%</b>`).join(' · ');
+      if (stats) stats.innerHTML = `🔷 강화의 핵 <b>${Number(playerState.enhanceCore || 0).toLocaleString()}개</b> · ` + GUARDIAN_RESIST_KEYS.map(k => `${GUARDIAN_RESIST_LABELS[k]} <b>${Math.round(getPlayerElementalResistance(k)*100)}%</b>`).join(' · ');
       if (!inv.length) { box.innerHTML = '<div style="padding:12px;text-align:center;color:#999">파수꾼 장비가 없습니다.</div>'; return; }
       box.innerHTML = inv.map(item => {
         const equippedNow = equipped[item.piece] === item.id;
@@ -6501,6 +6526,35 @@ window.playerState = playerState;
       else buildStage7ShinsuGorge2(true);
     }
 
+    // 제작·금화 보급 던전: 일반 몬스터 수량을 기존의 2배로 확장한다.
+    // 보스는 복제하지 않고 일반 몬스터만 추가한다.
+    function duplicateCraftGoldDungeonMonsters() {
+      if (!craftGoldDungeonActive || !monsters.length) return;
+      const originals = monsters.filter(m => m.isCraftGoldDungeon && !m.isBoss);
+      const startIndex = monsters.length;
+      originals.forEach((src, idx) => {
+        const sprite = src.sprite.clone();
+        sprite.position.copy(src.sprite.position);
+        sprite.position.x += (Math.random() - 0.5) * 8;
+        sprite.position.z += (Math.random() - 0.5) * 8;
+        sprite.position.x = Math.max(-31, Math.min(31, sprite.position.x));
+        sprite.position.z = Math.max(-31, Math.min(31, sprite.position.z));
+        scene.add(sprite);
+
+        const shadow = createShadowDisk(2.2, 1.2);
+        shadow.position.set(sprite.position.x, 0.02, sprite.position.z);
+
+        const copy = { ...src };
+        copy.id = `craft_gold_extra_${startIndex + idx}_${Date.now()}`;
+        copy.sprite = sprite;
+        copy.shadowDisk = shadow;
+        copy.alive = true;
+        copy.destroyed = false;
+        copy.__weaponCraftDropGiven = false;
+        monsters.push(copy);
+      });
+    }
+
     function tuneCraftGoldDungeonMonsters() {
       monsters.forEach(m => {
         m.isCraftGoldDungeon = true;
@@ -6590,6 +6644,7 @@ window.playerState = playerState;
       const visualStage = getCraftGoldDungeonVisualStage();
       buildCraftGoldDungeonVisual(visualStage);
       tuneCraftGoldDungeonMonsters();
+      duplicateCraftGoldDungeonMonsters();
       document.getElementById('stage-badge').innerText = '⚒️ 제작·금화 보급 던전 ▾';
       document.getElementById('craft-gold-dungeon-hud').style.display = 'block';
       closeCraftGoldDungeonModal();
