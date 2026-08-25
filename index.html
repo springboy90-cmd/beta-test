@@ -361,6 +361,30 @@
     .stage-card.hadum.active { border-color: #ff5252; background: #2a1414; }
     .stage-card.hadum-locked { background: #eeeeee; border-color: #bdbdbd; cursor: not-allowed; opacity: 0.75; }
     .stage-divider { font-size: 11px; font-weight: bold; color: #b71c1c; text-align: center; margin: 10px 0 4px; letter-spacing: 1px; }
+    /* 사냥터 선택: 일반/하둠 1차 카테고리 탭 */
+    .stage-category-tabs { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+    .stage-category-tab { border:2px solid #d7ccc8; border-radius:14px; padding:13px 8px; background:#fff; cursor:pointer; text-align:center; display:flex; flex-direction:column; align-items:center; gap:3px; box-shadow:0 2px 4px rgba(0,0,0,.08); }
+    .stage-category-tab:active { transform:scale(.98); }
+    .stage-category-tab.normal.active { border-color:#ff9800; background:#fff3e0; }
+    .stage-category-tab.hadum { background:#171717; border-color:#8e2b2b; color:#fff; }
+    .stage-category-tab.hadum.active { border-color:#ff5252; background:#2a1414; }
+    .stage-tab-icon { font-size:22px; line-height:1; }
+    .stage-tab-title { font-size:13px; font-weight:900; }
+    .stage-tab-desc { font-size:9px; opacity:.75; }
+    .stage-subpanel { border:1px solid #ddd; border-radius:12px; padding:8px; background:rgba(250,250,250,.92); }
+    .stage-subpanel-header { display:flex; align-items:center; gap:8px; margin-bottom:7px; padding-bottom:6px; border-bottom:1px solid #e0e0e0; }
+    .stage-subpanel-header > div { flex:1; text-align:center; font-weight:900; font-size:12px; }
+    .stage-back-btn { border:1px solid #bbb; background:#fff; border-radius:8px; padding:4px 8px; font-size:10px; font-weight:800; cursor:pointer; }
+    .stage-subpanel .stage-cards { margin-bottom:0; max-height:360px; overflow-y:auto; padding-right:2px; }
+    @media (max-width:600px) {
+      .stage-category-tabs { gap:7px; }
+      .stage-category-tab { padding:10px 6px; border-radius:11px; }
+      .stage-tab-icon { font-size:19px; }
+      .stage-tab-title { font-size:11px; }
+      .stage-tab-desc { font-size:8px; }
+      .stage-subpanel .stage-cards { max-height:46vh; }
+    }
+
     .btn-exp-dungeon { background: linear-gradient(135deg, #7e57c2, #512da8); border-color: #4527a0; color: #fff; font-weight: bold; }
     .exp-dungeon-hud { position: fixed; top: 76px; left: 50%; transform: translateX(-50%); z-index: 50; display:none; min-width:210px; padding:7px 12px; border-radius:12px; background:rgba(28,20,48,.92); color:#fff; border:2px solid #9575cd; text-align:center; font-weight:800; box-shadow:0 3px 12px rgba(0,0,0,.35); pointer-events:auto; }
     .exp-dungeon-hud .timer { color:#ffd54f; font-size:16px; margin-left:8px; }
@@ -1398,97 +1422,58 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
   <!-- Stage Select Modal -->
   <div class="modal interactive" id="stage-modal">
     <div class="modal-title">🏔️ 사냥터 스테이지 선택</div>
-    <div class="stage-cards">
-      <div class="stage-card" id="stage-card-1" onclick="selectStage(1, false)">
-        <div>
-          <div style="font-weight: bold; color: #e65100; font-size: 13px;">🌱 1스테이지: 초보자 사냥터 (공격력 1~200)</div>
-          <div style="font-size: 10px; color: #795548;">야옹이, 돼지, 송이모자, 토끼, 왕송이모자(보스) 출현</div>
-        </div>
-        <div style="font-size: 12px; font-weight: bold;">이동 ➔</div>
+
+    <!-- 일반 / 하둠 1차 선택 탭 -->
+    <div class="stage-category-tabs" id="stage-category-tabs">
+      <button type="button" class="stage-category-tab normal" id="stage-tab-normal" onclick="openStageCategory('normal')">
+        <span class="stage-tab-icon">🌿</span>
+        <span class="stage-tab-title">일반 사냥터</span>
+        <span class="stage-tab-desc">1~5 스테이지</span>
+      </button>
+      <button type="button" class="stage-category-tab hadum" id="stage-tab-hadum" onclick="openStageCategory('hadum')">
+        <span class="stage-tab-icon">🔥</span>
+        <span class="stage-tab-title">하둠의 영역</span>
+        <span class="stage-tab-desc">하둠 1~7</span>
+      </button>
+    </div>
+
+    <!-- 2차 스테이지 선택 패널. 기존 stage-card ID를 그대로 유지하여 기존 로직과 연동 -->
+    <div class="stage-subpanel" id="stage-subpanel" style="display:none;">
+      <div class="stage-subpanel-header">
+        <button type="button" class="stage-back-btn" onclick="backToStageCategories()">‹ 뒤로</button>
+        <div id="stage-subpanel-title">스테이지 선택</div>
       </div>
-      <div class="stage-card" id="stage-card-2" onclick="selectStage(2, false)">
-        <div>
-          <div style="font-weight: bold; color: #6a1b9a; font-size: 13px;">🏔️ 2스테이지: 웅녀동굴 (공격력 250~350)</div>
-          <div style="font-size: 10px; color: #795548;">마늘대왕, 병자호랑, 웅양 및 마늘장갑차(보스)</div>
+
+      <div class="stage-cards" id="normal-stage-list">
+        <div class="stage-card" id="stage-card-1" onclick="selectStage(1, false)">
+          <div><div style="font-weight:bold;color:#e65100;font-size:13px;">🌱 1스테이지: 초보자 사냥터 (공격력 1~200)</div><div style="font-size:10px;color:#795548;">야옹이, 돼지, 송이모자, 토끼, 왕송이모자(보스) 출현</div></div><div style="font-size:12px;font-weight:bold;">이동 ➔</div>
         </div>
-        <div style="font-size: 12px; font-weight: bold;">이동 ➔</div>
+        <div class="stage-card" id="stage-card-2" onclick="selectStage(2, false)">
+          <div><div style="font-weight:bold;color:#6a1b9a;font-size:13px;">🏔️ 2스테이지: 웅녀동굴 (공격력 250~350)</div><div style="font-size:10px;color:#795548;">마늘대왕, 병자호랑, 웅양 및 마늘장갑차(보스)</div></div><div style="font-size:12px;font-weight:bold;">이동 ➔</div>
+        </div>
+        <div class="stage-card" id="stage-card-3" onclick="selectStage(3, false)">
+          <div><div style="font-weight:bold;color:#2e7d32;font-size:13px;">🎋 3스테이지: 바둑골 산길 (공격력 400~500)</div><div style="font-size:10px;color:#795548;">주당, 팔광병사, 상두포 및 마대포(보스)</div></div><div style="font-size:12px;font-weight:bold;">이동 ➔</div>
+        </div>
+        <div class="stage-card" id="stage-card-4" onclick="selectStage(4, false)">
+          <div><div style="font-weight:bold;color:#1565c0;font-size:13px;">❄️ 4스테이지: 얼음성 (공격력 550~650)</div><div style="font-size:10px;color:#455a64;">눈토끼, 설녀 및 빙설여왕(보스)</div></div><div style="font-size:12px;font-weight:bold;">이동 ➔</div>
+        </div>
+        <div class="stage-card" id="stage-card-5" onclick="selectStage(5, false)">
+          <div><div style="font-weight:bold;color:#00838f;font-size:13px;">🐢 5스테이지: 용궁 (공격력 700~800)</div><div style="font-size:10px;color:#455a64;">포졸거북, 인어병사 및 해적상어(보스)</div></div><div style="font-size:12px;font-weight:bold;">이동 ➔</div>
+        </div>
       </div>
-      <div class="stage-card" id="stage-card-3" onclick="selectStage(3, false)">
-        <div>
-          <div style="font-weight: bold; color: #2e7d32; font-size: 13px;">🎋 3스테이지: 바둑골 산길 (공격력 400~500)</div>
-          <div style="font-size: 10px; color: #795548;">주당, 팔광병사, 상두포 및 마대포(보스)</div>
-        </div>
-        <div style="font-size: 12px; font-weight: bold;">이동 ➔</div>
-      </div>
-      <div class="stage-card" id="stage-card-4" onclick="selectStage(4, false)">
-        <div>
-          <div style="font-weight: bold; color: #1565c0; font-size: 13px;">❄️ 4스테이지: 얼음성 (공격력 550~650)</div>
-          <div style="font-size: 10px; color: #455a64;">눈토끼, 설녀 및 빙설여왕(보스)</div>
-        </div>
-        <div style="font-size: 12px; font-weight: bold;">이동 ➔</div>
-      </div>
-      <div class="stage-card" id="stage-card-5" onclick="selectStage(5, false)">
-        <div>
-          <div style="font-weight: bold; color: #00838f; font-size: 13px;">🐢 5스테이지: 용궁 (공격력 700~800)</div>
-          <div style="font-size: 10px; color: #455a64;">포졸거북, 인어병사 및 해적상어(보스)</div>
-        </div>
-        <div style="font-size: 12px; font-weight: bold;">이동 ➔</div>
+
+      <div class="stage-cards" id="hadum-stage-list" style="display:none;">
+        <div class="stage-card hadum" id="stage-card-hadum-1" onclick="selectStage(1,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 초보자 사냥터</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-2" onclick="selectStage(2,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 웅녀동굴</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-3" onclick="selectStage(3,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 바둑골 산길</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-4" onclick="selectStage(4,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 얼음성</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-5" onclick="selectStage(5,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 용궁</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-6" onclick="selectStage(6,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 신수협곡</div><div style="font-size:10px;color:#bcaaa4;">삿갓다람쥐, 춤추는선인장 및 신수협곡 수호령(보스)</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-7" onclick="selectStage(7,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 신수협곡 2층</div><div style="font-size:10px;color:#bcaaa4;">붉은깃털독수리, 하얀깃털독수리 및 신수협곡 2층 수호령(보스)</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
       </div>
     </div>
 
-    <div class="stage-divider" id="hadum-divider">🔥 하둠의 영역 (2차 전직 전용 · 몹 공격력·HP·경험치 2배)</div>
-    <div class="stage-cards">
-      <div class="stage-card hadum" id="stage-card-hadum-1" onclick="selectStage(1, true)">
-        <div>
-          <div style="font-weight: bold; color: #ff8a65; font-size: 13px;">🔥 하둠: 초보자 사냥터</div>
-          <div style="font-size: 10px; color: #bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div>
-        </div>
-        <div style="font-size: 12px; font-weight: bold; color: #ff8a65;">이동 ➔</div>
-      </div>
-      <div class="stage-card hadum" id="stage-card-hadum-2" onclick="selectStage(2, true)">
-        <div>
-          <div style="font-weight: bold; color: #ff8a65; font-size: 13px;">🔥 하둠: 웅녀동굴</div>
-          <div style="font-size: 10px; color: #bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div>
-        </div>
-        <div style="font-size: 12px; font-weight: bold; color: #ff8a65;">이동 ➔</div>
-      </div>
-      <div class="stage-card hadum" id="stage-card-hadum-3" onclick="selectStage(3, true)">
-        <div>
-          <div style="font-weight: bold; color: #ff8a65; font-size: 13px;">🔥 하둠: 바둑골 산길</div>
-          <div style="font-size: 10px; color: #bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div>
-        </div>
-        <div style="font-size: 12px; font-weight: bold; color: #ff8a65;">이동 ➔</div>
-      </div>
-      <div class="stage-card hadum" id="stage-card-hadum-4" onclick="selectStage(4, true)">
-        <div>
-          <div style="font-weight: bold; color: #ff8a65; font-size: 13px;">🔥 하둠: 얼음성</div>
-          <div style="font-size: 10px; color: #bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div>
-        </div>
-        <div style="font-size: 12px; font-weight: bold; color: #ff8a65;">이동 ➔</div>
-      </div>
-      <div class="stage-card hadum" id="stage-card-hadum-5" onclick="selectStage(5, true)">
-        <div>
-          <div style="font-weight: bold; color: #ff8a65; font-size: 13px;">🔥 하둠: 용궁</div>
-          <div style="font-size: 10px; color: #bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div>
-        </div>
-        <div style="font-size: 12px; font-weight: bold; color: #ff8a65;">이동 ➔</div>
-      </div>
-      <div class="stage-card hadum" id="stage-card-hadum-6" onclick="selectStage(6, true)">
-        <div>
-          <div style="font-weight: bold; color: #ff8a65; font-size: 13px;">🔥 하둠: 신수협곡</div>
-          <div style="font-size: 10px; color: #bcaaa4;">삿갓다람쥐, 춤추는선인장 및 신수협곡 수호령(보스)</div>
-        </div>
-        <div style="font-size: 12px; font-weight: bold; color: #ff8a65;">이동 ➔</div>
-      </div>
-      <div class="stage-card hadum" id="stage-card-hadum-7" onclick="selectStage(7, true)">
-        <div>
-          <div style="font-weight: bold; color: #ff8a65; font-size: 13px;">🔥 하둠: 신수협곡 2층</div>
-          <div style="font-size: 10px; color: #bcaaa4;">붉은깃털독수리, 하얀깃털독수리 및 신수협곡 2층 수호령(보스)</div>
-        </div>
-        <div style="font-size: 12px; font-weight: bold; color: #ff8a65;">이동 ➔</div>
-      </div>
-    </div>
-    <div style="text-align: center; margin-top: 10px;">
+    <div style="text-align:center;margin-top:10px;">
       <button class="btn-small" onclick="closeStageModal()">창 닫기</button>
     </div>
   </div>
@@ -6615,24 +6600,68 @@ window.playerState = playerState;
 
     function openStageModal() {
       document.getElementById('stage-modal').style.display = 'block';
-      const isJob2Done = playerState.tier === 3;
+      // 기존 선택 상태를 유지하면서 처음에는 1차 카테고리만 보여준다.
+      document.getElementById('stage-subpanel').style.display = 'none';
+      document.getElementById('stage-category-tabs').style.display = 'grid';
+      document.getElementById('stage-tab-normal').classList.toggle('active', !currentHadum);
+      document.getElementById('stage-tab-hadum').classList.toggle('active', currentHadum);
+      prepareStageCards();
+    }
 
-      ['1', '2', '3', '4', '5', '6', '7'].forEach(sId => {
+    function prepareStageCards() {
+      const isJob2Done = playerState.tier === 3;
+      ['1','2','3','4','5'].forEach(sId => {
         const card = document.getElementById(`stage-card-${sId}`);
+        if (card) card.classList.toggle('active', !currentHadum && parseInt(sId) === currentStage);
+      });
+      ['1','2','3','4','5','6','7'].forEach(sId => {
+        const card = document.getElementById(`stage-card-hadum-${sId}`);
         if (card) {
-          card.classList.toggle('active', !currentHadum && parseInt(sId) === currentStage);
-        }
-        const hadumCard = document.getElementById(`stage-card-hadum-${sId}`);
-        if (hadumCard) {
-          hadumCard.classList.toggle('active', currentHadum && parseInt(sId) === currentStage);
-          hadumCard.classList.toggle('hadum-locked', !isJob2Done);
-          hadumCard.onclick = isJob2Done ? () => selectStage(parseInt(sId), true) : () => alert('2차 전직을 완료해야 하둠의 영역에 입장할 수 있습니다.');
+          card.classList.toggle('active', currentHadum && parseInt(sId) === currentStage);
+          card.classList.toggle('hadum-locked', !isJob2Done);
+          card.onclick = isJob2Done
+            ? () => selectStage(parseInt(sId), true)
+            : () => alert('2차 전직을 완료해야 하둠의 영역에 입장할 수 있습니다.');
         }
       });
     }
 
+    function openStageCategory(category) {
+      const subpanel = document.getElementById('stage-subpanel');
+      const tabs = document.getElementById('stage-category-tabs');
+      const normalList = document.getElementById('normal-stage-list');
+      const hadumList = document.getElementById('hadum-stage-list');
+      const title = document.getElementById('stage-subpanel-title');
+      const normalTab = document.getElementById('stage-tab-normal');
+      const hadumTab = document.getElementById('stage-tab-hadum');
+
+      const isHadum = category === 'hadum';
+      if (isHadum && playerState.tier !== 3) {
+        alert('2차 전직을 완료해야 하둠의 영역에 입장할 수 있습니다.');
+        return;
+      }
+
+      tabs.style.display = 'none';
+      subpanel.style.display = 'block';
+      normalList.style.display = isHadum ? 'none' : 'grid';
+      hadumList.style.display = isHadum ? 'grid' : 'none';
+      title.textContent = isHadum ? '🔥 하둠의 영역 · 스테이지 선택' : '🌿 일반 사냥터 · 스테이지 선택';
+      normalTab.classList.toggle('active', !isHadum);
+      hadumTab.classList.toggle('active', isHadum);
+      prepareStageCards();
+    }
+
+    function backToStageCategories() {
+      document.getElementById('stage-subpanel').style.display = 'none';
+      document.getElementById('stage-category-tabs').style.display = 'grid';
+      document.getElementById('stage-tab-normal').classList.toggle('active', !currentHadum);
+      document.getElementById('stage-tab-hadum').classList.toggle('active', currentHadum);
+    }
+
     function closeStageModal() {
       document.getElementById('stage-modal').style.display = 'none';
+      document.getElementById('stage-subpanel').style.display = 'none';
+      document.getElementById('stage-category-tabs').style.display = 'grid';
     }
 
     function selectStage(stageNum, isHadum = false, keepPosition = false) {
