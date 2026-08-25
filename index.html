@@ -1259,8 +1259,12 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
           <div class="stat-row-item" id="craftweapon-status-row" style="display:none; justify-content: flex-end;">
             <span id="craftweapon-status-val" style="color:#ad7b00;">🗡️ 제작무기: 없음</span>
           </div>
-          <div class="stat-row-item" id="guardian-set-row" style="display:none; justify-content: flex-end;">
+          <div class="stat-row-item" id="guardian-set-row" style="display:none; justify-content: space-between; align-items:center; gap:6px;">
             <span class="stat-loot" id="guardian-set-val" style="color:#d84315;">🔥 파수꾼셋트: 0/4</span>
+            <button class="status-action-btn" onclick="openGuardianInventoryModal()" style="padding:4px 7px;font-size:10px;background:#fff3e0;border-color:#ffb74d;color:#bf360c;">🎒 장비 옵션</button>
+          </div>
+          <div class="stat-row-item" id="guardian-resist-row" style="display:none; justify-content:center;">
+            <span id="guardian-resist-val" style="font-size:10px;color:#6d4c41;">🔥 0% · ❄️ 0% · 🌪️ 0%</span>
           </div>
           <div class="stat-row-item" id="guardian-equip-row" style="display:none; justify-content:flex-end; margin-top:2px;">
             <button id="guardian-equip-btn"
@@ -4590,6 +4594,13 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       guardianSetPieceCounts: { helm: 0, armor: 0, gloves: 0, boots: 0 },
       guardianSetEnhanceLv: 0,
       guardianSetEquipped: false,
+      // 파수꾼 장비 개별 아이템 인벤토리. 기존 세트 중복/강화 데이터와 호환을 유지하면서
+      // 드랍마다 화염/빙결/바람 저항 옵션이 붙은 실제 장비 아이템을 보관한다.
+      guardianInventory: [],
+      guardianEquippedItems: { helm: null, armor: null, gloves: null, boots: null },
+      guardianInventoryNextId: 1,
+      // 속성 저항은 장착 중인 파수꾼 장비 + 세트 효과를 합산하고 50%로 제한한다.
+      elementalResist: { fire: 0, ice: 0, wind: 0 },
       // 보조무기: 3종 중 1종만 장착. 각 보조무기는 별도 강화 레벨을 가진다.
       subWeaponOwned: { annihilator: false, judgement: false, gale: false },
       subWeaponLevel: { annihilator: 0, judgement: 0, gale: 0 },
@@ -4748,6 +4759,133 @@ window.playerState = playerState;
     const GUARDIAN_SET_ENHANCE_MAX = 5;
     const GUARDIAN_SET_ENHANCE_ATK = 200;
     const GUARDIAN_SET_ENHANCE_DEF = 200;
+    const GUARDIAN_RESIST_BONUS_2SET = 0.05;
+    const GUARDIAN_RESIST_BONUS_4SET = 0.10;
+    const GUARDIAN_RESIST_BONUS_PLUS5 = 0.05;
+    const GUARDIAN_RESIST_MAX = 0.50;
+    const GUARDIAN_OPTION_MIN = 0.02;
+    const GUARDIAN_OPTION_MAX = 0.04;
+    const GUARDIAN_INVENTORY_MAX = 20;
+    const GUARDIAN_RESIST_LABELS = { fire: '🔥 화염', ice: '❄️ 빙결', wind: '🌪️ 바람' };
+    const GUARDIAN_RESIST_KEYS = ['fire','ice','wind'];
+
+    function createGuardianItem(piece) {
+      const type = GUARDIAN_RESIST_KEYS[Math.floor(Math.random() * GUARDIAN_RESIST_KEYS.length)];
+      const value = GUARDIAN_OPTION_MIN + Math.random() * (GUARDIAN_OPTION_MAX - GUARDIAN_OPTION_MIN);
+      const item = {
+        id: `g${Date.now().toString(36)}_${Math.random().toString(36).slice(2,7)}_${playerState.guardianInventoryNextId || 1}`,
+        piece,
+        optionType: type,
+        optionValue: Number(value.toFixed(4)),
+        enhance: 0
+      };
+      playerState.guardianInventoryNextId = (Number(playerState.guardianInventoryNextId) || 1) + 1;
+      return item;
+    }
+
+    function getGuardianEquippedItem(piece) {
+      const id = playerState.guardianEquippedItems && playerState.guardianEquippedItems[piece];
+      if (!id) return null;
+      return (playerState.guardianInventory || []).find(i => i.id === id) || null;
+    }
+
+    function getGuardianResistance(type) {
+      let value = 0;
+      (playerState.guardianInventory || []).forEach(item => {
+        if (playerState.guardianEquippedItems && playerState.guardianEquippedItems[item.piece] === item.id && item.optionType === type) {
+          value += Number(item.optionValue) || 0;
+        }
+      });
+      // 세트 저항은 '착용한 파수꾼 부위 수'에 따라 적용한다. 풀세트 버튼이 꺼져 있으면 0.
+      const equippedCount = ['helm','armor','gloves','boots'].filter(piece => !!getGuardianEquippedItem(piece)).length;
+      if (equippedCount >= 2) value += GUARDIAN_RESIST_BONUS_2SET;
+      if (equippedCount >= 4) {
+        value += GUARDIAN_RESIST_BONUS_4SET;
+        if (getGuardianSetEnhanceLv() >= GUARDIAN_SET_ENHANCE_MAX) value += GUARDIAN_RESIST_BONUS_PLUS5;
+      }
+      return Math.min(GUARDIAN_RESIST_MAX, Math.max(0, value));
+    }
+
+    function getPlayerElementalResistance(type) {
+      return getGuardianResistance(type);
+    }
+
+    function getGuardianElementForStage(stage) {
+      if (!currentHadum) return null;
+      if (stage === 3) return 'fire';
+      if (stage === 4 || stage === 5) return 'ice';
+      if (stage === 6) return 'fire';
+      if (stage === 7) return 'wind';
+      return null;
+    }
+
+    function getElementalAttackShare(stage) {
+      if (!currentHadum) return 0;
+      if (stage >= 3 && stage <= 5) return 0.40;
+      if (stage === 6 || stage === 7) return 0.40;
+      return 0;
+    }
+
+    function openGuardianInventoryModal() {
+      const modal = document.getElementById('guardian-inventory-modal');
+      if (!modal) return;
+      renderGuardianInventory();
+      modal.style.display = 'flex';
+    }
+
+    function closeGuardianInventoryModal() {
+      const modal = document.getElementById('guardian-inventory-modal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function equipGuardianItem(id) {
+      const item = (playerState.guardianInventory || []).find(i => i.id === id);
+      if (!item) return;
+      playerState.guardianEquippedItems[item.piece] = item.id;
+      playerState.guardianSet[item.piece] = true;
+      playerState.guardianSetEquipped = ['helm','armor','gloves','boots'].every(p => !!getGuardianEquippedItem(p));
+      updatePlayerFacingTexture();
+      updateUI();
+      saveGame();
+      showHealText(`${GUARDIAN_RESIST_LABELS[item.optionType]} 저항 +${Math.round(item.optionValue*100)}% 장착!`, playerSprite.position);
+      renderGuardianInventory();
+    }
+
+    function dismantleGuardianItem(id) {
+      const item = (playerState.guardianInventory || []).find(i => i.id === id);
+      if (!item) return;
+      if (playerState.guardianEquippedItems[item.piece] === item.id) {
+        showHealText('⚠️ 장착 중인 장비는 분해할 수 없습니다.', playerSprite.position);
+        return;
+      }
+      const idx = playerState.guardianInventory.findIndex(i => i.id === id);
+      if (idx >= 0) playerState.guardianInventory.splice(idx,1);
+      saveGame(); updateUI(); renderGuardianInventory();
+      showHealText('♻️ 파수꾼 장비를 분해했습니다.', playerSprite.position);
+    }
+
+    function renderGuardianInventory() {
+      const box = document.getElementById('guardian-inventory-list');
+      const stats = document.getElementById('guardian-resist-summary');
+      if (!box) return;
+      const pieces = ['helm','armor','gloves','boots'];
+      const inv = playerState.guardianInventory || [];
+      const equipped = playerState.guardianEquippedItems || {};
+      if (stats) stats.innerHTML = GUARDIAN_RESIST_KEYS.map(k => `${GUARDIAN_RESIST_LABELS[k]} <b>${Math.round(getPlayerElementalResistance(k)*100)}%</b>`).join(' · ');
+      if (!inv.length) { box.innerHTML = '<div style="padding:12px;text-align:center;color:#999">파수꾼 장비가 없습니다.</div>'; return; }
+      box.innerHTML = inv.map(item => {
+        const equippedNow = equipped[item.piece] === item.id;
+        const pieceName = GUARDIAN_SET_PIECE_NAMES[item.piece] || item.piece;
+        const option = `${GUARDIAN_RESIST_LABELS[item.optionType]} +${Math.round(item.optionValue*100)}%`;
+        return `<div class="guardian-inv-item ${equippedNow?'equipped':''}">
+          <div><b>🔥 파수꾼 ${pieceName}</b>${equippedNow?' <span style="color:#2e7d32">[장착]</span>':''}<br><span style="color:#d84315">${option}</span></div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end">
+            ${equippedNow?'':'<button onclick="equipGuardianItem(\''+item.id+'\')">장착</button>'}
+            ${equippedNow?'':'<button class="danger" onclick="dismantleGuardianItem(\''+item.id+'\')">분해</button>'}
+          </div>
+        </div>`;
+      }).join('');
+    }
 
     function getGuardianSetEnhanceLv() {
       const counts = playerState.guardianSetPieceCounts || {};
@@ -9569,7 +9707,17 @@ window.playerState = playerState;
       const rawAtk = (m.attackPowerMin != null && m.attackPowerMax != null)
         ? Math.floor(Math.random() * (m.attackPowerMax - m.attackPowerMin + 1)) + m.attackPowerMin
         : m.attackPower;
-      const netDmg = Math.max(1, rawAtk - Math.floor(getPlayerEffectiveDef() * 0.3));
+      const baseNetDmg = Math.max(1, rawAtk - Math.floor(getPlayerEffectiveDef() * 0.3));
+      const elementalType = getGuardianElementForStage(currentStage);
+      const elementalShare = getElementalAttackShare(currentStage);
+      let netDmg = baseNetDmg;
+      let elementalReduced = 0;
+      if (elementalType && elementalShare > 0) {
+        const elementalPart = Math.round(baseNetDmg * elementalShare);
+        const resist = getPlayerElementalResistance(elementalType);
+        elementalReduced = Math.round(elementalPart * resist);
+        netDmg = Math.max(1, baseNetDmg - elementalReduced);
+      }
 
       // 보호의막: 최종 피해의 25%를 MP로 분담. MP가 부족하면 남은 MP만 사용하고 나머지는 HP로 받는다.
       const shieldActive = isShamanClass()
@@ -9587,6 +9735,10 @@ window.playerState = playerState;
       playerState.hp -= hpDamage;
       if (mpDamage > 0) showPlayerDamageText(`-${hpDamage} HP / -${mpDamage} MP`, playerSprite.position);
       else showPlayerDamageText(hpDamage, playerSprite.position);
+      if (elementalType && elementalReduced > 0) {
+        const label = GUARDIAN_RESIST_LABELS[elementalType] || elementalType;
+        showHealText(`${label} 저항으로 ${elementalReduced} 피해 감소`, playerSprite.position);
+      }
 
       if (playerState.hp <= 0) {
         playerState.hp = playerState.maxHp;
@@ -9861,6 +10013,9 @@ window.playerState = playerState;
           guardianSetPieceCounts: { ...(playerState.guardianSetPieceCounts || {}) },
           guardianSetEnhanceLv: getGuardianSetEnhanceLv(),
           guardianSetEquipped: !!playerState.guardianSetEquipped,
+          guardianInventory: JSON.parse(JSON.stringify(playerState.guardianInventory || [])),
+          guardianEquippedItems: { ...(playerState.guardianEquippedItems || {}) },
+          guardianInventoryNextId: Number(playerState.guardianInventoryNextId) || 1,
           subWeaponOwned: { ...(playerState.subWeaponOwned || {}) },
           subWeaponLevel: { ...(playerState.subWeaponLevel || {}) },
           subWeaponEquipped: playerState.subWeaponEquipped || '',
@@ -9969,6 +10124,30 @@ window.playerState = playerState;
         });
         // 기존 저장 데이터와의 호환: 장착 상태가 없는 예전 세이브는 해체 상태로 시작.
         playerState.guardianSetEquipped = p.guardianSetEquipped === true;
+        // 신규 파수꾼 개별 장비 데이터. 기존 세이브는 빈 인벤토리로 안전하게 시작한다.
+        playerState.guardianInventory = Array.isArray(p.guardianInventory) ? p.guardianInventory.filter(i => i && GUARDIAN_SET_PIECE_NAMES[i.piece] && GUARDIAN_RESIST_KEYS.includes(i.optionType)).map(i => ({
+          id: String(i.id), piece: i.piece, optionType: i.optionType, optionValue: Math.max(GUARDIAN_OPTION_MIN, Math.min(GUARDIAN_OPTION_MAX, Number(i.optionValue)||GUARDIAN_OPTION_MIN)), enhance: 0
+        })).slice(0, GUARDIAN_INVENTORY_MAX) : [];
+        playerState.guardianInventoryNextId = Math.max(1, Number(p.guardianInventoryNextId) || playerState.guardianInventory.length + 1);
+        // 구버전 세이브 호환: 기존에는 부위 보유 수량만 저장했으므로, 보유 수량만큼 개별 장비를 생성해 가방으로 옮긴다.
+        if (!playerState.guardianInventory.length) {
+          Object.keys(GUARDIAN_SET_PIECE_NAMES).forEach(piece => {
+            const count = Math.min(GUARDIAN_INVENTORY_MAX - playerState.guardianInventory.length, Math.max(0, Number(playerState.guardianSetPieceCounts[piece]) || 0));
+            for (let n = 0; n < count; n++) playerState.guardianInventory.push(createGuardianItem(piece));
+          });
+        }
+        playerState.guardianEquippedItems = { helm:null, armor:null, gloves:null, boots:null, ...(p.guardianEquippedItems || {}) };
+        if (!Object.values(playerState.guardianEquippedItems).some(Boolean) && playerState.guardianSetEquipped) {
+          ['helm','armor','gloves','boots'].forEach(piece => {
+            const first = playerState.guardianInventory.find(i => i.piece === piece);
+            if (first) playerState.guardianEquippedItems[piece] = first.id;
+          });
+        }
+        Object.keys(playerState.guardianEquippedItems).forEach(piece => {
+          const id = playerState.guardianEquippedItems[piece];
+          if (id && !playerState.guardianInventory.some(i => i.id === id && i.piece === piece)) playerState.guardianEquippedItems[piece] = null;
+        });
+        playerState.elementalResist = { fire:0, ice:0, wind:0, ...(p.elementalResist || {}) };
         playerState.subWeaponOwned = { annihilator:false, judgement:false, gale:false, ...(p.subWeaponOwned || {}) };
         playerState.subWeaponLevel = { annihilator:0, judgement:0, gale:0, ...(p.subWeaponLevel || {}) };
         playerState.subWeaponEquipped = SUB_WEAPON_DATA[p.subWeaponEquipped] ? p.subWeaponEquipped : '';
@@ -10176,6 +10355,13 @@ window.playerState = playerState;
         } else {
           guardianRow.style.display = 'none';
         }
+        const resistRow = document.getElementById('guardian-resist-row');
+        const resistVal = document.getElementById('guardian-resist-val');
+        if (resistRow && resistVal) {
+          const hasItems = (playerState.guardianInventory || []).length > 0;
+          resistRow.style.display = hasItems ? 'flex' : 'none';
+          resistVal.innerText = `🔥 ${Math.round(getPlayerElementalResistance('fire')*100)}% · ❄️ ${Math.round(getPlayerElementalResistance('ice')*100)}% · 🌪️ ${Math.round(getPlayerElementalResistance('wind')*100)}%`;
+        }
       }
 
       const buffRow = document.getElementById('munyeahana-buff-row');
@@ -10328,13 +10514,28 @@ window.playerState = playerState;
 
     function toggleGuardianSetEquip() {
       if (!hasGuardianFullSet()) {
-        showHealText('🔥 파수꾼 4부위를 모두 모아야 장착할 수 있습니다!', playerSprite.position);
+        showHealText('🔥 파수꾼 4부위를 모두 모아야 풀세트를 장착할 수 있습니다!', playerSprite.position);
         return;
       }
 
-      playerState.guardianSetEquipped = !playerState.guardianSetEquipped;
+      if (!playerState.guardianSetEquipped) {
+        // 각 부위에서 현재 장착된 아이템이 없으면 첫 보유 장비를 자동 선택한다.
+        ['helm','armor','gloves','boots'].forEach(piece => {
+          if (!playerState.guardianEquippedItems[piece]) {
+            const first = (playerState.guardianInventory || []).find(i => i.piece === piece);
+            if (first) playerState.guardianEquippedItems[piece] = first.id;
+          }
+        });
+        playerState.guardianSetEquipped = true;
+      } else {
+        // 풀세트 해체 시 네 부위의 장착을 모두 해제한다. 아이템은 가방에 그대로 남는다.
+        playerState.guardianEquippedItems = { helm:null, armor:null, gloves:null, boots:null };
+        playerState.guardianSetEquipped = false;
+      }
 
-      // 장착/해체에 따라 캐릭터 외형을 즉시 갱신한다.
+      Object.keys(GUARDIAN_SET_PIECE_NAMES).forEach(piece => {
+        playerState.guardianSet[piece] = !!getGuardianEquippedItem(piece);
+      });
       updatePlayerFacingTexture();
       updateUI();
       saveGame();
@@ -10342,10 +10543,10 @@ window.playerState = playerState;
       if (playerState.guardianSetEquipped) {
         showHealText('🔥 파수꾼 풀세트 장착! 화염이 그대를 감싼다!', playerSprite.position);
         setTimeout(() => {
-          showHealText('⚔ 공격력 +15% · ✨ 크리티컬 +8%', playerSprite.position);
+          showHealText('⚔ 공격력 +15% · ✨ 크리티컬 +8% · 모든 저항 +15%', playerSprite.position);
         }, 450);
       } else {
-        showHealText('🛡 파수꾼 풀세트 해체', playerSprite.position);
+        showHealText('🛡 파수꾼 풀세트 해체 · 장비는 가방에 보관됨', playerSprite.position);
       }
     }
 
@@ -10680,7 +10881,16 @@ window.playerState = playerState;
                   if (currentCount >= maxPieceCount) {
                     showHealText(`🔥 파수꾼의 ${pieceName}은 셋트강화 MAX!`, new THREE.Vector3(target.sprite.position.x, target.sprite.position.y + 0.6 + idx * 0.4, target.sprite.position.z));
                   } else {
+                    // 기존 세트 중복/강화 진행은 유지하되, 이번 드랍은 실제 장비 아이템으로도 보관한다.
                     const beforeEnhance = getGuardianSetEnhanceLv();
+                    const guardianItem = createGuardianItem(piece);
+                    if ((playerState.guardianInventory || []).length < GUARDIAN_INVENTORY_MAX) {
+                      playerState.guardianInventory.push(guardianItem);
+                      // 해당 부위의 첫 장비는 자동으로 장착한다. 이후 중복 장비는 가방에 보관한다.
+                      if (!playerState.guardianEquippedItems[piece]) {
+                        playerState.guardianEquippedItems[piece] = guardianItem.id;
+                      }
+                    }
                     playerState.guardianSetPieceCounts[piece] = currentCount + 1;
                     playerState.guardianSet[piece] = true;
                     const afterEnhance = getGuardianSetEnhanceLv();
@@ -10688,14 +10898,16 @@ window.playerState = playerState;
                     playItemGetSfx();
 
                     if (currentCount === 0) {
-                      showHealText(`🔥 파수꾼의 ${pieceName} 획득!`, new THREE.Vector3(target.sprite.position.x, target.sprite.position.y + 0.6 + idx * 0.4, target.sprite.position.z));
+                      const optText = `${GUARDIAN_RESIST_LABELS[guardianItem.optionType]} +${Math.round(guardianItem.optionValue*100)}%`;
+                      showHealText(`🔥 파수꾼의 ${pieceName} 획득! ${optText}`, new THREE.Vector3(target.sprite.position.x, target.sprite.position.y + 0.6 + idx * 0.4, target.sprite.position.z));
                     } else if (afterEnhance > beforeEnhance) {
                       showHealText(`🔥 파수꾼 셋트 강화 +${afterEnhance}!`, new THREE.Vector3(target.sprite.position.x, target.sprite.position.y + 0.6 + idx * 0.4, target.sprite.position.z));
                       setTimeout(() => {
                         showHealText(`⚔ 공격력 +${GUARDIAN_SET_ENHANCE_ATK} · 🛡 방어 +${GUARDIAN_SET_ENHANCE_DEF}`, new THREE.Vector3(target.sprite.position.x, target.sprite.position.y + 1.0, target.sprite.position.z));
                       }, 350);
                     } else {
-                      showHealText(`🔥 파수꾼의 ${pieceName} 중복 획득 (${currentCount + 1}개)`, new THREE.Vector3(target.sprite.position.x, target.sprite.position.y + 0.6 + idx * 0.4, target.sprite.position.z));
+                      const optText = `${GUARDIAN_RESIST_LABELS[guardianItem.optionType]} +${Math.round(guardianItem.optionValue*100)}%`;
+                      showHealText(`🔥 파수꾼 ${pieceName} 추가 획득 · ${optText}`, new THREE.Vector3(target.sprite.position.x, target.sprite.position.y + 0.6 + idx * 0.4, target.sprite.position.z));
                     }
 
                     if (hasGuardianFullSet() && !isGuardianSetComplete() && playerState.guardianSetEquipped) {
@@ -11911,4 +12123,22 @@ document.addEventListener('DOMContentLoaded',function(){
   setTimeout(load,500);
 })();
 </script>
+<style id="guardian-inventory-css">
+#guardian-inventory-modal{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.58);display:none;align-items:center;justify-content:center;padding:12px}
+#guardian-inventory-panel{width:min(430px,96vw);max-height:86vh;overflow:auto;background:#fffaf2;border:2px solid #ff8a65;border-radius:14px;box-shadow:0 10px 35px rgba(0,0,0,.35);padding:12px;color:#4e342e}
+#guardian-inventory-panel h2{margin:0 0 8px;color:#bf360c;font-size:18px}
+.guardian-resist-summary{padding:8px;border-radius:9px;background:#fff3e0;border:1px solid #ffcc80;font-size:12px;text-align:center;margin-bottom:8px}
+.guardian-inv-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px;border:1px solid #ead7c6;border-radius:9px;background:#fff;margin:6px 0;font-size:11px}
+.guardian-inv-item.equipped{border-color:#66bb6a;background:#f1f8e9}
+.guardian-inv-item button{border:1px solid #ffb74d;border-radius:7px;background:#fff8e1;padding:5px 8px;font-size:10px;font-weight:800;cursor:pointer}
+.guardian-inv-item button.danger{border-color:#ef9a9a;background:#ffebee;color:#b71c1c}
+</style>
+<div id="guardian-inventory-modal" class="modal interactive" onclick="if(event.target===this)closeGuardianInventoryModal()">
+  <div id="guardian-inventory-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2>🔥 파수꾼 장비</h2><button onclick="closeGuardianInventoryModal()" style="font-size:20px;border:0;background:none;cursor:pointer">×</button></div>
+    <div style="font-size:11px;color:#795548;margin-bottom:8px">드랍 시 🔥/❄️/🌪️ 중 1종의 저항 옵션이 2~4%로 랜덤 부여됩니다.</div>
+    <div id="guardian-resist-summary" class="guardian-resist-summary"></div>
+    <div id="guardian-inventory-list"></div>
+  </div>
+</div>
 </body>
