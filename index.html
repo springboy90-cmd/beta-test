@@ -1202,7 +1202,10 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
   #minimap-box { top:116px !important; right:8px !important; width:110px !important; height:110px !important; }
 }
 </style>
-</head>
+<style id="hadum-elite-css">
+.elite-monster-tag{color:#ffe082;font-weight:900;background:rgba(70,20,10,.92);padding:2px 7px;border-radius:7px;border:1px solid #ffb300;box-shadow:0 0 7px rgba(255,179,0,.55);font-size:10px;white-space:nowrap;text-shadow:0 1px 2px #000;}
+.elite-monster-tag .elite-name{color:#fff3cd}.elite-monster-tag .elite-option{color:#ffcc80;font-size:9px}
+</style></head>
 <body>
 
   <div id="canvas-container"></div>
@@ -1476,10 +1479,10 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
         <div class="stage-card hadum" id="stage-card-hadum-1" onclick="selectStage(1,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 초보자 사냥터</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
         <div class="stage-card hadum" id="stage-card-hadum-2" onclick="selectStage(2,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 웅녀동굴</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
         <div class="stage-card hadum" id="stage-card-hadum-3" onclick="selectStage(3,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 바둑골 산길</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
-        <div class="stage-card hadum" id="stage-card-hadum-4" onclick="selectStage(4,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 얼음성</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
-        <div class="stage-card hadum" id="stage-card-hadum-5" onclick="selectStage(5,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 용궁</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-4" onclick="selectStage(4,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">❄️ 하둠: 얼음성</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-5" onclick="selectStage(5,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">❄️ 하둠: 용궁</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
         <div class="stage-card hadum" id="stage-card-hadum-6" onclick="selectStage(6,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 신수협곡</div><div style="font-size:10px;color:#bcaaa4;">삿갓다람쥐, 춤추는선인장 및 신수협곡 수호령(보스)</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
-        <div class="stage-card hadum" id="stage-card-hadum-7" onclick="selectStage(7,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 신수협곡 2층</div><div style="font-size:10px;color:#bcaaa4;">붉은깃털독수리, 하얀깃털독수리 및 신수협곡 2층 수호령(보스)</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-7" onclick="selectStage(7,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🌪️ 하둠: 신수협곡 2층</div><div style="font-size:10px;color:#bcaaa4;">붉은깃털독수리, 하얀깃털독수리 및 신수협곡 2층 수호령(보스)</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
       </div>
     </div>
 
@@ -6017,7 +6020,7 @@ window.playerState = playerState;
       clearStageObjects(); clearMonsters();
       currentHadum = isHadum;
       document.body.style.backgroundColor = '#b8ddea';
-      document.getElementById('stage-badge').innerText = isHadum ? "🔥 하둠: 얼음성 ▾" : "❄️ 얼음성 ▾";
+      document.getElementById('stage-badge').innerText = isHadum ? "❄️ 하둠: 얼음성 ▾" : "❄️ 얼음성 ▾";
       scene.background = new THREE.Color(0x8fb8c9);
       scene.fog = new THREE.Fog(0x9fc8d8, 30, 92);
 
@@ -6082,7 +6085,7 @@ window.playerState = playerState;
       clearStageObjects(); clearMonsters();
       currentHadum = isHadum;
       document.body.style.backgroundColor = '#2f8fa0';
-      document.getElementById('stage-badge').innerText = isHadum ? "🔥 하둠: 용궁 ▾" : "🐢 용궁 ▾";
+      document.getElementById('stage-badge').innerText = isHadum ? "❄️ 하둠: 용궁 ▾" : "🐢 용궁 ▾";
       scene.background = new THREE.Color(0x3fa0ab);
       scene.fog = new THREE.Fog(0x4fb8bd, 30, 92);
 
@@ -6429,7 +6432,7 @@ window.playerState = playerState;
       const tex=new THREE.CanvasTexture(cvs);tex.colorSpace=THREE.SRGBColorSpace;tex.magFilter=THREE.NearestFilter;tex.minFilter=THREE.NearestFilter;tex.generateMipmaps=false;return tex;
     }
     function buildStage7ShinsuGorge2(isHadum=true){
-      if(!isHadum)return buildStage5DragonPalace(false);clearStageObjects();clearMonsters();currentHadum=true;document.body.style.backgroundColor='#4f8f3c';document.getElementById('stage-badge').innerText='🔥 하둠: 신수협곡 2층 ▾';scene.background=new THREE.Color(0x70ad53);scene.fog=new THREE.Fog(0x6db64f,34,96);
+      if(!isHadum)return buildStage5DragonPalace(false);clearStageObjects();clearMonsters();currentHadum=true;document.body.style.backgroundColor='#4f8f3c';document.getElementById('stage-badge').innerText='🌪️ 하둠: 신수협곡 2층 ▾';scene.background=new THREE.Color(0x70ad53);scene.fog=new THREE.Fog(0x6db64f,34,96);
       const floorG=new THREE.PlaneGeometry(floorSize,floorSize);const floorM=new THREE.MeshLambertMaterial({map:createShinsuGorge2FloorTexture()});floorMesh=new THREE.Mesh(floorG,floorM);floorMesh.rotation.x=-Math.PI/2;floorMesh.receiveShadow=true;scene.add(floorMesh);
       const bambooTex=createBambooTexture();const bambooPos=[[-28,25,8],[-18,30,7],[-6,31,7],[8,30,7],[20,27,8],[29,20,7],[-30,-22,7],[-20,-28,6],[22,-26,7],[30,-12,7]];bambooPos.forEach(([x,z,s])=>{const b=new THREE.Sprite(new THREE.SpriteMaterial({map:bambooTex,transparent:true}));b.scale.set(s*.7,s*1.4,1);b.position.set(x,s*.7,z);scene.add(b);stageObjects.push(b);});
       const pathMat=new THREE.MeshBasicMaterial({color:0xb78a5d});const path=new THREE.Mesh(new THREE.PlaneGeometry(18,floorSize*.92),pathMat);path.rotation.x=-Math.PI/2;path.position.set(0,.01,0);scene.add(path);stageObjects.push(path);
@@ -6956,6 +6959,72 @@ window.playerState = playerState;
       document.getElementById('stage-category-tabs').style.display = 'grid';
     }
 
+
+    // ==========================================
+    // 🔥 하둠 랜덤 정예 몬스터
+    // 일반 몬스터 중 약 2% 확률로 1마리를 정예화한다.
+    // HP x5 / 공격력 x1.5 / 방어력 x1.5 / 이동속도 x1.2
+    // 특수 옵션: 화염의 / 빙결의 / 흡혈의 / 철벽의 / 광폭의
+    // ==========================================
+    const HADUM_ELITE_CHANCE = 0.02;
+    const HADUM_ELITE_OPTIONS = [
+      { key:'flame', name:'🔥 화염의', desc:'속성 피해 +50%', color:'#ff7043' },
+      { key:'ice', name:'❄️ 빙결의', desc:'피격 시 이동속도 -25%', color:'#64b5f6' },
+      { key:'lifesteal', name:'💀 흡혈의', desc:'입힌 피해의 12% HP 회복', color:'#ef5350' },
+      { key:'fortress', name:'🛡️ 철벽의', desc:'받는 피해 20% 감소', color:'#90a4ae' },
+      { key:'berserk', name:'🌪️ 광폭의', desc:'이동속도 +20% · 공격속도 +20%', color:'#ffca28' }
+    ];
+
+    function applyHadumEliteMonsters() {
+      if (!currentHadum) return;
+      const candidates = monsters.filter(m => m.alive && !m.isBoss && m.isHadum && !m.isElite);
+      candidates.forEach(m => {
+        if (Math.random() >= HADUM_ELITE_CHANCE) return;
+        const opt = HADUM_ELITE_OPTIONS[Math.floor(Math.random() * HADUM_ELITE_OPTIONS.length)];
+        m.isElite = true;
+        m.eliteOption = opt.key;
+        m.eliteOptionName = opt.name;
+        m.eliteOptionDesc = opt.desc;
+        m.eliteDefenseMult = 1.5;
+        m.eliteMoveSpeedMult = 1.2;
+        m.eliteGoldMult = 3;
+        m.eliteLootMult = 3;
+        m.hp = Math.round(m.hp * 5);
+        m.maxHp = m.hp;
+        if (m.attackPower != null) m.attackPower = Math.round(m.attackPower * 1.5);
+        if (m.attackPowerMin != null) m.attackPowerMin = Math.round(m.attackPowerMin * 1.5);
+        if (m.attackPowerMax != null) m.attackPowerMax = Math.round(m.attackPowerMax * 1.5);
+        if (opt.key === 'berserk') m.attackSpeed = Math.max(420, Math.round(m.attackSpeed * 0.8));
+        m.sprite.scale.multiplyScalar(1.28);
+        if (m.sprite.material && m.sprite.material.color) {
+          m.sprite.material.color.set(opt.color);
+          m.sprite.material.opacity = 1;
+        }
+        const tag = nametags.get(m.id);
+        if (tag) {
+          tag.innerHTML = `<div class="elite-monster-tag"><span class="elite-name">⚔️ 정예 ${m.type}</span><div class="elite-option">${opt.name}</div></div><div class="monster-hp-bar-container" id="hp_container_${m.id}" style="display:none; width:38px; height:3px; background:rgba(0,0,0,0.5); border:1px solid #b71c1c; border-radius:2px; margin:2px auto; overflow:hidden;"><div id="hp_bar_${m.id}" style="width:100%; height:100%; background:#ffb300;"></div></div>`;
+        }
+        showHealText(`⚔️ 정예 몬스터 출현! ${opt.name}`, m.sprite.position);
+      });
+    }
+
+    function giveEliteGuardianDrop(target) {
+      if (!target || !target.isElite || target.isBoss || playerState.level < 100) return false;
+      if ((playerState.guardianInventory || []).length >= GUARDIAN_INVENTORY_MAX) return false;
+      if (Math.random() >= 0.25) return false;
+      const pieces = Object.keys(GUARDIAN_SET_PIECE_NAMES);
+      const piece = pieces[Math.floor(Math.random() * pieces.length)];
+      const guardianItem = createGuardianItem(piece);
+      playerState.guardianInventory.push(guardianItem);
+      playerState.guardianSetPieceCounts[piece] = Math.max(0, Number(playerState.guardianSetPieceCounts[piece]) || 0) + 1;
+      playerState.guardianSet[piece] = true;
+      playItemGetSfx();
+      const pieceName = GUARDIAN_SET_PIECE_NAMES[piece];
+      const optText = `${GUARDIAN_RESIST_LABELS[guardianItem.optionType]} +${Math.round(guardianItem.optionValue*100)}%`;
+      showHealText(`⭐ 정예 보상! 파수꾼 ${pieceName} · ${optText}`, target.sprite.position);
+      return true;
+    }
+
     function selectStage(stageNum, isHadum = false, keepPosition = false) {
       if ((experienceDungeonActive || craftGoldDungeonActive) && !keepPosition) return;
       if (isHadum && playerState.tier !== 3) {
@@ -6971,6 +7040,9 @@ window.playerState = playerState;
       else if (stageNum === 5) buildStage5DragonPalace(isHadum);
       else if (stageNum === 6) buildStage6ShinsuGorge(isHadum);
       else if (stageNum === 7) buildStage7ShinsuGorge2(isHadum);
+
+      // 하둠 일반 몬스터를 대상으로만 낮은 확률의 정예 몬스터를 선정한다.
+      if (isHadum) applyHadumEliteMonsters();
 
       // 스테이지 전환 시 캐릭터를 맵 중앙 스폰 지점으로 되돌린다.
       // (안 그러면 이전 스테이지에서 서 있던 좌표에 그대로 남아, 새 맵의 지형/몬스터와 위치가 어긋나 보인다.)
@@ -9811,8 +9883,9 @@ window.playerState = playerState;
           }
         } else if (dist <= 7.0) {
           const dir = playerSprite.position.clone().sub(m.sprite.position).normalize();
-          m.sprite.position.x += dir.x * 2.8 * delta;
-          m.sprite.position.z += dir.z * 2.8 * delta;
+          const chaseSpeed = 2.8 * (m.isElite ? (m.eliteMoveSpeedMult || 1.2) : 1);
+          m.sprite.position.x += dir.x * chaseSpeed * delta;
+          m.sprite.position.z += dir.z * chaseSpeed * delta;
           m.sprite.material.rotation = mTilt;
         } else {
           m.roamTimer -= delta;
@@ -9821,8 +9894,9 @@ window.playerState = playerState;
             const angle = Math.random() * Math.PI * 2;
             m.roamDir.set(Math.cos(angle), 0, Math.sin(angle));
           }
-          m.sprite.position.x += m.roamDir.x * 1.2 * delta;
-          m.sprite.position.z += m.roamDir.z * 1.2 * delta;
+          const roamSpeed = 1.2 * (m.isElite ? (m.eliteMoveSpeedMult || 1.2) : 1);
+          m.sprite.position.x += m.roamDir.x * roamSpeed * delta;
+          m.sprite.position.z += m.roamDir.z * roamSpeed * delta;
           m.sprite.material.rotation = mTilt;
         }
 
@@ -9867,10 +9941,20 @@ window.playerState = playerState;
       let netDmg = baseNetDmg;
       let elementalReduced = 0;
       if (elementalType && elementalShare > 0) {
-        const elementalPart = Math.round(baseNetDmg * elementalShare);
+        const eliteElementalBonus = (m.isElite && m.eliteOption === 'flame') ? 1.5 : 1;
+        const elementalPart = Math.round(baseNetDmg * elementalShare * eliteElementalBonus);
         const resist = getPlayerElementalResistance(elementalType);
         elementalReduced = Math.round(elementalPart * resist);
         netDmg = Math.max(1, baseNetDmg - elementalReduced);
+      }
+
+      // 정예 특수 옵션
+      if (m.isElite && m.eliteOption === 'ice') {
+        playerState.eliteSlowUntil = Date.now() + 1800;
+      }
+      if (m.isElite && m.eliteOption === 'lifesteal') {
+        const heal = Math.max(1, Math.round(netDmg * 0.12));
+        m.hp = Math.min(m.maxHp, m.hp + heal);
       }
 
       // 보호의막: 최종 피해의 25%를 MP로 분담. MP가 부족하면 남은 MP만 사용하고 나머지는 HP로 받는다.
@@ -9947,11 +10031,13 @@ window.playerState = playerState;
 
       let isMoving = Math.hypot(moveX, moveZ) > 0.1;
 
+      const eliteSlowMult = Number(playerState.eliteSlowUntil || 0) > now ? 0.75 : 1;
+      const effectiveMoveSpeed = playerState.moveSpeed * eliteSlowMult;
       const boundLimit = floorSize / 2 - 2;
 
       if (isMoving) {
-        playerSprite.position.x += moveX * playerState.moveSpeed * delta;
-        playerSprite.position.z += moveZ * playerState.moveSpeed * delta;
+        playerSprite.position.x += moveX * effectiveMoveSpeed * delta;
+        playerSprite.position.z += moveZ * effectiveMoveSpeed * delta;
         playerState.idleTimer = 0;
 
         playerSprite.position.y = 1.6 + Math.abs(Math.sin(now * 0.016)) * 0.14;
@@ -9973,8 +10059,8 @@ window.playerState = playerState;
           const dir = selectedTarget.sprite.position.clone().sub(playerSprite.position);
           if (dir.length() > playerState.attackRange) {
             dir.normalize();
-            playerSprite.position.x += dir.x * playerState.moveSpeed * delta;
-            playerSprite.position.z += dir.z * playerState.moveSpeed * delta;
+            playerSprite.position.x += dir.x * effectiveMoveSpeed * delta;
+            playerSprite.position.z += dir.z * effectiveMoveSpeed * delta;
             
             playerSprite.position.y = 1.6 + Math.abs(Math.sin(now * 0.016)) * 0.14;
             playerSprite.material.rotation = Math.sin(now * 0.014) * 0.07;
@@ -10006,8 +10092,8 @@ window.playerState = playerState;
           patrolDir.y = 0;
           if (patrolDir.length() > 0.5) {
             patrolDir.normalize();
-            playerSprite.position.x += patrolDir.x * playerState.moveSpeed * 0.6 * delta;
-            playerSprite.position.z += patrolDir.z * playerState.moveSpeed * 0.6 * delta;
+            playerSprite.position.x += patrolDir.x * effectiveMoveSpeed * 0.6 * delta;
+            playerSprite.position.z += patrolDir.z * effectiveMoveSpeed * 0.6 * delta;
 
             playerSprite.position.y = 1.6 + Math.abs(Math.sin(now * 0.016)) * 0.14;
             playerSprite.material.rotation = Math.sin(now * 0.014) * 0.07;
@@ -10933,11 +11019,17 @@ window.playerState = playerState;
       if (target.isExperienceDungeon && !target.isBoss) {
         finalDmg = Math.max(1, amount - target.defense);
       } else if (currentHadum && !target.isBoss) {
-        const monsterDefense = (HADUM_NORMAL_STATS[currentStage] && HADUM_NORMAL_STATS[currentStage].def) || 120;
+        const baseMonsterDefense = (HADUM_NORMAL_STATS[currentStage] && HADUM_NORMAL_STATS[currentStage].def) || 120;
+        const monsterDefense = Math.round(baseMonsterDefense * (target.isElite ? (target.eliteDefenseMult || 1.5) : 1));
         finalDmg = Math.max(1, amount - monsterDefense);
       } else if (target.stageId === 5 && !target.isBoss && !target.isHadum) {
         // 5스테이지(용궁) 일반몹: 일반4(방어력 없음)와 하둠1(방어력 280)의 중간 수준인 140을 적용.
         finalDmg = Math.max(1, amount - 140);
+      }
+
+      // 정예 철벽의: 최종 피해 20% 감소
+      if (target.isElite && target.eliteOption === 'fortress') {
+        finalDmg = Math.max(1, Math.round(finalDmg * 0.8));
       }
 
       // 보조무기 '천벌의 패'의 보스 피해 증가. 보스에만 적용되며 크리티컬/스킬 포함 모든 유저 피해에 적용.
@@ -11006,10 +11098,22 @@ window.playerState = playerState;
           rewardGold = 500;
         }
 
+        // 정예 몬스터 보상: 일반 하둠몹보다 금화 3배
+        if (target.isElite && target.isHadum && !target.isBoss) {
+          rewardGold = Math.round(rewardGold * (target.eliteGoldMult || 3));
+        }
+
         // ===== 무기 제작 재료 보상 =====
         // 하둠1~2: 철광석/목재, 하둠3~4: 철광석/강화의 핵, 하둠5~6: 정제철/강화의 핵/보스의 혼, 하둠7: 신수의 결정 추가
         if (!target.isExperienceDungeon && !target.isCraftGoldDungeon && typeof addWeaponCraftDrop === 'function') {
           addWeaponCraftDrop(target.stageId, !!target.isBoss);
+          if (target.isElite && target.isHadum && !target.isBoss) {
+            addWeaponCraftDrop(target.stageId, false);
+            addWeaponCraftDrop(target.stageId, false);
+          }
+        }
+        if (target.isElite && target.isHadum && !target.isBoss) {
+          giveEliteGuardianDrop(target);
         }
 
         // ===== 전리품 보상 =====
@@ -11094,7 +11198,11 @@ window.playerState = playerState;
           }
         } else {
           if (target.isHadum) {
-            if (Math.random() < 0.30) {
+            if (target.isElite) {
+              playerState.talismanLoot += 6;
+              playItemGetSfx();
+              showHealText('+6 전리품 획득! (정예 보너스)', target.sprite.position);
+            } else if (Math.random() < 0.30) {
               playerState.talismanLoot += 2;
               playItemGetSfx();
               showHealText('+2 전리품 획득!', target.sprite.position);
@@ -12280,14 +12388,16 @@ document.addEventListener('DOMContentLoaded',function(){
 <style id="weapon-enhance-css">
 #weapon-enhance-modal{position:fixed!important;inset:0!important;top:0!important;left:0!important;right:0!important;bottom:0!important;width:100vw!important;height:100vh!important;height:100dvh!important;margin:0!important;transform:none!important;z-index:2147482990!important;background:rgba(0,0,0,.58)!important;display:none;align-items:center!important;justify-content:center!important;padding:12px!important;box-sizing:border-box!important;overflow:hidden!important;pointer-events:auto!important}
 #weapon-enhance-modal[style*='display: flex']{display:flex!important}
-#weapon-enhance-panel{position:relative!important;left:auto!important;top:auto!important;transform:none!important;margin:0 auto!important;width:min(460px,calc(100vw - 24px));max-width:calc(100vw - 24px)!important;max-height:calc(100dvh - 24px);overflow-y:auto;-webkit-overflow-scrolling:touch;background:#f7fbff;border:2px solid #64b5f6;border-radius:16px;box-shadow:0 10px 35px rgba(0,0,0,.35);padding:12px;box-sizing:border-box;color:#263238}
-#weapon-enhance-panel h2{margin:0;color:#1565c0;font-size:18px}
-.weapon-enhance-core-box{margin:8px 0;padding:8px;border-radius:10px;background:#e3f2fd;border:1px solid #90caf9;text-align:center;font-weight:900;color:#1565c0}
-.weapon-enhance-card{margin:8px 0;padding:10px;border:1px solid #b0bec5;border-radius:11px;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.08)}
-.weapon-enhance-head{display:flex;justify-content:space-between;gap:8px;font-size:12px}.weapon-enhance-head span{color:#546e7a}
-.weapon-enhance-bar{height:7px;background:#eceff1;border-radius:8px;overflow:hidden;margin:8px 0}.weapon-enhance-bar>div{height:100%;background:#42a5f5;border-radius:8px}
-.weapon-enhance-next{font-size:10px;color:#455a64;margin-bottom:7px}.weapon-enhance-action{width:100%;padding:8px;border:1px solid #42a5f5;border-radius:8px;background:#e3f2fd;color:#1565c0;font-weight:900;font-size:11px}.weapon-enhance-action:disabled{opacity:.5}.weapon-enhance-empty{padding:10px;margin:8px 0;border:1px dashed #b0bec5;border-radius:10px;background:#fafafa;color:#78909c;font-size:11px;text-align:center}
-@media(max-width:380px){#weapon-enhance-panel{padding:9px}.weapon-enhance-card{padding:8px}.weapon-enhance-head{font-size:11px}}
+#weapon-enhance-panel{position:relative!important;left:auto!important;top:auto!important;transform:none!important;margin:0 auto!important;width:min(300px,calc(100vw - 72px))!important;max-width:300px!important;height:66dvh!important;max-height:66dvh!important;min-height:260px!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important;touch-action:pan-y!important;background:#f7fbff;border:2px solid #64b5f6;border-radius:14px;box-shadow:0 10px 35px rgba(0,0,0,.35);padding:9px;box-sizing:border-box;color:#263238}
+#weapon-enhance-panel h2{margin:0;color:#1565c0;font-size:15px}
+.weapon-enhance-core-box{margin:6px 0;padding:6px;border-radius:9px;background:#e3f2fd;border:1px solid #90caf9;text-align:center;font-weight:900;color:#1565c0;font-size:11px}
+.weapon-enhance-card{margin:6px 0;padding:7px;border:1px solid #b0bec5;border-radius:9px;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.08)}
+.weapon-enhance-head{display:flex;justify-content:space-between;gap:6px;font-size:10px}.weapon-enhance-head span{color:#546e7a}
+.weapon-enhance-bar{height:5px;background:#eceff1;border-radius:8px;overflow:hidden;margin:6px 0}.weapon-enhance-bar>div{height:100%;background:#42a5f5;border-radius:8px}
+.weapon-enhance-next{font-size:9px;color:#455a64;margin-bottom:5px}.weapon-enhance-action{width:100%;padding:6px;border:1px solid #42a5f5;border-radius:7px;background:#e3f2fd;color:#1565c0;font-weight:900;font-size:10px}.weapon-enhance-action:disabled{opacity:.5}.weapon-enhance-empty{padding:8px;margin:6px 0;border:1px dashed #b0bec5;border-radius:9px;background:#fafafa;color:#78909c;font-size:10px;text-align:center}
+@media(max-width:380px){#weapon-enhance-panel{width:calc(100vw - 88px)!important;max-width:270px!important;height:64dvh!important;max-height:64dvh!important;padding:7px}.weapon-enhance-card{padding:6px}.weapon-enhance-head{font-size:9px}}
+@media(max-height:700px){#weapon-enhance-panel{height:62dvh!important;max-height:62dvh!important;min-height:230px}}
+
 </style>
 <div id="weapon-enhance-modal" class="modal interactive" onclick="if(event.target===this)closeWeaponEnhanceModal()">
   <div id="weapon-enhance-panel">
@@ -12319,25 +12429,29 @@ document.addEventListener('DOMContentLoaded',function(){
 #guardian-inventory-modal[style*='display: flex']{display:flex!important}
 #guardian-inventory-panel{
   position:relative!important;
-  width:min(430px,calc(100vw - 24px))!important;
-  max-width:430px!important;
-  height:auto!important;
-  max-height:calc(100dvh - 24px)!important;
+  width:min(300px,calc(100vw - 72px))!important;
+  max-width:300px!important;
+  height:66dvh!important;
+  max-height:66dvh!important;
+  min-height:260px!important;
   overflow-x:hidden!important;overflow-y:auto!important;
   -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
   touch-action:pan-y!important;
   background:#fffaf2!important;
   border:2px solid #ff8a65!important;border-radius:14px!important;
   box-shadow:0 10px 35px rgba(0,0,0,.35)!important;
-  padding:12px!important;color:#4e342e!important;
+  padding:9px!important;color:#4e342e!important;
   margin:auto!important;
   transform:none!important;
 }
-#guardian-inventory-panel h2{margin:0 0 8px;color:#bf360c;font-size:18px}
-.guardian-resist-summary{padding:8px;border-radius:9px;background:#fff3e0;border:1px solid #ffcc80;font-size:12px;text-align:center;margin-bottom:8px}
-.guardian-inv-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px;border:1px solid #ead7c6;border-radius:9px;background:#fff;margin:6px 0;font-size:11px}
+@media(max-width:380px){#guardian-inventory-panel{width:calc(100vw - 88px)!important;max-width:270px!important;height:64dvh!important;max-height:64dvh!important;padding:7px!important}}
+@media(max-height:700px){#guardian-inventory-panel{height:62dvh!important;max-height:62dvh!important;min-height:230px!important}}
+#guardian-inventory-panel h2{margin:0 0 6px;color:#bf360c;font-size:15px}
+.guardian-resist-summary{padding:6px;border-radius:8px;background:#fff3e0;border:1px solid #ffcc80;font-size:10px;text-align:center;margin-bottom:6px}
+.guardian-inv-item{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:7px;border:1px solid #ead7c6;border-radius:8px;background:#fff;margin:5px 0;font-size:10px}
 .guardian-inv-item.equipped{border-color:#66bb6a;background:#f1f8e9}
-.guardian-inv-item button{border:1px solid #ffb74d;border-radius:7px;background:#fff8e1;padding:5px 8px;font-size:10px;font-weight:800;cursor:pointer}
+.guardian-inv-item button{border:1px solid #ffb74d;border-radius:6px;background:#fff8e1;padding:4px 6px;font-size:9px;font-weight:800;cursor:pointer}
 .guardian-inv-item button.danger{border-color:#ef9a9a;background:#ffebee;color:#b71c1c}
 </style>
 <div id="guardian-inventory-modal" class="modal interactive" onclick="if(event.target===this)closeGuardianInventoryModal()">
