@@ -1260,7 +1260,7 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
             <span id="craftweapon-status-val" style="color:#ad7b00;">🗡️ 제작무기: 없음</span>
           </div>
           <div class="stat-row-item" id="guardian-set-row" style="display:none; justify-content: space-between; align-items:center; gap:6px;">
-            <span class="stat-loot" id="guardian-set-val" style="color:#d84315;">🔥 파수꾼셋트: 0/4</span>
+            <span class="stat-loot" id="guardian-set-val" style="color:#d84315;">🔥 파수꾼셋트 : ⚔️ 공격력 +15% · 🛡️ 방어력 +0</span>
             <button class="status-action-btn" onclick="openGuardianInventoryModal()" style="padding:5px 9px;font-size:11px;background:#fff3e0;border-color:#ff8a65;color:#bf360c;font-weight:800;">🎒 장비 가방</button>
           </div>
           <div class="stat-row-item" id="guardian-bag-row" style="display:flex; justify-content:center; margin-top:2px;">
@@ -10515,13 +10515,11 @@ window.playerState = playerState;
 
         if (ownedCount > 0 || (playerState.guardianInventory || []).length > 0) {
           guardianRow.style.display = 'flex';
-          const counts = playerState.guardianSetPieceCounts || {};
-          const pieces = ['helm','armor','gloves','boots'].map(k => `${GUARDIAN_SET_PIECE_NAMES[k]}${counts[k] || 0}`).join(' ');
-          const enhanceLv = getGuardianSetEnhanceLv();
-          const enhanceText = hasGuardianFullSet()
-            ? ` · 개별강화 최대 +${GUARDIAN_SET_ENHANCE_MAX} · ⚔️+${getGuardianEnhanceAtk()} · 🛡️+${getGuardianEnhanceDef()}`
-            : '';
-          guardianVal.innerText = `🔥 파수꾼셋트: ${ownedCount}/4 (${pieces})${isGuardianSetComplete() ? ' · 풀세트 효과 적용중' : ''}${enhanceText}`;
+          // 상태창의 파수꾼 세트 효과는 핵심 능력치 두 가지만 간결하게 표시한다.
+          // 공격력은 기존 풀세트 효과(+15%), 방어력은 현재 장착된 파수꾼 부위 강화로 얻는 수치다.
+          const guardianAtkText = isGuardianSetComplete() ? `+${Math.round(GUARDIAN_SET_ATK_BONUS * 100)}%` : '+0%';
+          const guardianDefText = `+${getGuardianEnhanceDef().toLocaleString()}`;
+          guardianVal.innerText = `🔥 파수꾼셋트 : ⚔️ 공격력 ${guardianAtkText} · 🛡️ 방어력 ${guardianDefText}`;
         } else {
           guardianRow.style.display = 'none';
         }
