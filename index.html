@@ -1254,6 +1254,10 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
             <span class="stat-loot">📜 전리품: <span id="loot-val">0</span>개</span>
             <span class="stat-loot">🔷 강화의 핵: <span id="core-val">0</span>개</span>
           </div>
+          <div class="stat-row-item" id="clover-status-row" style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+            <span id="clover-status-val" style="color:#558b2f; font-weight:800;">🍀 클로버: 없음</span>
+            <button class="status-action-btn" onclick="openCloverModal()" style="padding:5px 9px;font-size:11px;background:#f1f8e9;border-color:#9ccc65;color:#33691e;font-weight:800;">🍀 클로버</button>
+          </div>
           <div class="stat-row-item" id="subweapon-status-row" style="display:none; justify-content: flex-end;">
             <span id="subweapon-status-val" style="color:#4a148c;">⚔️ 보조무기: 없음</span>
           </div>
@@ -1476,13 +1480,13 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
       </div>
 
       <div class="stage-cards" id="hadum-stage-list" style="display:none;">
-        <div class="stage-card hadum" id="stage-card-hadum-1" onclick="selectStage(1,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 초보자 사냥터</div><div style="font-size:10px;color:#bcaaa4;">공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
-        <div class="stage-card hadum" id="stage-card-hadum-2" onclick="selectStage(2,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 웅녀동굴</div><div style="font-size:10px;color:#bcaaa4;">공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
-        <div class="stage-card hadum" id="stage-card-hadum-3" onclick="selectStage(3,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 바둑골 산길</div><div style="font-size:10px;color:#bcaaa4;">공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
-        <div class="stage-card hadum" id="stage-card-hadum-4" onclick="selectStage(4,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">❄️ 하둠: 얼음성</div><div style="font-size:10px;color:#bcaaa4;">공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
-        <div class="stage-card hadum" id="stage-card-hadum-5" onclick="selectStage(5,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">❄️ 하둠: 용궁</div><div style="font-size:10px;color:#bcaaa4;">공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
-        <div class="stage-card hadum" id="stage-card-hadum-6" onclick="selectStage(6,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 신수협곡</div><div style="font-size:10px;color:#bcaaa4;">신수협곡 수호령(보스)</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
-        <div class="stage-card hadum" id="stage-card-hadum-7" onclick="selectStage(7,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🌪️ 하둠: 신수협곡 2층</div><div style="font-size:10px;color:#bcaaa4;">신수협곡 2층 수호령(보스)</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-1" onclick="selectStage(1,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 초보자 사냥터</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-2" onclick="selectStage(2,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 웅녀동굴</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-3" onclick="selectStage(3,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 바둑골 산길</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-4" onclick="selectStage(4,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">❄️ 하둠: 얼음성</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-5" onclick="selectStage(5,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">❄️ 하둠: 용궁</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-6" onclick="selectStage(6,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 신수협곡</div><div style="font-size:10px;color:#bcaaa4;">삿갓다람쥐, 춤추는선인장 및 신수협곡 수호령(보스)</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-7" onclick="selectStage(7,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🌪️ 하둠: 신수협곡 2층</div><div style="font-size:10px;color:#bcaaa4;">붉은깃털독수리, 하얀깃털독수리 및 신수협곡 2층 수호령(보스)</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
       </div>
     </div>
 
@@ -4611,6 +4615,8 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       // 파수꾼 개별 장비 강화 레벨은 각 장비에 저장하며 최대 +20.
       // 구버전의 세트 통합 강화 수치는 로드 시 각 보유 장비의 초기 강화 레벨로 안전하게 변환한다.
       guardianEnhanceMigrationDone: false,
+      cloverInventory: { premium: 0, silver: 0, gold: 0 },
+      cloverBuff: { type: "", until: 0 },
       // 속성 저항은 장착 중인 파수꾼 장비 + 세트 효과를 합산하고 50%로 제한한다.
       elementalResist: { fire: 0, ice: 0, wind: 0 },
       // 보조무기: 3종 중 1종만 장착. 각 보조무기는 별도 강화 레벨을 가진다.
@@ -5104,6 +5110,7 @@ window.playerState = playerState;
 
     function getPlayerAvgAtk() {
       let atk = getPlayerBaseAtk();
+      if (typeof getCloverCombatBonus === "function") atk *= (1 + getCloverCombatBonus());
       if (isMunyeahanaBuffActive()) {
         atk *= (1 + getMunyeahanaBuffRate());
       }
@@ -5118,6 +5125,7 @@ window.playerState = playerState;
 
     function getPlayerEffectiveDef() {
       let def = playerState.defensePower;
+      if (typeof getCloverCombatBonus === "function") def *= (1 + getCloverCombatBonus());
       if (isMunyeahanaBuffActive()) {
         def *= (1 + getMunyeahanaBuffRate());
       }
@@ -6593,8 +6601,9 @@ window.playerState = playerState;
       const got = [];
       Object.keys(rates).forEach(k => {
         if (Math.random() < rates[k]) {
-          playerState.craftingMaterials[k] = (Number(playerState.craftingMaterials[k]) || 0) + 1;
-          got.push(names[k]);
+          const qty=(typeof getCloverDropMultiplier==='function')?getCloverDropMultiplier():1;
+          playerState.craftingMaterials[k]=(Number(playerState.craftingMaterials[k])||0)+qty;
+          got.push(qty>1?`${names[k]} ×${qty}`:names[k]);
         }
       });
       try { localStorage.setItem('weaponCraftingMaterials_v2', JSON.stringify(playerState.craftingMaterials)); } catch(e) {}
@@ -10219,7 +10228,10 @@ window.playerState = playerState;
       // 일반 몬스터(보스 제외)는 스테이지별 고정 경험치를 지급한다.
       if (!monster.isBoss) {
         const table = monster.isHadum ? STAGE_HADUM_EXP : STAGE_NORMAL_EXP;
-        return table[monster.stageId] || 0;
+        const base = table[monster.stageId] || 0;
+        const stageRate = monster.isHadum ? ({1:.82,2:.82,3:.75,4:.75,5:.70,6:.65,7:.60}[monster.stageId] || 1) : ({1:.97,2:.95,3:.92,4:.90,5:.88}[monster.stageId] || 1);
+        const cloverRate = (typeof getCloverExpMultiplier === "function") ? getCloverExpMultiplier() : 1;
+        return Math.max(1, Math.round(base * stageRate * cloverRate));
       }
 
       // 보스는 스테이지별 고정 경험치를 지급한다.
@@ -10311,6 +10323,8 @@ window.playerState = playerState;
           guardianInventory: JSON.parse(JSON.stringify(playerState.guardianInventory || [])),
           guardianEquippedItems: { ...(playerState.guardianEquippedItems || {}) },
           guardianInventoryNextId: Number(playerState.guardianInventoryNextId) || 1,
+          cloverInventory: { ...(playerState.cloverInventory || {premium:0,silver:0,gold:0}) },
+          cloverBuff: { ...(playerState.cloverBuff || {type:"",until:0}) },
           subWeaponOwned: { ...(playerState.subWeaponOwned || {}) },
           subWeaponLevel: { ...(playerState.subWeaponLevel || {}) },
           subWeaponEquipped: playerState.subWeaponEquipped || '',
@@ -10458,6 +10472,10 @@ window.playerState = playerState;
           const id = playerState.guardianEquippedItems[piece];
           if (id && !playerState.guardianInventory.some(i => i.id === id && i.piece === piece)) playerState.guardianEquippedItems[piece] = null;
         });
+        playerState.cloverInventory = { premium:0, silver:0, gold:0, ...(p.cloverInventory || {}) };
+        Object.keys(playerState.cloverInventory).forEach(k => playerState.cloverInventory[k] = Math.max(0, Number(playerState.cloverInventory[k]) || 0));
+        playerState.cloverBuff = { type:"", until:0, ...(p.cloverBuff || {}) };
+        if (!["premium","silver","gold"].includes(playerState.cloverBuff.type) || Number(playerState.cloverBuff.until) <= Date.now()) playerState.cloverBuff = {type:"",until:0};
         playerState.elementalResist = { fire:0, ice:0, wind:0, ...(p.elementalResist || {}) };
         playerState.subWeaponOwned = { annihilator:false, judgement:false, gale:false, ...(p.subWeaponOwned || {}) };
         playerState.subWeaponLevel = { annihilator:0, judgement:0, gale:0, ...(p.subWeaponLevel || {}) };
@@ -11182,12 +11200,12 @@ window.playerState = playerState;
           if (target.isHadum) {
             const rand = Math.random();
             if (rand < 0.50) {
-              playerState.talismanLoot += 1;
+              grantCloverScaledLoot(1);
               playItemGetSfx();
               showHealText('+1 전리품 획득!', target.sprite.position);
             } else if (rand < 0.95) {
               const lootCount = Math.floor(Math.random() * 5) + 8; // 8~12개
-              playerState.talismanLoot += lootCount;
+              grantCloverScaledLoot(lootCount);
               playItemGetSfx();
               showHealText(`+${lootCount} 전리품 획득!`, target.sprite.position);
             } else {
@@ -11246,7 +11264,7 @@ window.playerState = playerState;
             }
 
             if (lootCount > 0) {
-              playerState.talismanLoot += lootCount;
+              grantCloverScaledLoot(lootCount);
               playItemGetSfx();
               showHealText(`+${lootCount} 전리품 획득!`, target.sprite.position);
             }
@@ -11254,24 +11272,24 @@ window.playerState = playerState;
         } else {
           if (target.isHadum) {
             if (target.isElite) {
-              playerState.talismanLoot += 6;
+              grantCloverScaledLoot(6);
               playItemGetSfx();
               showHealText('+6 전리품 획득! (정예 보너스)', target.sprite.position);
             } else if (Math.random() < 0.30) {
-              playerState.talismanLoot += 2;
+              grantCloverScaledLoot(2);
               playItemGetSfx();
               showHealText('+2 전리품 획득!', target.sprite.position);
             }
           } else if (target.stageId === 5) {
             // 5스테이지(용궁) 일반몹: 일반4(25%, 1개)와 하둠1(30%, 2개)의 중간 수준.
             if (Math.random() < 0.28) {
-              playerState.talismanLoot += 1;
+              grantCloverScaledLoot(1);
               playItemGetSfx();
               showHealText('+1 전리품 획득!', target.sprite.position);
             }
           } else {
             if (Math.random() < 0.25) {
-              playerState.talismanLoot += 1;
+              grantCloverScaledLoot(1);
               showHealText('+1 전리품 획득!', target.sprite.position);
             }
           }
@@ -11707,7 +11725,8 @@ function result(t){
 }
 
 function gainMastery(){
- st.exp++;
+ const gain = (typeof getCloverCraftExpMultiplier === "function") ? getCloverCraftExpMultiplier() : 1;
+ st.exp += gain;
  while(st.mastery<180 && st.exp>=st.mastery*100){
    st.exp-=st.mastery*100;
    st.mastery++;
@@ -12076,8 +12095,9 @@ window.addWeaponCraftDrop=function(stageId,isBoss,monster){
    let c=t[k];
    if((k==='boss'||k==='divine')&&!isBoss)c*=.05;
    if(Math.random()<c){
-     window.playerState.craftingMaterials[k]=(Number(window.playerState.craftingMaterials[k])||0)+1;
-     got.push(N[k]);
+     const qty=(typeof getCloverDropMultiplier==='function')?getCloverDropMultiplier():1;
+     window.playerState.craftingMaterials[k]=(Number(window.playerState.craftingMaterials[k])||0)+qty;
+     got.push(qty>1?`${N[k]} ×${qty}`:N[k]);
    }
  });
  try{localStorage.setItem('weaponCraftingMaterials_v2',JSON.stringify(window.playerState.craftingMaterials));}catch(e){}
@@ -12517,4 +12537,11 @@ document.addEventListener('DOMContentLoaded',function(){
     <div id="guardian-inventory-list"></div>
   </div>
 </div>
+
+<style id="clover-system-css">#clover-modal{position:fixed!important;inset:0!important;z-index:10050!important;display:none;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;background:rgba(0,0,0,.38);transform:none!important}#clover-modal .clover-panel{width:min(360px,calc(100vw - 24px));max-height:min(72dvh,560px);overflow:hidden;display:flex;flex-direction:column;box-sizing:border-box;background:#fffdf7;border:3px solid #8bc34a;border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.28)}#clover-modal .clover-scroll{overflow-y:auto;overflow-x:hidden;flex:1 1 auto;min-height:0;padding:10px 12px 12px;-webkit-overflow-scrolling:touch;touch-action:pan-y}.clover-card{border:2px solid #d7ccc8;border-radius:12px;padding:10px;margin-bottom:8px;background:#fff}.clover-card h4{margin:0 0 4px;font-size:13px}.clover-card .desc{font-size:10px;color:#6d6258;line-height:1.45;margin-bottom:6px}.clover-card .owned{font-size:10px;color:#33691e;font-weight:800;margin-bottom:6px}.clover-card button{border:2px solid #9ccc65;border-radius:8px;padding:6px 9px;background:#f1f8e9;color:#33691e;font-weight:900;cursor:pointer}.clover-timer{padding:7px 10px;margin-bottom:8px;border-radius:10px;background:#f1f8e9;border:1px solid #aed581;text-align:center;color:#33691e;font-weight:900}@media(max-width:600px){#clover-modal{padding:8px}#clover-modal .clover-panel{width:min(340px,calc(100vw - 16px));max-height:68dvh;border-radius:14px}}</style>
+<div id="clover-modal" class="interactive" onclick="if(event.target===this) closeCloverModal()"><div class="clover-panel"><div style="padding:11px 12px 8px;border-bottom:1px solid #dcedc8;text-align:center;font-weight:900;color:#33691e;font-size:15px">🍀 클로버 보관함</div><div class="clover-scroll"><div id="clover-active-box" class="clover-timer">현재 활성 버프 없음</div><div class="clover-card"><h4>🍀 클로버 프리미엄</h4><div class="desc">아이템 드랍량 <b>2배</b> · 경험치/공격력/방어력/제조 EXP 보너스 없음<br>지속시간 60분</div><div class="owned">보유: <span id="clover-owned-premium">0</span>개</div><button onclick="useClover('premium')">사용</button></div><div class="clover-card"><h4>🌿 은빛 클로버</h4><div class="desc">아이템 드랍량 <b>3배</b> · 사냥 EXP <b>+10%</b> · 제조 EXP <b>+10%</b> · 공격력/방어력 <b>+10%</b><br>지속시간 60분</div><div class="owned">보유: <span id="clover-owned-silver">0</span>개</div><button onclick="useClover('silver')">사용</button></div><div class="clover-card"><h4>🏆 황금 클로버</h4><div class="desc">아이템 드랍량 <b>4배</b> · 사냥 EXP <b>+20%</b> · 제조 EXP <b>+20%</b> · 공격력/방어력 <b>+20%</b><br>지속시간 60분</div><div class="owned">보유: <span id="clover-owned-gold">0</span>개</div><button onclick="useClover('gold')">사용</button></div><div style="font-size:9px;color:#795548;line-height:1.5;padding:2px 2px 8px">획득처: 일반/하둠 일반 몬스터 → 🍀 프리미엄 · 하둠 정예 → 🌿 은빛/🏆 황금 · 하둠 보스 → 🌿 은빛/🏆 황금.</div></div><div style="padding:8px 12px;border-top:1px solid #dcedc8"><button class="btn-small" style="width:100%" onclick="closeCloverModal()">창 닫기</button></div></div></div>
+
+<script id="clover-system-js">
+(function(){const T={premium:{name:'🍀 클로버 프리미엄',drop:2,exp:1,combat:0,craft:1},silver:{name:'🌿 은빛 클로버',drop:3,exp:1.1,combat:.1,craft:1.1},gold:{name:'🏆 황금 클로버',drop:4,exp:1.2,combat:.2,craft:1.2}},O={premium:1,silver:2,gold:3};function e(){if(!window.playerState)return;playerState.cloverInventory={premium:0,silver:0,gold:0,...(playerState.cloverInventory||{})};playerState.cloverBuff={type:'',until:0,...(playerState.cloverBuff||{})};if(!T[playerState.cloverBuff.type]||Number(playerState.cloverBuff.until)<=Date.now())playerState.cloverBuff={type:'',until:0}}window.getActiveCloverType=()=>{e();return playerState.cloverBuff.type||''};window.getCloverDropMultiplier=()=>{e();return T[getActiveCloverType()]?.drop||1};window.getCloverExpMultiplier=()=>{e();return T[getActiveCloverType()]?.exp||1};window.getCloverCombatBonus=()=>{e();return T[getActiveCloverType()]?.combat||0};window.getCloverCraftExpMultiplier=()=>{e();return T[getActiveCloverType()]?.craft||1};window.grantCloverScaledLoot=n=>{e();const q=Math.max(0,Math.round(Number(n)||0)*getCloverDropMultiplier());playerState.talismanLoot=(Number(playerState.talismanLoot)||0)+q};window.grantClover=(t,n=1)=>{e();if(!T[t])return;playerState.cloverInventory[t]+=Math.max(1,Math.floor(Number(n)||1));if(typeof saveGame==='function')saveGame();if(typeof updateUI==='function')updateUI()};window.useClover=t=>{e();if(!T[t]||playerState.cloverInventory[t]<=0)return;const now=Date.now(),ot=getActiveCloverType(),rem=ot?Math.max(0,Number(playerState.cloverBuff.until)-now):0;let bt=(ot&&O[ot]>O[t])?ot:t;playerState.cloverInventory[t]--;playerState.cloverBuff={type:bt,until:now+rem+3600000};if(typeof saveGame==='function')saveGame();if(typeof updateUI==='function')updateUI();r()};const f=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};window.openCloverModal=()=>{e();r();const m=document.getElementById('clover-modal');if(m)m.style.display='flex'};window.closeCloverModal=()=>{const m=document.getElementById('clover-modal');if(m)m.style.display='none'};function r(){e();['premium','silver','gold'].forEach(k=>{const x=document.getElementById('clover-owned-'+k);if(x)x.textContent=playerState.cloverInventory[k].toLocaleString()});const b=document.getElementById('clover-active-box'),t=T[getActiveCloverType()];if(b)b.innerHTML=t?`${t.name} · <b>${f(playerState.cloverBuff.until-Date.now())}</b><br><small>드랍 ×${t.drop} · 사냥 EXP +${Math.round((t.exp-1)*100)}% · 공격/방어 +${Math.round(t.combat*100)}%</small>`:'현재 활성 버프 없음'}function drops(m){if(!m||m.isExperienceDungeon||m.isCraftGoldDungeon)return;if(!m.isBoss&&!m.isElite&&Math.random()<.0035)grantClover('premium');if(m.isElite&&m.isHadum&&!m.isBoss){if(Math.random()<.04)grantClover('gold');else if(Math.random()<.25)grantClover('silver')}if(m.isBoss&&m.isHadum){if(Math.random()<.08)grantClover('gold');else if(Math.random()<.30)grantClover('silver')}}function hook(){const o=window.applyDamage;if(typeof o==='function'&&!o.__cloverWrapped){const w=function(t,a){const alive=!!t?.alive,hp=Number(t?.hp||0),z=o.apply(this,arguments);if(alive&&t&&!t.alive&&hp>0)drops(t);return z};w.__cloverWrapped=true;window.applyDamage=w;return true}return false}window.addEventListener('load',()=>{e();hook();r()});setInterval(()=>{try{e();hook();const t=getActiveCloverType();if(t&&Number(playerState.cloverBuff.until)<=Date.now()){playerState.cloverBuff={type:'',until:0};if(typeof saveGame==='function')saveGame()}if(document.getElementById('clover-modal')?.style.display==='flex')r();const row=document.getElementById('clover-status-row'),v=document.getElementById('clover-status-val');if(row)row.style.display='flex';if(v)v.innerText=t?`${T[t].name} ${f(playerState.cloverBuff.until-Date.now())} · 드랍 ×${T[t].drop}`:'🍀 클로버: 없음'}catch(x){}},1000)})();
+</script>
 </body>
