@@ -9005,9 +9005,9 @@ window.playerState = playerState;
         { id: 'mp2', name: '마력 증대 II', desc: '최대 MP +200 (주술사 계열 전용)', price: 1900, currency: 'gold', type: 'maxMp', valMp: 200, reqShaman: true }
       ],
       hero: [
-        { id: 'h1', name: '시리', desc: '활을 이용한 원거리 공격형 (기본공격 70~90) & 유저 경험치 +10% 버프', price: 40000, currency: 'gold', type: 'hero' },
-        { id: 'h2', name: '의녀장금', desc: '연두색 반타원 에너지 볼트 사격 (공격력 30~40) & 힐', price: 20000, currency: 'gold', type: 'hero' },
-        { id: 'h3', name: '무녀하나', desc: '근거리 공격형 (기본공격 80-100) & 공/방 상시 버프 (레벨/7)%', price: 50000, currency: 'gold', type: 'hero' }
+        { id: 'h2', name: '의녀장금', desc: '연두색 반타원 에너지 볼트 사격 (공격력 30~40) & 힐\n구매 조건: Lv.30 이상 · 100,000 G', price: 100000, currency: 'gold', type: 'hero', reqLv: 30 },
+        { id: 'h1', name: '시리', desc: '활을 이용한 원거리 공격형 (기본공격 70~90) & 유저 경험치 +10% 버프\n구매 조건: Lv.60 이상 · 200,000 G · 의녀장금 보유', price: 200000, currency: 'gold', type: 'hero', reqLv: 60, reqHero: 'janggeum' },
+        { id: 'h3', name: '무녀하나', desc: '근거리 공격형 (기본공격 80-100) & 공/방 상시 버프 (레벨/7)%\n구매 조건: Lv.100 이상 · 350,000 G · 시리 보유', price: 350000, currency: 'gold', type: 'hero', reqLv: 100, reqHero: 'siri' }
       ]
       ,summon: [
         { id: 'rabbit_girl', name: '🐰 토끼소녀 강림', desc: '강림 시 일반 공격이 최대 3마리 범위 공격으로 변경됩니다. 사거리 5 · 공격력 -20% 패널티 · 전직 스킬 사용 불가', price: 300000, currency: 'gold', type: 'summon' }
@@ -9175,7 +9175,8 @@ window.playerState = playerState;
           `;
         } else {
           const isBought = (item.id === 'h1' && playerState.hasSiri) || (item.id === 'h2' && playerState.hasJanggeum) || (item.id === 'h3' && playerState.hasMunyeahana);
-          const canAfford = playerState.gold >= item.price && (!item.reqLv || playerState.level >= item.reqLv);
+          const heroReqMet = !item.reqHero || getHeroOwned(item.reqHero);
+          const canAfford = playerState.gold >= item.price && (!item.reqLv || playerState.level >= item.reqLv) && heroReqMet;
           const priceLabel = `${item.price.toLocaleString()} G`;
           
           card.innerHTML = `
@@ -9511,6 +9512,11 @@ window.playerState = playerState;
       if (!item || playerState.gold < item.price) return;
       if (item.reqLv && playerState.level < item.reqLv) {
         alert(`Lv.${item.reqLv} 이상부터 구매할 수 있습니다.`);
+        return;
+      }
+      if (item.reqHero && !getHeroOwned(item.reqHero)) {
+        const reqHeroName = item.reqHero === 'janggeum' ? '의녀장금' : item.reqHero === 'siri' ? '시리' : item.reqHero;
+        alert(`${reqHeroName}을(를) 먼저 구매해야 합니다.`);
         return;
       }
       if (item.reqShaman && !isShamanClass()) {
