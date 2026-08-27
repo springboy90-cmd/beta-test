@@ -8668,22 +8668,55 @@ window.playerState = playerState;
       activeHitVfx.push({sprite:sp,timer:0,duration:.7});
     }
 
-    function spawnNewClassSkillVfx(worldPos, skillId, sourcePos = null, radius = 4) {
-      const cvs = document.createElement('canvas'); cvs.width = 256; cvs.height = 256;
-      const ctx = cvs.getContext('2d'); const cx = 128, cy = 128;
-      ctx.clearRect(0,0,256,256); ctx.globalCompositeOperation = 'lighter';
+    // 신규 2차 스킬 전용 고급 VFX
+    // - 검기폭쇄: 검성의 X자 검기 + 돌진 잔상 + 충격파 + 파편 폭발
+    // - 홍련낙성: 운석 낙하 + 궤적 불꽃 + 지면 마법진 + 다중 폭발 + 잔불
+    function makeVfxCanvas(drawFn, size = 256) {
+      const cvs = document.createElement('canvas'); cvs.width = size; cvs.height = size;
+      const ctx = cvs.getContext('2d'); ctx.clearRect(0,0,size,size); ctx.globalCompositeOperation = 'lighter';
+      drawFn(ctx, size/2, size/2, size); const tex = new THREE.CanvasTexture(cvs);
+      tex.needsUpdate = true; tex.magFilter = THREE.LinearFilter; tex.minFilter = THREE.LinearFilter; tex.generateMipmaps = false;
+      return tex;
+    }
+    function createNewSkillFxTextures(skillId) {
       if (skillId === 's2_5') {
-        const g = ctx.createRadialGradient(cx,cy,8,cx,cy,105); g.addColorStop(0,'rgba(255,255,255,.98)'); g.addColorStop(.22,'rgba(120,220,255,.9)'); g.addColorStop(1,'rgba(20,100,255,0)'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,105,0,Math.PI*2); ctx.fill();
-        ctx.strokeStyle='rgba(220,250,255,.95)'; ctx.lineWidth=10; for(let a of [0,Math.PI/2,Math.PI,Math.PI*1.5]){ctx.save();ctx.translate(cx,cy);ctx.rotate(a);ctx.beginPath();ctx.moveTo(-92,0);ctx.lineTo(92,0);ctx.stroke();ctx.restore();}
-      } else {
-        const g=ctx.createRadialGradient(cx,cy,5,cx,cy,110); g.addColorStop(0,'rgba(255,255,220,1)'); g.addColorStop(.2,'rgba(255,170,30,.95)'); g.addColorStop(.55,'rgba(230,45,0,.75)'); g.addColorStop(1,'rgba(120,0,0,0)'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,110,0,Math.PI*2); ctx.fill();
-        ctx.strokeStyle='rgba(255,230,120,.9)'; ctx.lineWidth=6; ctx.beginPath(); ctx.arc(cx,cy,72,0,Math.PI*2); ctx.stroke();
-        for(let i=0;i<14;i++){const a=i*Math.PI*2/14;ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*35,cy+Math.sin(a)*35);ctx.lineTo(cx+Math.cos(a)*100,cy+Math.sin(a)*100);ctx.stroke();}
+        return {
+          glow: makeVfxCanvas((c,cx,cy,n)=>{ const g=c.createRadialGradient(cx,cy,2,cx,cy,120); g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(.18,'rgba(170,240,255,.95)'); g.addColorStop(.5,'rgba(40,150,255,.65)'); g.addColorStop(1,'rgba(0,60,255,0)'); c.fillStyle=g;c.fillRect(0,0,n,n); }),
+          slash: makeVfxCanvas((c,cx,cy,n)=>{ c.save();c.translate(cx,cy);c.rotate(-.55); const g=c.createLinearGradient(-110,0,110,0);g.addColorStop(0,'rgba(50,160,255,0)');g.addColorStop(.35,'rgba(190,245,255,.85)');g.addColorStop(.5,'white');g.addColorStop(.68,'rgba(80,190,255,.8)');g.addColorStop(1,'rgba(30,90,255,0)');c.strokeStyle=g;c.lineWidth=18;c.beginPath();c.moveTo(-105,20);c.quadraticCurveTo(0,-55,105,20);c.stroke();c.strokeStyle='rgba(220,250,255,.8)';c.lineWidth=4;c.beginPath();c.moveTo(-100,24);c.quadraticCurveTo(0,-48,100,24);c.stroke();c.restore(); }),
+          ring: makeVfxCanvas((c,cx,cy,n)=>{ const g=c.createRadialGradient(cx,cy,45,cx,cy,112);g.addColorStop(0,'rgba(0,180,255,0)');g.addColorStop(.72,'rgba(90,220,255,.55)');g.addColorStop(.88,'rgba(210,250,255,.95)');g.addColorStop(1,'rgba(0,100,255,0)');c.fillStyle=g;c.beginPath();c.arc(cx,cy,108,0,Math.PI*2);c.fill(); }),
+          shard: makeVfxCanvas((c,cx,cy,n)=>{ c.fillStyle='rgba(190,245,255,.95)';c.beginPath();c.moveTo(cx,cy-48);c.lineTo(cx+10,cy-8);c.lineTo(cx+48,cy);c.lineTo(cx+8,cy+10);c.lineTo(cx,cy+50);c.lineTo(cx-10,cy+10);c.lineTo(cx-48,cy);c.lineTo(cx-10,cy-8);c.closePath();c.fill(); })
+        };
       }
-      const tex=new THREE.CanvasTexture(cvs); tex.needsUpdate=true;
-      const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,opacity:1,depthWrite:false,blending:THREE.AdditiveBlending}));
-      sp.scale.set(radius,radius,1); sp.position.copy(worldPos).add(new THREE.Vector3(0,1.5,0.15)); scene.add(sp); activeHitVfx.push({sprite:sp,timer:0,duration:skillId==='s2_5'?.55:1.0});
-      if(skillId==='s2_6' && sourcePos){ const meteor=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,opacity:.9,depthWrite:false,blending:THREE.AdditiveBlending})); meteor.scale.set(2.2,2.2,1); meteor.position.copy(sourcePos).add(new THREE.Vector3(0,4.5,0)); scene.add(meteor); activeHitVfx.push({sprite:meteor,timer:-.35,duration:.65}); }
+      return {
+        meteor: makeVfxCanvas((c,cx,cy,n)=>{ const g=c.createRadialGradient(cx,cy,3,cx,cy,70);g.addColorStop(0,'#fffde0');g.addColorStop(.22,'#fff');g.addColorStop(.4,'#ffd54a');g.addColorStop(.68,'#ff5a00');g.addColorStop(1,'rgba(150,0,0,0)');c.fillStyle=g;c.beginPath();c.arc(cx,cy,72,0,Math.PI*2);c.fill();c.fillStyle='rgba(255,190,40,.9)';c.beginPath();c.moveTo(cx-20,cy-18);c.lineTo(cx+24,cy-8);c.lineTo(cx+10,cy+24);c.lineTo(cx-28,cy+8);c.closePath();c.fill(); }),
+        trail: makeVfxCanvas((c,cx,cy,n)=>{ const g=c.createLinearGradient(cx,cy-115,cx,cy+70);g.addColorStop(0,'rgba(255,90,0,0)');g.addColorStop(.35,'rgba(255,130,10,.5)');g.addColorStop(.75,'rgba(255,230,100,.9)');g.addColorStop(1,'rgba(255,255,220,0)');c.fillStyle=g;c.beginPath();c.moveTo(cx-26,cy-105);c.quadraticCurveTo(cx-8,cy,0+cx-42,cy+75);c.lineTo(cx+40,cy+75);c.quadraticCurveTo(cx+8,cy,cx+26,cy-105);c.closePath();c.fill(); }),
+        magic: makeVfxCanvas((c,cx,cy,n)=>{ c.strokeStyle='rgba(255,190,50,.95)';c.lineWidth=7;c.beginPath();c.arc(cx,cy,88,0,Math.PI*2);c.stroke();c.strokeStyle='rgba(255,80,0,.7)';c.lineWidth=3;c.beginPath();c.arc(cx,cy,64,0,Math.PI*2);c.stroke();for(let i=0;i<12;i++){const a=i*Math.PI/6;c.beginPath();c.moveTo(cx+Math.cos(a)*68,cy+Math.sin(a)*68);c.lineTo(cx+Math.cos(a)*98,cy+Math.sin(a)*98);c.stroke();}}),
+        burst: makeVfxCanvas((c,cx,cy,n)=>{const g=c.createRadialGradient(cx,cy,5,cx,cy,118);g.addColorStop(0,'white');g.addColorStop(.18,'#fff59d');g.addColorStop(.42,'#ff9d19');g.addColorStop(.7,'rgba(255,55,0,.65)');g.addColorStop(1,'rgba(130,0,0,0)');c.fillStyle=g;c.fillRect(0,0,n,n);}),
+        ember: makeVfxCanvas((c,cx,cy,n)=>{const g=c.createRadialGradient(cx,cy,1,cx,cy,32);g.addColorStop(0,'white');g.addColorStop(.25,'#ffe96a');g.addColorStop(.6,'#ff4d00');g.addColorStop(1,'rgba(255,0,0,0)');c.fillStyle=g;c.beginPath();c.arc(cx,cy,32,0,Math.PI*2);c.fill();})
+      };
+    }
+
+    function spawnNewClassSkillVfx(worldPos, skillId, sourcePos = null, radius = 4) {
+      const root = new THREE.Group(); root.position.copy(worldPos); root.renderOrder = 180; scene.add(root);
+      const tex = createNewSkillFxTextures(skillId);
+      if (skillId === 's2_5') {
+        const ring = new THREE.Sprite(new THREE.SpriteMaterial({map:tex.ring,transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,toneMapped:false}));
+        ring.scale.set(.1,.1,1); ring.position.y=.35; ring.renderOrder=181; root.add(ring);
+        const glow = new THREE.Sprite(new THREE.SpriteMaterial({map:tex.glow,transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,toneMapped:false}));
+        glow.scale.set(.5,.5,1); glow.position.y=1.25; glow.renderOrder=183; root.add(glow);
+        const slashes=[];
+        for(let i=0;i<2;i++){ const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex.slash,transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,toneMapped:false})); sp.scale.set(2.2,1.15,1); sp.position.y=1.55; sp.material.rotation=i?Math.PI/2:-Math.PI/4; sp.renderOrder=184+i; root.add(sp); slashes.push(sp); }
+        const shards=[];
+        for(let i=0;i<12;i++){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex.shard,transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,toneMapped:false})); const a=Math.PI*2*i/12; sp.scale.set(.18,.18,1); sp.position.set(Math.cos(a)*.2,.9,Math.sin(a)*.2);root.add(sp);shards.push({sprite:sp,a,s:.9+Math.random()*1.5});}
+        activeHitVfx.push({sprite:root,timer:0,duration:.95,newSwordFx:true,ring,glow,slashes,shards,radius});
+      } else {
+        const magic=new THREE.Sprite(new THREE.SpriteMaterial({map:tex.magic,transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,toneMapped:false})); magic.scale.set(.2,.2,1);magic.position.y=.08;root.add(magic);
+        const burst=new THREE.Sprite(new THREE.SpriteMaterial({map:tex.burst,transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,toneMapped:false})); burst.scale.set(.2,.2,1);burst.position.y=.9;root.add(burst);
+        const meteor=new THREE.Sprite(new THREE.SpriteMaterial({map:tex.meteor,transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,toneMapped:false})); meteor.scale.set(1.0,1.0,1);meteor.position.y=5.5;root.add(meteor);
+        const trail=new THREE.Sprite(new THREE.SpriteMaterial({map:tex.trail,transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,toneMapped:false}));trail.scale.set(.8,1.8,1);trail.position.set(0,6.5,-.05);root.add(trail);
+        const embers=[]; for(let i=0;i<18;i++){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex.ember,transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,toneMapped:false})); const a=Math.random()*Math.PI*2,r=.5+Math.random()*radius*.9;sp.scale.set(.15+Math.random()*.18,.15+Math.random()*.18,1);sp.position.set(Math.cos(a)*r,.15,Math.sin(a)*r);root.add(sp);embers.push({sprite:sp,a,r,vy:.8+Math.random()*1.8,spin:(Math.random()-.5)*5});}
+        activeHitVfx.push({sprite:root,timer:0,duration:1.65,newMeteorFx:true,magic,burst,meteor,trail,embers,radius});
+      }
     }
 
     function useActiveSkill(skillId) {
@@ -9926,6 +9959,25 @@ window.playerState = playerState;
 
         if (v.vel) {
           v.sprite.position.addScaledVector(v.vel, delta);
+        }
+
+        if (v.newSwordFx) {
+          const t=v.timer, p=Math.min(1,t/v.duration);
+          const ringP=Math.min(1,t/.28), burstP=Math.max(0,Math.min(1,(t-.18)/.48));
+          v.ring.material.opacity=t<.12?t/.12:Math.max(0,(1-t/.95))*.9; const rs=v.radius*(.45+ringP*1.15); v.ring.scale.set(rs,rs*.42,1); v.ring.material.rotation=t*5.5;
+          v.glow.material.opacity=Math.max(0,1-Math.abs(t-.22)/.42); const gs=v.radius*(.35+Math.min(1,t/.25)*.9); v.glow.scale.set(gs,gs,1);
+          v.slashes.forEach((sp,i)=>{const q=Math.max(0,Math.min(1,(t-(i?.09:0))/.30));sp.material.opacity=Math.sin(q*Math.PI)*.95;sp.scale.set(v.radius*(.7+q*1.0),v.radius*(.38+q*.32),1);sp.material.rotation=(i?Math.PI/2:-Math.PI/4)+(i?-1:1)*q*.7;});
+          v.shards.forEach((d,i)=>{const q=Math.max(0,Math.min(1,(t-.16)/.62));d.a+=(i%2?1:-1)*delta*3.2;d.sprite.position.x=Math.cos(d.a)*d.r*q;d.sprite.position.z=Math.sin(d.a)*d.r*q;d.sprite.position.y=.8+q*(.6+Math.sin(i*2.3)*.35);d.sprite.material.opacity=Math.sin(Math.min(1,q*1.5)*Math.PI)*.85;d.sprite.scale.set(.14+.18*Math.sin(q*Math.PI),.14+.18*Math.sin(q*Math.PI),1);});
+          if(t>=v.duration){scene.remove(v.sprite);activeHitVfx.splice(i,1);} continue;
+        }
+        if (v.newMeteorFx) {
+          const t=v.timer;
+          const fall=Math.max(0,Math.min(1,(t-.15)/.48));
+          const e=1-Math.pow(1-fall,2.6); v.meteor.position.y=5.5-(5.05*e); v.trail.position.y=v.meteor.position.y+.9; v.meteor.material.opacity=fall>0?Math.min(1,fall/.12):0; v.trail.material.opacity=fall>0?Math.min(1,fall/.15):0;
+          const impact=Math.max(0,Math.min(1,(t-.58)/.48)); const ie=1-Math.pow(1-impact,3); v.magic.material.opacity=t<.55?0:Math.sin(Math.min(1,(t-.55)/.22)*Math.PI)*.95; const ms=v.radius*(.35+ie*.65);v.magic.scale.set(ms,ms,1);v.magic.material.rotation=t*2.2;
+          v.burst.material.opacity=impact>0?Math.sin(Math.min(1,impact)*Math.PI)*1.15:0; const bs=v.radius*(.35+impact*1.15);v.burst.scale.set(bs,bs,1);
+          v.embers.forEach((d,idx)=>{const q=Math.max(0,Math.min(1,(t-.62)/.85));d.a+=d.spin*delta;d.sprite.position.x=Math.cos(d.a)*d.r*(.7+.8*q);d.sprite.position.z=Math.sin(d.a)*d.r*(.7+.8*q);d.sprite.position.y=.1+q*d.vy;d.sprite.material.opacity=Math.max(0,(1-q)*.95);});
+          if(t>=v.duration){scene.remove(v.sprite);activeHitVfx.splice(i,1);} continue;
         }
 
         if (v.flameWheel) {
