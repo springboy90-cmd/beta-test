@@ -10379,6 +10379,7 @@ window.playerState = playerState;
       if (isLoadingSave || isResettingCharacter) return;
       try {
         localStorage.setItem(CHARACTER_SLOT_KEY_PREFIX + activeCharacterSlot, JSON.stringify(collectGameSaveData()));
+        try { if (playerState.weaponCraftProficiency) localStorage.setItem('weaponCraftProficiency_v1_slot_' + activeCharacterSlot, JSON.stringify({xp:Number(playerState.weaponCraftProficiency.xp)||0, level:Math.max(1,Math.min(20,Number(playerState.weaponCraftProficiency.level)||1))})); } catch(e) {}
         if (showStatus) {
           const el = document.getElementById('save-status');
           if (el) { el.textContent = '✓ 현재 상태가 저장되었습니다.'; setTimeout(() => { if (el) el.textContent = '💾 버튼을 눌러 수동으로 저장하세요.'; }, 1800); }
@@ -12363,13 +12364,18 @@ document.addEventListener('DOMContentLoaded',function(){
   const KEY='weaponCraftProficiency_v1';
   const state = window.playerState || null;
 
+  function slotKey(){
+    const slot=(typeof activeCharacterSlot!=='undefined') ? Number(activeCharacterSlot)||1 : 1;
+    return KEY+'_slot_'+Math.max(1,Math.min(3,slot));
+  }
+
   function ensure(){
     if(!window.playerState) return null;
     if(!playerState.weaponCraftProficiency){
+      // 제작 숙련도는 이제 캐릭터 세이브(playerState)에 귀속된다.
+      // 기존 단일 전역 localStorage 값은 더 이상 다른 캐릭터가 공유하지 않는다.
       let saved=null;
-      try{ saved=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){}
-      // 새 세이브에 값이 없더라도 기존 제작 시스템의 숙련도 값을 그대로 이어받는다.
-      // 단, 기존 숙련도는 최대 180이고 이 보조 숙련도는 최대 20이므로 범위만 맞춘다.
+      try{ saved=JSON.parse(localStorage.getItem(slotKey())||'null'); }catch(e){}
       const legacy=playerState.weaponCrafting;
       const legacyLevel=legacy && Number(legacy.mastery);
       if(saved && typeof saved==='object'){
@@ -12420,7 +12426,7 @@ document.addEventListener('DOMContentLoaded',function(){
     if(!p)return;
     p.xp+=Math.max(0,Number(amount)||0);
     while(p.level<20 && p.xp>=XP_TABLE[p.level+1]) p.level++;
-    try{localStorage.setItem(KEY,JSON.stringify(p));}catch(e){}
+    try{localStorage.setItem(slotKey(),JSON.stringify(p));}catch(e){}
     try{if(window.playerState && typeof saveGame==='function') saveGame();}catch(e){}
     try{if(typeof renderWeaponCraftProficiency==='function')renderWeaponCraftProficiency();}catch(e){}
   };
@@ -12453,7 +12459,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
     try{
       localStorage.setItem('weaponCraftingMaterials_v2',JSON.stringify(inv));
-      localStorage.setItem(KEY,JSON.stringify(playerState.weaponCraftProficiency));
+      localStorage.setItem(slotKey(),JSON.stringify(playerState.weaponCraftProficiency));
     }catch(e){}
 
     return {ok:true,name:r.name,xp:r.xp,attack:r.attack};
@@ -12547,20 +12553,19 @@ document.addEventListener('DOMContentLoaded',function(){
   function load(){
     if(!window.playerState)return;
     try{
-      // 메인 세이브에서 이미 복원된 값이 있으면 절대 덮어쓰지 않는다.
-      if(playerState.weaponCraftProficiency && Number(playerState.weaponCraftProficiency.level)>0){
-        const p=playerState.weaponCraftProficiency;
-        localStorage.setItem('weaponCraftProficiency_v1',JSON.stringify({xp:Number(p.xp)||0,level:Math.max(1,Math.min(20,Number(p.level)||1))}));
-        if(typeof renderWeaponCraftProficiency==='function') renderWeaponCraftProficiency();
-        return;
-      }
-      const s=JSON.parse(localStorage.getItem('weaponCraftProficiency_v1')||'null');
-      if(s && typeof s==='object'){
-        playerState.weaponCraftProficiency={
-          xp:Math.max(0,Number(s.xp)||0),
-          level:Math.max(1,Math.min(20,Number(s.level)||1))
-        };
-        try{if(typeof saveGame==='function')saveGame();}catch(e){}
+      // 숙련도는 캐릭터 슬롯별 메인 세이브에 저장/복원한다.
+      // 전역 weaponCraftProficiency_v1 값은 다른 캐릭터로 전파하지 않는다.
+      if(!playerState.weaponCraftProficiency){
+        const slot=(typeof activeCharacterSlot!=='undefined') ? Number(activeCharacterSlot)||1 : 1;
+        const key='weaponCraftProficiency_v1_slot_'+Math.max(1,Math.min(3,slot));
+        const s=JSON.parse(localStorage.getItem(key)||'null');
+        if(s && typeof s==='object'){
+          playerState.weaponCraftProficiency={
+            xp:Math.max(0,Number(s.xp)||0),
+            level:Math.max(1,Math.min(20,Number(s.level)||1))
+          };
+          try{if(typeof saveGame==='function')saveGame();}catch(e){}
+        }
       }
       if(typeof renderWeaponCraftProficiency==='function') renderWeaponCraftProficiency();
     }catch(e){}
