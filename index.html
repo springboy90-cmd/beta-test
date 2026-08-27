@@ -183,9 +183,9 @@
     /* 모바일 전투 조작 영역: 3x2 고정 배열. 버튼 간 겹침을 원천 차단 */
     #action-zone {
       position: absolute; bottom: 16px; right: 12px;
-      width: 160px; height: 104px;
+      width: 216px; height: 104px;
       z-index: 40; pointer-events: none; touch-action: none;
-      display: grid; grid-template-columns: repeat(3, 48px);
+      display: grid; grid-template-columns: repeat(4, 48px);
       grid-template-rows: repeat(2, 48px); gap: 8px;
     }
     .action-btn {
@@ -213,7 +213,9 @@
     .btn-skill-s2_1 { grid-row: 1; grid-column: 1; background: linear-gradient(135deg, #e53935, #d32f2f); }
     .btn-skill-s2_2 { grid-row: 1; grid-column: 2; background: linear-gradient(135deg, #fb8c00, #f57c00); }
     .btn-skill-s2_3 { grid-row: 1; grid-column: 3; background: linear-gradient(135deg, #8e24aa, #7b1fa2); }
-    .btn-skill-s2_4 { grid-row: 2; grid-column: 1; background: linear-gradient(135deg, #3949ab, #1e88e5); }
+    .btn-skill-s2_4 { grid-row: 1; grid-column: 4; background: linear-gradient(135deg, #3949ab, #1e88e5); }
+    .btn-skill-s2_5 { grid-row: 2; grid-column: 1; background: linear-gradient(135deg, #263238, #546e7a); }
+    .btn-skill-s2_6 { grid-row: 2; grid-column: 4; background: linear-gradient(135deg, #d84315, #ff6f00); }
     /* 쿨타임 숫자/검은 오버레이는 해당 스킬 버튼 내부에만 표시 */
     .btn-skill-slot { position: relative !important; }
     .btn-skill-slot .skill-cd { position: absolute !important; inset: 0 !important; pointer-events: none !important; }
@@ -223,8 +225,8 @@
       #action-zone { right: 10px; bottom: 14px; width: 160px; height: 104px; }
     }
     @media (max-width:380px){
-      #action-zone { right: 8px; bottom: 10px; width: 148px; height: 96px;
-        grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(2, 44px); gap: 6px; }
+      #action-zone { right: 8px; bottom: 10px; width: 194px; height: 96px;
+        grid-template-columns: repeat(4, 44px); grid-template-rows: repeat(2, 44px); gap: 6px; }
       .action-btn, .btn-skill-slot { width:44px; height:44px; }
       .btn-target { width:40px; height:40px; left:-48px; bottom:6px; }
     }
@@ -1360,6 +1362,8 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
       <div class="action-btn btn-skill-slot btn-skill-s2_2" id="btn-skill-s2_2" role="button" aria-label="회풍참"><span class="skill-icon">🌀</span><br><span class="skill-btn-name">회풍참</span><span class="skill-cd"></span></div>
       <div class="action-btn btn-skill-slot btn-skill-s2_3" id="btn-skill-s2_3" role="button" aria-label="천검난무"><span class="skill-icon">⚔️</span><br><span class="skill-btn-name">천검난무</span><span class="skill-cd"></span></div>
       <div class="action-btn btn-skill-slot btn-skill-s2_4" id="btn-skill-s2_4" role="button" aria-label="2차 버프"><span class="skill-icon">🔥</span><br><span class="skill-btn-name">2차 버프</span><span class="skill-cd"></span></div>
+      <div class="action-btn btn-skill-slot btn-skill-s2_5" id="btn-skill-s2_5" role="button" aria-label="검기폭쇄"><span class="skill-icon">💥</span><br><span class="skill-btn-name">검기폭쇄</span><span class="skill-cd"></span></div>
+      <div class="action-btn btn-skill-slot btn-skill-s2_6" id="btn-skill-s2_6" role="button" aria-label="홍련낙성"><span class="skill-icon">☄️</span><br><span class="skill-btn-name">홍련낙성</span><span class="skill-cd"></span></div>
     </div>
   </div>
 
@@ -4619,9 +4623,9 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       hasAutoHeal: false, atkSpeedLv: 0, idleTimer: 0, suraGangrimUntil: 0, suraGangrimCooldownAt: 0,
       skillsLearned: [],
       firstSkillLv: 0,
-      skillCooldowns: { s1_1: 0, s2_1: 0, s2_2: 0, s2_3: 0, s2_4: 0 },
+      skillCooldowns: { s1_1: 0, s2_1: 0, s2_2: 0, s2_3: 0, s2_4: 0, s2_5: 0, s2_6: 0 },
       protectionShieldUntil: 0, protectionShieldCooldownAt: 0,
-      skillLv: { s2_2: 0, s2_3: 0, s2_4: 0 },
+      skillLv: { s2_2: 0, s2_3: 0, s2_4: 0, s2_5: 0, s2_6: 0 },
       martialTrainingLv: 0, shamanStudyLv: 0,
       dailyCoreBought: 0, dailyResetDate: '',
       jobChangeCount: 0,
@@ -7407,7 +7411,7 @@ window.playerState = playerState;
       cooldownPanel.className = 'skill-cooldown-panel';
       container.appendChild(cooldownPanel);
 
-      const j2Title = document.createElement('div'); j2Title.className = 'skill-section-title'; j2Title.innerText = '🔥 2차 전직 전용 스킬 (공격 3개 / 버프 1개)';
+      const j2Title = document.createElement('div'); j2Title.className = 'skill-section-title'; j2Title.innerText = '🔥 2차 전직 전용 스킬 (공격 4개 / 버프 1개)';
       container.appendChild(j2Title);
 
       const isDaedosa = ['주술사', '대도사'].includes(playerState.job);
@@ -7415,12 +7419,14 @@ window.playerState = playerState;
         { id: 's2_1', name: '멸천화 (단일)', desc: '단일 대상에게 450~500% 화염 마법 데미지. 사거리 8m / MP 50 / 재사용 5초', price: 10000, reqTier: 3, maxLv: 1 },
         { id: 's2_2', name: '화염폭우 (범위 1)', desc: '지정 위치 5m 사거리 내 최대 8마리에게 화염 운석 공격. MP 40 / 재사용 5초', price: 15000, reqTier: 3, maxLv: 5 },
         { id: 's2_3', name: '천지개벽 (범위 2)', desc: '12m 대형 원형 범위에 강력한 광역 폭발. MP 70 / 재사용 10초', price: 20000, reqTier: 3, maxLv: 5 },
-        { id: 's2_4', name: '보호의막 (버프)', desc: '받는 피해의 25%를 MP로 분담합니다. 지속 2분 / 재사용 15초 / 시전 MP 30', price: 20000, reqTier: 3, maxLv: 1 }
+        { id: 's2_4', name: '보호의막 (버프)', desc: '받는 피해의 25%를 MP로 분담합니다. 지속 2분 / 재사용 15초 / 시전 MP 30', price: 20000, reqTier: 3, maxLv: 1 },
+        ...(playerState.job === '대도사' ? [{ id: 's2_6', name: '홍련낙성 (신규)', desc: '7m 이내 지정 지점에 화염 운석을 떨어뜨려 범위 4m 내 최대 10마리에게 450% 화염 마법 피해 + 화상 3초. MP 70 / 재사용 12초', price: 30000, reqTier: 3, maxLv: 5 }] : [])
       ] : [
         { id: 's2_1', name: '오의: 뇌전참 (단일)', desc: '단일 대상에게 350~400% 뇌전 검격. 사거리 3m / MP 30 / 재사용 3초', price: 10000, reqTier: 3, maxLv: 1 },
         { id: 's2_2', name: '회풍참 (범위 1)', desc: '주변 6m 이내 모든 적에게 180~220% 회전 검기. MP 25 / 재사용 4초', price: 15000, reqTier: 3, maxLv: 5 },
         { id: 's2_3', name: '천검난무 (범위 2)', desc: '전방 8m 부채꼴에 250~300% 다중 검기. MP 40 / 재사용 7초', price: 20000, reqTier: 3, maxLv: 5 },
-        { id: 's2_4', name: '수라강림 (버프)', desc: '공격력 및 크리티컬 확률 현재값의 +50%. 지속 5~10초 / 재사용 15초 / MP 50', price: 20000, reqTier: 3, maxLv: 5 }
+        { id: 's2_4', name: '수라강림 (버프)', desc: '공격력 및 크리티컬 확률 현재값의 +50%. 지속 5~10초 / 재사용 15초 / MP 50', price: 20000, reqTier: 3, maxLv: 5 },
+        ...(playerState.job === '검성' ? [{ id: 's2_5', name: '검기폭쇄 (신규)', desc: '3m 근접 주 대상에게 350% 강타 후 주변 2.5m 최대 5마리에게 180% 검기 폭발. MP 45 / 재사용 8초', price: 30000, reqTier: 3, maxLv: 5 }] : [])
       ];
 
       j2Skills.forEach(sk => {
@@ -7428,8 +7434,8 @@ window.playerState = playerState;
         const canLearn = playerState.tier >= sk.reqTier;
         const currentLv = sk.id === 's2_1' ? (isLearned ? 1 : 0) : Math.max(0, Math.min(5, Number(playerState.skillLv[sk.id]) || 0));
         const isMax = currentLv >= sk.maxLv;
-        const levelDesc = sk.id === 's2_2' || sk.id === 's2_3'
-          ? `현재 Lv.${currentLv}/5 · 공격력 ${[0,100,120,140,160,200][currentLv]}% · MP 15`
+        const levelDesc = sk.id === 's2_2' || sk.id === 's2_3' || sk.id === 's2_5' || sk.id === 's2_6'
+          ? (sk.id === 's2_5' ? `현재 Lv.${currentLv}/5 · 주 대상 350% / 주변 180% · MP 45` : `현재 Lv.${currentLv}/5 · 공격력 ${[0,100,120,140,160,200][currentLv]}% · MP 15`)
           : sk.id === 's2_4' && !isDaedosa
             ? `현재 Lv.${currentLv}/5 · 공격력 +50% · 크리티컬 +50% · 지속 ${[0,5,6.25,7.5,8.75,10][currentLv]}초 · MP 50`
             : sk.desc;
@@ -7478,6 +7484,20 @@ window.playerState = playerState;
         return;
       }
 
+      if (skillId === 's2_5' || skillId === 's2_6') {
+        if (playerState.tier < 3 || playerState.gold < price) return;
+        const currentLv = Math.max(0, Math.min(5, Number(playerState.skillLv[skillId]) || 0));
+        if (currentLv >= 5) return;
+        playerState.gold -= price;
+        playerState.skillLv[skillId] = currentLv + 1;
+        if (!playerState.skillsLearned.includes(skillId)) playerState.skillsLearned.push(skillId);
+        const btn = document.getElementById(`btn-skill-${skillId}`);
+        if (btn) btn.style.display = 'flex';
+        updateUI();
+        if (document.getElementById('skill-modal')?.style.display !== 'none') renderSkillItems();
+        return;
+      }
+
       if (skillId === 's2_4') {
         if (playerState.tier < 3 || playerState.gold < price) return;
         if (isShamanClass()) {
@@ -7509,6 +7529,47 @@ window.playerState = playerState;
         if (btn) btn.style.display = 'flex';
         updateUI();
         if (document.getElementById('skill-modal')?.style.display !== 'none') renderSkillItems();
+        return;
+      }
+
+      if (skillId === 's2_5' && playerState.job === '검성') {
+        const lv = Math.max(1, Math.min(5, Number(playerState.skillLv.s2_5) || 1));
+        const target = selectedTarget && selectedTarget.alive ? selectedTarget : null;
+        if (!target || playerSprite.position.distanceTo(target.sprite.position) > 3.0) {
+          showHealText('💥 검기폭쇄: 3m 이내의 대상을 선택하세요.', playerSprite.position);
+          playerState.skillCooldowns[skillId] = 0;
+          playerState.mp = Math.min(playerState.maxMp, playerState.mp + cfg.mp);
+          return;
+        }
+        const primaryMult = 3.5 + (lv-1)*0.25;
+        const splashMult = 1.8 + (lv-1)*0.12;
+        spawnNewClassSkillVfx(target.sprite.position, 's2_5', playerSprite.position, 3.2);
+        applyDamage(target, getPlayerActualDmg(primaryMult));
+        const nearby = monsters.filter(m => m.alive && m !== target && target.sprite.position.distanceTo(m.sprite.position) <= 2.5)
+          .sort((a,b) => target.sprite.position.distanceTo(a.sprite.position) - target.sprite.position.distanceTo(b.sprite.position)).slice(0,5);
+        nearby.forEach(m => { spawnHitVfx(m.sprite.position, 'slash', 1.35); applyDamage(m, getPlayerActualDmg(splashMult)); });
+        return;
+      }
+
+      if (skillId === 's2_6' && playerState.job === '대도사') {
+        const lv = Math.max(1, Math.min(5, Number(playerState.skillLv.s2_6) || 1));
+        const target = selectedTarget && selectedTarget.alive ? selectedTarget : null;
+        const range = 7.0;
+        if (!target || playerSprite.position.distanceTo(target.sprite.position) > range) {
+          showHealText('☄️ 홍련낙성: 7m 이내의 대상을 선택하세요.', playerSprite.position);
+          playerState.skillCooldowns[skillId] = 0;
+          playerState.mp = Math.min(playerState.maxMp, playerState.mp + cfg.mp);
+          return;
+        }
+        const center = target.sprite.position.clone();
+        const mult = 4.5 + (lv-1)*0.25;
+        spawnNewClassSkillVfx(center, 's2_6', playerSprite.position, 4.0);
+        const targets = monsters.filter(m => m.alive && center.distanceTo(m.sprite.position) <= 4.0)
+          .sort((a,b) => center.distanceTo(a.sprite.position) - center.distanceTo(b.sprite.position)).slice(0,10);
+        targets.forEach(m => { spawnHitVfx(m.sprite.position, 'explosion', 1.8); applyDamage(m, getPlayerActualDmg(mult)); });
+        setTimeout(() => targets.filter(m => m.alive).forEach(m => { if (m.alive) applyDamage(m, getPlayerActualDmg(0.35)); }), 1000);
+        setTimeout(() => targets.filter(m => m.alive).forEach(m => { if (m.alive) applyDamage(m, getPlayerActualDmg(0.35)); }), 2000);
+        setTimeout(() => targets.filter(m => m.alive).forEach(m => { if (m.alive) applyDamage(m, getPlayerActualDmg(0.35)); }), 3000);
         return;
       }
 
@@ -7586,13 +7647,15 @@ window.playerState = playerState;
         s2_1: { name: '오의: 뇌전참', icon: '⚡', cooldownMs: 3000, mp: 30 },
         s2_2: { name: '회풍참', icon: '🌀', cooldownMs: 4000, mp: 25 },
         s2_3: { name: '천검난무', icon: '⚔️', cooldownMs: 7000, mp: 40 },
-        s2_4: { name: '수라강림', icon: '🔥', cooldownMs: 15000, mp: 50, durationByLv: [0,5000,6250,7500,8750,10000] }
+        s2_4: { name: '수라강림', icon: '🔥', cooldownMs: 15000, mp: 50, durationByLv: [0,5000,6250,7500,8750,10000] },
+        s2_5: { name: '검기폭쇄', icon: '💥', cooldownMs: 8000, mp: 45 },
       },
       shaman: {
         s2_1: { name: '멸천화', icon: '🔥', cooldownMs: 5000, mp: 50 },
         s2_2: { name: '화염폭우', icon: '☄️', cooldownMs: 5000, mp: 40 },
         s2_3: { name: '천지개벽', icon: '✨', cooldownMs: 10000, mp: 70 },
-        s2_4: { name: '보호의막', icon: '🛡️', cooldownMs: 15000, mp: 30, durationMs: 120000, mpShare: 0.25 }
+        s2_4: { name: '보호의막', icon: '🛡️', cooldownMs: 15000, mp: 30, durationMs: 120000, mpShare: 0.25 },
+        s2_6: { name: '홍련낙성', icon: '☄️', cooldownMs: 12000, mp: 70 }
       }
     };
 
@@ -7602,7 +7665,7 @@ window.playerState = playerState;
     }
 
     function refreshSecondSkillButtons() {
-      const ids = ['s2_1', 's2_2', 's2_3', 's2_4'];
+      const ids = ['s2_1', 's2_2', 's2_3', 's2_4', 's2_5', 's2_6'];
       ids.forEach(id => {
         const btn = document.getElementById(`btn-skill-${id}`);
         const cfg = getSecondJobSkillConfig(id);
@@ -7628,7 +7691,7 @@ window.playerState = playerState;
     function updateSkillCooldownPanel() {
       const panel = document.getElementById('skill-cooldown-panel');
       if (!panel) return;
-      const ids = ['s2_1', 's2_2', 's2_3', 's2_4'];
+      const ids = ['s2_1', 's2_2', 's2_3', 's2_4', 's2_5', 's2_6'];
       panel.innerHTML = ids.map(id => {
         const cfg = getSecondJobSkillConfig(id);
         if (!cfg) return '';
@@ -8646,6 +8709,24 @@ window.playerState = playerState;
       activeHitVfx.push({sprite:sp,timer:0,duration:.7});
     }
 
+    function spawnNewClassSkillVfx(worldPos, skillId, sourcePos = null, radius = 4) {
+      const cvs = document.createElement('canvas'); cvs.width = 256; cvs.height = 256;
+      const ctx = cvs.getContext('2d'); const cx = 128, cy = 128;
+      ctx.clearRect(0,0,256,256); ctx.globalCompositeOperation = 'lighter';
+      if (skillId === 's2_5') {
+        const g = ctx.createRadialGradient(cx,cy,8,cx,cy,105); g.addColorStop(0,'rgba(255,255,255,.98)'); g.addColorStop(.22,'rgba(120,220,255,.9)'); g.addColorStop(1,'rgba(20,100,255,0)'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,105,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle='rgba(220,250,255,.95)'; ctx.lineWidth=10; for(let a of [0,Math.PI/2,Math.PI,Math.PI*1.5]){ctx.save();ctx.translate(cx,cy);ctx.rotate(a);ctx.beginPath();ctx.moveTo(-92,0);ctx.lineTo(92,0);ctx.stroke();ctx.restore();}
+      } else {
+        const g=ctx.createRadialGradient(cx,cy,5,cx,cy,110); g.addColorStop(0,'rgba(255,255,220,1)'); g.addColorStop(.2,'rgba(255,170,30,.95)'); g.addColorStop(.55,'rgba(230,45,0,.75)'); g.addColorStop(1,'rgba(120,0,0,0)'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,110,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle='rgba(255,230,120,.9)'; ctx.lineWidth=6; ctx.beginPath(); ctx.arc(cx,cy,72,0,Math.PI*2); ctx.stroke();
+        for(let i=0;i<14;i++){const a=i*Math.PI*2/14;ctx.beginPath();ctx.moveTo(cx+Math.cos(a)*35,cy+Math.sin(a)*35);ctx.lineTo(cx+Math.cos(a)*100,cy+Math.sin(a)*100);ctx.stroke();}
+      }
+      const tex=new THREE.CanvasTexture(cvs); tex.needsUpdate=true;
+      const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,opacity:1,depthWrite:false,blending:THREE.AdditiveBlending}));
+      sp.scale.set(radius,radius,1); sp.position.copy(worldPos).add(new THREE.Vector3(0,1.5,0.15)); scene.add(sp); activeHitVfx.push({sprite:sp,timer:0,duration:skillId==='s2_5'?.55:1.0});
+      if(skillId==='s2_6' && sourcePos){ const meteor=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,opacity:.9,depthWrite:false,blending:THREE.AdditiveBlending})); meteor.scale.set(2.2,2.2,1); meteor.position.copy(sourcePos).add(new THREE.Vector3(0,4.5,0)); scene.add(meteor); activeHitVfx.push({sprite:meteor,timer:-.35,duration:.65}); }
+    }
+
     function useActiveSkill(skillId) {
       if (playerState.rabbitForm) {
         showHealText('🐰 강림 중에는 전직 스킬을 사용할 수 없습니다.', playerSprite.position);
@@ -8946,7 +9027,7 @@ window.playerState = playerState;
     // (안 그러면 새로고침 시 인라인 style이 초기화되어 CSS 기본값인 display:none으로 되돌아가 버튼이 사라진다.)
     function refreshSkillButtonVisibility() {
       // 2차 스킬 4종까지 표시. 보호의막(s2_4)은 주술사/대도사에서만 표시.
-      ['s2_1', 's2_2', 's2_3', 's2_4'].forEach(skId => {
+      ['s2_1', 's2_2', 's2_3', 's2_4', 's2_5', 's2_6'].forEach(skId => {
         const btn = document.getElementById(`btn-skill-${skId}`);
         if (!btn) return;
         btn.style.display = (!playerState.rabbitForm && playerState.skillsLearned.includes(skId)) ? 'flex' : 'none';
@@ -10382,8 +10463,8 @@ window.playerState = playerState;
           moveSpeed: playerState.moveSpeed, attackRange: playerState.attackRange,
           hasSiri: playerState.hasSiri, hasJanggeum: playerState.hasJanggeum,
           hasMunyeahana: playerState.hasMunyeahana, hasRabbitGirl: playerState.hasRabbitGirl, rabbitForm: playerState.rabbitForm, hasAutoHeal: playerState.hasAutoHeal,
-          atkSpeedLv: playerState.atkSpeedLv, firstSkillLv: playerState.firstSkillLv, jobChangeCount: playerState.jobChangeCount, skillLv: { s2_2: playerState.skillLv.s2_2, s2_3: playerState.skillLv.s2_3, s2_4: playerState.skillLv.s2_4 }, suraGangrimUntil: Number(playerState.suraGangrimUntil)||0, suraGangrimCooldownAt: Number(playerState.suraGangrimCooldownAt)||0, skillsLearned: Array.isArray(playerState.skillsLearned) ? [...playerState.skillsLearned].filter(id => id !== 's1_2') : [],
-          skillCooldowns: { s1_1: 0, s2_1: 0, s2_2: 0, s2_3: 0, s2_4: Number(playerState.skillCooldowns?.s2_4)||0 },
+          atkSpeedLv: playerState.atkSpeedLv, firstSkillLv: playerState.firstSkillLv, jobChangeCount: playerState.jobChangeCount, skillLv: { s2_2: playerState.skillLv.s2_2, s2_3: playerState.skillLv.s2_3, s2_4: playerState.skillLv.s2_4, s2_5: playerState.skillLv.s2_5, s2_6: playerState.skillLv.s2_6 }, suraGangrimUntil: Number(playerState.suraGangrimUntil)||0, suraGangrimCooldownAt: Number(playerState.suraGangrimCooldownAt)||0, skillsLearned: Array.isArray(playerState.skillsLearned) ? [...playerState.skillsLearned].filter(id => id !== 's1_2') : [],
+          skillCooldowns: { s1_1: 0, s2_1: 0, s2_2: 0, s2_3: 0, s2_4: Number(playerState.skillCooldowns?.s2_4)||0, s2_5: Number(playerState.skillCooldowns?.s2_5)||0, s2_6: Number(playerState.skillCooldowns?.s2_6)||0 },
           protectionShieldUntil: Number(playerState.protectionShieldUntil)||0,
           protectionShieldCooldownAt: Number(playerState.protectionShieldCooldownAt)||0,
           guardianSet: { helm: !!playerState.guardianSet.helm, armor: !!playerState.guardianSet.armor, gloves: !!playerState.guardianSet.gloves, boots: !!playerState.guardianSet.boots },
@@ -10476,7 +10557,7 @@ window.playerState = playerState;
         ['hasSiri','hasJanggeum','hasMunyeahana','hasRabbitGirl','rabbitForm','hasAutoHeal'].forEach(k => { if (typeof p[k] === 'boolean') playerState[k] = p[k]; });
         if (!playerState.hasRabbitGirl) playerState.rabbitForm = false;
         if (Array.isArray(p.skillsLearned)) playerState.skillsLearned = [...p.skillsLearned].filter(id => id !== 's1_2');
-        playerState.skillCooldowns = { s1_1:0, s2_1:0, s2_2:0, s2_3:0, s2_4:0, ...(playerState.skillCooldowns || {}) };
+        playerState.skillCooldowns = { s1_1:0, s2_1:0, s2_2:0, s2_3:0, s2_4:0, s2_5:0, s2_6:0, ...(playerState.skillCooldowns || {}) };
         playerState.protectionShieldUntil = Math.max(0, Number(playerState.protectionShieldUntil) || 0);
         playerState.protectionShieldCooldownAt = Math.max(0, Number(playerState.protectionShieldCooldownAt) || 0);
         playerState.firstSkillLv = Math.max(0, Math.min(5, Number(playerState.firstSkillLv) || 0));
@@ -10489,6 +10570,8 @@ window.playerState = playerState;
           playerState.skillLv.s2_2 = Math.max(0, Math.min(5, Number(p.skillLv.s2_2) || 0));
           playerState.skillLv.s2_3 = Math.max(0, Math.min(5, Number(p.skillLv.s2_3) || 0));
           playerState.skillLv.s2_4 = Math.max(0, Math.min(5, Number(p.skillLv.s2_4) || 0));
+          playerState.skillLv.s2_5 = Math.max(0, Math.min(5, Number(p.skillLv.s2_5) || 0));
+          playerState.skillLv.s2_6 = Math.max(0, Math.min(5, Number(p.skillLv.s2_6) || 0));
         }
         if (p.guardianSet && typeof p.guardianSet === 'object') {
           playerState.guardianSet = {
@@ -10566,8 +10649,8 @@ window.playerState = playerState;
         if (playerState.subWeaponEquipped && !playerState.subWeaponOwned[playerState.subWeaponEquipped]) playerState.subWeaponEquipped = '';
         recalcAttackSpeed();
         if (playerState.skillsLearned.includes('s1_1') && playerState.firstSkillLv === 0) playerState.firstSkillLv = 1;
-        ['s2_2','s2_3'].forEach(id => { if (playerState.skillsLearned.includes(id) && playerState.skillLv[id] === 0) playerState.skillLv[id] = 1; });
-        playerState.skillCooldowns = { s1_1:0, s2_1:0, s2_2:0, s2_3:0 };
+        ['s2_2','s2_3','s2_5','s2_6'].forEach(id => { if (playerState.skillsLearned.includes(id) && playerState.skillLv[id] === 0) playerState.skillLv[id] = 1; });
+        playerState.skillCooldowns = { s1_1:0, s2_1:0, s2_2:0, s2_3:0, s2_4:0, s2_5:0, s2_6:0 };
         playerState.hp = Math.max(0, Math.min(playerState.hp, playerState.maxHp));
         playerState.mp = Math.max(0, Math.min(playerState.mp, playerState.maxMp));
         ensureDailyReset();
@@ -10920,7 +11003,9 @@ window.playerState = playerState;
         'btn-skill-s2_1': () => useActiveSkill('s2_1'),
         'btn-skill-s2_2': () => useActiveSkill('s2_2'),
         'btn-skill-s2_3': () => useActiveSkill('s2_3'),
-        'btn-skill-s2_4': () => useActiveSkill('s2_4')
+        'btn-skill-s2_4': () => useActiveSkill('s2_4'),
+        'btn-skill-s2_5': () => useActiveSkill('s2_5'),
+        'btn-skill-s2_6': () => useActiveSkill('s2_6')
       };
       Object.entries(actionMap).forEach(([id, fn]) => {
         const el = document.getElementById(id);
@@ -11772,7 +11857,7 @@ function save(){
    playerState.weaponCrafting=st;
    try{if(typeof saveGame==='function')saveGame();}catch(e){}
  }
- try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}
+ // 제작 숙련도는 현재 캐릭터 슬롯 세이브에만 저장한다. 전역 KEY 저장은 사용하지 않는다.
 }
 
 function mats(){
@@ -12427,17 +12512,13 @@ document.addEventListener('DOMContentLoaded',function(){
       // 기존 단일 전역 localStorage 값은 더 이상 다른 캐릭터가 공유하지 않는다.
       let saved=null;
       try{ saved=JSON.parse(localStorage.getItem(slotKey())||'null'); }catch(e){}
-      const legacy=playerState.weaponCrafting;
-      const legacyLevel=legacy && Number(legacy.mastery);
       if(saved && typeof saved==='object'){
         playerState.weaponCraftProficiency={
           xp:Math.max(0,Number(saved.xp)||0),
           level:Math.max(1,Math.min(20,Number(saved.level)||1))
         };
-      }else if(Number.isFinite(legacyLevel) && legacyLevel>1){
-        const lv=Math.max(1,Math.min(20,Math.floor(legacyLevel)));
-        playerState.weaponCraftProficiency={xp:0,level:lv};
       }else{
+        // 슬롯별 숙련도만 사용한다. 다른 캐릭터의 숙련도나 전역값을 가져오지 않는다.
         playerState.weaponCraftProficiency={xp:0,level:1};
       }
     }
@@ -12606,18 +12687,19 @@ document.addEventListener('DOMContentLoaded',function(){
     try{
       // 숙련도는 캐릭터 슬롯별 메인 세이브에 저장/복원한다.
       // 전역 weaponCraftProficiency_v1 값은 다른 캐릭터로 전파하지 않는다.
-      if(!playerState.weaponCraftProficiency){
-        const slot=(typeof activeCharacterSlot!=='undefined') ? Number(activeCharacterSlot)||1 : 1;
-        const key='weaponCraftProficiency_v1_slot_'+Math.max(1,Math.min(3,slot));
-        const s=JSON.parse(localStorage.getItem(key)||'null');
-        if(s && typeof s==='object'){
-          playerState.weaponCraftProficiency={
-            xp:Math.max(0,Number(s.xp)||0),
-            level:Math.max(1,Math.min(20,Number(s.level)||1))
-          };
-          try{if(typeof saveGame==='function')saveGame();}catch(e){}
-        }
+      // 페이지 재진입/캐릭터 전환 시 현재 슬롯의 숙련도를 항상 기준값으로 복원한다.
+      const slot=(typeof activeCharacterSlot!=='undefined') ? Number(activeCharacterSlot)||1 : 1;
+      const key='weaponCraftProficiency_v1_slot_'+Math.max(1,Math.min(3,slot));
+      const s=JSON.parse(localStorage.getItem(key)||'null');
+      if(s && typeof s==='object'){
+        playerState.weaponCraftProficiency={
+          xp:Math.max(0,Number(s.xp)||0),
+          level:Math.max(1,Math.min(20,Number(s.level)||1))
+        };
+      } else {
+        playerState.weaponCraftProficiency={xp:0,level:1};
       }
+      try{if(typeof saveGame==='function')saveGame();}catch(e){}
       if(typeof renderWeaponCraftProficiency==='function') renderWeaponCraftProficiency();
     }catch(e){}
   }
@@ -12704,9 +12786,9 @@ document.addEventListener('DOMContentLoaded',function(){
 </div>
 
 <style id="clover-system-css">#clover-modal{position:fixed!important;inset:0!important;z-index:10050!important;display:none;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;background:rgba(0,0,0,.38);transform:none!important}#clover-modal .clover-panel{width:min(360px,calc(100vw - 24px));max-height:min(72dvh,560px);overflow:hidden;display:flex;flex-direction:column;box-sizing:border-box;background:#fffdf7;border:3px solid #8bc34a;border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.28)}#clover-modal .clover-scroll{overflow-y:auto;overflow-x:hidden;flex:1 1 auto;min-height:0;padding:10px 12px 12px;-webkit-overflow-scrolling:touch;touch-action:pan-y}.clover-card{border:2px solid #d7ccc8;border-radius:12px;padding:10px;margin-bottom:8px;background:#fff}.clover-card h4{margin:0 0 4px;font-size:13px}.clover-card .desc{font-size:10px;color:#6d6258;line-height:1.45;margin-bottom:6px}.clover-card .owned{font-size:10px;color:#33691e;font-weight:800;margin-bottom:6px}.clover-card button{border:2px solid #9ccc65;border-radius:8px;padding:6px 9px;background:#f1f8e9;color:#33691e;font-weight:900;cursor:pointer}.clover-timer{padding:7px 10px;margin-bottom:8px;border-radius:10px;background:#f1f8e9;border:1px solid #aed581;text-align:center;color:#33691e;font-weight:900}@media(max-width:600px){#clover-modal{padding:8px}#clover-modal .clover-panel{width:min(340px,calc(100vw - 16px));max-height:68dvh;border-radius:14px}}</style>
-<div id="clover-modal" class="interactive" onclick="if(event.target===this) closeCloverModal()"><div class="clover-panel"><div style="padding:11px 12px 8px;border-bottom:1px solid #dcedc8;text-align:center;font-weight:900;color:#33691e;font-size:15px">🍀 클로버 보관함</div><div class="clover-scroll"><div id="clover-active-box" class="clover-timer">현재 활성 버프 없음</div><div class="clover-card"><h4>🍀 클로버 프리미엄</h4><div class="desc">아이템 드랍량 <b>2배</b> · 경험치/공격력/방어력/제조 EXP 보너스 없음<br>지속시간 60분</div><div class="owned">보유: <span id="clover-owned-premium">0</span>개</div><button onclick="useClover('premium')">사용</button></div><div class="clover-card"><h4>🌿 은빛 클로버</h4><div class="desc">아이템 드랍량 <b>3배</b> · 사냥 EXP <b>+10%</b> · 제조 EXP <b>+10%</b> · 공격력/방어력 <b>+10%</b><br>지속시간 60분</div><div class="owned">보유: <span id="clover-owned-silver">0</span>개</div><button onclick="useClover('silver')">사용</button></div><div class="clover-card"><h4>🏆 황금 클로버</h4><div class="desc">아이템 드랍량 <b>4배</b> · 사냥 EXP <b>+20%</b> · 제조 EXP <b>+20%</b> · 공격력/방어력 <b>+20%</b><br>지속시간 60분</div><div class="owned">보유: <span id="clover-owned-gold">0</span>개</div><button onclick="useClover('gold')">사용</button></div><div style="font-size:9px;color:#795548;line-height:1.5;padding:2px 2px 8px">획득처: 일반/하둠 일반 몬스터 → 🍀 프리미엄 · 하둠 정예 → 🌿 은빛/🏆 황금 · 하둠 보스 → 🌿 은빛/🏆 황금.</div></div><div style="padding:8px 12px;border-top:1px solid #dcedc8"><button class="btn-small" style="width:100%" onclick="closeCloverModal()">창 닫기</button></div></div></div>
+<div id="clover-modal" class="interactive" onclick="if(event.target===this) closeCloverModal()"><div class="clover-panel"><div style="padding:11px 12px 8px;border-bottom:1px solid #dcedc8;text-align:center;font-weight:900;color:#33691e;font-size:15px">🍀 클로버 보관함</div><div class="clover-scroll"><div id="clover-active-box" class="clover-timer">현재 활성 버프 없음</div><div class="clover-card"><h4>🍀 클로버 프리미엄</h4><div class="desc">아이템 드랍량 <b>2배</b> · 사냥 EXP <b>+5%</b> · 공격력/방어력 <b>+5%</b> · 제조 EXP <b>+5%</b><br>지속시간 60분</div><div class="owned">보유: <span id="clover-owned-premium">0</span>개</div><button onclick="useClover('premium')">사용</button></div><div class="clover-card"><h4>🌿 은빛 클로버</h4><div class="desc">아이템 드랍량 <b>3배</b> · 사냥 EXP <b>+10%</b> · 제조 EXP <b>+10%</b> · 공격력/방어력 <b>+10%</b><br>지속시간 60분</div><div class="owned">보유: <span id="clover-owned-silver">0</span>개</div><button onclick="useClover('silver')">사용</button></div><div class="clover-card"><h4>🏆 황금 클로버</h4><div class="desc">아이템 드랍량 <b>4배</b> · 사냥 EXP <b>+20%</b> · 제조 EXP <b>+20%</b> · 공격력/방어력 <b>+20%</b><br>지속시간 60분</div><div class="owned">보유: <span id="clover-owned-gold">0</span>개</div><button onclick="useClover('gold')">사용</button></div><div style="font-size:9px;color:#795548;line-height:1.5;padding:2px 2px 8px">획득처: 일반/하둠 일반 몬스터 → 🍀 프리미엄 · 하둠 정예 → 🌿 은빛/🏆 황금 · 하둠 보스 → 🌿 은빛/🏆 황금.</div></div><div style="padding:8px 12px;border-top:1px solid #dcedc8"><button class="btn-small" style="width:100%" onclick="closeCloverModal()">창 닫기</button></div></div></div>
 
 <script id="clover-system-js">
-(function(){const T={premium:{name:'🍀 클로버 프리미엄',drop:2,exp:1,combat:0,craft:1},silver:{name:'🌿 은빛 클로버',drop:3,exp:1.1,combat:.1,craft:1.1},gold:{name:'🏆 황금 클로버',drop:4,exp:1.2,combat:.2,craft:1.2}},O={premium:1,silver:2,gold:3};function e(){if(!window.playerState)return;playerState.cloverInventory={premium:0,silver:0,gold:0,...(playerState.cloverInventory||{})};playerState.cloverBuff={type:'',until:0,...(playerState.cloverBuff||{})};if(!T[playerState.cloverBuff.type]||Number(playerState.cloverBuff.until)<=Date.now())playerState.cloverBuff={type:'',until:0}}window.getActiveCloverType=()=>{e();return playerState.cloverBuff.type||''};window.getCloverDropMultiplier=()=>{e();return T[getActiveCloverType()]?.drop||1};window.getCloverExpMultiplier=()=>{e();return T[getActiveCloverType()]?.exp||1};window.getCloverCombatBonus=()=>{e();return T[getActiveCloverType()]?.combat||0};window.getCloverCraftExpMultiplier=()=>{e();return T[getActiveCloverType()]?.craft||1};window.grantCloverScaledLoot=n=>{e();const q=Math.max(0,Math.round(Number(n)||0)*getCloverDropMultiplier());playerState.talismanLoot=(Number(playerState.talismanLoot)||0)+q};window.grantClover=(t,n=1)=>{e();if(!T[t])return;playerState.cloverInventory[t]+=Math.max(1,Math.floor(Number(n)||1));if(typeof saveGame==='function')saveGame();if(typeof updateUI==='function')updateUI()};window.useClover=t=>{e();if(!T[t]||playerState.cloverInventory[t]<=0)return;const now=Date.now(),ot=getActiveCloverType(),rem=ot?Math.max(0,Number(playerState.cloverBuff.until)-now):0;let bt=(ot&&O[ot]>O[t])?ot:t;playerState.cloverInventory[t]--;playerState.cloverBuff={type:bt,until:now+rem+3600000};if(typeof saveGame==='function')saveGame();if(typeof updateUI==='function')updateUI();r()};const f=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};window.openCloverModal=()=>{e();r();const m=document.getElementById('clover-modal');if(m)m.style.display='flex'};window.closeCloverModal=()=>{const m=document.getElementById('clover-modal');if(m)m.style.display='none'};function r(){e();['premium','silver','gold'].forEach(k=>{const x=document.getElementById('clover-owned-'+k);if(x)x.textContent=playerState.cloverInventory[k].toLocaleString()});const b=document.getElementById('clover-active-box'),t=T[getActiveCloverType()];if(b)b.innerHTML=t?`${t.name} · <b>${f(playerState.cloverBuff.until-Date.now())}</b><br><small>드랍 ×${t.drop} · 사냥 EXP +${Math.round((t.exp-1)*100)}% · 공격/방어 +${Math.round(t.combat*100)}%</small>`:'현재 활성 버프 없음'}function drops(m){if(!m||m.isExperienceDungeon||m.isCraftGoldDungeon)return;if(!m.isBoss&&!m.isElite&&Math.random()<.0035)grantClover('premium');if(m.isElite&&m.isHadum&&!m.isBoss){if(Math.random()<.04)grantClover('gold');else if(Math.random()<.25)grantClover('silver')}if(m.isBoss&&m.isHadum){if(Math.random()<.08)grantClover('gold');else if(Math.random()<.30)grantClover('silver')}}function hook(){const o=window.applyDamage;if(typeof o==='function'&&!o.__cloverWrapped){const w=function(t,a){const alive=!!t?.alive,hp=Number(t?.hp||0),z=o.apply(this,arguments);if(alive&&t&&!t.alive&&hp>0)drops(t);return z};w.__cloverWrapped=true;window.applyDamage=w;return true}return false}window.addEventListener('load',()=>{e();hook();r()});setInterval(()=>{try{e();hook();const t=getActiveCloverType();if(t&&Number(playerState.cloverBuff.until)<=Date.now()){playerState.cloverBuff={type:'',until:0};if(typeof saveGame==='function')saveGame()}if(document.getElementById('clover-modal')?.style.display==='flex')r();const row=document.getElementById('clover-status-row'),v=document.getElementById('clover-status-val');if(row)row.style.display='flex';if(v)v.innerText=t?`${T[t].name} ${f(playerState.cloverBuff.until-Date.now())} · 드랍 ×${T[t].drop}`:'🍀 클로버: 없음'}catch(x){}},1000)})();
+(function(){const T={premium:{name:'🍀 클로버 프리미엄',drop:2,exp:1.05,combat:.05,craft:1.05},silver:{name:'🌿 은빛 클로버',drop:3,exp:1.1,combat:.1,craft:1.1},gold:{name:'🏆 황금 클로버',drop:4,exp:1.2,combat:.2,craft:1.2}},O={premium:1,silver:2,gold:3};function e(){if(!window.playerState)return;playerState.cloverInventory={premium:0,silver:0,gold:0,...(playerState.cloverInventory||{})};playerState.cloverBuff={type:'',until:0,...(playerState.cloverBuff||{})};if(!T[playerState.cloverBuff.type]||Number(playerState.cloverBuff.until)<=Date.now())playerState.cloverBuff={type:'',until:0}}window.getActiveCloverType=()=>{e();return playerState.cloverBuff.type||''};window.getCloverDropMultiplier=()=>{e();return T[getActiveCloverType()]?.drop||1};window.getCloverExpMultiplier=()=>{e();return T[getActiveCloverType()]?.exp||1};window.getCloverCombatBonus=()=>{e();return T[getActiveCloverType()]?.combat||0};window.getCloverCraftExpMultiplier=()=>{e();return T[getActiveCloverType()]?.craft||1};window.grantCloverScaledLoot=n=>{e();const q=Math.max(0,Math.round(Number(n)||0)*getCloverDropMultiplier());playerState.talismanLoot=(Number(playerState.talismanLoot)||0)+q};window.grantClover=(t,n=1)=>{e();if(!T[t])return;playerState.cloverInventory[t]+=Math.max(1,Math.floor(Number(n)||1));if(typeof saveGame==='function')saveGame();if(typeof updateUI==='function')updateUI()};window.useClover=t=>{e();if(!T[t]||playerState.cloverInventory[t]<=0)return;const now=Date.now(),ot=getActiveCloverType(),rem=ot?Math.max(0,Number(playerState.cloverBuff.until)-now):0;let bt=(ot&&O[ot]>O[t])?ot:t;playerState.cloverInventory[t]--;playerState.cloverBuff={type:bt,until:now+rem+3600000};if(typeof saveGame==='function')saveGame();if(typeof updateUI==='function')updateUI();r()};const f=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};window.openCloverModal=()=>{e();r();const m=document.getElementById('clover-modal');if(m)m.style.display='flex'};window.closeCloverModal=()=>{const m=document.getElementById('clover-modal');if(m)m.style.display='none'};function r(){e();['premium','silver','gold'].forEach(k=>{const x=document.getElementById('clover-owned-'+k);if(x)x.textContent=playerState.cloverInventory[k].toLocaleString()});const b=document.getElementById('clover-active-box'),t=T[getActiveCloverType()];if(b)b.innerHTML=t?`${t.name} · <b>${f(playerState.cloverBuff.until-Date.now())}</b><br><small>드랍 ×${t.drop} · 사냥 EXP +${Math.round((t.exp-1)*100)}% · 공격/방어 +${Math.round(t.combat*100)}%</small>`:'현재 활성 버프 없음'}function drops(m){if(!m||m.isExperienceDungeon||m.isCraftGoldDungeon)return;if(!m.isBoss&&!m.isElite&&Math.random()<.0035)grantClover('premium');if(m.isElite&&m.isHadum&&!m.isBoss){if(Math.random()<.04)grantClover('gold');else if(Math.random()<.25)grantClover('silver')}if(m.isBoss&&m.isHadum){if(Math.random()<.08)grantClover('gold');else if(Math.random()<.30)grantClover('silver')}}function hook(){const o=window.applyDamage;if(typeof o==='function'&&!o.__cloverWrapped){const w=function(t,a){const alive=!!t?.alive,hp=Number(t?.hp||0),z=o.apply(this,arguments);if(alive&&t&&!t.alive&&hp>0)drops(t);return z};w.__cloverWrapped=true;window.applyDamage=w;return true}return false}window.addEventListener('load',()=>{e();hook();r()});setInterval(()=>{try{e();hook();const t=getActiveCloverType();if(t&&Number(playerState.cloverBuff.until)<=Date.now()){playerState.cloverBuff={type:'',until:0};if(typeof saveGame==='function')saveGame()}if(document.getElementById('clover-modal')?.style.display==='flex')r();const row=document.getElementById('clover-status-row'),v=document.getElementById('clover-status-val');if(row)row.style.display='flex';if(v)v.innerText=t?`${T[t].name} ${f(playerState.cloverBuff.until-Date.now())} · 드랍 ×${T[t].drop}`:'🍀 클로버: 없음'}catch(x){}},1000)})();
 </script>
 </body>
