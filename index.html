@@ -199,11 +199,11 @@
     }
     .action-btn:active { transform: scale(0.92); }
 
-    .btn-attack { grid-row: 2; grid-column: 3; background: #ff5252; font-size: 22px; }
-    .btn-auto { grid-row: 2; grid-column: 2; background: #66bb6a; font-size: 10px; }
+    .btn-attack { grid-row: 3; grid-column: 3; background: #ff5252; font-size: 22px; }
+    .btn-auto { grid-row: 3; grid-column: 1; background: #66bb6a; font-size: 10px; }
     .btn-target {
-      position: absolute; width: 42px; height: 42px;
-      left: -52px; bottom: 8px; background: #40c4ff; font-size: 15px;
+      position: static; width: 42px; height: 42px;
+      grid-row: 3; grid-column: 2; background: #40c4ff; font-size: 15px;
     }
 
     .btn-skill-slot {
@@ -213,22 +213,22 @@
     .btn-skill-s2_1 { grid-row: 1; grid-column: 1; background: linear-gradient(135deg, #e53935, #d32f2f); }
     .btn-skill-s2_2 { grid-row: 1; grid-column: 2; background: linear-gradient(135deg, #fb8c00, #f57c00); }
     .btn-skill-s2_3 { grid-row: 1; grid-column: 3; background: linear-gradient(135deg, #8e24aa, #7b1fa2); }
-    .btn-skill-s2_4 { grid-row: 1; grid-column: 4; background: linear-gradient(135deg, #3949ab, #1e88e5); }
-    .btn-skill-s2_5 { grid-row: 2; grid-column: 1; background: linear-gradient(135deg, #263238, #546e7a); }
-    .btn-skill-s2_6 { grid-row: 2; grid-column: 4; background: linear-gradient(135deg, #d84315, #ff6f00); }
+    .btn-skill-s2_4 { grid-row: 2; grid-column: 1; background: linear-gradient(135deg, #3949ab, #1e88e5); }
+    .btn-skill-s2_5 { grid-row: 2; grid-column: 2; background: linear-gradient(135deg, #263238, #546e7a); }
+    .btn-skill-s2_6 { grid-row: 2; grid-column: 3; background: linear-gradient(135deg, #d84315, #ff6f00); }
     /* 쿨타임 숫자/검은 오버레이는 해당 스킬 버튼 내부에만 표시 */
     .btn-skill-slot { position: relative !important; }
     .btn-skill-slot .skill-cd { position: absolute !important; inset: 0 !important; pointer-events: none !important; }
 
 
     @media (max-width:600px){
-      #action-zone { right: 10px; bottom: 14px; width: 160px; height: 104px; }
+      #action-zone { right: 10px; bottom: 14px; width: 156px; height: 156px; grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(3, 48px); gap: 6px; }
     }
     @media (max-width:380px){
-      #action-zone { right: 8px; bottom: 10px; width: 194px; height: 96px;
-        grid-template-columns: repeat(4, 44px); grid-template-rows: repeat(2, 44px); gap: 6px; }
+      #action-zone { right: 8px; bottom: 10px; width: 144px; height: 144px;
+        grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(3, 44px); gap: 6px; }
       .action-btn, .btn-skill-slot { width:44px; height:44px; }
-      .btn-target { width:40px; height:40px; left:-48px; bottom:6px; }
+      .btn-target { width:40px; height:40px; }
     }
 
     .skill-btn-name { display:inline-block; white-space:nowrap; font-size:8px; font-weight:700; text-shadow:0 1px 2px rgba(0,0,0,.8); }
@@ -7532,47 +7532,6 @@ window.playerState = playerState;
         return;
       }
 
-      if (skillId === 's2_5' && playerState.job === '검성') {
-        const lv = Math.max(1, Math.min(5, Number(playerState.skillLv.s2_5) || 1));
-        const target = selectedTarget && selectedTarget.alive ? selectedTarget : null;
-        if (!target || playerSprite.position.distanceTo(target.sprite.position) > 3.0) {
-          showHealText('💥 검기폭쇄: 3m 이내의 대상을 선택하세요.', playerSprite.position);
-          playerState.skillCooldowns[skillId] = 0;
-          playerState.mp = Math.min(playerState.maxMp, playerState.mp + cfg.mp);
-          return;
-        }
-        const primaryMult = 3.5 + (lv-1)*0.25;
-        const splashMult = 1.8 + (lv-1)*0.12;
-        spawnNewClassSkillVfx(target.sprite.position, 's2_5', playerSprite.position, 3.2);
-        applyDamage(target, getPlayerActualDmg(primaryMult));
-        const nearby = monsters.filter(m => m.alive && m !== target && target.sprite.position.distanceTo(m.sprite.position) <= 2.5)
-          .sort((a,b) => target.sprite.position.distanceTo(a.sprite.position) - target.sprite.position.distanceTo(b.sprite.position)).slice(0,5);
-        nearby.forEach(m => { spawnHitVfx(m.sprite.position, 'slash', 1.35); applyDamage(m, getPlayerActualDmg(splashMult)); });
-        return;
-      }
-
-      if (skillId === 's2_6' && playerState.job === '대도사') {
-        const lv = Math.max(1, Math.min(5, Number(playerState.skillLv.s2_6) || 1));
-        const target = selectedTarget && selectedTarget.alive ? selectedTarget : null;
-        const range = 7.0;
-        if (!target || playerSprite.position.distanceTo(target.sprite.position) > range) {
-          showHealText('☄️ 홍련낙성: 7m 이내의 대상을 선택하세요.', playerSprite.position);
-          playerState.skillCooldowns[skillId] = 0;
-          playerState.mp = Math.min(playerState.maxMp, playerState.mp + cfg.mp);
-          return;
-        }
-        const center = target.sprite.position.clone();
-        const mult = 4.5 + (lv-1)*0.25;
-        spawnNewClassSkillVfx(center, 's2_6', playerSprite.position, 4.0);
-        const targets = monsters.filter(m => m.alive && center.distanceTo(m.sprite.position) <= 4.0)
-          .sort((a,b) => center.distanceTo(a.sprite.position) - center.distanceTo(b.sprite.position)).slice(0,10);
-        targets.forEach(m => { spawnHitVfx(m.sprite.position, 'explosion', 1.8); applyDamage(m, getPlayerActualDmg(mult)); });
-        setTimeout(() => targets.filter(m => m.alive).forEach(m => { if (m.alive) applyDamage(m, getPlayerActualDmg(0.35)); }), 1000);
-        setTimeout(() => targets.filter(m => m.alive).forEach(m => { if (m.alive) applyDamage(m, getPlayerActualDmg(0.35)); }), 2000);
-        setTimeout(() => targets.filter(m => m.alive).forEach(m => { if (m.alive) applyDamage(m, getPlayerActualDmg(0.35)); }), 3000);
-        return;
-      }
-
       if (skillId === 's2_1') {
         if (playerState.gold < price || playerState.tier < 3 || playerState.skillsLearned.includes(skillId)) return;
         playerState.gold -= price;
@@ -7704,7 +7663,7 @@ window.playerState = playerState;
     }
 
     function updateSkillCooldownOverlays() {
-      ['s2_1', 's2_2', 's2_3', 's2_4'].forEach(id => {
+      ['s2_1', 's2_2', 's2_3', 's2_4', 's2_5', 's2_6'].forEach(id => {
         const cfg = getSecondJobSkillConfig(id);
         const btn = document.getElementById(`btn-skill-${id}`);
         if (!cfg || !btn) return;
@@ -8845,6 +8804,56 @@ window.playerState = playerState;
             if (playerState.job !== '대도사') spawnHitVfx(m.sprite.position, 'slash', 1.25);
             applyDamage(m, getPlayerActualDmg(mult));
           }
+        });
+      } else if (skillId === 's2_5') {
+        // 검기폭쇄: 검성 전용. 3m 이내 주 대상 1마리 + 주변 최대 5마리.
+        if (playerState.job !== '검성') return;
+        const lv = Math.max(1, Math.min(5, Number(playerState.skillLv?.s2_5) || 1));
+        const target = selectedTarget && selectedTarget.alive ? selectedTarget : null;
+        if (!target || playerSprite.position.distanceTo(target.sprite.position) > 3.0) {
+          showHealText('💥 검기폭쇄: 3m 이내의 대상을 선택하세요.', playerSprite.position);
+          playerState.skillCooldowns[skillId] = 0;
+          playerState.mp = Math.min(playerState.maxMp, playerState.mp + cfg.mp);
+          return;
+        }
+        const primaryMult = 3.5 + (lv - 1) * 0.25;
+        const splashMult = 1.8 + (lv - 1) * 0.12;
+        spawnNewClassSkillVfx(target.sprite.position, 's2_5', playerSprite.position, 3.2);
+        applyDamage(target, getPlayerActualDmg(primaryMult));
+        const nearby = monsters
+          .filter(m => m.alive && m !== target && target.sprite.position.distanceTo(m.sprite.position) <= 2.5)
+          .sort((a,b) => target.sprite.position.distanceTo(a.sprite.position) - target.sprite.position.distanceTo(b.sprite.position))
+          .slice(0, 5);
+        nearby.forEach(m => {
+          spawnHitVfx(m.sprite.position, 'slash', 1.35);
+          applyDamage(m, getPlayerActualDmg(splashMult));
+        });
+      } else if (skillId === 's2_6') {
+        // 홍련낙성: 대도사 전용. 7m 이내 타겟 중심 4m 범위 최대 10마리.
+        if (playerState.job !== '대도사') return;
+        const lv = Math.max(1, Math.min(5, Number(playerState.skillLv?.s2_6) || 1));
+        const target = selectedTarget && selectedTarget.alive ? selectedTarget : null;
+        const range = 7.0;
+        if (!target || playerSprite.position.distanceTo(target.sprite.position) > range) {
+          showHealText('☄️ 홍련낙성: 7m 이내의 대상을 선택하세요.', playerSprite.position);
+          playerState.skillCooldowns[skillId] = 0;
+          playerState.mp = Math.min(playerState.maxMp, playerState.mp + cfg.mp);
+          return;
+        }
+        const center = target.sprite.position.clone();
+        const mult = 4.5 + (lv - 1) * 0.25;
+        const targets = monsters
+          .filter(m => m.alive && center.distanceTo(m.sprite.position) <= 4.0)
+          .sort((a,b) => center.distanceTo(a.sprite.position) - center.distanceTo(b.sprite.position))
+          .slice(0, 10);
+        spawnNewClassSkillVfx(center, 's2_6', playerSprite.position, 4.0);
+        targets.forEach(m => {
+          spawnHitVfx(m.sprite.position, 'explosion', 1.8);
+          applyDamage(m, getPlayerActualDmg(mult));
+        });
+        // 3초 화상: 1초 간격으로 35% 피해를 추가한다.
+        [1000, 2000, 3000].forEach(delay => {
+          setTimeout(() => targets.filter(m => m.alive).forEach(m => applyDamage(m, getPlayerActualDmg(0.35))), delay);
         });
       }
     }
