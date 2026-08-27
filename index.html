@@ -9561,6 +9561,7 @@ window.playerState = playerState;
         sprite: boltSprite,
         target: target,
         damage: damageVal,
+        isHeroAttack: true,
         speed: heroType === 'siri' ? 22.0 : 16.0
       });
     }
@@ -9738,7 +9739,7 @@ window.playerState = playerState;
               const effectiveMaxM = munyeahanaState.attackPowerMax + (munyeahanaState.level - 1) * 4;
               const mDmg = Math.floor(Math.random() * (effectiveMaxM - effectiveMinM + 1)) + effectiveMinM;
               spawnHitVfx(target.sprite.position, 'slash', 2.2);
-              applyDamage(target, mDmg);
+              applyDamage(target, mDmg, true);
             }
           } else {
             const dir = target.sprite.position.clone().sub(munyeahanaSprite.position).normalize();
@@ -9785,7 +9786,7 @@ window.playerState = playerState;
         if (dist < 0.8) {
           spawnHitVfx(p.target.sprite.position, p.rabbitCandy ? 'sparkle' : 'slash', p.rabbitCandy ? 2.4 : 2.0);
           if (p.rabbitCandy) { showDamageText(p.damage, p.target.sprite.position, false); }
-          applyDamage(p.target, p.damage);
+          applyDamage(p.target, p.damage, !!p.isHeroAttack);
           scene.remove(p.sprite);
           activeProjectiles.splice(i, 1);
         } else {
@@ -11196,7 +11197,7 @@ window.playerState = playerState;
       }
     }
 
-    function applyDamage(target, amount) {
+    function applyDamage(target, amount, isHeroAttack = false) {
       if (!target.alive) return;
 
       let finalDmg = amount;
@@ -11209,7 +11210,15 @@ window.playerState = playerState;
       } else if (currentHadum && !target.isBoss) {
         const baseMonsterDefense = (HADUM_NORMAL_STATS[currentStage] && HADUM_NORMAL_STATS[currentStage].def) || 120;
         const monsterDefense = Math.round(baseMonsterDefense * (target.isElite ? (target.eliteDefenseMult || 1.5) : 1));
-        finalDmg = Math.max(1, amount - monsterDefense);
+        if (isHeroAttack) {
+          // 하둠에서는 일반 영웅 공격이 방어력에 막혀 1~2 피해만 들어가는 문제를 방지한다.
+          // 영웅은 하둠 방어를 완전히 무시하지 않고, 원래 공격력의 35%를 최소 보장 피해로 적용한다.
+          const defenseReducedDmg = amount - monsterDefense;
+          const heroMinDmg = Math.max(5, Math.ceil(amount * 0.35));
+          finalDmg = Math.max(heroMinDmg, defenseReducedDmg);
+        } else {
+          finalDmg = Math.max(1, amount - monsterDefense);
+        }
       } else if (target.stageId === 4 && !target.isBoss && !target.isHadum) {
         // 일반4(얼음성) 일반몹: 후반 진입 난이도 상승을 위해 방어력 80 적용.
         finalDmg = Math.max(1, amount - 80);
