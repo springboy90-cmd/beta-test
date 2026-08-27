@@ -6185,11 +6185,10 @@ window.playerState = playerState;
         sprite.position.set((Math.random()-0.5)*60,1.7,(Math.random()-0.5)*60);
         scene.add(sprite);
         const mShadow=createShadowDisk(2.7,1.4);
-        // 일반: 일반4(HP 5400, 공격력108, 경험치80, 골드500, 방어력0)와
-        // 하둠1(HP 4000, 공격력285~315, 경험치300, 골드850, 방어력280)의 중간 수준으로 산정.
+        // 일반: 일반5는 후반 진입 난이도 강화를 위해 HP 7200, 공격력196~212, 방어력190으로 조정.
         // 하둠: 하둠1~4와 동일한 패턴으로 HADUM_NORMAL_STATS[5] 고정 스탯을 적용.
         monsters.push({id:`monster_${i}`,stageId:5,sprite,shadowDisk:mShadow,type:names[type],tier:5,isBoss:false,isHadum,
-          hp:isHadum?HADUM_NORMAL_STATS[5].hp:4700,maxHp:isHadum?HADUM_NORMAL_STATS[5].hp:4700,goldReward:isHadum?850:675,
+          hp:isHadum?HADUM_NORMAL_STATS[5].hp:7200,maxHp:isHadum?HADUM_NORMAL_STATS[5].hp:7200,goldReward:isHadum?850:675,
           attackPower:isHadum?HADUM_NORMAL_STATS[5].atkMin:196,
           attackPowerMin:isHadum?HADUM_NORMAL_STATS[5].atkMin:196,
           attackPowerMax:isHadum?HADUM_NORMAL_STATS[5].atkMax:212,
@@ -11205,9 +11204,12 @@ window.playerState = playerState;
         const baseMonsterDefense = (HADUM_NORMAL_STATS[currentStage] && HADUM_NORMAL_STATS[currentStage].def) || 120;
         const monsterDefense = Math.round(baseMonsterDefense * (target.isElite ? (target.eliteDefenseMult || 1.5) : 1));
         finalDmg = Math.max(1, amount - monsterDefense);
+      } else if (target.stageId === 4 && !target.isBoss && !target.isHadum) {
+        // 일반4(얼음성) 일반몹: 후반 진입 난이도 상승을 위해 방어력 80 적용.
+        finalDmg = Math.max(1, amount - 80);
       } else if (target.stageId === 5 && !target.isBoss && !target.isHadum) {
-        // 5스테이지(용궁) 일반몹: 일반4(방어력 없음)와 하둠1(방어력 280)의 중간 수준인 140을 적용.
-        finalDmg = Math.max(1, amount - 140);
+        // 일반5(용궁) 일반몹: 일반4보다 한 단계 높은 방어력 190 적용.
+        finalDmg = Math.max(1, amount - 190);
       }
 
       // 정예 철벽의: 최종 피해 20% 감소
