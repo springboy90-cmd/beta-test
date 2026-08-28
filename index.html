@@ -12926,4 +12926,67 @@ document.addEventListener('DOMContentLoaded',function(){
 <script id="clover-system-js">
 (function(){const T={premium:{name:'🍀 클로버 프리미엄',drop:2,exp:1.05,combat:.05,craft:1.05},silver:{name:'🌿 은빛 클로버',drop:3,exp:1.1,combat:.1,craft:1.1},gold:{name:'🏆 황금 클로버',drop:4,exp:1.2,combat:.2,craft:1.2}},O={premium:1,silver:2,gold:3};function e(){if(!window.playerState)return;playerState.cloverInventory={premium:0,silver:0,gold:0,...(playerState.cloverInventory||{})};playerState.cloverBuff={type:'',until:0,...(playerState.cloverBuff||{})};if(!T[playerState.cloverBuff.type]||Number(playerState.cloverBuff.until)<=Date.now())playerState.cloverBuff={type:'',until:0}}window.getActiveCloverType=()=>{e();return playerState.cloverBuff.type||''};window.getCloverDropMultiplier=()=>{e();return T[getActiveCloverType()]?.drop||1};window.getCloverExpMultiplier=()=>{e();return T[getActiveCloverType()]?.exp||1};window.getCloverCombatBonus=()=>{e();return T[getActiveCloverType()]?.combat||0};window.getCloverCraftExpMultiplier=()=>{e();return T[getActiveCloverType()]?.craft||1};window.grantCloverScaledLoot=n=>{e();const q=Math.max(0,Math.round(Number(n)||0)*getCloverDropMultiplier());playerState.talismanLoot=(Number(playerState.talismanLoot)||0)+q};window.grantClover=(t,n=1)=>{e();if(!T[t])return;playerState.cloverInventory[t]+=Math.max(1,Math.floor(Number(n)||1));if(typeof saveGame==='function')saveGame();if(typeof updateUI==='function')updateUI()};window.useClover=t=>{e();if(!T[t]||playerState.cloverInventory[t]<=0)return;const now=Date.now(),ot=getActiveCloverType(),rem=ot?Math.max(0,Number(playerState.cloverBuff.until)-now):0;let bt=(ot&&O[ot]>O[t])?ot:t;playerState.cloverInventory[t]--;playerState.cloverBuff={type:bt,until:now+rem+3600000};if(typeof saveGame==='function')saveGame();if(typeof updateUI==='function')updateUI();r()};const f=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};window.openCloverModal=()=>{e();r();const m=document.getElementById('clover-modal');if(m)m.style.display='flex'};window.closeCloverModal=()=>{const m=document.getElementById('clover-modal');if(m)m.style.display='none'};function r(){e();['premium','silver','gold'].forEach(k=>{const x=document.getElementById('clover-owned-'+k);if(x)x.textContent=playerState.cloverInventory[k].toLocaleString()});const b=document.getElementById('clover-active-box'),t=T[getActiveCloverType()];if(b)b.innerHTML=t?`${t.name} · <b>${f(playerState.cloverBuff.until-Date.now())}</b><br><small>드랍 ×${t.drop} · 사냥 EXP +${Math.round((t.exp-1)*100)}% · 공격/방어 +${Math.round(t.combat*100)}%</small>`:'현재 활성 버프 없음'}function drops(m){if(!m||m.isExperienceDungeon||m.isCraftGoldDungeon)return;if(!m.isBoss&&!m.isElite&&Math.random()<.0035)grantClover('premium');if(m.isElite&&m.isHadum&&!m.isBoss){if(Math.random()<.04)grantClover('gold');else if(Math.random()<.25)grantClover('silver')}if(m.isBoss&&m.isHadum){if(Math.random()<.08)grantClover('gold');else if(Math.random()<.30)grantClover('silver')}}function hook(){const o=window.applyDamage;if(typeof o==='function'&&!o.__cloverWrapped){const w=function(t,a){const alive=!!t?.alive,hp=Number(t?.hp||0),z=o.apply(this,arguments);if(alive&&t&&!t.alive&&hp>0)drops(t);return z};w.__cloverWrapped=true;window.applyDamage=w;return true}return false}window.addEventListener('load',()=>{e();hook();r()});setInterval(()=>{try{e();hook();const t=getActiveCloverType();if(t&&Number(playerState.cloverBuff.until)<=Date.now()){playerState.cloverBuff={type:'',until:0};if(typeof saveGame==='function')saveGame()}if(document.getElementById('clover-modal')?.style.display==='flex')r();const row=document.getElementById('clover-status-row'),v=document.getElementById('clover-status-val');if(row)row.style.display='flex';if(v)v.innerText=t?`${T[t].name} ${f(playerState.cloverBuff.until-Date.now())} · 드랍 ×${T[t].drop}`:'🍀 클로버: 없음'}catch(x){}},1000)})();
 </script>
+
+<style id="touch-scroll-fix-v1">
+/* 모바일 팝업 터치 스크롤 개선: 아이템 사이의 여백과 상하 패딩을 스크롤 영역으로 확보 */
+@media (pointer: coarse), (max-width: 900px) {
+  #guardian-inventory-panel,
+  #weapon-enhance-panel,
+  #skill-modal,
+  #skill-modal #skill-items-container,
+  #shop-modal,
+  #shop-modal #shop-items-container,
+  #hero-manager-modal,
+  #craft-gold-dungeon-modal,
+  #stage-modal,
+  #exp-dungeon-modal,
+  #clover-modal .clover-scroll,
+  #wc-panel, #wc-body {
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
+  }
+
+  /* 촘촘한 장비 목록에서도 손가락을 움직일 '스크롤 여유 공간' 확보 */
+  #guardian-inventory-list {
+    padding: 10px 4px 30px !important;
+    touch-action: pan-y !important;
+  }
+  #guardian-inventory-list > * {
+    margin-bottom: 10px !important;
+    touch-action: pan-y !important;
+  }
+  #guardian-inventory-panel::after {
+    content: '';
+    display: block;
+    height: 24px;
+    flex: 0 0 24px;
+  }
+
+  /* 스킬처럼 카드 사이 여백을 확보해 짧게 드래그해도 스크롤이 시작되도록 */
+  #skill-modal #skill-items-container {
+    padding: 8px 5px 32px !important;
+    row-gap: 12px !important;
+  }
+  #skill-modal #skill-items-container > * {
+    margin-bottom: 6px !important;
+    touch-action: pan-y !important;
+  }
+
+  #weapon-enhance-modal #weapon-enhance-panel,
+  #weapon-enhance-panel {
+    padding-bottom: 28px !important;
+  }
+
+  /* 팝업 내부 버튼/카드 위에서도 세로 제스처를 스크롤로 우선 처리 */
+  #guardian-inventory-panel button,
+  #weapon-enhance-panel button,
+  #skill-modal #skill-items-container button,
+  #hero-manager-modal button,
+  #clover-modal .clover-card,
+  #clover-modal .clover-card button {
+    touch-action: pan-y !important;
+  }
+}
+</style>
 </body>
