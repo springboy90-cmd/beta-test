@@ -8709,7 +8709,10 @@ window.playerState = playerState;
       draw(c){if(Math.random()>0.7)this.refresh();c.save();c.strokeStyle='#e056fd';c.lineWidth=2;c.shadowColor='#ffffff';c.shadowBlur=8;c.beginPath();c.moveTo(this.points[0].x,this.points[0].y);for(let i=1;i<this.points.length;i++)c.lineTo(this.points[i].x,this.points[i].y);c.stroke();c.restore();}
     }
     class OriginalFluidSwordWave {
-      constructor(){this.x=210;this.y=110;this.vx=22;this.life=1;this.decay=0.025;this.scale=0.1;this.smokes=[];this.lightning1=new OriginalAuraLightning(180);this.lightning2=new OriginalAuraLightning(150);}
+      // 원본 데모(900x500 캔버스)에서 검기는 player.x+30(=380)에서 출발해 vx=22로
+      // 우측으로 계속 뻗어나간다. 이식 캔버스에서도 같은 시작 x, 같은 vx를 써야
+      // "제자리에서 부풀기만 하는" 느낌이 아니라 "찢어지듯 뻗어나가는" 원본 느낌이 산다.
+      constructor(){this.x=110;this.y=110;this.vx=22;this.life=1;this.decay=0.025;this.scale=0.1;this.smokes=[];this.lightning1=new OriginalAuraLightning(180);this.lightning2=new OriginalAuraLightning(150);}
       update(){this.x+=this.vx;this.life-=this.decay;if(this.scale<1)this.scale+=0.15;for(let i=0;i<3;i++)this.smokes.push(new OriginalTrailSmoke(this.x-120*this.scale,this.y+(Math.random()-0.5)*40,this.vx));for(let i=this.smokes.length-1;i>=0;i--){this.smokes[i].update();if(this.smokes[i].life<=0)this.smokes.splice(i,1);}return this.life>0;}
       draw(c){this.smokes.forEach(s=>s.draw(c));c.save();c.translate(this.x,this.y);c.scale(this.scale,this.scale);c.globalAlpha=Math.max(0,this.life);c.globalCompositeOperation='lighter';
         c.fillStyle='#4a00e0';c.shadowColor='#8e2de2';c.shadowBlur=30;c.beginPath();c.moveTo(30,0);c.bezierCurveTo(0,-50,-80,-60,-180,-20);c.bezierCurveTo(-120,0,-150,40,-180,50);c.bezierCurveTo(-80,50,0,40,30,0);c.fill();
@@ -8724,29 +8727,40 @@ window.playerState = playerState;
       // 원본 코드와 동일한 900x500 투명 Canvas를 사용한다.
       // 단, 원본 캔버스 전체를 화면에 꽉 채우면 검기가 작아지므로 실제 검기 위치를
       // 중앙으로 옮겨 그린 뒤 Sprite 크기만 월드 스케일로 조절한다.
-      const cvs=document.createElement('canvas');cvs.width=420;cvs.height=220;
+      // 원본은 900x500 캔버스에서 검기가 x:110→110+22*40=990까지, 연기 꼬리(120*scale)와
+      // 스피드라인(-200)까지 포함하면 폭 약 900px 궤적을 그린다. 이식 캔버스도 그 비율을
+      // 유지할 수 있도록 폭을 넉넉히 잡아, 검기가 캔버스 중앙에 고정된 채 커지기만 하는 게
+      // 아니라 실제로 화면 폭을 가로질러 "뻗어나가도록" 한다.
+      const cvs=document.createElement('canvas');cvs.width=900;cvs.height=260;
       const ctx=cvs.getContext('2d');const tex=new THREE.CanvasTexture(cvs);tex.needsUpdate=true;tex.magFilter=THREE.LinearFilter;tex.minFilter=THREE.LinearFilter;tex.generateMipmaps=false;
       const mat=new THREE.SpriteMaterial({map:tex,transparent:true,opacity:1,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,toneMapped:false});
       const sp=new THREE.Sprite(mat);sp.renderOrder=190;
       const dir=targetPos.clone().sub(sourcePos);dir.y=0;if(dir.lengthSq()<0.0001)dir.set(1,0,0);dir.normalize();
       const dist=Math.max(0.1,sourcePos.distanceTo(targetPos));
-      sp.position.copy(sourcePos).add(new THREE.Vector3(0,1.05,0));
-      // 원본 검기 실질 폭 약 230px을 게임에서 약 5m로 보이게 한다.
-      const worldWidth=Math.max(5.0,Math.min(7.0,dist*1.35));
-      sp.scale.set(worldWidth,worldWidth*(220/420),1);
+      // 스프라이트는 시작점과 목표점의 중간에 고정해두고, 캔버스 내부 애니메이션만으로
+      // 검기가 시작→목표 방향으로 뻗어나가는 것을 표현한다(원본처럼 궤적 자체가 그림 안에서 진행).
+      const midPos=sourcePos.clone().lerp(targetPos,0.5);
+      sp.position.copy(midPos).add(new THREE.Vector3(0,1.05,0));
+      // 원본 900px 폭 궤적을 실제 사거리(dist)의 약 4배 폭으로 매핑한다.
+      // 기존 6.5~11m 범위는 몬스터(반경 0.4~0.6m 캡슐)보다도 작아 보이는 문제가 있었으므로
+      // 최소/최대 폭을 크게 올려 몬스터를 확실히 뒤덮는 크기로 만든다.
+      const worldWidth=Math.max(13.0,Math.min(20.0,dist*4.0));
+      sp.scale.set(worldWidth,worldWidth*(260/900),1);
       // 원본 검기는 Canvas 안에서 오른쪽을 향한다. Sprite 회전은 카메라 평면 기준으로만 적용한다.
       sp.material.rotation=Math.atan2(dir.x,dir.z);
       scene.add(sp);
-      activeHitVfx.push({sprite:sp,timer:0,duration:1.65,originalSwordFx:true,canvas:cvs,ctx,texture:tex,wave:new OriginalFluidSwordWave(),start:sourcePos.clone(),target:targetPos.clone(),dir:dir.clone(),radius});
+      activeHitVfx.push({sprite:sp,timer:0,duration:1.65,originalSwordFx:true,canvas:cvs,ctx,texture:tex,wave:new OriginalFluidSwordWave(),start:sourcePos.clone(),target:targetPos.clone(),mid:midPos.clone(),dir:dir.clone(),radius});
     }
     function spawnNewClassSkillVfx(worldPos,skillId,sourcePos=null,radius=4){
       if(skillId==='s2_5'){spawnOriginalSwordWaveVfx(sourcePos?sourcePos.clone():worldPos.clone(),worldPos.clone(),radius);return;}
       const root=new THREE.Group();root.position.copy(worldPos);root.renderOrder=180;scene.add(root);const tex=createNewSkillFxTextures(skillId);
+      // 운석/폭발/마법진이 기존엔 일반 몹보다도 작게 보이는 문제가 있어 전체적으로 스케일을 키운다.
+      // meteor는 낙하 중인 불덩이 자체 크기, burst/magic은 착지 폭발/마법진 크기로 radius에 비례해 커진다.
       const magic=new THREE.Sprite(new THREE.SpriteMaterial({map:tex.magic,transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,toneMapped:false}));magic.scale.set(.2,.2,1);magic.position.y=.08;root.add(magic);
       const burst=new THREE.Sprite(new THREE.SpriteMaterial({map:tex.burst,transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,toneMapped:false}));burst.scale.set(.2,.2,1);burst.position.y=.9;root.add(burst);
-      const meteor=new THREE.Sprite(new THREE.SpriteMaterial({map:tex.meteor,transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,toneMapped:false}));meteor.scale.set(1,1,1);meteor.position.y=5.5;root.add(meteor);
-      const trail=new THREE.Sprite(new THREE.SpriteMaterial({map:tex.trail,transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,toneMapped:false}));trail.scale.set(.8,1.8,1);trail.position.set(0,6.5,-.05);root.add(trail);
-      const embers=[];for(let i=0;i<18;i++){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex.ember,transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,toneMapped:false}));const a=Math.random()*Math.PI*2,r=.5+Math.random()*radius*.9;sp.scale.set(.15+Math.random()*.18,.15+Math.random()*.18,1);sp.position.set(Math.cos(a)*r,.15,Math.sin(a)*r);root.add(sp);embers.push({sprite:sp,a,r,vy:.8+Math.random()*1.8,spin:(Math.random()-.5)*5});}
+      const meteor=new THREE.Sprite(new THREE.SpriteMaterial({map:tex.meteor,transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,toneMapped:false}));meteor.scale.set(2.6,2.6,1);meteor.position.y=5.5;root.add(meteor);
+      const trail=new THREE.Sprite(new THREE.SpriteMaterial({map:tex.trail,transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,toneMapped:false}));trail.scale.set(1.8,3.6,1);trail.position.set(0,6.5,-.05);root.add(trail);
+      const embers=[];for(let i=0;i<18;i++){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex.ember,transparent:true,opacity:0,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,toneMapped:false}));const a=Math.random()*Math.PI*2,r=.5+Math.random()*radius*.9;sp.scale.set(.35+Math.random()*.35,.35+Math.random()*.35,1);sp.position.set(Math.cos(a)*r,.15,Math.sin(a)*r);root.add(sp);embers.push({sprite:sp,a,r,vy:.8+Math.random()*1.8,spin:(Math.random()-.5)*5});}
       activeHitVfx.push({sprite:root,timer:0,duration:1.65,newMeteorFx:true,magic,burst,meteor,trail,embers,radius});
     }
 
@@ -8910,7 +8924,7 @@ window.playerState = playerState;
           .filter(m => m.alive && center.distanceTo(m.sprite.position) <= 4.0)
           .sort((a,b) => center.distanceTo(a.sprite.position) - center.distanceTo(b.sprite.position))
           .slice(0, 10);
-        spawnNewClassSkillVfx(center, 's2_6', playerSprite.position, 4.0);
+        spawnNewClassSkillVfx(center, 's2_6', playerSprite.position, 6.5);
         targets.forEach(m => {
           spawnHitVfx(m.sprite.position, 'explosion', 1.8);
           applyDamage(m, getPlayerActualDmg(mult));
@@ -9995,19 +10009,20 @@ window.playerState = playerState;
         if (v.originalSwordFx) {
           const t=v.timer, wave=v.wave;
           // 사용자 원본 FluidSwordWave의 실제 update/draw 순서를 그대로 유지한다.
+          // 캔버스 좌표는 wave.x를 그대로 사용해서 그린다(중앙 고정 보정 없음) —
+          // 이것이 원본에서 검기가 "제자리에서 부풀지 않고 화면을 가로질러 뻗어나가는" 이유다.
           wave.update();
           v.ctx.clearRect(0,0,v.canvas.width,v.canvas.height);
           v.ctx.save();
-          v.ctx.translate(210,110);
-          v.ctx.scale(0.92,0.92);
-          v.ctx.translate(-wave.x,-wave.y);
+          v.ctx.translate(0,v.canvas.height/2);
           wave.draw(v.ctx);
           v.ctx.restore();
           v.texture.needsUpdate=true;
-          // 게임 좌표에서는 시작점에서 선택 타겟까지 이동. Sprite 자체는 billboard이므로
-          // 원본의 '오른쪽으로 발사' 방향을 유지하고, 진행 방향은 월드 위치로 처리한다.
+          // 스프라이트 자체는 시작~목표 중간점에 고정해둔다. 전진하는 느낌은
+          // 캔버스 내부에서 wave.x가 흘러가는 것만으로 이미 표현되므로,
+          // 월드 이동은 살짝만 겹쳐서(약한 lerp) 타격 지점 쪽으로 자연스럽게 붙여준다.
           const moveP=Math.min(1,t/0.75), eased=1-Math.pow(1-moveP,2.2);
-          v.sprite.position.copy(v.start).lerp(v.target,eased).add(new THREE.Vector3(0,1.05,0));
+          v.sprite.position.copy(v.start).lerp(v.target,eased*0.35).add(new THREE.Vector3(0,1.05,0));
           v.sprite.material.opacity=Math.max(0,1-Math.max(0,t-0.95)/0.35);
           if(t>=v.duration){scene.remove(v.sprite);v.texture.dispose();v.sprite.material.dispose();activeHitVfx.splice(i,1);} continue;
         }
