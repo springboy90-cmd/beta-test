@@ -1178,14 +1178,14 @@
 }
 </style>
 <style id="weapon-crafting-css">
-#wc-modal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);padding:12px}#wc-panel{width:min(920px,96vw);max-height:92vh;overflow:auto;background:#111923;border:2px solid #c89b52;border-radius:14px;color:#eee;font-family:inherit;box-shadow:0 15px 50px #000}#wc-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #3d4855}#wc-head h2{margin:0;color:#ffd166;font-size:21px}#wc-close{width:38px;height:34px;border:0;border-radius:7px;background:#333;color:#fff;font-size:21px}#wc-body{padding:12px}.wc-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.wc-tab,.wc-grade{border:1px solid #505a66;background:#18212b;color:#ddd;border-radius:8px;padding:8px;cursor:pointer}.wc-tab.active,.wc-grade.active{border-color:#ffd166;background:#302613;color:#ffe08a}.wc-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:10px}.wc-card{background:#0b1118;border:1px solid #394552;border-radius:10px;padding:11px}.wc-grades{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.wc-grade b{display:block}.wc-grade small{font-size:10px;color:#aab4c0}.wc-materials{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:9px}.wc-mat{background:#151d26;border-radius:6px;padding:7px;font-size:12px}.wc-preview{height:170px;display:flex;align-items:center;justify-content:center;position:relative;background:#060a0f;border-radius:8px;overflow:hidden}.wc-icon{font-size:72px}.wc-stats{line-height:1.65;margin-top:8px;font-size:13px}.wc-actions{display:flex;gap:7px;justify-content:center;margin-top:10px;flex-wrap:wrap}.wc-actions button{padding:10px 16px;border:0;border-radius:8px;background:#c9953e;color:#16100a;font-weight:900}.wc-actions button:disabled{opacity:.4}.wc-result{text-align:center;min-height:35px;margin-top:8px;color:#ffe08a;font-weight:800}.wc-history{max-height:110px;overflow:auto;font-size:11px;color:#aeb8c4;margin-top:8px}.wc-help{font-size:11px;color:#8f9aa8;line-height:1.5;margin-top:9px}@media(max-width:700px){.wc-grid{grid-template-columns:1fr}.wc-grades{grid-template-columns:repeat(3,1fr)}}
+#wc-modal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);padding:12px}#wc-panel{width:min(920px,96vw);max-height:92vh;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;background:#111923;border:2px solid #c89b52;border-radius:14px;color:#eee;font-family:inherit;box-shadow:0 15px 50px #000}#wc-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #3d4855}#wc-head h2{margin:0;color:#ffd166;font-size:21px}#wc-close{width:38px;height:34px;border:0;border-radius:7px;background:#333;color:#fff;font-size:21px}#wc-body{padding:12px}.wc-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.wc-tab,.wc-grade{border:1px solid #505a66;background:#18212b;color:#ddd;border-radius:8px;padding:8px;cursor:pointer}.wc-tab.active,.wc-grade.active{border-color:#ffd166;background:#302613;color:#ffe08a}.wc-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:10px}.wc-card{background:#0b1118;border:1px solid #394552;border-radius:10px;padding:11px}.wc-grades{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.wc-grade b{display:block}.wc-grade small{font-size:10px;color:#aab4c0}.wc-materials{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:9px}.wc-mat{background:#151d26;border-radius:6px;padding:7px;font-size:12px}.wc-preview{height:170px;display:flex;align-items:center;justify-content:center;position:relative;background:#060a0f;border-radius:8px;overflow:hidden}.wc-icon{font-size:72px}.wc-stats{line-height:1.65;margin-top:8px;font-size:13px}.wc-actions{display:flex;gap:7px;justify-content:center;margin-top:10px;flex-wrap:wrap}.wc-actions button{padding:10px 16px;border:0;border-radius:8px;background:#c9953e;color:#16100a;font-weight:900}.wc-actions button:disabled{opacity:.4}.wc-result{text-align:center;min-height:35px;margin-top:8px;color:#ffe08a;font-weight:800}.wc-history{max-height:110px;overflow:auto;font-size:11px;color:#aeb8c4;margin-top:8px}.wc-help{font-size:11px;color:#8f9aa8;line-height:1.5;margin-top:9px}@media(max-width:700px){.wc-grid{grid-template-columns:1fr}.wc-grades{grid-template-columns:repeat(3,1fr)}}
 </style><style id="weapon-crafting-mobile-ui-fix">
 #wc-modal{box-sizing:border-box;padding:8px!important;overflow:hidden!important}
 #wc-panel{box-sizing:border-box;width:min(920px,100%)!important;max-width:100%!important;max-height:calc(100dvh - 16px)!important;overflow:hidden!important;border-radius:12px!important}
 #wc-head{padding:8px 10px!important;min-height:42px!important}
 #wc-head h2{font-size:17px!important;line-height:1.1!important}
 #wc-close{width:34px!important;height:32px!important;font-size:20px!important;flex:0 0 auto!important}
-#wc-body{box-sizing:border-box;padding:8px!important;max-height:calc(100dvh - 66px)!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important}
+#wc-body{box-sizing:border-box;padding:8px!important;max-height:calc(100dvh - 66px)!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important}
 .wc-tabs{gap:5px!important;margin-bottom:6px!important}.wc-tab{padding:6px 8px!important;font-size:11px!important}
 .wc-grid{grid-template-columns:1fr!important;gap:6px!important}.wc-card{padding:7px!important;border-radius:8px!important}.wc-card:nth-child(2){display:none!important}
 .wc-grades{grid-template-columns:repeat(5,1fr)!important;gap:3px!important}.wc-grade{padding:4px 1px!important;border-radius:6px!important;min-width:0!important;text-align:center!important}.wc-grade b{font-size:10px!important;white-space:nowrap!important}.wc-grade small{font-size:7px!important;white-space:nowrap!important}
@@ -1613,8 +1613,18 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
        .modal 요소 중 하나라도 display:block/flex 등으로 열려 있으면 body에 modal-open을 붙여
        body의 전역 touch-action:none을 일시 해제한다. 팝업이 모두 닫히면 다시 제거한다. */
     (function setupModalTouchFix() {
+      // 기존에는 '.modal' 클래스를 가진 팝업만 감시했는데, 무기 제작소(#wc-modal)와
+      // 클로버 보관함(#clover-modal)처럼 .modal 클래스 없이 id만 '-modal'로 끝나는
+      // 팝업은 감시 대상에서 빠져 body의 touch-action:none이 풀리지 않았고,
+      // 그 결과 해당 팝업 내부의 세로 스크롤이 먹지 않는 문제가 있었다.
+      // id가 '-modal'로 끝나는 모든 최상위 팝업을 함께 감시해 이 문제를 근본적으로 막는다.
+      function getAllModalEls() {
+        const byClass = Array.from(document.querySelectorAll('.modal'));
+        const byId = Array.from(document.querySelectorAll('[id$="-modal"]'));
+        return Array.from(new Set([...byClass, ...byId]));
+      }
       function syncModalOpenState() {
-        const anyOpen = Array.from(document.querySelectorAll('.modal')).some(m => {
+        const anyOpen = getAllModalEls().some(m => {
           const d = m.style.display || getComputedStyle(m).display;
           return d && d !== 'none';
         });
@@ -1622,13 +1632,13 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
       }
       const observer = new MutationObserver(syncModalOpenState);
       document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('.modal').forEach(m => {
+        getAllModalEls().forEach(m => {
           observer.observe(m, { attributes: true, attributeFilter: ['style', 'class'] });
         });
         syncModalOpenState();
       });
       if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        document.querySelectorAll('.modal').forEach(m => {
+        getAllModalEls().forEach(m => {
           observer.observe(m, { attributes: true, attributeFilter: ['style', 'class'] });
         });
         syncModalOpenState();
@@ -1719,10 +1729,10 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
       3: { hp: 12500, atkMin: 585, atkMax: 715, def: 850 },
       4: { hp: 20000, atkMin: 810, atkMax: 990, def: 1000 },
       5: { hp: 26000, atkMin: 1050, atkMax: 1280, def: 1250 },
-      // 하둠6 신수협곡: 하둠5 대비 약 27% HP / 20~29% 공격 / 16% 방어 상승
-      6: { hp: 33000, atkMin: 1350, atkMax: 1650, def: 1450 },
-      // 하둠7 신수협곡 2층: 하둠6 대비 HP 약 27% / 공격 약 21~22% / 방어 약 17% 상승
-      7: { hp: 42000, atkMin: 1650, atkMax: 2000, def: 1700 }
+      // 하둠6 신수협곡: 하둠5를 주력 파밍 기준으로 두고 엔드 구간 난이도 상향
+      6: { hp: 42000, atkMin: 1350, atkMax: 1650, def: 2100 },
+      // 하둠7 신수협곡 2층: 최종 파밍 구간으로 확실한 난이도 계단 형성
+      7: { hp: 58000, atkMin: 1650, atkMax: 2000, def: 2600 }
     };
     let zoomLevel = 1.0;
     const baseCameraOffset = new THREE.Vector3(0, 20, 20);
