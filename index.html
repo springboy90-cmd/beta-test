@@ -1723,16 +1723,21 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
     // HP: 4,000 / 8,000 / 12,500 / 20,000
     // 방어력: 280 / 400 / 850 / 1000 (유저 공격력에서 그대로 차감되는 고정 방어력)
     // 공격력: 285~315 / 425~455 / 585~715 / 810~990 (공격마다 랜덤)
+    // 하둠 속성 공격 설정: 일반 몬스터 공격의 30%가 해당 지역 속성 공격으로 판정됨.
+    const HADUM_ELEMENTAL_ATTACK_CHANCE = 0.30;
+    const HADUM_ELEMENT_BY_STAGE = { 3: 'fire', 4: 'ice', 5: 'ice', 6: 'fire', 7: 'wind' };
+    const HADUM_ELEMENT_NAMES = { fire: '화염', ice: '빙결', wind: '바람' };
+
     const HADUM_NORMAL_STATS = {
       1: { hp: 4000, atkMin: 285, atkMax: 315, def: 280 },
       2: { hp: 8000, atkMin: 425, atkMax: 455, def: 400 },
       3: { hp: 12500, atkMin: 585, atkMax: 715, def: 850 },
       4: { hp: 20000, atkMin: 810, atkMax: 990, def: 1000 },
       5: { hp: 26000, atkMin: 1050, atkMax: 1280, def: 1250 },
-      // 하둠6 신수협곡: 하둠5를 주력 파밍 기준으로 두고 엔드 구간 난이도 상향
-      6: { hp: 42000, atkMin: 1350, atkMax: 1650, def: 2100 },
-      // 하둠7 신수협곡 2층: 최종 파밍 구간으로 확실한 난이도 계단 형성
-      7: { hp: 58000, atkMin: 1650, atkMax: 2000, def: 2600 }
+      // 하둠6 신수협곡: 하둠5 대비 약 27% HP / 20~29% 공격 / 16% 방어 상승
+      6: { hp: 33000, atkMin: 1350, atkMax: 1650, def: 1450 },
+      // 하둠7 신수협곡 2층: 하둠6 대비 HP 약 27% / 공격 약 21~22% / 방어 약 17% 상승
+      7: { hp: 42000, atkMin: 1650, atkMax: 2000, def: 1700 }
     };
     let zoomLevel = 1.0;
     const baseCameraOffset = new THREE.Vector3(0, 20, 20);
@@ -4919,8 +4924,8 @@ window.playerState = playerState;
 
     function getElementalAttackShare(stage) {
       if (!currentHadum) return 0;
-      if (stage >= 3 && stage <= 5) return 0.40;
-      if (stage === 6 || stage === 7) return 0.40;
+      if (stage >= 3 && stage <= 5) return HADUM_ELEMENTAL_ATTACK_CHANCE;
+      if (stage === 6 || stage === 7) return HADUM_ELEMENTAL_ATTACK_CHANCE;
       return 0;
     }
 
@@ -10314,9 +10319,13 @@ window.playerState = playerState;
       playerState.hp -= hpDamage;
       if (mpDamage > 0) showPlayerDamageText(`-${hpDamage} HP / -${mpDamage} MP`, playerSprite.position);
       else showPlayerDamageText(hpDamage, playerSprite.position);
-      if (elementalType && elementalReduced > 0) {
-        const label = GUARDIAN_RESIST_LABELS[elementalType] || elementalType;
-        showHealText(`${label} 저항으로 ${elementalReduced} 피해 감소`, playerSprite.position);
+      if (elementalType && elementalShare > 0 && Math.random() < 0.18) {
+        const label = HADUM_ELEMENT_NAMES[elementalType] || elementalType;
+        if (elementalReduced > 0) {
+          showHealText(`⚡ ${label} 속성 공격 · 저항으로 ${elementalReduced} 피해 감소`, playerSprite.position);
+        } else {
+          showHealText(`⚡ ${label} 속성 공격`, playerSprite.position);
+        }
       }
 
       if (playerState.hp <= 0) {
@@ -12926,67 +12935,4 @@ document.addEventListener('DOMContentLoaded',function(){
 <script id="clover-system-js">
 (function(){const T={premium:{name:'🍀 클로버 프리미엄',drop:2,exp:1.05,combat:.05,craft:1.05},silver:{name:'🌿 은빛 클로버',drop:3,exp:1.1,combat:.1,craft:1.1},gold:{name:'🏆 황금 클로버',drop:4,exp:1.2,combat:.2,craft:1.2}},O={premium:1,silver:2,gold:3};function e(){if(!window.playerState)return;playerState.cloverInventory={premium:0,silver:0,gold:0,...(playerState.cloverInventory||{})};playerState.cloverBuff={type:'',until:0,...(playerState.cloverBuff||{})};if(!T[playerState.cloverBuff.type]||Number(playerState.cloverBuff.until)<=Date.now())playerState.cloverBuff={type:'',until:0}}window.getActiveCloverType=()=>{e();return playerState.cloverBuff.type||''};window.getCloverDropMultiplier=()=>{e();return T[getActiveCloverType()]?.drop||1};window.getCloverExpMultiplier=()=>{e();return T[getActiveCloverType()]?.exp||1};window.getCloverCombatBonus=()=>{e();return T[getActiveCloverType()]?.combat||0};window.getCloverCraftExpMultiplier=()=>{e();return T[getActiveCloverType()]?.craft||1};window.grantCloverScaledLoot=n=>{e();const q=Math.max(0,Math.round(Number(n)||0)*getCloverDropMultiplier());playerState.talismanLoot=(Number(playerState.talismanLoot)||0)+q};window.grantClover=(t,n=1)=>{e();if(!T[t])return;playerState.cloverInventory[t]+=Math.max(1,Math.floor(Number(n)||1));if(typeof saveGame==='function')saveGame();if(typeof updateUI==='function')updateUI()};window.useClover=t=>{e();if(!T[t]||playerState.cloverInventory[t]<=0)return;const now=Date.now(),ot=getActiveCloverType(),rem=ot?Math.max(0,Number(playerState.cloverBuff.until)-now):0;let bt=(ot&&O[ot]>O[t])?ot:t;playerState.cloverInventory[t]--;playerState.cloverBuff={type:bt,until:now+rem+3600000};if(typeof saveGame==='function')saveGame();if(typeof updateUI==='function')updateUI();r()};const f=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};window.openCloverModal=()=>{e();r();const m=document.getElementById('clover-modal');if(m)m.style.display='flex'};window.closeCloverModal=()=>{const m=document.getElementById('clover-modal');if(m)m.style.display='none'};function r(){e();['premium','silver','gold'].forEach(k=>{const x=document.getElementById('clover-owned-'+k);if(x)x.textContent=playerState.cloverInventory[k].toLocaleString()});const b=document.getElementById('clover-active-box'),t=T[getActiveCloverType()];if(b)b.innerHTML=t?`${t.name} · <b>${f(playerState.cloverBuff.until-Date.now())}</b><br><small>드랍 ×${t.drop} · 사냥 EXP +${Math.round((t.exp-1)*100)}% · 공격/방어 +${Math.round(t.combat*100)}%</small>`:'현재 활성 버프 없음'}function drops(m){if(!m||m.isExperienceDungeon||m.isCraftGoldDungeon)return;if(!m.isBoss&&!m.isElite&&Math.random()<.0035)grantClover('premium');if(m.isElite&&m.isHadum&&!m.isBoss){if(Math.random()<.04)grantClover('gold');else if(Math.random()<.25)grantClover('silver')}if(m.isBoss&&m.isHadum){if(Math.random()<.08)grantClover('gold');else if(Math.random()<.30)grantClover('silver')}}function hook(){const o=window.applyDamage;if(typeof o==='function'&&!o.__cloverWrapped){const w=function(t,a){const alive=!!t?.alive,hp=Number(t?.hp||0),z=o.apply(this,arguments);if(alive&&t&&!t.alive&&hp>0)drops(t);return z};w.__cloverWrapped=true;window.applyDamage=w;return true}return false}window.addEventListener('load',()=>{e();hook();r()});setInterval(()=>{try{e();hook();const t=getActiveCloverType();if(t&&Number(playerState.cloverBuff.until)<=Date.now()){playerState.cloverBuff={type:'',until:0};if(typeof saveGame==='function')saveGame()}if(document.getElementById('clover-modal')?.style.display==='flex')r();const row=document.getElementById('clover-status-row'),v=document.getElementById('clover-status-val');if(row)row.style.display='flex';if(v)v.innerText=t?`${T[t].name} ${f(playerState.cloverBuff.until-Date.now())} · 드랍 ×${T[t].drop}`:'🍀 클로버: 없음'}catch(x){}},1000)})();
 </script>
-
-<style id="touch-scroll-fix-v1">
-/* 모바일 팝업 터치 스크롤 개선: 아이템 사이의 여백과 상하 패딩을 스크롤 영역으로 확보 */
-@media (pointer: coarse), (max-width: 900px) {
-  #guardian-inventory-panel,
-  #weapon-enhance-panel,
-  #skill-modal,
-  #skill-modal #skill-items-container,
-  #shop-modal,
-  #shop-modal #shop-items-container,
-  #hero-manager-modal,
-  #craft-gold-dungeon-modal,
-  #stage-modal,
-  #exp-dungeon-modal,
-  #clover-modal .clover-scroll,
-  #wc-panel, #wc-body {
-    -webkit-overflow-scrolling: touch !important;
-    overscroll-behavior: contain !important;
-    touch-action: pan-y !important;
-  }
-
-  /* 촘촘한 장비 목록에서도 손가락을 움직일 '스크롤 여유 공간' 확보 */
-  #guardian-inventory-list {
-    padding: 10px 4px 30px !important;
-    touch-action: pan-y !important;
-  }
-  #guardian-inventory-list > * {
-    margin-bottom: 10px !important;
-    touch-action: pan-y !important;
-  }
-  #guardian-inventory-panel::after {
-    content: '';
-    display: block;
-    height: 24px;
-    flex: 0 0 24px;
-  }
-
-  /* 스킬처럼 카드 사이 여백을 확보해 짧게 드래그해도 스크롤이 시작되도록 */
-  #skill-modal #skill-items-container {
-    padding: 8px 5px 32px !important;
-    row-gap: 12px !important;
-  }
-  #skill-modal #skill-items-container > * {
-    margin-bottom: 6px !important;
-    touch-action: pan-y !important;
-  }
-
-  #weapon-enhance-modal #weapon-enhance-panel,
-  #weapon-enhance-panel {
-    padding-bottom: 28px !important;
-  }
-
-  /* 팝업 내부 버튼/카드 위에서도 세로 제스처를 스크롤로 우선 처리 */
-  #guardian-inventory-panel button,
-  #weapon-enhance-panel button,
-  #skill-modal #skill-items-container button,
-  #hero-manager-modal button,
-  #clover-modal .clover-card,
-  #clover-modal .clover-card button {
-    touch-action: pan-y !important;
-  }
-}
-</style>
 </body>
