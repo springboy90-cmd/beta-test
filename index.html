@@ -5144,9 +5144,13 @@ window.playerState = playerState;
       if (isMunyeahanaBuffActive()) {
         atk *= (1 + getMunyeahanaBuffRate());
       }
+      // 파수꾼 개별 부위 강화 수치는 '해당 부위를 장착'했으면 풀세트 여부와 무관하게 항상 반영한다.
+      // (기존에는 isGuardianSetComplete() 안에서만 더해져, 4부위를 모두 갖추고 '풀세트 장착'까지
+      //  켜야만 강화한 공격력이 실전에 반영되는 문제가 있었다. 세트 전용 보너스(+15% 등)만
+      //  풀세트 조건을 유지하고, 부위별 강화 수치는 별도로 항상 더한다.)
+      atk += getGuardianEnhanceAtk();
       if (isGuardianSetComplete()) {
         atk *= (1 + GUARDIAN_SET_ATK_BONUS);
-        atk += getGuardianEnhanceAtk();
       }
       if (typeof getWeaponCraftAttackBonus === 'function') atk += getWeaponCraftAttackBonus();
       if (isSuraGangrimActive()) atk *= 1.5;
@@ -5159,9 +5163,8 @@ window.playerState = playerState;
       if (isMunyeahanaBuffActive()) {
         def *= (1 + getMunyeahanaBuffRate());
       }
-      if (isGuardianSetComplete()) {
-        def += getGuardianEnhanceDef();
-      }
+      // 방어력도 동일하게, 장착한 부위의 강화 수치는 풀세트 여부와 무관하게 항상 반영한다.
+      def += getGuardianEnhanceDef();
       return Math.round(def);
     }
 
@@ -11026,7 +11029,12 @@ window.playerState = playerState;
           guardianRow.style.display = 'flex';
           // 상태창의 파수꾼 세트 효과는 핵심 능력치 두 가지만 간결하게 표시한다.
           // 공격력은 기존 풀세트 효과(+15%), 방어력은 현재 장착된 파수꾼 부위 강화로 얻는 수치다.
-          const guardianAtkText = isGuardianSetComplete() ? `+${Math.round(GUARDIAN_SET_ATK_BONUS * 100)}%` : '+0%';
+          // 파수꾼셋트 효과 표시: 부위별 강화 수치는 장착만 해도 항상 반영되고,
+          // 풀세트 %보너스는 4부위를 모두 장착했을 때만 추가로 붙는다.
+          const guardianAtkExtra = getGuardianEnhanceAtk();
+          const guardianAtkText = isGuardianSetComplete()
+            ? `+${Math.round(GUARDIAN_SET_ATK_BONUS * 100)}%${guardianAtkExtra ? ` · +${guardianAtkExtra.toLocaleString()}` : ''}`
+            : (guardianAtkExtra ? `+${guardianAtkExtra.toLocaleString()}` : '+0');
           const guardianDefText = `+${getGuardianEnhanceDef().toLocaleString()}`;
           guardianVal.innerText = `🔥 파수꾼셋트 : ⚔️ 공격력 ${guardianAtkText} · 🛡️ 방어력 ${guardianDefText}`;
         } else {
