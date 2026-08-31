@@ -1719,6 +1719,7 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
     const HADUM_MULT = 2; // 하둠 영역 몹 공격력/HP/경험치 배율 (보스에 적용)
     const HADUM_STAGE1_HP_MULT = 1.5; // 하둠 초보자 사냥터(1스테이지) 보스 전용 추가 체력 배율
     const HADUM_HP_EXTRA_MULT = 2; // 하둠 보스 현재 HP 추가 2배
+    const HADUM_STAGE5_7_HP_MULT = 1.3; // 하둠5~7 전체 몬스터(보스 포함) HP 1.3배
     // 하둠 스테이지별 일반 몬스터 고정 스탯 (요청 기준표 반영)
     // HP: 4,000 / 8,000 / 12,500 / 20,000
     // 방어력: 280 / 400 / 850 / 1000 (유저 공격력에서 그대로 차감되는 고정 방어력)
@@ -6210,7 +6211,7 @@ window.playerState = playerState;
         // 일반: 일반5는 후반 진입 난이도 강화를 위해 HP 7200, 공격력196~212, 방어력190으로 조정.
         // 하둠: 하둠1~4와 동일한 패턴으로 HADUM_NORMAL_STATS[5] 고정 스탯을 적용.
         monsters.push({id:`monster_${i}`,stageId:5,sprite,shadowDisk:mShadow,type:names[type],tier:5,isBoss:false,isHadum,
-          hp:isHadum?HADUM_NORMAL_STATS[5].hp:7200,maxHp:isHadum?HADUM_NORMAL_STATS[5].hp:7200,goldReward:isHadum?850:675,
+          hp:isHadum?HADUM_NORMAL_STATS[5].hp*HADUM_STAGE5_7_HP_MULT:7200,maxHp:isHadum?HADUM_NORMAL_STATS[5].hp*HADUM_STAGE5_7_HP_MULT:7200,goldReward:isHadum?850:675,
           attackPower:isHadum?HADUM_NORMAL_STATS[5].atkMin:196,
           attackPowerMin:isHadum?HADUM_NORMAL_STATS[5].atkMin:196,
           attackPowerMax:isHadum?HADUM_NORMAL_STATS[5].atkMax:212,
@@ -6224,7 +6225,7 @@ window.playerState = playerState;
       bossSprite.scale.set(8.2,8.2,1); bossSprite.position.set(bossSpritePos5.x,4.1,bossSpritePos5.z); scene.add(bossSprite);
       const bossShadow=createShadowDisk(7.0,3.6);
       monsters.push({id:'monster_22',stageId:5,sprite:bossSprite,shadowDisk:bossShadow,type:'해적상어',tier:5,isBoss:true,isHadum,
-        hp:isHadum?55000*HADUM_MULT*HADUM_HP_EXTRA_MULT:55000,maxHp:isHadum?55000*HADUM_MULT*HADUM_HP_EXTRA_MULT:55000,
+        hp:isHadum?55000*HADUM_MULT*HADUM_HP_EXTRA_MULT*HADUM_STAGE5_7_HP_MULT:55000,maxHp:isHadum?55000*HADUM_MULT*HADUM_HP_EXTRA_MULT*HADUM_STAGE5_7_HP_MULT:55000,
         goldReward:22000,attackPower:isHadum?210*HADUM_MULT:210,attackRange:4.5,attackSpeed:950,
         lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});
       createNametagElement('monster_22','용궁의 습격자','해적상어',false,false,true);
@@ -6447,7 +6448,7 @@ window.playerState = playerState;
         const shadow=createShadowDisk(2.8,1.45);
         monsters.push({
           id:`monster_${i}`,stageId:6,sprite,shadowDisk:shadow,type:names[type],tier:6,isBoss:false,isHadum:true,
-          hp:HADUM_NORMAL_STATS[6].hp,maxHp:HADUM_NORMAL_STATS[6].hp,goldReward:950,
+          hp:HADUM_NORMAL_STATS[6].hp*HADUM_STAGE5_7_HP_MULT,maxHp:HADUM_NORMAL_STATS[6].hp*HADUM_STAGE5_7_HP_MULT,goldReward:950,
           attackPower:HADUM_NORMAL_STATS[6].atkMin,
           attackPowerMin:HADUM_NORMAL_STATS[6].atkMin,attackPowerMax:HADUM_NORMAL_STATS[6].atkMax,
           attackRange:2.8,attackSpeed:1100,lastAttackTime:0,alive:true,destroyed:false,
@@ -6468,7 +6469,7 @@ window.playerState = playerState;
       monsters.push({
         id:'monster_26',stageId:6,sprite:bossSprite,shadowDisk:bossShadow,
         type:'신수협곡 수호령',tier:6,isBoss:true,isHadum:true,
-        hp:300000,maxHp:300000,goldReward:25000,
+        hp:300000*HADUM_STAGE5_7_HP_MULT,maxHp:300000*HADUM_STAGE5_7_HP_MULT,goldReward:25000,
         attackPower:480,attackRange:4.7,attackSpeed:900,lastAttackTime:0,
         alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0
       });
@@ -6517,8 +6518,8 @@ window.playerState = playerState;
       const bambooTex=createBambooTexture();const bambooPos=[[-28,25,8],[-18,30,7],[-6,31,7],[8,30,7],[20,27,8],[29,20,7],[-30,-22,7],[-20,-28,6],[22,-26,7],[30,-12,7]];bambooPos.forEach(([x,z,s])=>{const b=new THREE.Sprite(new THREE.SpriteMaterial({map:bambooTex,transparent:true}));b.scale.set(s*.7,s*1.4,1);b.position.set(x,s*.7,z);scene.add(b);stageObjects.push(b);});
       const pathMat=new THREE.MeshBasicMaterial({color:0xb78a5d});const path=new THREE.Mesh(new THREE.PlaneGeometry(18,floorSize*.92),pathMat);path.rotation.x=-Math.PI/2;path.position.set(0,.01,0);scene.add(path);stageObjects.push(path);
       const count=qualityMode==='high'?125:65;const geo=new THREE.BufferGeometry();const pos=new Float32Array(count*3);for(let i=0;i<count;i++){pos[i*3]=(Math.random()-.5)*68;pos[i*3+1]=Math.random()*8+.5;pos[i*3+2]=(Math.random()-.5)*68;}geo.setAttribute('position',new THREE.BufferAttribute(pos,3));const pts=new THREE.Points(geo,new THREE.PointsMaterial({color:0xe0f4b7,size:.32,transparent:true,opacity:.65,depthWrite:false}));scene.add(pts);stageObjects.push(pts);
-      const types=['red_eagle','white_eagle'];const names={red_eagle:'붉은깃털독수리',white_eagle:'하얀깃털독수리'};const mobCount=40;for(let i=0;i<mobCount;i++){const type=types[i%2];const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createShinsuGorge2MonsterTexture(type,0),transparent:true}));sprite.scale.set(3.7,3.7,1);sprite.position.set((Math.random()-.5)*62,1.85,(Math.random()-.5)*62);scene.add(sprite);const shadow=createShadowDisk(2.9,1.5);monsters.push({id:`monster_${i}`,stageId:7,sprite,shadowDisk:shadow,type:names[type],tier:7,isBoss:false,isHadum:true,hp:HADUM_NORMAL_STATS[7].hp,maxHp:HADUM_NORMAL_STATS[7].hp,goldReward:1050,attackPower:HADUM_NORMAL_STATS[7].atkMin,attackPowerMin:HADUM_NORMAL_STATS[7].atkMin,attackPowerMax:HADUM_NORMAL_STATS[7].atkMax,attackRange:3,attackSpeed:1050,lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});createNametagElement(`monster_${i}`,'',names[type],true);}
-      const bossSprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createShinsuGorge2MonsterTexture('floor_guardian',0),transparent:true}));const bossPos=getRandomBossSpawnPos(26,34);bossSprite.scale.set(9.8,9.8,1);bossSprite.position.set(bossPos.x,4.9,bossPos.z);scene.add(bossSprite);const bossShadow=createShadowDisk(8,4);monsters.push({id:'monster_27',stageId:7,sprite:bossSprite,shadowDisk:bossShadow,type:'신수협곡 2층 수호령',tier:7,isBoss:true,isHadum:true,hp:390000,maxHp:390000,goldReward:30000,attackPower:540,attackRange:5,attackSpeed:880,lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});createNametagElement('monster_27','신수협곡 2층의 수호자','신수협곡 2층 수호령',false,false,true);
+      const types=['red_eagle','white_eagle'];const names={red_eagle:'붉은깃털독수리',white_eagle:'하얀깃털독수리'};const mobCount=40;for(let i=0;i<mobCount;i++){const type=types[i%2];const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createShinsuGorge2MonsterTexture(type,0),transparent:true}));sprite.scale.set(3.7,3.7,1);sprite.position.set((Math.random()-.5)*62,1.85,(Math.random()-.5)*62);scene.add(sprite);const shadow=createShadowDisk(2.9,1.5);monsters.push({id:`monster_${i}`,stageId:7,sprite,shadowDisk:shadow,type:names[type],tier:7,isBoss:false,isHadum:true,hp:HADUM_NORMAL_STATS[7].hp*HADUM_STAGE5_7_HP_MULT,maxHp:HADUM_NORMAL_STATS[7].hp*HADUM_STAGE5_7_HP_MULT,goldReward:1050,attackPower:HADUM_NORMAL_STATS[7].atkMin,attackPowerMin:HADUM_NORMAL_STATS[7].atkMin,attackPowerMax:HADUM_NORMAL_STATS[7].atkMax,attackRange:3,attackSpeed:1050,lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});createNametagElement(`monster_${i}`,'',names[type],true);}
+      const bossSprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createShinsuGorge2MonsterTexture('floor_guardian',0),transparent:true}));const bossPos=getRandomBossSpawnPos(26,34);bossSprite.scale.set(9.8,9.8,1);bossSprite.position.set(bossPos.x,4.9,bossPos.z);scene.add(bossSprite);const bossShadow=createShadowDisk(8,4);monsters.push({id:'monster_27',stageId:7,sprite:bossSprite,shadowDisk:bossShadow,type:'신수협곡 2층 수호령',tier:7,isBoss:true,isHadum:true,hp:390000*HADUM_STAGE5_7_HP_MULT,maxHp:390000*HADUM_STAGE5_7_HP_MULT,goldReward:30000,attackPower:540,attackRange:5,attackSpeed:880,lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});createNametagElement('monster_27','신수협곡 2층의 수호자','신수협곡 2층 수호령',false,false,true);
     }
 
     function getExperienceDungeonDailyData() {
@@ -12249,7 +12250,7 @@ function upgrade(){
  // 명품 +20 달성 후에는 별도의 '진' 강화 단계로 전환한다.
  if(jinUnlocked){
    if(jinLv>=CRAFT_JIN_ENHANCE_MAX){
-     result('🔴 진 +20 MAX');
+     result('🟢 진 +20 MAX');
      return;
    }
    const cost=120000 + jinLv*90000;
@@ -12265,10 +12266,10 @@ function upgrade(){
      const nextBonus=getCraftJinAttackBonus(w);
      w.atk += nextBonus-prevBonus;
      st.hist.unshift(`🔴 ${getWeaponDisplayName(w)} [진] +${w.jinEnhance} 성공`);
-     result(`🔴 <b style="color:#ff4d4d">진 강화 성공! +${w.jinEnhance}</b><br><small>붉은 기운이 무기에 깃듭니다.</small>`);
+     result(`🟢 <b style="color:#45e878">진 강화 성공! +${w.jinEnhance}</b><br><small>붉은 기운이 무기에 깃듭니다.</small>`);
    }else{
-     st.hist.unshift(`🔴 진 강화 실패 · +${jinLv} 유지`);
-     result(`🔴 진 강화 실패 · 현재 <b>진 +${jinLv}</b> 유지`);
+     st.hist.unshift(`🟢 진 강화 실패 · +${jinLv} 유지`);
+     result(`🟢 진 강화 실패 · 현재 <b>진 +${jinLv}</b> 유지`);
    }
  }else{
    if(w.enhance>=normalMax){
@@ -12357,7 +12358,7 @@ function render(){
  const jinLv=getCraftJinEnhanceLevel(w);
  const jinBonus=getCraftJinAttackBonus(w);
  const normalLabel=w ? `일반 강화 +${w.enhance}/${normalMax}` : '';
- const jinLabel=jinUnlocked ? `<br><span style=\"color:#ff4d4d;font-weight:900\">🔴 진 +${jinLv}/${CRAFT_JIN_ENHANCE_MAX}</span>` : (w&&w.grade==='masterpiece'&&w.enhance>=normalMax ? '<br><span style=\"color:#ff4d4d;font-weight:900\">🔴 진 강화 해금</span>' : '');
+ const jinLabel=jinUnlocked ? `<br><span style=\"color:#ff4d4d;font-weight:900\">🟢 진 +${jinLv}/${CRAFT_JIN_ENHANCE_MAX}</span>` : (w&&w.grade==='masterpiece'&&w.enhance>=normalMax ? '<br><span style=\"color:#ff4d4d;font-weight:900\">🟢 진 강화 해금</span>' : '');
  document.getElementById('wc-stats').innerHTML=
    `제작 숙련도 <b>Lv.${st.mastery}/180</b> · EXP ${st.exp}/${st.mastery*100}<br>`+
    `<div style="margin-top:6px;font-size:.9em">현재 제작 확률${useDivine?" (신수의 결정 적용)":""}: ${rateText(useDivine)}</div>`+
@@ -12392,7 +12393,7 @@ function render(){
    const jinUnlockedForUi=w?isCraftJinUnlocked(w):false;
    const jinLvForUi=w?getCraftJinEnhanceLevel(w):0;
    up.disabled=!w || (jinUnlockedForUi ? jinLvForUi>=CRAFT_JIN_ENHANCE_MAX : w.enhance>=normalMaxForUi);
-   up.textContent=jinUnlockedForUi ? (jinLvForUi>=CRAFT_JIN_ENHANCE_MAX?'🔴 진 +20 MAX':`🔴 진 +${jinLvForUi+1} 강화`) : (w&&w.grade==='masterpiece'&&w.enhance>=normalMaxForUi?'🔴 진 강화 시작':`⚔️ +${(w?Number(w.enhance):0)+1} 강화`);
+   up.textContent=jinUnlockedForUi ? (jinLvForUi>=CRAFT_JIN_ENHANCE_MAX?'🟢 진 +20 MAX':`🔴 진 +${jinLvForUi+1} 강화`) : (w&&w.grade==='masterpiece'&&w.enhance>=normalMaxForUi?'🟢 진 강화 시작':`⚔️ +${(w?Number(w.enhance):0)+1} 강화`);
  }
 
  
@@ -12522,7 +12523,7 @@ window.addEventListener('load',()=>{
  }
  function particleTexture(){
   const c=document.createElement('canvas');c.width=16;c.height=16;const x=c.getContext('2d');
-  const g=x.createRadialGradient(8,8,0,8,8,8);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.25,'rgba(255,60,40,.95)');g.addColorStop(1,'rgba(120,0,0,0)');x.fillStyle=g;x.fillRect(0,0,16,16);return new THREE.CanvasTexture(c);
+  const g=x.createRadialGradient(8,8,0,8,8,8);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.25,'rgba(80,255,120,.95)');g.addColorStop(1,'rgba(0,120,40,0)');x.fillStyle=g;x.fillRect(0,0,16,16);return new THREE.CanvasTexture(c);
  }
  function buildJinFx(){
   clearJinFx();
