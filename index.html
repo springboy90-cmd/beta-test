@@ -1480,7 +1480,7 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
       <button type="button" class="stage-category-tab hadum" id="stage-tab-hadum" onclick="openStageCategory('hadum')">
         <span class="stage-tab-icon">🔥</span>
         <span class="stage-tab-title">하둠의 영역</span>
-        <span class="stage-tab-desc">하둠 1~7</span>
+        <span class="stage-tab-desc">하둠 1~8</span>
       </button>
     </div>
 
@@ -1517,6 +1517,7 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
         <div class="stage-card hadum" id="stage-card-hadum-5" onclick="selectStage(5,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">❄️ 하둠: 용궁</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
         <div class="stage-card hadum" id="stage-card-hadum-6" onclick="selectStage(6,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 신수협곡</div><div style="font-size:10px;color:#bcaaa4;">삿갓다람쥐, 춤추는선인장 및 신수협곡 수호령(보스)</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
         <div class="stage-card hadum" id="stage-card-hadum-7" onclick="selectStage(7,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🌪️ 하둠: 신수협곡 2층</div><div style="font-size:10px;color:#bcaaa4;">붉은깃털독수리, 하얀깃털독수리 및 신수협곡 2층 수호령(보스)</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-8" onclick="selectStage(8,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">👹 하둠: 귀령사 1층</div><div style="font-size:10px;color:#bcaaa4;">모귀령, 유귀령 · 보스 없음 · H6 정예급 일반 몬스터</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
       </div>
     </div>
 
@@ -1738,7 +1739,10 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
       // 하둠6 신수협곡: 하둠5 대비 약 27% HP / 20~29% 공격 / 16% 방어 상승
       6: { hp: 33000, atkMin: 1350, atkMax: 1650, def: 1450 },
       // 하둠7 신수협곡 2층: 하둠6 대비 HP 약 27% / 공격 약 21~22% / 방어 약 17% 상승
-      7: { hp: 42000, atkMin: 1650, atkMax: 2000, def: 1700 }
+      7: { hp: 42000, atkMin: 1650, atkMax: 2000, def: 1700 },
+      // 하둠8 귀령사 1층 일반 몬스터: 하둠6 정예 몬스터의 실전 기준 스탯과 동일
+      // (하둠6 일반 HP 42,900 × 정예 HP 5배 / 공격 1.5배 / 방어 1.5배)
+      8: { hp: 214500, atkMin: 2025, atkMax: 2475, def: 2175 }
     };
     let zoomLevel = 1.0;
     const baseCameraOffset = new THREE.Vector3(0, 20, 20);
@@ -6522,6 +6526,164 @@ window.playerState = playerState;
       const bossSprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createShinsuGorge2MonsterTexture('floor_guardian',0),transparent:true}));const bossPos=getRandomBossSpawnPos(26,34);bossSprite.scale.set(9.8,9.8,1);bossSprite.position.set(bossPos.x,4.9,bossPos.z);scene.add(bossSprite);const bossShadow=createShadowDisk(8,4);monsters.push({id:'monster_27',stageId:7,sprite:bossSprite,shadowDisk:bossShadow,type:'신수협곡 2층 수호령',tier:7,isBoss:true,isHadum:true,hp:390000*HADUM_STAGE5_7_HP_MULT,maxHp:390000*HADUM_STAGE5_7_HP_MULT,goldReward:30000,attackPower:540,attackRange:5,attackSpeed:880,lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0});createNametagElement('monster_27','신수협곡 2층의 수호자','신수협곡 2층 수호령',false,false,true);
     }
 
+    // ==========================================
+    // STAGE 8: 하둠 - 귀령사 1층
+    // 참고 이미지의 귀령사 분위기(청록색 수로, 황토색 석조 마당, 분홍 꽃/나무)를
+    // 기존 CanvasTexture + Sprite 방식으로 재구성한다.
+    // 보스 없음. 일반 몬스터 2종만 출현하며 H6 정예급 실전 스탯을 사용한다.
+    // ==========================================
+    function createGhostTempleFloorTexture() {
+      const cvs=document.createElement('canvas'); cvs.width=256; cvs.height=256;
+      const ctx=cvs.getContext('2d'); ctx.imageSmoothingEnabled=false;
+      ctx.fillStyle='#c9a86a'; ctx.fillRect(0,0,256,256);
+      // 황토색 석재 마당
+      for(let i=0;i<150;i++){
+        const x=Math.floor(Math.random()*256), y=Math.floor(Math.random()*256);
+        ctx.fillStyle=['#b9975b','#d4b979','#c19e62','#dfc789'][i%4];
+        ctx.fillRect(x,y,2+(i%4),1+(i%2));
+      }
+      // 참고 이미지처럼 사방을 감싸는 청록색 수로
+      ctx.fillStyle='#238f9d';
+      ctx.fillRect(0,0,256,24); ctx.fillRect(0,232,256,24); ctx.fillRect(0,0,24,256); ctx.fillRect(232,0,24,256);
+      ctx.fillStyle='#46c4cf';
+      for(let i=0;i<75;i++){
+        const x=8+Math.random()*240, y=Math.random()<.5?6+Math.random()*12:238+Math.random()*12;
+        ctx.fillRect(x,y,2+(i%3),1);
+      }
+      for(let i=0;i<55;i++){
+        const x=Math.random()<.5?6+Math.random()*12:238+Math.random()*12, y=8+Math.random()*240;
+        ctx.fillRect(x,y,1,2+(i%3));
+      }
+      // 중앙 석판길
+      ctx.fillStyle='#a98452'; ctx.fillRect(92,0,72,256);
+      for(let y=0;y<256;y+=18){ ctx.fillStyle='#b99560'; ctx.fillRect(94,y,68,2); }
+      // 분홍 꽃잎
+      for(let i=0;i<90;i++){
+        const x=Math.floor(Math.random()*256), y=Math.floor(Math.random()*256);
+        if(x>25&&x<231&&y>25&&y<231){
+          ctx.fillStyle=i%2?'#f2b6c8':'#f7d0db'; ctx.fillRect(x,y,2,2);
+        }
+      }
+      const tex=new THREE.CanvasTexture(cvs); tex.colorSpace=THREE.SRGBColorSpace;
+      tex.magFilter=THREE.NearestFilter; tex.minFilter=THREE.NearestFilter; tex.generateMipmaps=false;
+      return tex;
+    }
+
+    function createGhostTempleStoneTexture() {
+      const cvs=document.createElement('canvas'); cvs.width=128; cvs.height=128;
+      const ctx=cvs.getContext('2d'); ctx.imageSmoothingEnabled=false; ctx.clearRect(0,0,128,128);
+      ctx.fillStyle='#625b50'; ctx.fillRect(10,35,108,78);
+      ctx.fillStyle='#82796a'; ctx.fillRect(18,25,92,18);
+      ctx.fillStyle='#4a453f'; ctx.fillRect(25,48,78,57);
+      ctx.fillStyle='#9b8e79'; ctx.fillRect(32,52,18,46); ctx.fillRect(78,52,18,46);
+      ctx.fillStyle='#3c3834'; ctx.fillRect(53,58,22,47);
+      ctx.fillStyle='#b0a088'; ctx.fillRect(18,22,92,6);
+      return new THREE.CanvasTexture(cvs);
+    }
+
+    function createGhostTempleCherryTexture() {
+      const cvs=document.createElement('canvas'); cvs.width=128; cvs.height=160;
+      const ctx=cvs.getContext('2d'); ctx.imageSmoothingEnabled=false; ctx.clearRect(0,0,128,160);
+      ctx.fillStyle='#5a3929'; ctx.fillRect(58,68,12,82); ctx.fillRect(44,92,38,8);
+      const blobs=[[35,45,28],[67,34,31],[91,57,25],[23,68,22],[61,67,34],[91,82,22]];
+      blobs.forEach(([x,y,r],i)=>{ctx.fillStyle=i%2?'#efabc0':'#f4bfd0';ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();});
+      for(let i=0;i<55;i++){ctx.fillStyle=i%2?'#ffd9e4':'#e98eaa';ctx.fillRect(Math.random()*120,20+Math.random()*90,2,2);}
+      return new THREE.CanvasTexture(cvs);
+    }
+
+    function createGhostTempleMonsterTexture(type,attackStage=0){
+      const cvs=document.createElement('canvas'); cvs.width=160; cvs.height=180;
+      const ctx=cvs.getContext('2d'); ctx.imageSmoothingEnabled=false; ctx.clearRect(0,0,160,180);
+      const bob=attackStage?(attackStage%2===0?-2:2):0; ctx.translate(bob,0);
+      if(type==='mogwiryeong'){
+        // 모귀령: 참고 이미지의 흰색 귀령 가면/뿔 + 붉은 칼날 + 짙은 갑주
+        ctx.fillStyle='#262326'; ctx.fillRect(52,58,58,76);
+        ctx.fillStyle='#47434a'; ctx.fillRect(45,78,70,46);
+        ctx.fillStyle='#e8e5dc'; ctx.beginPath(); ctx.ellipse(80,60,34,42,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#c9c5bb'; ctx.fillRect(57,25,10,26); ctx.fillRect(93,25,10,26);
+        ctx.fillStyle='#f4f0e6'; ctx.beginPath(); ctx.moveTo(55,40);ctx.lineTo(45,12);ctx.lineTo(67,31);ctx.closePath();ctx.fill();
+        ctx.beginPath();ctx.moveTo(105,40);ctx.lineTo(115,12);ctx.lineTo(93,31);ctx.closePath();ctx.fill();
+        ctx.fillStyle='#1b1719'; ctx.fillRect(62,56,9,7); ctx.fillRect(89,56,9,7);
+        ctx.fillStyle='#9e2525'; ctx.fillRect(69,70,22,7); ctx.fillRect(75,77,10,5);
+        ctx.fillStyle='#7d2526'; ctx.fillRect(43,86,25,10); ctx.fillRect(92,86,25,10);
+        ctx.fillStyle='#b92d35'; ctx.fillRect(36,97,16,8); ctx.fillRect(108,97,16,8);
+        ctx.fillStyle='#d4d1c8'; ctx.fillRect(20,28,6,92); ctx.fillStyle='#c62e3d'; ctx.fillRect(18,22,10,42);
+        ctx.fillStyle='#151315'; ctx.fillRect(56,125,18,35); ctx.fillRect(86,125,18,35);
+        ctx.fillStyle='#d8d4c9'; ctx.fillRect(48,157,27,9); ctx.fillRect(84,157,27,9);
+      }else{
+        // 유귀령: 참고 이미지의 붉은/주황색 대형 귀령 + 중장갑 형태
+        ctx.fillStyle='#35251f'; ctx.fillRect(44,65,72,72);
+        ctx.fillStyle='#8f3c2c'; ctx.fillRect(48,50,64,76);
+        ctx.fillStyle='#d06436'; ctx.beginPath(); ctx.ellipse(80,60,38,34,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#b24c2d'; ctx.beginPath();ctx.moveTo(52,42);ctx.lineTo(37,10);ctx.lineTo(69,34);ctx.closePath();ctx.fill();
+        ctx.beginPath();ctx.moveTo(108,42);ctx.lineTo(123,10);ctx.lineTo(91,34);ctx.closePath();ctx.fill();
+        ctx.fillStyle='#f2b26c'; ctx.fillRect(58,54,16,12); ctx.fillRect(86,54,16,12);
+        ctx.fillStyle='#2a1b18'; ctx.fillRect(63,58,7,6); ctx.fillRect(90,58,7,6);
+        ctx.fillStyle='#55241f'; ctx.fillRect(69,73,22,7);
+        ctx.fillStyle='#d9a06d'; ctx.fillRect(48,88,18,9); ctx.fillRect(94,88,18,9);
+        ctx.fillStyle='#6f2e27'; ctx.fillRect(34,95,24,17); ctx.fillRect(102,95,24,17);
+        ctx.fillStyle='#bdb6a8'; ctx.fillRect(54,105,52,28); ctx.fillStyle='#756d64'; ctx.fillRect(64,109,32,20);
+        ctx.fillStyle='#b54a31'; ctx.fillRect(35,116,18,37); ctx.fillRect(107,116,18,37);
+        ctx.fillStyle='#3a2a25'; ctx.fillRect(48,132,22,32); ctx.fillRect(90,132,22,32);
+        ctx.fillStyle='#b6a99b'; ctx.fillRect(43,158,29,9); ctx.fillRect(88,158,29,9);
+      }
+      const tex=new THREE.CanvasTexture(cvs); tex.colorSpace=THREE.SRGBColorSpace; tex.magFilter=THREE.NearestFilter; tex.minFilter=THREE.NearestFilter; tex.generateMipmaps=false; return tex;
+    }
+
+    function buildStage8GhostTemple(isHadum=true){
+      if(!isHadum) return buildStage5DragonPalace(false);
+      clearStageObjects(); clearMonsters(); currentHadum=true;
+      document.body.style.backgroundColor='#5f8e79';
+      document.getElementById('stage-badge').innerText='👹 하둠: 귀령사 1층 ▾';
+      scene.background=new THREE.Color(0x79a88f);
+      scene.fog=new THREE.Fog(0x6f9c87,34,98);
+
+      const floorG=new THREE.PlaneGeometry(floorSize,floorSize);
+      const floorM=new THREE.MeshLambertMaterial({map:createGhostTempleFloorTexture()});
+      floorMesh=new THREE.Mesh(floorG,floorM); floorMesh.rotation.x=-Math.PI/2; floorMesh.receiveShadow=true; scene.add(floorMesh);
+
+      const stoneTex=createGhostTempleStoneTexture();
+      const gatePositions=[[-27,-27,9],[27,-27,9],[-27,26,8],[27,26,8],[0,-31,10]];
+      gatePositions.forEach(([x,z,s])=>{const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:stoneTex,transparent:true}));sp.scale.set(s*1.35,s,1);sp.position.set(x,s*.5,z);scene.add(sp);stageObjects.push(sp);});
+
+      const cherryTex=createGhostTempleCherryTexture();
+      const cherryPositions=[[-30,-20,8],[-28,10,7],[29,-16,8],[28,12,7],[-18,30,6],[18,30,6]];
+      cherryPositions.forEach(([x,z,s])=>{const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:cherryTex,transparent:true}));sp.scale.set(s*.75,s,1);sp.position.set(x,s*.8,z);scene.add(sp);stageObjects.push(sp);});
+
+      // 청록 수로 위의 물결/꽃잎 파티클
+      const count=qualityMode==='high'?170:85; const geo=new THREE.BufferGeometry(); const pos=new Float32Array(count*3);
+      for(let i=0;i<count;i++){
+        const edge=Math.floor(Math.random()*4), t=(Math.random()-.5)*68;
+        if(edge===0){pos[i*3]=t;pos[i*3+2]=-29+Math.random()*8;}
+        else if(edge===1){pos[i*3]=t;pos[i*3+2]=29-Math.random()*8;}
+        else if(edge===2){pos[i*3]=-29+Math.random()*8;pos[i*3+2]=t;}
+        else {pos[i*3]=29-Math.random()*8;pos[i*3+2]=t;}
+        pos[i*3+1]=Math.random()*5+.7;
+      }
+      geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+      const pts=new THREE.Points(geo,new THREE.PointsMaterial({color:0xf6d2df,size:.32,transparent:true,opacity:.8,depthWrite:false}));
+      scene.add(pts);stageObjects.push(pts);
+
+      // 귀령사 일반 몬스터 2종. 플레이어보다 확실히 크게 표시한다.
+      const types=['mogwiryeong','yugwiryeong']; const names={mogwiryeong:'모귀령',yugwiryeong:'유귀령'}; const mobCount=34;
+      for(let i=0;i<mobCount;i++){
+        const type=types[i%2];
+        const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createGhostTempleMonsterTexture(type,0),transparent:true}));
+        sprite.scale.set(5.0,5.0,1);
+        sprite.position.set((Math.random()-.5)*60,2.5,(Math.random()-.5)*60);
+        scene.add(sprite);
+        const shadow=createShadowDisk(3.9,2.0);
+        monsters.push({
+          id:`monster_${i}`,stageId:8,sprite,shadowDisk:shadow,type:names[type],tier:8,isBoss:false,isHadum:true,
+          hp:HADUM_NORMAL_STATS[8].hp,maxHp:HADUM_NORMAL_STATS[8].hp,goldReward:1200,
+          attackPower:HADUM_NORMAL_STATS[8].atkMin,attackPowerMin:HADUM_NORMAL_STATS[8].atkMin,attackPowerMax:HADUM_NORMAL_STATS[8].atkMax,
+          attackRange:3.2,attackSpeed:1050,lastAttackTime:0,alive:true,destroyed:false,roamDir:new THREE.Vector3(),roamTimer:0
+        });
+        createNametagElement(`monster_${i}`,'',names[type],true);
+      }
+      // 하둠8에는 보스를 생성하지 않는다.
+    }
+
     function getExperienceDungeonDailyData() {
       const today = new Date().toISOString().slice(0,10);
       let data = null;
@@ -7021,7 +7183,7 @@ window.playerState = playerState;
         const card = document.getElementById(`stage-card-${sId}`);
         if (card) card.classList.toggle('active', !currentHadum && parseInt(sId) === currentStage);
       });
-      ['1','2','3','4','5','6','7'].forEach(sId => {
+      ['1','2','3','4','5','6','7','8'].forEach(sId => {
         const card = document.getElementById(`stage-card-hadum-${sId}`);
         if (card) {
           card.classList.toggle('active', currentHadum && parseInt(sId) === currentStage);
@@ -7089,7 +7251,7 @@ window.playerState = playerState;
 
     function applyHadumEliteMonsters() {
       if (!currentHadum) return;
-      const candidates = monsters.filter(m => m.alive && !m.isBoss && m.isHadum && !m.isElite);
+      const candidates = monsters.filter(m => m.alive && !m.isBoss && m.isHadum && !m.isElite && m.stageId !== 8);
       candidates.forEach(m => {
         if (Math.random() >= HADUM_ELITE_CHANCE) return;
         const opt = HADUM_ELITE_OPTIONS[Math.floor(Math.random() * HADUM_ELITE_OPTIONS.length)];
@@ -7152,6 +7314,7 @@ window.playerState = playerState;
       else if (stageNum === 5) buildStage5DragonPalace(isHadum);
       else if (stageNum === 6) buildStage6ShinsuGorge(isHadum);
       else if (stageNum === 7) buildStage7ShinsuGorge2(isHadum);
+      else if (stageNum === 8) buildStage8GhostTemple(isHadum);
 
       // 하둠 일반 몬스터를 대상으로만 낮은 확률의 정예 몬스터를 선정한다.
       if (isHadum) applyHadumEliteMonsters();
@@ -9186,7 +9349,7 @@ window.playerState = playerState;
       const mapRadius = floorSize / 2;
 
       mCtx.clearRect(0, 0, w, h);
-      mCtx.fillStyle = currentStage === 1 ? '#dca86b' : (currentStage === 2 ? '#c5a065' : (currentStage === 3 ? '#2e7d32' : '#8fc9e3'));
+      mCtx.fillStyle = currentStage === 1 ? '#dca86b' : (currentStage === 2 ? '#c5a065' : (currentStage === 3 ? '#2e7d32' : (currentStage === 8 ? '#c9a86a' : '#8fc9e3')));
       mCtx.fillRect(0, 0, w, h);
 
       const worldToMap = (wx, wz) => ({
@@ -10488,7 +10651,7 @@ window.playerState = playerState;
        ========================================== */
     // 스테이지별 일반 몬스터 고정 경험치 테이블 (일반: 1~4스테이지, 하둠: 1~4스테이지)
     const STAGE_NORMAL_EXP = { 1: 20, 2: 40, 3: 60, 4: 80, 5: 190 };
-    const STAGE_HADUM_EXP = { 1: 300, 2: 450, 3: 700, 4: 850, 5: 1050, 6: 1350, 7: 1700 };
+    const STAGE_HADUM_EXP = { 1: 300, 2: 450, 3: 700, 4: 850, 5: 1050, 6: 1350, 7: 1700, 8: 1800 };
     const STAGE_BOSS_EXP = {
       normal: { 1: 1500, 2: 2500, 3: 4000, 4: 6000, 5: 8250 },
       hadum: { 1: 10500, 2: 13500, 3: 16500, 4: 22500, 5: 27000, 6: 35000, 7: 45000 }
@@ -10516,7 +10679,7 @@ window.playerState = playerState;
       if (!monster.isBoss) {
         const table = monster.isHadum ? STAGE_HADUM_EXP : STAGE_NORMAL_EXP;
         const base = table[monster.stageId] || 0;
-        const stageRate = monster.isHadum ? ({1:.82,2:.82,3:.75,4:.75,5:.70,6:.65,7:.60}[monster.stageId] || 1) : ({1:.97,2:.95,3:.92,4:.90,5:.88}[monster.stageId] || 1);
+        const stageRate = monster.isHadum ? ({1:.82,2:.82,3:.75,4:.75,5:.70,6:.65,7:.60,8:1}[monster.stageId] || 1) : ({1:.97,2:.95,3:.92,4:.90,5:.88}[monster.stageId] || 1);
         const cloverRate = (typeof getCloverExpMultiplier === "function") ? getCloverExpMultiplier() : 1;
         return Math.max(1, Math.round(base * stageRate * cloverRate));
       }
@@ -11568,12 +11731,27 @@ window.playerState = playerState;
         }
 
         // ===== 무기 제작 재료 보상 =====
-        // 하둠1~2: 철광석/목재, 하둠3~4: 철광석/강화의 핵, 하둠5~6: 정제철/강화의 핵/보스의 혼, 하둠7: 신수의 결정 추가
+        // 하둠1~2: 철광석/목재, 하둠3~4: 철광석/강화의 핵, 하둠5~6: 정제철/강화의 핵/보스의 혼, 하둠7~8: 신수의 결정 추가
         if (!target.isExperienceDungeon && !target.isCraftGoldDungeon && typeof addWeaponCraftDrop === 'function') {
           addWeaponCraftDrop(target.stageId, !!target.isBoss);
           if (target.isElite && target.isHadum && !target.isBoss) {
             addWeaponCraftDrop(target.stageId, false);
             addWeaponCraftDrop(target.stageId, false);
+          }
+        }
+        // 하둠8 귀령사 1층: 일반 몬스터도 낮은 확률(2%)로 파수꾼 장비 1개 드랍. 보스가 없으므로 H8 전용 일반 드랍이다.
+        if (target.isHadum && Number(target.stageId) === 8 && !target.isBoss && playerState.level >= 100) {
+          if ((playerState.guardianInventory || []).length < GUARDIAN_INVENTORY_MAX && Math.random() < 0.02) {
+            const pieces8 = Object.keys(GUARDIAN_SET_PIECE_NAMES);
+            const piece8 = pieces8[Math.floor(Math.random() * pieces8.length)];
+            const guardianItem8 = createGuardianItem(piece8);
+            playerState.guardianInventory.push(guardianItem8);
+            playerState.guardianSetPieceCounts[piece8] = Math.max(0, Number(playerState.guardianSetPieceCounts[piece8]) || 0) + 1;
+            playerState.guardianSet[piece8] = true;
+            playItemGetSfx();
+            const pieceName8 = GUARDIAN_SET_PIECE_NAMES[piece8];
+            const optText8 = `${GUARDIAN_RESIST_LABELS[guardianItem8.optionType]} +${Math.round(guardianItem8.optionValue*100)}%`;
+            showHealText(`👹 귀령사 보상! 파수꾼 ${pieceName8} · ${optText8}`, target.sprite.position);
           }
         }
         if (target.isElite && target.isHadum && !target.isBoss) {
@@ -12570,21 +12748,22 @@ const T={
 4:{iron:.22,wood:.11,core:.07,refined:.05,boss:.012,divine:0},
 5:{iron:.19,wood:.09,core:.09,refined:.08,boss:.025,divine:.004},
 6:{iron:.17,wood:.07,core:.105,refined:.11,boss:.04,divine:.012},
-7:{iron:.15,wood:.05,core:.12,refined:.15,boss:.05,divine:.025}};
+7:{iron:.15,wood:.05,core:.12,refined:.15,boss:.05,divine:.025},
+8:{iron:.12,wood:.04,core:.14,refined:.18,boss:.055,divine:.035}};
 const N={iron:'철광석',wood:'목재',core:'강화의 핵',refined:'정제철',boss:'보스의 혼',divine:'신수의 결정'};
 window.WC_MATERIAL_DROP_TABLE=T;
 window.addWeaponCraftDrop=function(stageId,isBoss,monster){
  if(!window.playerState)return[];
  window.playerState.craftingMaterials=window.playerState.craftingMaterials||{iron:0,wood:0,core:0,refined:0,boss:0,divine:0};
  let s=Number(stageId);
- if(!(s>=1&&s<=7)&&monster){
+ if(!(s>=1&&s<=8)&&monster){
    s=Number(monster.stageId??monster.stage);
-   if(!(s>=1&&s<=7)){
-     const m=String(monster.stageName??monster.area??monster.map??monster.name??'').match(/(?:하둠\s*)?([1-7])/);
+   if(!(s>=1&&s<=8)){
+     const m=String(monster.stageName??monster.area??monster.map??monster.name??'').match(/(?:하둠\s*)?([1-8])/);
      if(m)s=Number(m[1]);
    }
  }
- if(!(s>=1&&s<=7))s=1;
+ if(!(s>=1&&s<=8))s=1;
  const t=T[Math.floor(s)],got=[];
  Object.keys(t).forEach(k=>{
    let c=t[k];
