@@ -1517,7 +1517,7 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
         <div class="stage-card hadum" id="stage-card-hadum-5" onclick="selectStage(5,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">❄️ 하둠: 용궁</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
         <div class="stage-card hadum" id="stage-card-hadum-6" onclick="selectStage(6,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 신수협곡</div><div style="font-size:10px;color:#bcaaa4;">삿갓다람쥐, 춤추는선인장 및 신수협곡 수호령(보스)</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
         <div class="stage-card hadum" id="stage-card-hadum-7" onclick="selectStage(7,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🌪️ 하둠: 신수협곡 2층</div><div style="font-size:10px;color:#bcaaa4;">붉은깃털독수리, 하얀깃털독수리 및 신수협곡 2층 수호령(보스)</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
-        <div class="stage-card hadum" id="stage-card-hadum-8" onclick="selectStage(8,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">👹 하둠: 귀령사 1층</div><div style="font-size:10px;color:#bcaaa4;">모귀령, 유귀령 · 보스 없음 · H6 정예급 일반 몬스터</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-8" onclick="selectStage(8,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">👹 하둠: 귀령사 1층</div><div style="font-size:10px;color:#bcaaa4;">묘귀령, 유귀령 · 보스 없음 · H6 정예급 일반 몬스터</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
       </div>
     </div>
 
@@ -6592,40 +6592,160 @@ window.playerState = playerState;
     }
 
     function createGhostTempleMonsterTexture(type,attackStage=0){
-      const cvs=document.createElement('canvas'); cvs.width=160; cvs.height=180;
-      const ctx=cvs.getContext('2d'); ctx.imageSmoothingEnabled=false; ctx.clearRect(0,0,160,180);
+      const cvs=document.createElement('canvas'); cvs.width=160; cvs.height=210;
+      const ctx=cvs.getContext('2d'); ctx.imageSmoothingEnabled=false; ctx.clearRect(0,0,160,210);
       const bob=attackStage?(attackStage%2===0?-2:2):0; ctx.translate(bob,0);
       if(type==='mogwiryeong'){
-        // 모귀령: 참고 이미지의 흰색 귀령 가면/뿔 + 붉은 칼날 + 짙은 갑주
-        ctx.fillStyle='#262326'; ctx.fillRect(52,58,58,76);
-        ctx.fillStyle='#47434a'; ctx.fillRect(45,78,70,46);
-        ctx.fillStyle='#e8e5dc'; ctx.beginPath(); ctx.ellipse(80,60,34,42,0,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='#c9c5bb'; ctx.fillRect(57,25,10,26); ctx.fillRect(93,25,10,26);
-        ctx.fillStyle='#f4f0e6'; ctx.beginPath(); ctx.moveTo(55,40);ctx.lineTo(45,12);ctx.lineTo(67,31);ctx.closePath();ctx.fill();
-        ctx.beginPath();ctx.moveTo(105,40);ctx.lineTo(115,12);ctx.lineTo(93,31);ctx.closePath();ctx.fill();
-        ctx.fillStyle='#1b1719'; ctx.fillRect(62,56,9,7); ctx.fillRect(89,56,9,7);
-        ctx.fillStyle='#9e2525'; ctx.fillRect(69,70,22,7); ctx.fillRect(75,77,10,5);
-        ctx.fillStyle='#7d2526'; ctx.fillRect(43,86,25,10); ctx.fillRect(92,86,25,10);
-        ctx.fillStyle='#b92d35'; ctx.fillRect(36,97,16,8); ctx.fillRect(108,97,16,8);
-        ctx.fillStyle='#d4d1c8'; ctx.fillRect(20,28,6,92); ctx.fillStyle='#c62e3d'; ctx.fillRect(18,22,10,42);
-        ctx.fillStyle='#151315'; ctx.fillRect(56,125,18,35); ctx.fillRect(86,125,18,35);
-        ctx.fillStyle='#d8d4c9'; ctx.fillRect(48,157,27,9); ctx.fillRect(84,157,27,9);
+        // 묘귀령: 참고 이미지 속 '흰 토끼 귀를 가진 갑주 병사'.
+        // 슬림한 몸통, 곧고 긴 토끼 귀, 등에 화살통, 양팔로 석궁을 정면으로 든 자세.
+        // 캔버스를 세로로 넉넉히(210) 잡고 전체를 아래로 26px 내려서 귀 끝이 잘리지 않게 한다.
+        ctx.save(); ctx.translate(0,26);
+        // 등 뒤 화살통(짙은 갈색 원통 + 화살 깃)
+        ctx.fillStyle='#5a3c22'; ctx.fillRect(98,54,13,42);
+        ctx.fillStyle='#8a6a3f'; ctx.fillRect(98,54,13,7);
+        ['#e0574a','#4a90c2','#e8c84a'].forEach((c,i)=>{ ctx.fillStyle=c; ctx.fillRect(100+i*4,30,3,28); });
+        // 몸통(슬림한 세로 타원, 초록 가죽 갑주)
+        ctx.fillStyle='#3f6b3a'; ctx.beginPath(); ctx.ellipse(76,116,20,30,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#5c8c4f'; ctx.beginPath(); ctx.ellipse(76,108,15,20,0,0,Math.PI*2); ctx.fill();
+        // 갈색 벨트/버클
+        ctx.fillStyle='#6b4423'; ctx.fillRect(62,118,28,7);
+        ctx.fillStyle='#d9b25a'; ctx.beginPath(); ctx.arc(76,121,4,0,Math.PI*2); ctx.fill();
+        // 목
+        ctx.fillStyle='#f5f3ee'; ctx.fillRect(68,80,16,12);
+        // 흰 토끼 얼굴(갸름한 계란형)
+        ctx.fillStyle='#f5f3ee'; ctx.beginPath(); ctx.ellipse(76,62,16,19,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#fdfcf9'; ctx.beginPath(); ctx.ellipse(76,66,10,10,0,0,Math.PI*2); ctx.fill();
+        // 곧고 긴 토끼 귀(안쪽 연분홍) — y중심을 20/19로 올려도 -26 오프셋 덕에 캔버스 안에 온전히 들어온다
+        ctx.fillStyle='#f5f3ee';
+        ctx.beginPath(); ctx.ellipse(65,20,7,34,-0.12,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(87,19,7,35,0.1,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#f0b7c4';
+        ctx.beginPath(); ctx.ellipse(66,22,3.5,24,-0.12,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(87,21,3.5,25,0.1,0,Math.PI*2); ctx.fill();
+        // 눈(붉은 눈동자 - 참고 이미지 특징)
+        ctx.fillStyle='#c0392b'; ctx.beginPath(); ctx.arc(70,61,2.6,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(83,61,2.6,0,Math.PI*2); ctx.fill();
+        // 초록 두건(이마 밴드)
+        ctx.fillStyle='#2e5230'; ctx.beginPath(); ctx.ellipse(76,50,17,7,0,Math.PI,Math.PI*2); ctx.fill();
+        // 팔(석궁을 정면으로 든 자세)
+        ctx.fillStyle='#e9edf0'; ctx.beginPath(); ctx.ellipse(56,102,8,20,0.2,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(96,102,8,20,-0.2,0,Math.PI*2); ctx.fill();
+        // 석궁(팔 사이, 정면)
+        ctx.fillStyle='#4a3016'; ctx.fillRect(60,108,32,7);
+        ctx.strokeStyle='#7a5a33'; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.moveTo(52,100); ctx.quadraticCurveTo(76,88,100,100); ctx.stroke();
+        ctx.fillStyle='#3a2814'; ctx.fillRect(72,108,8,18);
+        // 다리(짙은 갈색 부츠)
+        ctx.fillStyle='#e9edf0'; ctx.beginPath(); ctx.ellipse(66,150,9,18,0,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(86,150,9,18,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#4a3016'; ctx.beginPath(); ctx.ellipse(66,166,8,7,0,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(86,166,8,7,0,0,Math.PI*2); ctx.fill();
+        ctx.restore();
       }else{
-        // 유귀령: 참고 이미지의 붉은/주황색 대형 귀령 + 중장갑 형태
-        ctx.fillStyle='#35251f'; ctx.fillRect(44,65,72,72);
-        ctx.fillStyle='#8f3c2c'; ctx.fillRect(48,50,64,76);
-        ctx.fillStyle='#d06436'; ctx.beginPath(); ctx.ellipse(80,60,38,34,0,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='#b24c2d'; ctx.beginPath();ctx.moveTo(52,42);ctx.lineTo(37,10);ctx.lineTo(69,34);ctx.closePath();ctx.fill();
-        ctx.beginPath();ctx.moveTo(108,42);ctx.lineTo(123,10);ctx.lineTo(91,34);ctx.closePath();ctx.fill();
-        ctx.fillStyle='#f2b26c'; ctx.fillRect(58,54,16,12); ctx.fillRect(86,54,16,12);
-        ctx.fillStyle='#2a1b18'; ctx.fillRect(63,58,7,6); ctx.fillRect(90,58,7,6);
-        ctx.fillStyle='#55241f'; ctx.fillRect(69,73,22,7);
-        ctx.fillStyle='#d9a06d'; ctx.fillRect(48,88,18,9); ctx.fillRect(94,88,18,9);
-        ctx.fillStyle='#6f2e27'; ctx.fillRect(34,95,24,17); ctx.fillRect(102,95,24,17);
-        ctx.fillStyle='#bdb6a8'; ctx.fillRect(54,105,52,28); ctx.fillStyle='#756d64'; ctx.fillRect(64,109,32,20);
-        ctx.fillStyle='#b54a31'; ctx.fillRect(35,116,18,37); ctx.fillRect(107,116,18,37);
-        ctx.fillStyle='#3a2a25'; ctx.fillRect(48,132,22,32); ctx.fillRect(90,132,22,32);
-        ctx.fillStyle='#b6a99b'; ctx.fillRect(43,158,29,9); ctx.fillRect(88,158,29,9);
+        // 유귀령: 첨부 참고 이미지(옆모습 클로즈업)를 기준으로 다시 그린 닭/봉황형 머리.
+        // 노란 뾰족 부리, 뒤로 퍼지는 빨강->주황->노랑 화염 벼슬, 검은 목/뒤통수 깃털,
+        // 붉은 세로 슬릿 눈, 그 아래로 금색 판금 갑주 견갑. 몸통·다리는 기존 사족보행 형태를 유지한다.
+        ctx.save();
+        // 등 뒤 화염 깃털(부채꼴, 몸통 장식용 - 기존 실루엣 유지)
+        const featherBaseX=52, featherBaseY=80;
+        for(let i=0;i<7;i++){
+          const ang=-2.5+i*0.32;
+          const len=48+((i%3)*10);
+          const tipX=featherBaseX+Math.cos(ang)*len, tipY=featherBaseY+Math.sin(ang)*len;
+          const midX=featherBaseX+Math.cos(ang-0.12)*len*0.6, midY=featherBaseY+Math.sin(ang-0.12)*len*0.6;
+          ctx.fillStyle=i%2?'#ff8a34':'#ffb64d';
+          ctx.beginPath(); ctx.moveTo(featherBaseX,featherBaseY); ctx.lineTo(midX,midY); ctx.lineTo(tipX,tipY); ctx.closePath(); ctx.fill();
+        }
+        ctx.restore();
+        // 몸통(사족보행, 길쭉한 타원)
+        ctx.fillStyle='#2a2f52'; ctx.beginPath(); ctx.ellipse(92,142,38,30,0.05,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#3a4270'; ctx.beginPath(); ctx.ellipse(92,135,30,20,0.05,0,Math.PI*2); ctx.fill();
+        // 뒷다리
+        ctx.fillStyle='#a8551f'; ctx.beginPath(); ctx.ellipse(84,176,11,18,0,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(112,178,11,18,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#7a3c15'; ctx.beginPath(); ctx.ellipse(84,192,9,6,0,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(112,193,9,6,0,0,Math.PI*2); ctx.fill();
+        // 꼬리(화염 깃털처럼 뒤로)
+        ctx.fillStyle='#ff9c4a'; ctx.beginPath(); ctx.moveTo(128,138); ctx.quadraticCurveTo(154,130,155,110); ctx.quadraticCurveTo(142,134,122,146); ctx.closePath(); ctx.fill();
+        // ===== 머리~목 (참고 이미지 기준 재설계, 얼굴이 왼쪽을 향한 옆모습) =====
+        ctx.save(); ctx.translate(10,20);
+        // 벼슬(코크스콤): 머리 위에서 뒤로 퍼지는 화염형, 빨강(이마쪽)->노랑(끝)
+        function crestSpike(x1,y1,x2,y2,x3,y3,color){
+          ctx.fillStyle=color;
+          ctx.beginPath(); ctx.moveTo(x1,y1); ctx.quadraticCurveTo((x1+x2)/2,(y1+y2)/2-8,x2,y2); ctx.lineTo(x3,y3); ctx.closePath(); ctx.fill();
+        }
+        const baseX=34, baseY=44;
+        crestSpike(baseX,baseY, baseX-6,baseY-40, baseX+10,baseY-14, '#d6402c');
+        crestSpike(baseX+6,baseY-6, baseX+6,baseY-52, baseX+22,baseY-18, '#e6552e');
+        crestSpike(baseX+16,baseY-10, baseX+22,baseY-58, baseX+36,baseY-20, '#f2762e');
+        crestSpike(baseX+28,baseY-10, baseX+38,baseY-56, baseX+48,baseY-16, '#f89a30');
+        crestSpike(baseX+40,baseY-6, baseX+52,baseY-46, baseX+58,baseY-8, '#ffc23c');
+        crestSpike(baseX+50,baseY+2, baseX+62,baseY-30, baseX+64,baseY+6, '#ffe066');
+        // 검은 목/뒤통수 깃털 (참고 이미지 특징 - 얼굴 뒤~목을 덮는 짙은 덩어리)
+        ctx.fillStyle='#1c1d22';
+        ctx.beginPath();
+        ctx.moveTo(40,46);
+        ctx.bezierCurveTo(60,30,92,34,100,58);
+        ctx.bezierCurveTo(106,80,100,102,84,112);
+        ctx.bezierCurveTo(66,120,44,112,34,96);
+        ctx.bezierCurveTo(26,80,28,58,40,46);
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle='#33353d'; ctx.lineWidth=2;
+        for(let i=0;i<5;i++){
+          ctx.beginPath();
+          ctx.moveTo(52+i*8,44+i*4);
+          ctx.quadraticCurveTo(70+i*6,60+i*6,64+i*7,90+i*4);
+          ctx.stroke();
+        }
+        // 얼굴(노란빛 도는 살구색, 부리 방향은 왼쪽)
+        ctx.fillStyle='#f0c477';
+        ctx.beginPath();
+        ctx.moveTo(14,60);
+        ctx.quadraticCurveTo(10,44,26,36);
+        ctx.quadraticCurveTo(42,30,48,44);
+        ctx.quadraticCurveTo(50,58,42,66);
+        ctx.quadraticCurveTo(34,74,24,72);
+        ctx.quadraticCurveTo(16,70,14,60);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#e2a25c';
+        ctx.beginPath();
+        ctx.moveTo(24,50); ctx.quadraticCurveTo(30,44,38,48); ctx.quadraticCurveTo(40,58,32,64); ctx.quadraticCurveTo(24,62,24,50);
+        ctx.closePath(); ctx.fill();
+        // 노란 부리(뾰족, 아래로 살짝 굽음)
+        ctx.fillStyle='#ffcf3d';
+        ctx.beginPath();
+        ctx.moveTo(16,56);
+        ctx.lineTo(-8,60);
+        ctx.quadraticCurveTo(-2,66,10,68);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#e0a91f';
+        ctx.beginPath(); ctx.moveTo(-8,60); ctx.lineTo(2,61); ctx.lineTo(-4,64); ctx.closePath(); ctx.fill();
+        // 눈(붉은 세로 슬릿)
+        ctx.fillStyle='#c0392b';
+        ctx.beginPath(); ctx.ellipse(28,50,3,6,0.1,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#3a0e0a';
+        ctx.beginPath(); ctx.ellipse(28,50,1.2,4,0.1,0,Math.PI*2); ctx.fill();
+        // 이마 붉은 볏 조각(부리 위쪽)
+        ctx.fillStyle='#d6402c';
+        ctx.beginPath(); ctx.moveTo(20,40); ctx.quadraticCurveTo(28,32,38,36); ctx.quadraticCurveTo(30,42,22,44); ctx.closePath(); ctx.fill();
+        ctx.restore();
+        // 금색 판금 갑주 견갑(목 아래, 몸통과 연결)
+        ctx.fillStyle='#c99a3e';
+        ctx.beginPath();
+        ctx.moveTo(40,152);
+        ctx.quadraticCurveTo(60,130,100,136);
+        ctx.quadraticCurveTo(132,142,138,168);
+        ctx.quadraticCurveTo(140,190,120,196);
+        ctx.quadraticCurveTo(80,204,50,194);
+        ctx.quadraticCurveTo(34,184,40,152);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle='#eccb74';
+        ctx.beginPath();
+        ctx.moveTo(50,148); ctx.quadraticCurveTo(65,136,94,140); ctx.quadraticCurveTo(80,150,70,160); ctx.quadraticCurveTo(56,160,50,148);
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle='#8a6420'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(50,170); ctx.lineTo(122,170); ctx.stroke();
+        for(let i=0;i<6;i++){ ctx.beginPath(); ctx.arc(56+i*13,177,3,0,Math.PI*2); ctx.stroke(); }
       }
       const tex=new THREE.CanvasTexture(cvs); tex.colorSpace=THREE.SRGBColorSpace; tex.magFilter=THREE.NearestFilter; tex.minFilter=THREE.NearestFilter; tex.generateMipmaps=false; return tex;
     }
@@ -6665,11 +6785,13 @@ window.playerState = playerState;
       scene.add(pts);stageObjects.push(pts);
 
       // 귀령사 일반 몬스터 2종. 플레이어보다 확실히 크게 표시한다.
-      const types=['mogwiryeong','yugwiryeong']; const names={mogwiryeong:'모귀령',yugwiryeong:'유귀령'}; const mobCount=34;
+      const types=['mogwiryeong','yugwiryeong']; const names={mogwiryeong:'묘귀령',yugwiryeong:'유귀령'}; const mobCount=34;
       for(let i=0;i<mobCount;i++){
         const type=types[i%2];
         const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createGhostTempleMonsterTexture(type,0),transparent:true}));
-        sprite.scale.set(5.0,5.0,1);
+        // 캔버스가 160x210(세로로 김)으로 늘어난 만큼 세로 스케일을 비율에 맞게 키워
+        // 실제 게임 화면에서 몬스터가 눌려 보이지 않게 한다.
+        sprite.scale.set(5.0,5.0*(210/160),1);
         sprite.position.set((Math.random()-.5)*60,2.5,(Math.random()-.5)*60);
         scene.add(sprite);
         const shadow=createShadowDisk(3.9,2.0);
