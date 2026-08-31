@@ -1178,7 +1178,7 @@
 }
 </style>
 <style id="weapon-crafting-css">
-#wc-modal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);padding:12px}#wc-panel{width:min(920px,96vw);max-height:92vh;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;background:#111923;border:2px solid #c89b52;border-radius:14px;color:#eee;font-family:inherit;box-shadow:0 15px 50px #000}#wc-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #3d4855}#wc-head h2{margin:0;color:#ffd166;font-size:21px}#wc-close{width:38px;height:34px;border:0;border-radius:7px;background:#333;color:#fff;font-size:21px}#wc-body{padding:12px}.wc-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.wc-tab,.wc-grade{border:1px solid #505a66;background:#18212b;color:#ddd;border-radius:8px;padding:8px;cursor:pointer}.wc-tab.active,.wc-grade.active{border-color:#ffd166;background:#302613;color:#ffe08a}.wc-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:10px}.wc-card{background:#0b1118;border:1px solid #394552;border-radius:10px;padding:11px}.wc-grades{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.wc-grade b{display:block}.wc-grade small{font-size:10px;color:#aab4c0}.wc-materials{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:9px}.wc-mat{background:#151d26;border-radius:6px;padding:7px;font-size:12px}.wc-preview{height:170px;display:flex;align-items:center;justify-content:center;position:relative;background:#060a0f;border-radius:8px;overflow:hidden}.wc-icon{font-size:72px}.wc-stats{line-height:1.65;margin-top:8px;font-size:13px}.wc-actions{display:flex;gap:7px;justify-content:center;margin-top:10px;flex-wrap:wrap}.wc-actions button{padding:10px 16px;border:0;border-radius:8px;background:#c9953e;color:#16100a;font-weight:900}.wc-actions button:disabled{opacity:.4}.wc-result{text-align:center;min-height:35px;margin-top:8px;color:#ffe08a;font-weight:800}.wc-history{max-height:110px;overflow:auto;font-size:11px;color:#aeb8c4;margin-top:8px}.wc-help{font-size:11px;color:#8f9aa8;line-height:1.5;margin-top:9px}@media(max-width:700px){.wc-grid{grid-template-columns:1fr}.wc-grades{grid-template-columns:repeat(3,1fr)}}
+#wc-modal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);padding:12px}#wc-panel{width:min(920px,96vw);max-height:92vh;overflow:auto;background:#111923;border:2px solid #c89b52;border-radius:14px;color:#eee;font-family:inherit;box-shadow:0 15px 50px #000}#wc-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #3d4855}#wc-head h2{margin:0;color:#ffd166;font-size:21px}#wc-close{width:38px;height:34px;border:0;border-radius:7px;background:#333;color:#fff;font-size:21px}#wc-body{padding:12px}.wc-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.wc-tab,.wc-grade{border:1px solid #505a66;background:#18212b;color:#ddd;border-radius:8px;padding:8px;cursor:pointer}.wc-tab.active,.wc-grade.active{border-color:#ffd166;background:#302613;color:#ffe08a}.wc-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:10px}.wc-card{background:#0b1118;border:1px solid #394552;border-radius:10px;padding:11px}.wc-grades{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.wc-grade b{display:block}.wc-grade small{font-size:10px;color:#aab4c0}.wc-materials{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:9px}.wc-mat{background:#151d26;border-radius:6px;padding:7px;font-size:12px}.wc-preview{height:170px;display:flex;align-items:center;justify-content:center;position:relative;background:#060a0f;border-radius:8px;overflow:hidden}.wc-icon{font-size:72px}.wc-stats{line-height:1.65;margin-top:8px;font-size:13px}.wc-actions{display:flex;gap:7px;justify-content:center;margin-top:10px;flex-wrap:wrap}.wc-actions button{padding:10px 16px;border:0;border-radius:8px;background:#c9953e;color:#16100a;font-weight:900}.wc-actions button:disabled{opacity:.4}.wc-result{text-align:center;min-height:35px;margin-top:8px;color:#ffe08a;font-weight:800}.wc-history{max-height:110px;overflow:auto;font-size:11px;color:#aeb8c4;margin-top:8px}.wc-help{font-size:11px;color:#8f9aa8;line-height:1.5;margin-top:9px}@media(max-width:700px){.wc-grid{grid-template-columns:1fr}.wc-grades{grid-template-columns:repeat(3,1fr)}}
 </style><style id="weapon-crafting-mobile-ui-fix">
 #wc-modal{box-sizing:border-box;padding:8px!important;overflow:hidden!important}
 #wc-panel{box-sizing:border-box;width:min(920px,100%)!important;max-width:100%!important;max-height:calc(100dvh - 16px)!important;overflow:hidden!important;border-radius:12px!important}
@@ -11923,10 +11923,28 @@ window.playerState = playerState;
       updateSkillCooldownOverlays();
     }, 100);
 </script>
-<div id="wc-modal"><div id="wc-panel"><div id="wc-head"><h2>⚒️ 무기 제작소</h2><button id="wc-close" type="button">×</button></div><div id="wc-body"><div class="wc-tabs" style="justify-content:center;"><div style="width:100%;text-align:center;color:#ffe08a;font-weight:800;font-size:13px;padding:6px 0;">⚔️🔮 직업 공통 제작무기 · 모든 직업에서 동일하게 사용</div></div><div class="wc-grid"><div class="wc-card"><div style="color:#ffe08a;font-weight:800">제작 결과 확률</div><div id="wc-grades" class="wc-grades"></div><div id="wc-result" class="wc-result"></div><div style="color:#ffe08a;font-weight:800;margin-top:8px">필요 재료</div><div id="wc-materials" class="wc-materials"></div><div id="wc-live-inventory" style="margin-top:7px;padding:7px 8px;border:1px solid rgba(255,224,138,.25);border-radius:7px;font-size:12px;color:#ddd">현재 보유 재료를 불러오는 중...</div><div id="wc-divine-option" style="margin:8px 0;padding:8px 10px;border:1px solid rgba(255,210,80,.35);border-radius:8px;background:rgba(50,40,10,.45);font-size:12px;color:#eee;display:flex;align-items:center;gap:7px;flex-wrap:wrap;"><label style="display:flex;align-items:center;gap:7px;cursor:pointer;width:100%;"><input id="wcUseDivine" type="checkbox" style="width:18px;height:18px;accent-color:#e7c75f;"><span>💎 신수의 결정 1개 사용 → <b style="color:#ffe66d">명품 확률 +1.5%p</b></span></label><span id="wc-divine-count" style="color:#bbb">보유 0개</span></div><div class="wc-actions"><button id="wc-craft" type="button">⚒️ 무기 제작</button><button id="wc-dismantle" type="button">♻️ 무기 해체</button><button id="wc-upgrade" type="button">강화 +1</button></div><div class="wc-help">모든 직업이 동일한 제작무기 <b>천명</b>을 사용합니다. 등급에 따라 이름만 천명 → 천명·강 → 천명·진 → 천명·극 → 천명·천으로 통일되며, 공격력·등급·강화 수치는 그대로 유지됩니다. 제작 숙련도가 높아질수록 상위 등급 확률이 조금씩 상승합니다.</div></div><div class="wc-card"><div style="color:#ffe08a;font-weight:800">제작무기</div><div id="wc-preview" class="wc-preview"><span id="wc-icon" class="wc-icon">🗡️</span></div><div id="wc-stats" class="wc-stats"></div><div id="wc-history" class="wc-history"></div></div></div></div></div></div><script id="weapon-crafting-js">
+<div id="wc-modal"><div id="wc-panel"><div id="wc-head"><h2>⚒️ 무기 제작소</h2><button id="wc-close" type="button">×</button></div><div id="wc-body"><div class="wc-tabs" style="justify-content:center;"><div style="width:100%;text-align:center;color:#ffe08a;font-weight:800;font-size:13px;padding:6px 0;">⚔️🔮 직업 공통 제작무기 · 모든 직업에서 동일하게 사용</div></div><div class="wc-grid"><div class="wc-card"><div style="color:#ffe08a;font-weight:800">제작 결과 확률</div><div id="wc-grades" class="wc-grades"></div><div id="wc-result" class="wc-result"></div><div style="color:#ffe08a;font-weight:800;margin-top:8px">필요 재료</div><div id="wc-materials" class="wc-materials"></div><div id="wc-live-inventory" style="margin-top:7px;padding:7px 8px;border:1px solid rgba(255,224,138,.25);border-radius:7px;font-size:12px;color:#ddd">현재 보유 재료를 불러오는 중...</div><div id="wc-divine-option" style="margin:8px 0;padding:8px 10px;border:1px solid rgba(255,210,80,.35);border-radius:8px;background:rgba(50,40,10,.45);font-size:12px;color:#eee;display:flex;align-items:center;gap:7px;flex-wrap:wrap;"><label style="display:flex;align-items:center;gap:7px;cursor:pointer;width:100%;"><input id="wcUseDivine" type="checkbox" style="width:18px;height:18px;accent-color:#e7c75f;"><span>💎 신수의 결정 1개 사용 → <b style="color:#ffe66d">명품 확률 +1.5%p</b></span></label><span id="wc-divine-count" style="color:#bbb">보유 0개</span></div><div class="wc-actions"><button id="wc-craft" type="button">⚒️ 무기 제작</button><button id="wc-dismantle" type="button">♻️ 무기 해체</button><button id="wc-upgrade" type="button">강화 +1</button></div><div class="wc-help">모든 직업이 동일한 제작무기 <b>천명</b>을 사용합니다. 호품/명품은 일반 강화 +20까지 가능하며, 명품 +20 달성 시 <b style='color:#ff3b30'>진 강화</b>가 해금되어 진 +1~+20까지 추가 강화할 수 있습니다. 제작 숙련도가 높아질수록 상위 등급 확률이 조금씩 상승합니다.</div></div><div class="wc-card"><div style="color:#ffe08a;font-weight:800">제작무기</div><div id="wc-preview" class="wc-preview"><span id="wc-icon" class="wc-icon">🗡️</span></div><div id="wc-stats" class="wc-stats"></div><div id="wc-history" class="wc-history"></div></div></div></div></div></div><script id="weapon-crafting-js">
 (function(){
 'use strict';
-const KEY='weaponCrafting_v2', MAX=10;
+const KEY='weaponCrafting_v2', MAX=20;
+const CRAFT_NORMAL_ENHANCE_MAX = 20;
+const CRAFT_STANDARD_LOW_GRADE_MAX = 10;
+const CRAFT_JIN_ENHANCE_MAX = 20;
+function getCraftNormalEnhanceMax(weapon){ return weapon && (weapon.grade==='fine' || weapon.grade==='masterpiece') ? CRAFT_NORMAL_ENHANCE_MAX : CRAFT_STANDARD_LOW_GRADE_MAX; }
+function isCraftJinUnlocked(weapon){ return !!weapon && weapon.grade==='masterpiece' && Number(weapon.enhance||0)>=CRAFT_NORMAL_ENHANCE_MAX; }
+function getCraftJinEnhanceLevel(weapon){ return weapon ? Math.max(0,Math.min(CRAFT_JIN_ENHANCE_MAX,Number(weapon.jinEnhance)||0)) : 0; }
+function getCraftJinAttackBonus(weapon){
+ if(!weapon) return 0;
+ const lv=getCraftJinEnhanceLevel(weapon);
+ // 진 강화는 일반 +20 이후 별도의 공격력 보너스를 누적한다.
+ return lv*(140 + lv*12);
+}
+function normalizeCraftWeapon(weapon){
+ if(!weapon || typeof weapon!=='object') return weapon;
+ weapon.enhance=Math.max(0,Math.min(getCraftNormalEnhanceMax(weapon),Number(weapon.enhance)||0));
+ weapon.jinEnhance=(weapon.grade==='masterpiece' && weapon.enhance>=CRAFT_NORMAL_ENHANCE_MAX) ? Math.max(0,Math.min(CRAFT_JIN_ENHANCE_MAX,Number(weapon.jinEnhance)||0)) : 0;
+ return weapon;
+}
 
 /* 모든 등급이 동일한 하나의 제작 레시피를 사용 */
 const RECIPE={
@@ -11952,7 +11970,12 @@ const N={normal:'천명',high:'천명·강',new:'천명·진',fine:'천명·극'
 // 실제 표시는 getWeaponDisplayName()이 담당하며, 무기의 등급(grade)만으로 새 이름을 결정한다.
 function getWeaponDisplayName(weapon){
  if(!weapon) return '';
+ if(weapon.grade==='masterpiece' && Number(weapon.jinEnhance||0)>0) return '진·'+(N[weapon.grade] || weapon.name || '천명');
  return N[weapon.grade] || weapon.name || '';
+}
+function getCraftWeaponGradeLabel(weapon){
+ if(!weapon) return '';
+ return (weapon.grade==='masterpiece' && Number(weapon.jinEnhance||0)>0) ? '진' : (G[weapon.grade]?.n || weapon.grade);
 }
 function getWeaponDisplayIcon(weapon){
  if(!weapon) return '';
@@ -11977,18 +12000,18 @@ function sync(){
      st=Object.assign(st,playerState.weaponCrafting);
    // 기존 세이브에 남아 있는 직업별 제작무기도 등급별 통합 이름으로 정규화한다.
    st.class='공통';
-   if(st.weapon && st.weapon.grade){ st.weapon.name=N[st.weapon.grade] || st.weapon.name || ''; }
-   if(st.lastCraftedWeapon && st.lastCraftedWeapon.grade){ st.lastCraftedWeapon.name=N[st.lastCraftedWeapon.grade] || st.lastCraftedWeapon.name || ''; }
-   if(st.dismantleWeapon && st.dismantleWeapon.grade){ st.dismantleWeapon.name=N[st.dismantleWeapon.grade] || st.dismantleWeapon.name || ''; }
+   if(st.weapon && st.weapon.grade){ st.weapon.name=N[st.weapon.grade] || st.weapon.name || ''; normalizeCraftWeapon(st.weapon); }
+   if(st.lastCraftedWeapon && st.lastCraftedWeapon.grade){ st.lastCraftedWeapon.name=N[st.lastCraftedWeapon.grade] || st.lastCraftedWeapon.name || ''; normalizeCraftWeapon(st.lastCraftedWeapon); }
+   if(st.dismantleWeapon && st.dismantleWeapon.grade){ st.dismantleWeapon.name=N[st.dismantleWeapon.grade] || st.dismantleWeapon.name || ''; normalizeCraftWeapon(st.dismantleWeapon); }
      playerState.craftingMaterials=playerState.craftingMaterials||{
        iron:0,wood:0,core:0,refined:0,boss:0,divine:0
      };
    }else{
      st=Object.assign(st,JSON.parse(localStorage.getItem(KEY)||'{}'));
    st.class='공통';
-   if(st.weapon && st.weapon.grade){ st.weapon.name=N[st.weapon.grade] || st.weapon.name || ''; }
-   if(st.lastCraftedWeapon && st.lastCraftedWeapon.grade){ st.lastCraftedWeapon.name=N[st.lastCraftedWeapon.grade] || st.lastCraftedWeapon.name || ''; }
-   if(st.dismantleWeapon && st.dismantleWeapon.grade){ st.dismantleWeapon.name=N[st.dismantleWeapon.grade] || st.dismantleWeapon.name || ''; }
+   if(st.weapon && st.weapon.grade){ st.weapon.name=N[st.weapon.grade] || st.weapon.name || ''; normalizeCraftWeapon(st.weapon); }
+   if(st.lastCraftedWeapon && st.lastCraftedWeapon.grade){ st.lastCraftedWeapon.name=N[st.lastCraftedWeapon.grade] || st.lastCraftedWeapon.name || ''; normalizeCraftWeapon(st.lastCraftedWeapon); }
+   if(st.dismantleWeapon && st.dismantleWeapon.grade){ st.dismantleWeapon.name=N[st.dismantleWeapon.grade] || st.dismantleWeapon.name || ''; normalizeCraftWeapon(st.dismantleWeapon); }
    }
  }catch(e){}
  st.mastery=Math.max(1,Number(st.mastery)||1);
@@ -12148,7 +12171,7 @@ function craft(){
  }
 
  const q=roll(useDivine), rg=G[q];
- const newWeapon={class:'공통',grade:q,name:N[q],atk:rg.atk,enhance:0};
+ const newWeapon={class:'공통',grade:q,name:N[q],atk:rg.atk,enhance:0,jinEnhance:0};
  const old=st.weapon;
 
  // 일반~신품은 기존처럼 자유롭게 교체한다.
@@ -12217,26 +12240,67 @@ function upgrade(){
    result('먼저 제작무기를 만들어 주세요.');
    return;
  }
- if(st.weapon.enhance>=MAX){
-   result('+10 MAX');
-   return;
- }
+ normalizeCraftWeapon(st.weapon);
+ const w=st.weapon;
+ const normalMax=getCraftNormalEnhanceMax(w);
+ const jinUnlocked=isCraftJinUnlocked(w);
+ const jinLv=getCraftJinEnhanceLevel(w);
 
- const cost=30000+st.weapon.enhance*25000;
- if(!spend(cost)){
-   result(`${cost.toLocaleString()}G 필요`);
-   return;
- }
-
- const rate=st.weapon.enhance<5?.95:st.weapon.enhance<8?.75:.55;
- if(Math.random()<rate){
-   st.weapon.enhance++;
-   st.weapon.atk+=60+st.weapon.enhance*10;
-   st.hist.unshift(`⚔ ${getWeaponDisplayName(st.weapon)} +${st.weapon.enhance} 성공`);
-   result(`⚔️ 강화 성공! <b>+${st.weapon.enhance}</b>`);
+ // 명품 +20 달성 후에는 별도의 '진' 강화 단계로 전환한다.
+ if(jinUnlocked){
+   if(jinLv>=CRAFT_JIN_ENHANCE_MAX){
+     result('🔴 진 +20 MAX');
+     return;
+   }
+   const cost=120000 + jinLv*90000;
+   if(!spend(cost)){
+     result(`${cost.toLocaleString()}G 필요`);
+     return;
+   }
+   // 진 강화는 후반 강화인 만큼 성공률을 단계적으로 낮춘다. 실패 시 단계/공격력은 유지.
+   const rate=Math.max(0.30,0.80-jinLv*0.025);
+   if(Math.random()<rate){
+     const prevBonus=getCraftJinAttackBonus(w);
+     w.jinEnhance=jinLv+1;
+     const nextBonus=getCraftJinAttackBonus(w);
+     w.atk += nextBonus-prevBonus;
+     st.hist.unshift(`🔴 ${getWeaponDisplayName(w)} [진] +${w.jinEnhance} 성공`);
+     result(`🔴 <b style="color:#ff4d4d">진 강화 성공! +${w.jinEnhance}</b><br><small>붉은 기운이 무기에 깃듭니다.</small>`);
+   }else{
+     st.hist.unshift(`🔴 진 강화 실패 · +${jinLv} 유지`);
+     result(`🔴 진 강화 실패 · 현재 <b>진 +${jinLv}</b> 유지`);
+   }
  }else{
-   st.hist.unshift(`강화 실패 · +${st.weapon.enhance}`);
-   result(`강화 실패 · 현재 +${st.weapon.enhance} 유지`);
+   if(w.enhance>=normalMax){
+     if(w.grade==='masterpiece'){
+       result('✨ 명품 +20 달성! 이제 <b style="color:#ff3b30">진 강화</b>가 가능합니다.');
+     }else{
+       result(`+${normalMax} MAX`);
+     }
+     return;
+   }
+
+   const cost=30000+w.enhance*25000;
+   if(!spend(cost)){
+     result(`${cost.toLocaleString()}G 필요`);
+     return;
+   }
+
+   // 기존 일반 강화 성공률을 유지하되, 호품/명품은 +20까지 확장한다.
+   const rate=w.enhance<5?.95:w.enhance<8?.75:w.enhance<10?.55:w.enhance<15?.45:.35;
+   if(Math.random()<rate){
+     w.enhance++;
+     w.atk+=60+w.enhance*10;
+     st.hist.unshift(`⚔ ${getWeaponDisplayName(w)} +${w.enhance} 성공`);
+     if(w.grade==='masterpiece' && w.enhance===CRAFT_NORMAL_ENHANCE_MAX){
+       result(`✨ <b style="color:#ffe66d">명품 +20강 달성!</b><br><small>🔴 이제 <b>진 +1~+20</b> 강화가 해금됩니다.</small>`);
+     }else{
+       result(`⚔️ 강화 성공! <b>+${w.enhance}</b>`);
+     }
+   }else{
+     st.hist.unshift(`강화 실패 · +${w.enhance}`);
+     result(`강화 실패 · 현재 +${w.enhance} 유지`);
+   }
  }
  st.hist=st.hist.slice(0,12);
  save();render();
@@ -12287,15 +12351,22 @@ function render(){
 
  const w=st.weapon;
 
+ normalizeCraftWeapon(w);
+ const normalMax=getCraftNormalEnhanceMax(w);
+ const jinUnlocked=isCraftJinUnlocked(w);
+ const jinLv=getCraftJinEnhanceLevel(w);
+ const jinBonus=getCraftJinAttackBonus(w);
+ const normalLabel=w ? `일반 강화 +${w.enhance}/${normalMax}` : '';
+ const jinLabel=jinUnlocked ? `<br><span style=\"color:#ff4d4d;font-weight:900\">🔴 진 +${jinLv}/${CRAFT_JIN_ENHANCE_MAX}</span>` : (w&&w.grade==='masterpiece'&&w.enhance>=normalMax ? '<br><span style=\"color:#ff4d4d;font-weight:900\">🔴 진 강화 해금</span>' : '');
  document.getElementById('wc-stats').innerHTML=
    `제작 숙련도 <b>Lv.${st.mastery}/180</b> · EXP ${st.exp}/${st.mastery*100}<br>`+
    `<div style="margin-top:6px;font-size:.9em">현재 제작 확률${useDivine?" (신수의 결정 적용)":""}: ${rateText(useDivine)}</div>`+
    (w?
      `<div style="margin-top:8px">
-       <span style="color:${G[w.grade].c}">
-         <b>${getWeaponDisplayName(w)} [${G[w.grade].n}] +${w.enhance}</b>
+       <span style="color:${w.grade==='masterpiece'&&jinUnlocked?'#ff4d4d':G[w.grade].c}">
+         <b>${getWeaponDisplayName(w)} [${getCraftWeaponGradeLabel(w)}]</b> ${normalLabel}${jinLabel}
        </span><br>
-       공격력 +${w.atk}
+       공격력 +${Number(w.atk).toLocaleString()}${jinUnlocked?` <small style=\"color:#ff4d4d\">(진 보너스 +${jinBonus.toLocaleString()})</small>`:''}
       </div>`
      :'제작무기 없음');
 
@@ -12315,7 +12386,14 @@ function render(){
    d.textContent=st.dismantleWeapon ? `♻️ 이전 ${G[st.dismantleWeapon.grade]?.n||''} 무기 해체` : (protectedHigh ? '🔒 해체 조건 미충족' : '♻️ 무기 해체');
    d.title=protectedHigh ? '호품 이상은 동일 또는 상위 등급 제작 성공 시에만 기존 무기 해체 가능' : '';
  }
- document.getElementById('wc-upgrade').disabled=!w||w.enhance>=MAX;
+ const up=document.getElementById('wc-upgrade');
+ if(up){
+   const normalMaxForUi=w?getCraftNormalEnhanceMax(w):0;
+   const jinUnlockedForUi=w?isCraftJinUnlocked(w):false;
+   const jinLvForUi=w?getCraftJinEnhanceLevel(w):0;
+   up.disabled=!w || (jinUnlockedForUi ? jinLvForUi>=CRAFT_JIN_ENHANCE_MAX : w.enhance>=normalMaxForUi);
+   up.textContent=jinUnlockedForUi ? (jinLvForUi>=CRAFT_JIN_ENHANCE_MAX?'🔴 진 +20 MAX':`🔴 진 +${jinLvForUi+1} 강화`) : (w&&w.grade==='masterpiece'&&w.enhance>=normalMaxForUi?'🔴 진 강화 시작':`⚔️ +${(w?Number(w.enhance):0)+1} 강화`);
+ }
 
  
 }
@@ -12430,6 +12508,8 @@ window.addEventListener('load',()=>{
 </script><script>window.addEventListener('load',()=>{setTimeout(()=>{if(typeof updateCraftWeaponVisual==='function')updateCraftWeaponVisual()},100);});</script><script id="weapon-crafting-visual-js">
 (function(){
  let spr=null;
+ let jinFx=null;
+ let jinParticles=[];
  function tex(kind,grade,back){
   const c=document.createElement('canvas');c.width=32;c.height=32;const x=c.getContext('2d');x.imageSmoothingEnabled=false;
   const pal={normal:'#d0d0d0',high:'#75c7ff',new:'#b56cff',fine:'#ff6a36',masterpiece:'#ffe66d'};const col=pal[grade]||'#ddd';x.fillStyle='rgba(0,0,0,0)';x.clearRect(0,0,32,32);
@@ -12437,22 +12517,46 @@ window.addEventListener('load',()=>{
   else{x.fillStyle='#6b472b';x.fillRect(15,5,2,22);x.fillStyle=col;x.fillRect(11,4,10,2);x.fillRect(12,3,8,1);x.fillRect(13,7,6,2);if(grade==='masterpiece'){x.fillRect(10,2,1,2);x.fillRect(21,2,1,2)}}
   return new THREE.CanvasTexture(c);
  }
+ function clearJinFx(){
+  if(jinFx){scene.remove(jinFx);jinParticles.forEach(p=>{try{p.material.map?.dispose();p.material.dispose()}catch(e){}});jinFx=null;jinParticles=[];}
+ }
+ function particleTexture(){
+  const c=document.createElement('canvas');c.width=16;c.height=16;const x=c.getContext('2d');
+  const g=x.createRadialGradient(8,8,0,8,8,8);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.25,'rgba(255,60,40,.95)');g.addColorStop(1,'rgba(120,0,0,0)');x.fillStyle=g;x.fillRect(0,0,16,16);return new THREE.CanvasTexture(c);
+ }
+ function buildJinFx(){
+  clearJinFx();
+  jinFx=new THREE.Group();
+  const ringMat=new THREE.SpriteMaterial({map:particleTexture(),transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:.8});
+  for(let i=0;i<12;i++){
+    const p=new THREE.Sprite(ringMat.clone());p.scale.set(.12,.12,1);p.userData={a:i/12*Math.PI*2,r:.35+Math.random()*.25,s:.5+Math.random()*.8,phase:Math.random()*6.28};jinFx.add(p);jinParticles.push(p);
+  }
+  scene.add(jinFx);
+ }
+ function updateJinFx(){
+  if(!jinFx||!window.playerSprite)return;
+  const now=performance.now()*0.001;
+  jinFx.position.copy(playerSprite.position);jinFx.position.x+=(playerFacing==='back'?-0.8:0.8);jinFx.position.y+=0.15;
+  const t=now;
+  jinParticles.forEach((p,i)=>{
+    const u=p.userData;const a=u.a+t*u.s;const pulse=.34+.16*Math.sin(t*5+u.phase);p.position.set(Math.cos(a)*pulse,Math.sin(a)*pulse,0.02);const sc=.09+.07*(.5+.5*Math.sin(t*8+u.phase));p.scale.set(sc,sc,1);p.material.opacity=.35+.55*(.5+.5*Math.sin(t*7+u.phase));
+  });
+ }
  window.updateCraftWeaponVisual=function(){
   try{
    if(!window.playerSprite||!window.getWeaponCraftState)return;
    const w=getWeaponCraftState().weapon;
    if(spr){scene.remove(spr);spr.material.map?.dispose();spr.material.dispose();spr=null}
+   clearJinFx();
    if(!w)return;
-   // 무기 이름/공격력은 직업 구분 없이 통일되지만, 캐릭터가 들고 있는 그래픽(검/지팡이 모양)은
-   // 저장 당시 직업(w.class)이 아니라 "현재 전직 상태"를 따라간다. 전직 시 즉시 모양이 바뀐다.
    const kind=(typeof isShamanClass==='function' && isShamanClass())?'주술사':'검사';
    spr=new THREE.Sprite(new THREE.SpriteMaterial({map:tex(kind,w.grade,window.playerFacing==='back'),transparent:true,depthWrite:false}));
-   spr.scale.set(.9,.9,1);scene.add(spr);sync();
-  }
-  catch(e){}
+   spr.scale.set(.9,.9,1);scene.add(spr);
+   if(w.grade==='masterpiece' && Number(w.enhance||0)>=20){buildJinFx();}
+  }catch(e){}
  };
- function sync(){if(!spr||!window.playerSprite)return;spr.position.copy(playerSprite.position);spr.position.x += (playerFacing==='back'?-0.8:0.8);spr.position.y += 0.15;spr.renderOrder=20;}
- window.addEventListener('load',()=>setInterval(sync,80));
+ function sync(){if(!spr||!window.playerSprite)return;spr.position.copy(playerSprite.position);spr.position.x+=(playerFacing==='back'?-0.8:0.8);spr.position.y+=0.15;spr.renderOrder=20;updateJinFx();}
+ window.addEventListener('load',()=>setInterval(sync,40));
 })();
 </script>
 
