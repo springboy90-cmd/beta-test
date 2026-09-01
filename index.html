@@ -13606,6 +13606,141 @@ function run(){try{normalize()}catch(e){console.error('defense normalization err
 window.addEventListener('load',run);setTimeout(run,0);
 })();
 </script>
+
+<!-- MASTER DATA/RESET REPAIR v19 -->
+<script id="master-data-repair-v19">
+(function(){
+'use strict';
+
+function P(){return window.playerState||null;}
+function W(){const p=P();return p&&((p.weaponCrafting&&p.weaponCrafting.weapon)||p.weapon)||null;}
+function saveNow(){try{if(typeof window.saveGame==='function')window.saveGame(false);}catch(e){}try{if(typeof window.save==='function')window.save();}catch(e){}try{if(typeof window.updateUI==='function')window.updateUI();}catch(e){}}
+
+/* 1) 무기 잠재력 표시: 내부 id는 atk를 유지하고 화면에서는 공격력으로 표시 */
+window.__v19WeaponLabel=function(id){
+  return ({atk:'공격력',atkPct:'공격력 %',hadumDmg:'하둠 몬스터 피해',critDmg:'치명타 피해'})[id]||id||'옵션';
+};
+
+/* 2) 무기 각인 초기화: 화면 렌더러와 무관하게 document 위임으로 처리 */
+function weaponSlots(w){return ({normal:0,high:0,new:1,fine:2,masterpiece:3})[String(w&&w.grade||'normal')]??0;}
+function weaponReset(i){
+ const p=P(),w=W(); if(!p||!w)return false;
+ const n=weaponSlots(w); i=Number(i);
+ if(!Number.isInteger(i)||i<0||i>=n)return false;
+ if(!Array.isArray(w.engraving))w.engraving=[];
+ if(!w.engraving[i])return false;
+ const m=p.craftingMaterials=p.craftingMaterials||{};
+ if(Number(m.engravingStone||0)<2){alert('각인석이 부족합니다.\n필요: 각인석 2개');return true;}
+ if(Number(p.gold||0)<100000){alert('골드가 부족합니다.\n필요: 100,000 G');return true;}
+ if(!window.confirm('이 슬롯의 각인을 초기화할까요?\n\n각인석 2개 + 100,000 G가 소모됩니다.\n잠재력은 그대로 유지됩니다.'))return true;
+ m.engravingStone=Number(m.engravingStone)-2;
+ p.gold=Number(p.gold)-100000;
+ w.engraving[i]=null;
+ saveNow();
+ try{if(window.__WPP&&typeof window.__WPP.render==='function')window.__WPP.render();}catch(e){}
+ return true;
+}
+window.__V19_RESET_WEAPON=weaponReset;
+window.addEventListener('click',function(e){
+ const el=e.target&&e.target.closest?e.target.closest('[data-engraving-reset-slot]'):null;
+ const modal=document.getElementById('wpp-modal');
+ if(!el||!modal||getComputedStyle(modal).display==='none')return;
+ e.preventDefault();e.stopImmediatePropagation();weaponReset(el.getAttribute('data-engraving-reset-slot'));
+},true);
+window.addEventListener('touchend',function(e){
+ const el=e.target&&e.target.closest?e.target.closest('[data-engraving-reset-slot]'):null;
+ const modal=document.getElementById('wpp-modal');
+ if(!el||!modal||getComputedStyle(modal).display==='none')return;
+ e.preventDefault();e.stopImmediatePropagation();weaponReset(el.getAttribute('data-engraving-reset-slot'));
+},{capture:true,passive:false});
+
+/* 3) 방어력은 저장된 누적값을 절대 다시 기준값으로 승격하지 않는다. */
+function repairDefenseBase(){
+ const p=P(); if(!p)return;
+ let base=Number(p.baseDefensePower);
+ let current=Number(p.defensePower);
+ // 과거 새로고침 누적으로 오염된 기준값은 정상 기본 방어력 3500으로 1회 복구
+ if(!Number.isFinite(base)||base<0||base>20000){
+   base=(Number.isFinite(current)&&current>=0&&current<=20000)?current:3500;
+ }
+ // 정상 기준값은 고정. 최종 방어력은 getPlayerEffectiveDef()에서 계산한다.
+ p.baseDefensePower=base;
+ p.defensePower=base;
+}
+
+/* 4) 방어구 데이터는 engravingSlots/engraving을 단일 원본으로 강제하고 즉시 저장 */
+function normalizeArmor(){
+ const p=P();if(!p||!Array.isArray(p.guardianInventory))return;
+ p.guardianInventory.forEach(i=>{
+   if(!i)return;
+   if(!Number.isFinite(Number(i.potentialDef)))i.potentialDef=80+Math.floor(Math.random()*271);
+   i.potentialDef=Math.max(80,Math.min(350,Number(i.potentialDef)||80));
+   if(!Number.isFinite(Number(i.engravingSlots)))i.engravingSlots=Number(i.armorPotential&&i.armorPotential.slots)||1;
+   i.engravingSlots=Math.max(1,Math.min(3,Number(i.engravingSlots)||1));
+   if(!Array.isArray(i.engraving)){
+     i.engraving=Array.isArray(i.armorEngraving)?i.armorEngraving.slice(0,3):[];
+   }
+   i.engraving=i.engraving.slice(0,3);
+   while(i.engraving.length<i.engravingSlots)i.engraving.push(null);
+   while(i.engraving.length>i.engravingSlots)i.engraving.pop();
+   i.armorPotential={defense:i.potentialDef,slots:i.engravingSlots};
+   i.armorEngraving=i.engraving;
+ });
+}
+function finalArmorDefense(){
+ const p=P();if(!p)return 0;
+ repairDefenseBase();
+ let def=Number(p.baseDefensePower)||0;
+ try{if(typeof window.getGuardianEnhanceDef==='function')def+=Number(window.getGuardianEnhanceDef())||0;}catch(e){}
+ let pct=0;
+ const inv=Array.isArray(p.guardianInventory)?p.guardianInventory:[];
+ inv.forEach(i=>{
+   if(!i||p.guardianEquippedItems?.[i.piece]!==i.id)return;
+   normalizeArmorItem(i);
+   def+=Number(i.potentialDef)||0;
+   (i.engraving||[]).filter(Boolean).forEach(e=>{if(e.id==='defPct')pct+=Number(e.value)||0;});
+ });
+ def*=1+pct/100;
+ try{if(typeof window.getCloverCombatBonus==='function')def*=1+(Number(window.getCloverCombatBonus())||0);}catch(e){}
+ try{if(typeof window.isMunyeahanaBuffActive==='function'&&window.isMunyeahanaBuffActive()&&typeof window.getMunyeahanaBuffRate==='function')def*=1+(Number(window.getMunyeahanaBuffRate())||0);}catch(e){}
+ return Math.round(def);
+}
+function normalizeArmorItem(i){
+ if(!i)return;
+ if(!Number.isFinite(Number(i.potentialDef)))i.potentialDef=80+Math.floor(Math.random()*271);
+ i.potentialDef=Math.max(80,Math.min(350,Number(i.potentialDef)||80));
+ if(!Number.isFinite(Number(i.engravingSlots)))i.engravingSlots=1;
+ i.engravingSlots=Math.max(1,Math.min(3,Number(i.engravingSlots)||1));
+ if(!Array.isArray(i.engraving))i.engraving=Array.isArray(i.armorEngraving)?i.armorEngraving.slice(0,3):[];
+ i.engraving=i.engraving.slice(0,3);while(i.engraving.length<i.engravingSlots)i.engraving.push(null);while(i.engraving.length>i.engravingSlots)i.engraving.pop();
+ i.armorPotential={defense:i.potentialDef,slots:i.engravingSlots};i.armorEngraving=i.engraving;
+}
+
+/* 기존 함수 대신 최종 방어력 계산 함수를 v19 기준으로 덮어쓴다. */
+window.getPlayerEffectiveDef=finalArmorDefense;
+
+/* 저장 직전에도 방어구/기준방어력을 정규화 */
+const oldSaveGame=window.saveGame;
+if(typeof oldSaveGame==='function'&&!oldSaveGame.__v19Wrapped){
+ const wrapped=function(showStatus){
+   try{repairDefenseBase();normalizeArmor();}catch(e){}
+   return oldSaveGame.apply(this,arguments);
+ };
+ wrapped.__v19Wrapped=true;window.saveGame=wrapped;
+}
+
+function boot(){
+ try{repairDefenseBase();normalizeArmor();
+   // 로드 직후 파생 HP/MP만 동기화하고, 방어력은 위 최종 계산기로만 산출
+   if(typeof window.syncGuardianArmorDerivedStats==='function')window.syncGuardianArmorDerivedStats();
+   saveNow();
+ }catch(e){console.error('v19 boot repair',e)}
+}
+window.addEventListener('load',function(){setTimeout(boot,50);});
+setTimeout(boot,300);
+})();
+</script>
+
 </body>
 <style id="weapon-bag-system-css">
 #wbag-modal{position:fixed;inset:0;z-index:11000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);padding:10px;box-sizing:border-box}
