@@ -13480,7 +13480,7 @@ function ps(){return window.playerState||null;}
 function weapon(){const p=ps();return p&&((p.weaponCrafting&&p.weaponCrafting.weapon)||p.weapon)||null;}
 function slots(w){return ({normal:0,high:0,new:1,fine:2,masterpiece:3})[String(w&&w.grade||'normal')]??0;}
 function ensure(w){if(!w)return;const n=slots(w);if(!Array.isArray(w.potential))w.potential=[];if(!Array.isArray(w.engraving))w.engraving=[];while(w.potential.length<n)w.potential.push(null);while(w.engraving.length<n)w.engraving.push(null);if(w.potential.length>n)w.potential.length=n;if(w.engraving.length>n)w.engraving.length=n;}
-function fmt(x){if(!x)return '-';if(x.id==='hadumDmg')return '하둠 몬스터 피해 +'+(Number(x.value)||0)+'%';if(x.id==='atkPct')return '공격력 +'+(Number(x.value)||0)+'%';if(x.id==='critDmg')return '치명타 피해 +'+(Number(x.value)||0)+'%';return String(x.id||'옵션')+' '+String(x.value||0);}
+function fmt(x){if(!x)return '-';if(x.id==='hadumDmg')return '하둠 몬스터 피해 +'+(Number(x.value)||0)+'%';if(x.id==='atkPct')return '공격력 +'+(Number(x.value)||0)+'%';if(x.id==='critDmg')return '치명타 피해 +'+(Number(x.value)||0)+'%';return ({atk:'공격력',def:'방어력',atkPct:'공격력 %',hadumDmg:'하둠 몬스터 피해',critDmg:'치명타 피해'})[x.id] ? (({atk:'공격력',def:'방어력',atkPct:'공격력 %',hadumDmg:'하둠 몬스터 피해',critDmg:'치명타 피해'})[x.id]+' '+(Number(x.value)||0)) : String(x.id||'옵션')+' '+String(x.value||0);}
 function saveAll(){try{if(typeof window.save==='function')window.save();}catch(e){}try{if(typeof window.saveGame==='function')window.saveGame(true);}catch(e){}try{if(typeof window.updateUI==='function')window.updateUI();}catch(e){}}
 function reset(i){
  const p=ps(),w=weapon();
@@ -13741,6 +13741,55 @@ setTimeout(boot,300);
 })();
 </script>
 
+
+<script id="master-hp-mp-and-weapon-label-repair-v20">
+(function(){
+'use strict';
+const P=()=>window.playerState||null;
+function levelBase(p){
+  const lv=Math.max(1,Number(p.level)||1);
+  const sh=typeof window.isShamanClass==='function' ? window.isShamanClass() : (p.job==='무당'||p.job==='무녀');
+  return {hp:100+(lv-1)*(sh?10:30), mp:50+(lv-1)*(sh?30:10)};
+}
+function equippedArmorBonus(p,id){
+  let total=0; const inv=Array.isArray(p.guardianInventory)?p.guardianInventory:[];
+  for(const item of inv){
+    if(!item || !p.guardianEquippedItems || p.guardianEquippedItems[item.piece]!==item.id) continue;
+    const arr=Array.isArray(item.engraving)?item.engraving:(Array.isArray(item.armorEngraving)?item.armorEngraving:[]);
+    for(const e of arr) if(e && e.id===id) total+=Number(e.value)||0;
+  }
+  return total;
+}
+function syncHPMP(){
+  const p=P(); if(!p)return;
+  const b=levelBase(p);
+  const hpBonus=Math.max(0,equippedArmorBonus(p,'hp'));
+  const mpBonus=Math.max(0,equippedArmorBonus(p,'mp'));
+  const oldMaxHp=Math.max(1,Number(p.maxHp)||1), oldMaxMp=Math.max(1,Number(p.maxMp)||1);
+  // 기준 최대 HP/MP는 레벨로부터 매번 재구성한다. 저장된 누적 maxHp/maxMp는 사용하지 않는다.
+  const newMaxHp=Math.max(1,b.hp+hpBonus), newMaxMp=Math.max(1,b.mp+mpBonus);
+  const hpRatio=Number.isFinite(Number(p.hp)) ? Math.max(0,Math.min(1,Number(p.hp)/oldMaxHp)) : 1;
+  const mpRatio=Number.isFinite(Number(p.mp)) ? Math.max(0,Math.min(1,Number(p.mp)/oldMaxMp)) : 1;
+  p.maxHp=newMaxHp; p.maxMp=newMaxMp;
+  // 장비 각인 변경으로 최대치가 변해도 현재 비율을 보존한다.
+  p.hp=Math.min(newMaxHp,Math.max(0,Math.round(newMaxHp*hpRatio)));
+  p.mp=Math.min(newMaxMp,Math.max(0,Math.round(newMaxMp*mpRatio)));
+  p._guardianAppliedHP=hpBonus; p._guardianAppliedMP=mpBonus;
+}
+window.syncGuardianArmorDerivedStats=syncHPMP;
+window.__v20SyncHPMP=syncHPMP;
+// 무기 잠재력 표시명은 내부 id를 변경하지 않고 UI에서만 한글로 변환한다.
+window.__v20WeaponLabel=function(id){return ({atk:'공격력',def:'방어력',atkPct:'공격력 %',hadumDmg:'하둠 몬스터 피해',critDmg:'치명타 피해'})[id]||id||'옵션';};
+function repairSavedHPMP(){
+  const p=P();if(!p)return;
+  // 레벨 기준의 정상 최대 HP/MP + 현재 장착 각인만 인정한다.
+  syncHPMP();
+  try{if(typeof window.saveGame==='function')window.saveGame(false);}catch(e){}
+}
+window.addEventListener('load',function(){setTimeout(repairSavedHPMP,120);});
+setTimeout(repairSavedHPMP,500);
+})();
+</script>
 </body>
 <style id="weapon-bag-system-css">
 #wbag-modal{position:fixed;inset:0;z-index:11000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);padding:10px;box-sizing:border-box}
