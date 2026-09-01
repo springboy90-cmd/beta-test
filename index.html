@@ -1284,10 +1284,7 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
           </div>
           <div class="stat-row-item" id="guardian-set-row" style="display:none; justify-content: space-between; align-items:center; gap:6px;">
             <span class="stat-loot" id="guardian-set-val" style="color:#d84315;">🔥 파수꾼셋트 : ⚔️ 공격력 +15% · 🛡️ 방어력 +0</span>
-            <button class="status-action-btn" onclick="openGuardianInventoryModal()" style="padding:5px 9px;font-size:11px;background:#fff3e0;border-color:#ff8a65;color:#bf360c;font-weight:800;">🎒 장비 가방</button>
-          </div>
-          <div class="stat-row-item" id="guardian-bag-row" style="display:flex; justify-content:center; margin-top:2px;">
-            <button class="status-action-btn" onclick="openGuardianInventoryModal()" style="width:100%;padding:7px 10px;font-size:11px;background:#fff8e1;border-color:#ffb74d;color:#bf360c;font-weight:900;">🎒 파수꾼 장비 가방 · 옵션 확인 / 장착 / 분해</button>
+            <button class="status-action-btn" onclick="openGuardianInventoryModal()" style="padding:5px 9px;font-size:11px;background:#fff3e0;border-color:#ff8a65;color:#bf360c;font-weight:800;">🎒 방어구</button>
           </div>
           <div class="stat-row-item" id="guardian-resist-row" style="display:none; justify-content:center;">
             <span id="guardian-resist-val" style="font-size:10px;color:#6d4c41;">🔥 0% · ❄️ 0% · 🌪️ 0%</span>
@@ -1300,8 +1297,11 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
               🔥 파수꾼셋트 장착
             </button>
           </div>
-          <div class="stat-row-item" id="weapon-enhance-action-row" style="display:flex; justify-content:center; margin-top:3px;">
-            <button class="status-action-btn" onclick="openWeaponEnhanceModal()" style="width:100%;padding:7px 10px;font-size:11px;background:#e3f2fd;border-color:#64b5f6;color:#1565c0;font-weight:900;">⚒️ 무기 강화 · 파수꾼 부위 강화</button>
+          <div class="stat-row-item" id="weapon-potential-action-row" style="display:flex; justify-content:center; margin-top:3px;">
+          <button class="status-action-btn" onclick="openWeaponPotentialModal()" style="display:block;width:100%;padding:7px 10px;font-size:11px;background:#f3e5f5;border-color:#ab47bc;color:#6a1b9a;font-weight:900;margin-top:4px;">✨ 무기 잠재력 · 각인</button>
+          </div>
+          <div class="stat-row-item" id="armor-potential-action-row" style="display:flex; justify-content:center; margin-top:3px;">
+          <button class="status-action-btn" onclick="openArmorPotentialModal()" style="display:block;width:100%;padding:7px 10px;font-size:11px;background:#e3f2fd;border-color:#42a5f5;color:#1565c0;font-weight:900;margin-top:4px;">🛡️ 방어구 잠재력 · 각인</button>
           </div>
           <div class="status-action-row">
             <button class="status-action-btn status-shop-btn" onclick="openShopModal()">🛒 저자거리 상점</button>
@@ -1517,7 +1517,7 @@ html,body{overflow-x:hidden!important}#wc-modal *{box-sizing:border-box!importan
         <div class="stage-card hadum" id="stage-card-hadum-5" onclick="selectStage(5,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">❄️ 하둠: 용궁</div><div style="font-size:10px;color:#bcaaa4;">동일 몬스터, 공격력·HP·경험치 2배</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
         <div class="stage-card hadum" id="stage-card-hadum-6" onclick="selectStage(6,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🔥 하둠: 신수협곡</div><div style="font-size:10px;color:#bcaaa4;">삿갓다람쥐, 춤추는선인장 및 신수협곡 수호령(보스)</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
         <div class="stage-card hadum" id="stage-card-hadum-7" onclick="selectStage(7,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">🌪️ 하둠: 신수협곡 2층</div><div style="font-size:10px;color:#bcaaa4;">붉은깃털독수리, 하얀깃털독수리 및 신수협곡 2층 수호령(보스)</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
-        <div class="stage-card hadum" id="stage-card-hadum-8" onclick="selectStage(8,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">👹 하둠: 귀령사 1층</div><div style="font-size:10px;color:#bcaaa4;">묘귀령, 유귀령 · 보스 없음 · H6 정예급 일반 몬스터</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
+        <div class="stage-card hadum" id="stage-card-hadum-8" onclick="selectStage(8,true)"><div><div style="font-weight:bold;color:#ff8a65;font-size:13px;">👹 하둠: 귀령사 1층</div><div style="font-size:10px;color:#bcaaa4;">모귀령, 유귀령 · 보스 없음 · H6 정예급 일반 몬스터</div></div><div style="font-size:12px;font-weight:bold;color:#ff8a65;">이동 ➔</div></div>
       </div>
     </div>
 
@@ -4665,6 +4665,7 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       // 파수꾼 개별 장비 강화 레벨은 각 장비에 저장하며 최대 +20.
       // 구버전의 세트 통합 강화 수치는 로드 시 각 보유 장비의 초기 강화 레벨로 안전하게 변환한다.
       guardianEnhanceMigrationDone: false,
+      // 파수꾼 장비별 잠재력/각인: 보스 드랍 시 방어력 잠재력과 1~3개 각인 슬롯이 랜덤 부여된다.
       cloverInventory: { premium: 0, silver: 0, gold: 0 },
       cloverBuff: { type: "", until: 0 },
       // 속성 저항은 장착 중인 파수꾼 장비 + 세트 효과를 합산하고 50%로 제한한다.
@@ -4841,22 +4842,88 @@ window.playerState = playerState;
     const GUARDIAN_RESIST_MAX = 0.50;
     const GUARDIAN_OPTION_MIN = 0.02;
     const GUARDIAN_OPTION_MAX = 0.04;
-    const GUARDIAN_INVENTORY_MAX = 20;
+    const GUARDIAN_INVENTORY_MAX = 30;
     const GUARDIAN_RESIST_LABELS = { fire: '🔥 화염', ice: '❄️ 빙결', wind: '🌪️ 바람' };
     const GUARDIAN_RESIST_KEYS = ['fire','ice','wind'];
-
+    const GUARDIAN_POTENTIAL_DEF_MIN = 80;
+    const GUARDIAN_POTENTIAL_DEF_MAX = 350;
+    const GUARDIAN_ENGRAVING_SLOT_MIN = 1;
+    const GUARDIAN_ENGRAVING_SLOT_MAX = 3;
+    const GUARDIAN_ENGRAVING_STONE_COST = 1;
+    const GUARDIAN_ENGRAVING_GOLD_COST = 50000;
+    const GUARDIAN_ENGRAVING_RESET_STONE_COST = 2;
+    const GUARDIAN_ENGRAVING_RESET_GOLD_COST = 100000;
+    const GUARDIAN_ARMOR_ENGRAVINGS = [
+      {id:'defPct', name:'방어력', roll:()=>1+Math.floor(Math.random()*5), fmt:v=>`방어력 +${v}%`},
+      {id:'hp', name:'HP', roll:()=>500+Math.floor(Math.random()*3501), fmt:v=>`HP +${v}`},
+      {id:'mp', name:'MP', roll:()=>500+Math.floor(Math.random()*3501), fmt:v=>`MP +${v}`},
+      {id:'damageReduce', name:'피해 감소', roll:()=>1+Math.floor(Math.random()*3), fmt:v=>`피해 감소 +${v}%`},
+      {id:'fireRes', name:'화염 저항', roll:()=>1+Math.floor(Math.random()*4), fmt:v=>`화염 저항 +${v}%`},
+      {id:'iceRes', name:'빙결 저항', roll:()=>1+Math.floor(Math.random()*4), fmt:v=>`빙결 저항 +${v}%`},
+      {id:'windRes', name:'바람 저항', roll:()=>1+Math.floor(Math.random()*4), fmt:v=>`바람 저항 +${v}%`}
+    ];
     function createGuardianItem(piece) {
-      const type = GUARDIAN_RESIST_KEYS[Math.floor(Math.random() * GUARDIAN_RESIST_KEYS.length)];
-      const value = GUARDIAN_OPTION_MIN + Math.random() * (GUARDIAN_OPTION_MAX - GUARDIAN_OPTION_MIN);
+      // 파수꾼 장비 드랍 잠재력은 방어력 +80~350과 각인 슬롯 1~3만 랜덤 생성한다.
+      // 화염/빙결/바람 저항 및 기타 전투 옵션은 드랍 데이터에 절대 생성하지 않는다.
       const item = {
         id: `g${Date.now().toString(36)}_${Math.random().toString(36).slice(2,7)}_${playerState.guardianInventoryNextId || 1}`,
         piece,
-        optionType: type,
-        optionValue: Number(value.toFixed(4)),
-        enhance: 0
+        enhance: 0,
+        potentialDef: GUARDIAN_POTENTIAL_DEF_MIN + Math.floor(Math.random() * (GUARDIAN_POTENTIAL_DEF_MAX - GUARDIAN_POTENTIAL_DEF_MIN + 1)),
+        engravingSlots: GUARDIAN_ENGRAVING_SLOT_MIN + Math.floor(Math.random() * (GUARDIAN_ENGRAVING_SLOT_MAX - GUARDIAN_ENGRAVING_SLOT_MIN + 1)),
+        engraving: []
       };
       playerState.guardianInventoryNextId = (Number(playerState.guardianInventoryNextId) || 1) + 1;
       return item;
+    }
+
+    function ensureGuardianArmorData(item) {
+      if (!item) return;
+      if (!Number.isFinite(Number(item.potentialDef))) item.potentialDef = GUARDIAN_POTENTIAL_DEF_MIN + Math.floor(Math.random() * (GUARDIAN_POTENTIAL_DEF_MAX - GUARDIAN_POTENTIAL_DEF_MIN + 1));
+      if (!Number.isFinite(Number(item.engravingSlots))) item.engravingSlots = GUARDIAN_ENGRAVING_SLOT_MIN + Math.floor(Math.random() * (GUARDIAN_ENGRAVING_SLOT_MAX - GUARDIAN_ENGRAVING_SLOT_MIN + 1));
+      item.engravingSlots = Math.max(GUARDIAN_ENGRAVING_SLOT_MIN, Math.min(GUARDIAN_ENGRAVING_SLOT_MAX, Number(item.engravingSlots)));
+      if (!Array.isArray(item.engraving)) item.engraving = [];
+      while (item.engraving.length < item.engravingSlots) item.engraving.push(null);
+      if (item.engraving.length > item.engravingSlots) item.engraving.length = item.engravingSlots;
+    }
+
+    function getGuardianArmorEngravingTotal(item, id) {
+      ensureGuardianArmorData(item);
+      return (item.engraving || []).filter(Boolean).filter(x => x.id === id).reduce((sum,x)=>sum+(Number(x.value)||0),0);
+    }
+
+    function getGuardianArmorEngravingSummary(item) {
+      ensureGuardianArmorData(item);
+      return (item.engraving || []).filter(Boolean).map(x => { const o=GUARDIAN_ARMOR_ENGRAVINGS.find(a=>a.id===x.id); return o ? o.fmt(Number(x.value)||0) : `${x.id} ${x.value}`; });
+    }
+
+    function syncGuardianDerivedStats() {
+      const inv = playerState.guardianInventory || [];
+      let hp = 0, mp = 0;
+      for (const item of inv) {
+        const id = playerState.guardianEquippedItems?.[item.piece];
+        if (id === item.id) {
+          ensureGuardianArmorData(item);
+          hp += getGuardianArmorEngravingTotal(item,'hp');
+          mp += getGuardianArmorEngravingTotal(item,'mp');
+        }
+      }
+      const oldHp = Number(playerState._guardianAppliedHP || 0);
+      const oldMp = Number(playerState._guardianAppliedMP || 0);
+      playerState.maxHp = Math.max(1, Number(playerState.maxHp || 1) - oldHp + hp);
+      playerState.maxMp = Math.max(1, Number(playerState.maxMp || 1) - oldMp + mp);
+      playerState._guardianAppliedHP = hp;
+      playerState._guardianAppliedMP = mp;
+      playerState.hp = Math.min(Number(playerState.maxHp)||1, Math.max(0, Number(playerState.hp)||0));
+      playerState.mp = Math.min(Number(playerState.maxMp)||1, Math.max(0, Number(playerState.mp)||0));
+    }
+
+    function getGuardianArmorDamageReduction() {
+      let pct=0;
+      for (const item of (playerState.guardianInventory || [])) {
+        if (playerState.guardianEquippedItems?.[item.piece] === item.id) pct += getGuardianArmorEngravingTotal(item,'damageReduce') / 100;
+      }
+      return Math.min(0.50, Math.max(0,pct));
     }
 
     function getGuardianEnhanceStat(piece, stat) {
@@ -4903,8 +4970,15 @@ window.playerState = playerState;
         if (playerState.guardianEquippedItems && playerState.guardianEquippedItems[item.piece] === item.id && item.optionType === type) {
           value += Number(item.optionValue) || 0;
         }
+        if (playerState.guardianEquippedItems && playerState.guardianEquippedItems[item.piece] === item.id) {
+          const engrId = type==='fire' ? 'fireRes' : type==='ice' ? 'iceRes' : 'windRes';
+          value += getGuardianArmorEngravingTotal(item, engrId) / 100;
+        }
       });
       // 세트 저항은 '착용한 파수꾼 부위 수'에 따라 적용한다. 풀세트 버튼이 꺼져 있으면 0.
+      if (type === 'fire') value += getGuardianArmorEngravingValue('fireRes') / 100;
+      if (type === 'ice') value += getGuardianArmorEngravingValue('iceRes') / 100;
+      if (type === 'wind') value += getGuardianArmorEngravingValue('windRes') / 100;
       const equippedCount = ['helm','armor','gloves','boots'].filter(piece => !!getGuardianEquippedItem(piece)).length;
       if (equippedCount >= 2) value += GUARDIAN_RESIST_BONUS_2SET;
       if (equippedCount >= 4) {
@@ -4963,6 +5037,7 @@ window.playerState = playerState;
       playerState.guardianEquippedItems[item.piece] = item.id;
       playerState.guardianSet[item.piece] = true;
       playerState.guardianSetEquipped = ['helm','armor','gloves','boots'].every(p => !!getGuardianEquippedItem(p));
+      syncGuardianDerivedStats();
       updatePlayerFacingTexture();
       updateUI();
       saveGame();
@@ -4998,6 +5073,7 @@ window.playerState = playerState;
       const idx = playerState.guardianInventory.findIndex(i => i.id === id);
       if (idx < 0) return;
       playerState.guardianInventory.splice(idx, 1);
+      syncGuardianDerivedStats();
       playerState.enhanceCore = Math.max(0, Number(playerState.enhanceCore) || 0) + reward;
 
       saveGame();
@@ -5008,33 +5084,70 @@ window.playerState = playerState;
       showHealText(`♻️ 파수꾼 ${pieceName} +${lv} 분해 완료 · 🔷 강화의 핵 +${reward}`, playerSprite.position);
     }
 
+    function getGuardianArmorEquippedItems() {
+      const inv = playerState.guardianInventory || [];
+      const eq = playerState.guardianEquippedItems || {};
+      return ['helm','armor','gloves','boots'].map(piece => inv.find(i => i && i.piece === piece && eq[piece] === i.id)).filter(Boolean);
+    }
+    function getGuardianArmorEngravingValue(id) {
+      return getGuardianArmorEquippedItems().reduce((sum,i) => sum + (Array.isArray(i.armorEngraving) ? i.armorEngraving.filter(Boolean).filter(e => e.id === id).reduce((a,e)=>a+(Number(e.value)||0),0) : 0), 0);
+    }
+    function syncGuardianArmorDerivedStats() {
+      // v17: 방어력은 playerState.defensePower에 누적하지 않는다.
+      // 영구/기본 방어력은 defensePower 하나만 보관하고, 파수꾼 잠재력/강화/각인은
+      // getPlayerEffectiveDef()에서 매번 계산한다. 이렇게 해야 장비/화면 갱신 때
+      // 같은 방어력이 반복해서 더해지는 문제가 발생하지 않는다.
+      playerState.guardianArmorApplied = playerState.guardianArmorApplied || {defense:0,hp:0,mp:0};
+      const old = playerState.guardianArmorApplied;
+      playerState.maxHp = Math.max(1, Number(playerState.maxHp||1) - Number(old.hp||0));
+      playerState.maxMp = Math.max(1, Number(playerState.maxMp||1) - Number(old.mp||0));
+      const hp = getGuardianArmorEngravingValue('hp');
+      const mp = getGuardianArmorEngravingValue('mp');
+      playerState.maxHp += hp;
+      playerState.maxMp += mp;
+      playerState.hp = Math.min(Number(playerState.hp||0), playerState.maxHp);
+      playerState.mp = Math.min(Number(playerState.mp||0), playerState.maxMp);
+      // defense는 더 이상 playerState.defensePower에 저장하지 않는다.
+      playerState.guardianArmorApplied = {defense:0,hp,mp};
+    }
+    window.getGuardianArmorEngravingValue = getGuardianArmorEngravingValue;
+    window.syncGuardianArmorDerivedStats = syncGuardianArmorDerivedStats;
+
+    let guardianInventoryPieceTab = 'all';
+    window.setGuardianInventoryPieceTab = function(piece) { guardianInventoryPieceTab = piece || 'all'; renderGuardianInventory(); };
+
     function renderGuardianInventory() {
       const box = document.getElementById('guardian-inventory-list');
       const stats = document.getElementById('guardian-resist-summary');
       if (!box) return;
-      const pieces = ['helm','armor','gloves','boots'];
       const inv = playerState.guardianInventory || [];
       const equipped = playerState.guardianEquippedItems || {};
+      inv.forEach(ensureGuardianArmorData);
+      syncGuardianDerivedStats();
       if (stats) stats.innerHTML = `🔷 강화의 핵 <b>${Number(playerState.enhanceCore || 0).toLocaleString()}개</b> · ` + GUARDIAN_RESIST_KEYS.map(k => `${GUARDIAN_RESIST_LABELS[k]} <b>${Math.round(getPlayerElementalResistance(k)*100)}%</b>`).join(' · ');
       if (!inv.length) { box.innerHTML = '<div style="padding:12px;text-align:center;color:#999">파수꾼 장비가 없습니다.</div>'; return; }
-      box.innerHTML = inv.map(item => {
+      const filteredInv = guardianInventoryPieceTab === 'all' ? inv : inv.filter(item => item.piece === guardianInventoryPieceTab);
+      const tabLabels = [['all','전체'],['helm','🪖 투구'],['armor','🛡️ 갑옷'],['gloves','🧤 장갑'],['boots','👢 신발']];
+      let html = '<div class="guardian-piece-tabs">' + tabLabels.map(([key,label]) => '<button type="button" class="guardian-piece-tab '+(guardianInventoryPieceTab===key?'active':'')+'" onclick="setGuardianInventoryPieceTab(\''+key+'\')">'+label+'</button>').join('') + '</div>';
+      if (!filteredInv.length) { html += '<div style="padding:12px;text-align:center;color:#999">해당 부위의 파수꾼 장비가 없습니다.</div>'; box.innerHTML=html; return; }
+      html += filteredInv.map(item => {
         const equippedNow = equipped[item.piece] === item.id;
         const pieceName = GUARDIAN_SET_PIECE_NAMES[item.piece] || item.piece;
-        const option = `${GUARDIAN_RESIST_LABELS[item.optionType]} +${Math.round(item.optionValue*100)}%`;
+        const option = '';
         const ep = getGuardianEnhancePreview(item);
         const statText = `${ep.atk ? `⚔️ +${ep.atk}/강` : ''}${ep.def ? `${ep.atk ? ' · ' : ''}🛡️ +${ep.def}/강` : ''}`;
         return `<div class="guardian-inv-item ${equippedNow?'equipped':''}">
-          <div style="min-width:0;flex:1"><b>🔥 파수꾼 ${pieceName} +${ep.level}/${GUARDIAN_SET_ENHANCE_MAX}</b>${equippedNow?' <span style="color:#2e7d32">[장착]</span>':''}<br><span style="color:#d84315">${option}</span><br><span style="font-size:9px;color:#666">${statText}</span></div>
+          <div style="min-width:0;flex:1"><b>🔥 파수꾼 ${pieceName} +${ep.level}/${GUARDIAN_SET_ENHANCE_MAX}</b>${equippedNow?' <span style="color:#2e7d32">[장착]</span>':''}<br><span style="color:#d84315">${option}</span><br><span style="font-size:9px;color:#555">🛡️ 잠재력 방어력 +${Number(item.potentialDef).toLocaleString()} · 각인 슬롯 ${item.engravingSlots}개</span><br><span style="font-size:9px;color:#666">${statText}</span></div>
           <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end">
             ${equippedNow?'':'<button onclick="equipGuardianItem(\''+item.id+'\')">장착</button>'}
             ${ep.level < GUARDIAN_SET_ENHANCE_MAX ? '<button style="background:#e3f2fd;border-color:#64b5f6;color:#1565c0" onclick="enhanceGuardianItem(\''+item.id+'\')">강화</button>' : '<button disabled style="opacity:.6">MAX</button>'}
             ${equippedNow?'':'<button class="danger" onclick="dismantleGuardianItem(\''+item.id+'\')">분해</button>'}
           </div>
         </div>`;
-      }).join('');
+      }).join(''); box.innerHTML = html;
     }
 
-    function enhanceGuardianItem(id) {
+        function enhanceGuardianItem(id) {
       const item = (playerState.guardianInventory || []).find(i => i.id === id);
       if (!item) return;
       const lv = getGuardianItemEnhanceLevel(item);
@@ -5100,7 +5213,7 @@ window.playerState = playerState;
       const pieces = ['helm','armor','gloves','boots'];
       list.innerHTML = pieces.map(piece => {
         const item = inv.find(i => i.id === equipped[piece] && i.piece === piece);
-        if (!item) return `<div class="weapon-enhance-empty">${GUARDIAN_SET_PIECE_NAMES[piece]} · 장착할 파수꾼 장비가 없습니다.<br><small>🎒 장비 가방에서 먼저 장착하세요.</small></div>`;
+        if (!item) return `<div class="weapon-enhance-empty">${GUARDIAN_SET_PIECE_NAMES[piece]} · 장착할 파수꾼 장비가 없습니다.<br><small>🎒 방어구에서 먼저 장착하세요.</small></div>`;
         const ep = getGuardianEnhancePreview(item);
         const statName = ep.atk ? '공격력' : '방어력';
         const stat = ep.atk || ep.def;
@@ -5178,14 +5291,29 @@ window.playerState = playerState;
     }
 
     function getPlayerEffectiveDef() {
-      let def = playerState.defensePower;
-      if (typeof getCloverCombatBonus === "function") def *= (1 + getCloverCombatBonus());
-      if (isMunyeahanaBuffActive()) {
-        def *= (1 + getMunyeahanaBuffRate());
-      }
-      // 방어력도 동일하게, 장착한 부위의 강화 수치는 풀세트 여부와 무관하게 항상 반영한다.
+      // v17 단일 계산 경로:
+      // 1) playerState.defensePower = 직업/기본/일반 장비 등 영구 방어력
+      // 2) 파수꾼 부위 강화
+      // 3) 파수꾼 잠재력 방어력
+      // 4) 방어력 % 각인
+      // 5) 클로버/문예하나 버프
+      // 잠재력과 강화 수치를 playerState.defensePower에 다시 기록하지 않는다.
+      syncGuardianDerivedStats();
+      let def = Math.max(0, Number(playerState.defensePower) || 0);
       def += getGuardianEnhanceDef();
-      return Math.round(def);
+      let potentialDef = 0, defPct = 0;
+      for (const item of (playerState.guardianInventory || [])) {
+        if (playerState.guardianEquippedItems?.[item.piece] === item.id) {
+          ensureGuardianArmorData(item);
+          potentialDef += Math.max(0, Number(item.potentialDef) || 0);
+          defPct += Math.max(0, getGuardianArmorEngravingTotal(item,'defPct'));
+        }
+      }
+      def += potentialDef;
+      def *= (1 + defPct / 100);
+      if (typeof getCloverCombatBonus === "function") def *= (1 + getCloverCombatBonus());
+      if (isMunyeahanaBuffActive()) def *= (1 + getMunyeahanaBuffRate());
+      return Math.round(Math.max(0, def));
     }
 
     function getMunyeahanaAtkBuff() {
@@ -6592,160 +6720,40 @@ window.playerState = playerState;
     }
 
     function createGhostTempleMonsterTexture(type,attackStage=0){
-      const cvs=document.createElement('canvas'); cvs.width=160; cvs.height=210;
-      const ctx=cvs.getContext('2d'); ctx.imageSmoothingEnabled=false; ctx.clearRect(0,0,160,210);
+      const cvs=document.createElement('canvas'); cvs.width=160; cvs.height=180;
+      const ctx=cvs.getContext('2d'); ctx.imageSmoothingEnabled=false; ctx.clearRect(0,0,160,180);
       const bob=attackStage?(attackStage%2===0?-2:2):0; ctx.translate(bob,0);
       if(type==='mogwiryeong'){
-        // 묘귀령: 참고 이미지 속 '흰 토끼 귀를 가진 갑주 병사'.
-        // 슬림한 몸통, 곧고 긴 토끼 귀, 등에 화살통, 양팔로 석궁을 정면으로 든 자세.
-        // 캔버스를 세로로 넉넉히(210) 잡고 전체를 아래로 26px 내려서 귀 끝이 잘리지 않게 한다.
-        ctx.save(); ctx.translate(0,26);
-        // 등 뒤 화살통(짙은 갈색 원통 + 화살 깃)
-        ctx.fillStyle='#5a3c22'; ctx.fillRect(98,54,13,42);
-        ctx.fillStyle='#8a6a3f'; ctx.fillRect(98,54,13,7);
-        ['#e0574a','#4a90c2','#e8c84a'].forEach((c,i)=>{ ctx.fillStyle=c; ctx.fillRect(100+i*4,30,3,28); });
-        // 몸통(슬림한 세로 타원, 초록 가죽 갑주)
-        ctx.fillStyle='#3f6b3a'; ctx.beginPath(); ctx.ellipse(76,116,20,30,0,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='#5c8c4f'; ctx.beginPath(); ctx.ellipse(76,108,15,20,0,0,Math.PI*2); ctx.fill();
-        // 갈색 벨트/버클
-        ctx.fillStyle='#6b4423'; ctx.fillRect(62,118,28,7);
-        ctx.fillStyle='#d9b25a'; ctx.beginPath(); ctx.arc(76,121,4,0,Math.PI*2); ctx.fill();
-        // 목
-        ctx.fillStyle='#f5f3ee'; ctx.fillRect(68,80,16,12);
-        // 흰 토끼 얼굴(갸름한 계란형)
-        ctx.fillStyle='#f5f3ee'; ctx.beginPath(); ctx.ellipse(76,62,16,19,0,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='#fdfcf9'; ctx.beginPath(); ctx.ellipse(76,66,10,10,0,0,Math.PI*2); ctx.fill();
-        // 곧고 긴 토끼 귀(안쪽 연분홍) — y중심을 20/19로 올려도 -26 오프셋 덕에 캔버스 안에 온전히 들어온다
-        ctx.fillStyle='#f5f3ee';
-        ctx.beginPath(); ctx.ellipse(65,20,7,34,-0.12,0,Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(87,19,7,35,0.1,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='#f0b7c4';
-        ctx.beginPath(); ctx.ellipse(66,22,3.5,24,-0.12,0,Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(87,21,3.5,25,0.1,0,Math.PI*2); ctx.fill();
-        // 눈(붉은 눈동자 - 참고 이미지 특징)
-        ctx.fillStyle='#c0392b'; ctx.beginPath(); ctx.arc(70,61,2.6,0,Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(83,61,2.6,0,Math.PI*2); ctx.fill();
-        // 초록 두건(이마 밴드)
-        ctx.fillStyle='#2e5230'; ctx.beginPath(); ctx.ellipse(76,50,17,7,0,Math.PI,Math.PI*2); ctx.fill();
-        // 팔(석궁을 정면으로 든 자세)
-        ctx.fillStyle='#e9edf0'; ctx.beginPath(); ctx.ellipse(56,102,8,20,0.2,0,Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(96,102,8,20,-0.2,0,Math.PI*2); ctx.fill();
-        // 석궁(팔 사이, 정면)
-        ctx.fillStyle='#4a3016'; ctx.fillRect(60,108,32,7);
-        ctx.strokeStyle='#7a5a33'; ctx.lineWidth=3;
-        ctx.beginPath(); ctx.moveTo(52,100); ctx.quadraticCurveTo(76,88,100,100); ctx.stroke();
-        ctx.fillStyle='#3a2814'; ctx.fillRect(72,108,8,18);
-        // 다리(짙은 갈색 부츠)
-        ctx.fillStyle='#e9edf0'; ctx.beginPath(); ctx.ellipse(66,150,9,18,0,0,Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(86,150,9,18,0,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='#4a3016'; ctx.beginPath(); ctx.ellipse(66,166,8,7,0,0,Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(86,166,8,7,0,0,Math.PI*2); ctx.fill();
-        ctx.restore();
+        // 모귀령: 참고 이미지의 흰색 귀령 가면/뿔 + 붉은 칼날 + 짙은 갑주
+        ctx.fillStyle='#262326'; ctx.fillRect(52,58,58,76);
+        ctx.fillStyle='#47434a'; ctx.fillRect(45,78,70,46);
+        ctx.fillStyle='#e8e5dc'; ctx.beginPath(); ctx.ellipse(80,60,34,42,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#c9c5bb'; ctx.fillRect(57,25,10,26); ctx.fillRect(93,25,10,26);
+        ctx.fillStyle='#f4f0e6'; ctx.beginPath(); ctx.moveTo(55,40);ctx.lineTo(45,12);ctx.lineTo(67,31);ctx.closePath();ctx.fill();
+        ctx.beginPath();ctx.moveTo(105,40);ctx.lineTo(115,12);ctx.lineTo(93,31);ctx.closePath();ctx.fill();
+        ctx.fillStyle='#1b1719'; ctx.fillRect(62,56,9,7); ctx.fillRect(89,56,9,7);
+        ctx.fillStyle='#9e2525'; ctx.fillRect(69,70,22,7); ctx.fillRect(75,77,10,5);
+        ctx.fillStyle='#7d2526'; ctx.fillRect(43,86,25,10); ctx.fillRect(92,86,25,10);
+        ctx.fillStyle='#b92d35'; ctx.fillRect(36,97,16,8); ctx.fillRect(108,97,16,8);
+        ctx.fillStyle='#d4d1c8'; ctx.fillRect(20,28,6,92); ctx.fillStyle='#c62e3d'; ctx.fillRect(18,22,10,42);
+        ctx.fillStyle='#151315'; ctx.fillRect(56,125,18,35); ctx.fillRect(86,125,18,35);
+        ctx.fillStyle='#d8d4c9'; ctx.fillRect(48,157,27,9); ctx.fillRect(84,157,27,9);
       }else{
-        // 유귀령: 첨부 참고 이미지(옆모습 클로즈업)를 기준으로 다시 그린 닭/봉황형 머리.
-        // 노란 뾰족 부리, 뒤로 퍼지는 빨강->주황->노랑 화염 벼슬, 검은 목/뒤통수 깃털,
-        // 붉은 세로 슬릿 눈, 그 아래로 금색 판금 갑주 견갑. 몸통·다리는 기존 사족보행 형태를 유지한다.
-        ctx.save();
-        // 등 뒤 화염 깃털(부채꼴, 몸통 장식용 - 기존 실루엣 유지)
-        const featherBaseX=52, featherBaseY=80;
-        for(let i=0;i<7;i++){
-          const ang=-2.5+i*0.32;
-          const len=48+((i%3)*10);
-          const tipX=featherBaseX+Math.cos(ang)*len, tipY=featherBaseY+Math.sin(ang)*len;
-          const midX=featherBaseX+Math.cos(ang-0.12)*len*0.6, midY=featherBaseY+Math.sin(ang-0.12)*len*0.6;
-          ctx.fillStyle=i%2?'#ff8a34':'#ffb64d';
-          ctx.beginPath(); ctx.moveTo(featherBaseX,featherBaseY); ctx.lineTo(midX,midY); ctx.lineTo(tipX,tipY); ctx.closePath(); ctx.fill();
-        }
-        ctx.restore();
-        // 몸통(사족보행, 길쭉한 타원)
-        ctx.fillStyle='#2a2f52'; ctx.beginPath(); ctx.ellipse(92,142,38,30,0.05,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='#3a4270'; ctx.beginPath(); ctx.ellipse(92,135,30,20,0.05,0,Math.PI*2); ctx.fill();
-        // 뒷다리
-        ctx.fillStyle='#a8551f'; ctx.beginPath(); ctx.ellipse(84,176,11,18,0,0,Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(112,178,11,18,0,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='#7a3c15'; ctx.beginPath(); ctx.ellipse(84,192,9,6,0,0,Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(112,193,9,6,0,0,Math.PI*2); ctx.fill();
-        // 꼬리(화염 깃털처럼 뒤로)
-        ctx.fillStyle='#ff9c4a'; ctx.beginPath(); ctx.moveTo(128,138); ctx.quadraticCurveTo(154,130,155,110); ctx.quadraticCurveTo(142,134,122,146); ctx.closePath(); ctx.fill();
-        // ===== 머리~목 (참고 이미지 기준 재설계, 얼굴이 왼쪽을 향한 옆모습) =====
-        ctx.save(); ctx.translate(10,20);
-        // 벼슬(코크스콤): 머리 위에서 뒤로 퍼지는 화염형, 빨강(이마쪽)->노랑(끝)
-        function crestSpike(x1,y1,x2,y2,x3,y3,color){
-          ctx.fillStyle=color;
-          ctx.beginPath(); ctx.moveTo(x1,y1); ctx.quadraticCurveTo((x1+x2)/2,(y1+y2)/2-8,x2,y2); ctx.lineTo(x3,y3); ctx.closePath(); ctx.fill();
-        }
-        const baseX=34, baseY=44;
-        crestSpike(baseX,baseY, baseX-6,baseY-40, baseX+10,baseY-14, '#d6402c');
-        crestSpike(baseX+6,baseY-6, baseX+6,baseY-52, baseX+22,baseY-18, '#e6552e');
-        crestSpike(baseX+16,baseY-10, baseX+22,baseY-58, baseX+36,baseY-20, '#f2762e');
-        crestSpike(baseX+28,baseY-10, baseX+38,baseY-56, baseX+48,baseY-16, '#f89a30');
-        crestSpike(baseX+40,baseY-6, baseX+52,baseY-46, baseX+58,baseY-8, '#ffc23c');
-        crestSpike(baseX+50,baseY+2, baseX+62,baseY-30, baseX+64,baseY+6, '#ffe066');
-        // 검은 목/뒤통수 깃털 (참고 이미지 특징 - 얼굴 뒤~목을 덮는 짙은 덩어리)
-        ctx.fillStyle='#1c1d22';
-        ctx.beginPath();
-        ctx.moveTo(40,46);
-        ctx.bezierCurveTo(60,30,92,34,100,58);
-        ctx.bezierCurveTo(106,80,100,102,84,112);
-        ctx.bezierCurveTo(66,120,44,112,34,96);
-        ctx.bezierCurveTo(26,80,28,58,40,46);
-        ctx.closePath(); ctx.fill();
-        ctx.strokeStyle='#33353d'; ctx.lineWidth=2;
-        for(let i=0;i<5;i++){
-          ctx.beginPath();
-          ctx.moveTo(52+i*8,44+i*4);
-          ctx.quadraticCurveTo(70+i*6,60+i*6,64+i*7,90+i*4);
-          ctx.stroke();
-        }
-        // 얼굴(노란빛 도는 살구색, 부리 방향은 왼쪽)
-        ctx.fillStyle='#f0c477';
-        ctx.beginPath();
-        ctx.moveTo(14,60);
-        ctx.quadraticCurveTo(10,44,26,36);
-        ctx.quadraticCurveTo(42,30,48,44);
-        ctx.quadraticCurveTo(50,58,42,66);
-        ctx.quadraticCurveTo(34,74,24,72);
-        ctx.quadraticCurveTo(16,70,14,60);
-        ctx.closePath(); ctx.fill();
-        ctx.fillStyle='#e2a25c';
-        ctx.beginPath();
-        ctx.moveTo(24,50); ctx.quadraticCurveTo(30,44,38,48); ctx.quadraticCurveTo(40,58,32,64); ctx.quadraticCurveTo(24,62,24,50);
-        ctx.closePath(); ctx.fill();
-        // 노란 부리(뾰족, 아래로 살짝 굽음)
-        ctx.fillStyle='#ffcf3d';
-        ctx.beginPath();
-        ctx.moveTo(16,56);
-        ctx.lineTo(-8,60);
-        ctx.quadraticCurveTo(-2,66,10,68);
-        ctx.closePath(); ctx.fill();
-        ctx.fillStyle='#e0a91f';
-        ctx.beginPath(); ctx.moveTo(-8,60); ctx.lineTo(2,61); ctx.lineTo(-4,64); ctx.closePath(); ctx.fill();
-        // 눈(붉은 세로 슬릿)
-        ctx.fillStyle='#c0392b';
-        ctx.beginPath(); ctx.ellipse(28,50,3,6,0.1,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='#3a0e0a';
-        ctx.beginPath(); ctx.ellipse(28,50,1.2,4,0.1,0,Math.PI*2); ctx.fill();
-        // 이마 붉은 볏 조각(부리 위쪽)
-        ctx.fillStyle='#d6402c';
-        ctx.beginPath(); ctx.moveTo(20,40); ctx.quadraticCurveTo(28,32,38,36); ctx.quadraticCurveTo(30,42,22,44); ctx.closePath(); ctx.fill();
-        ctx.restore();
-        // 금색 판금 갑주 견갑(목 아래, 몸통과 연결)
-        ctx.fillStyle='#c99a3e';
-        ctx.beginPath();
-        ctx.moveTo(40,152);
-        ctx.quadraticCurveTo(60,130,100,136);
-        ctx.quadraticCurveTo(132,142,138,168);
-        ctx.quadraticCurveTo(140,190,120,196);
-        ctx.quadraticCurveTo(80,204,50,194);
-        ctx.quadraticCurveTo(34,184,40,152);
-        ctx.closePath(); ctx.fill();
-        ctx.fillStyle='#eccb74';
-        ctx.beginPath();
-        ctx.moveTo(50,148); ctx.quadraticCurveTo(65,136,94,140); ctx.quadraticCurveTo(80,150,70,160); ctx.quadraticCurveTo(56,160,50,148);
-        ctx.closePath(); ctx.fill();
-        ctx.strokeStyle='#8a6420'; ctx.lineWidth=2;
-        ctx.beginPath(); ctx.moveTo(50,170); ctx.lineTo(122,170); ctx.stroke();
-        for(let i=0;i<6;i++){ ctx.beginPath(); ctx.arc(56+i*13,177,3,0,Math.PI*2); ctx.stroke(); }
+        // 유귀령: 참고 이미지의 붉은/주황색 대형 귀령 + 중장갑 형태
+        ctx.fillStyle='#35251f'; ctx.fillRect(44,65,72,72);
+        ctx.fillStyle='#8f3c2c'; ctx.fillRect(48,50,64,76);
+        ctx.fillStyle='#d06436'; ctx.beginPath(); ctx.ellipse(80,60,38,34,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#b24c2d'; ctx.beginPath();ctx.moveTo(52,42);ctx.lineTo(37,10);ctx.lineTo(69,34);ctx.closePath();ctx.fill();
+        ctx.beginPath();ctx.moveTo(108,42);ctx.lineTo(123,10);ctx.lineTo(91,34);ctx.closePath();ctx.fill();
+        ctx.fillStyle='#f2b26c'; ctx.fillRect(58,54,16,12); ctx.fillRect(86,54,16,12);
+        ctx.fillStyle='#2a1b18'; ctx.fillRect(63,58,7,6); ctx.fillRect(90,58,7,6);
+        ctx.fillStyle='#55241f'; ctx.fillRect(69,73,22,7);
+        ctx.fillStyle='#d9a06d'; ctx.fillRect(48,88,18,9); ctx.fillRect(94,88,18,9);
+        ctx.fillStyle='#6f2e27'; ctx.fillRect(34,95,24,17); ctx.fillRect(102,95,24,17);
+        ctx.fillStyle='#bdb6a8'; ctx.fillRect(54,105,52,28); ctx.fillStyle='#756d64'; ctx.fillRect(64,109,32,20);
+        ctx.fillStyle='#b54a31'; ctx.fillRect(35,116,18,37); ctx.fillRect(107,116,18,37);
+        ctx.fillStyle='#3a2a25'; ctx.fillRect(48,132,22,32); ctx.fillRect(90,132,22,32);
+        ctx.fillStyle='#b6a99b'; ctx.fillRect(43,158,29,9); ctx.fillRect(88,158,29,9);
       }
       const tex=new THREE.CanvasTexture(cvs); tex.colorSpace=THREE.SRGBColorSpace; tex.magFilter=THREE.NearestFilter; tex.minFilter=THREE.NearestFilter; tex.generateMipmaps=false; return tex;
     }
@@ -6785,13 +6793,11 @@ window.playerState = playerState;
       scene.add(pts);stageObjects.push(pts);
 
       // 귀령사 일반 몬스터 2종. 플레이어보다 확실히 크게 표시한다.
-      const types=['mogwiryeong','yugwiryeong']; const names={mogwiryeong:'묘귀령',yugwiryeong:'유귀령'}; const mobCount=34;
+      const types=['mogwiryeong','yugwiryeong']; const names={mogwiryeong:'모귀령',yugwiryeong:'유귀령'}; const mobCount=34;
       for(let i=0;i<mobCount;i++){
         const type=types[i%2];
         const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:createGhostTempleMonsterTexture(type,0),transparent:true}));
-        // 캔버스가 160x210(세로로 김)으로 늘어난 만큼 세로 스케일을 비율에 맞게 키워
-        // 실제 게임 화면에서 몬스터가 눌려 보이지 않게 한다.
-        sprite.scale.set(5.0,5.0*(210/160),1);
+        sprite.scale.set(5.0,5.0,1);
         sprite.position.set((Math.random()-.5)*60,2.5,(Math.random()-.5)*60);
         scene.add(sprite);
         const shadow=createShadowDisk(3.9,2.0);
@@ -6927,7 +6933,7 @@ window.playerState = playerState;
 
     function addCraftGoldDungeonDrops(target) {
       if (!target || !playerState) return;
-      playerState.craftingMaterials = playerState.craftingMaterials || {iron:0,wood:0,core:0,refined:0,boss:0,divine:0};
+      playerState.craftingMaterials = playerState.craftingMaterials || {iron:0,wood:0,core:0,refined:0,boss:0,divine:0,engravingStone:0};
       const rates = target.isBoss ? CRAFT_GOLD_DUNGEON_BOSS_RATES : CRAFT_GOLD_DUNGEON_MATERIAL_RATES;
       const names = {iron:'철광석',wood:'목재',core:'강화의 핵',refined:'정제철',boss:'보스의 혼',divine:'신수의 결정'};
       const got = [];
@@ -10589,6 +10595,10 @@ window.playerState = playerState;
         m.hp = Math.min(m.maxHp, m.hp + heal);
       }
 
+      // 방어구 각인의 피해 감소는 속성 저항 적용 후 최종 피해에 적용한다.
+      const armorDamageReduction = getGuardianArmorDamageReduction();
+      if (armorDamageReduction > 0) netDmg = Math.max(1, Math.round(netDmg * (1 - armorDamageReduction)));
+
       // 보호의막: 최종 피해의 25%를 MP로 분담. MP가 부족하면 남은 MP만 사용하고 나머지는 HP로 받는다.
       const shieldActive = isShamanClass()
         && playerState.skillsLearned.includes('s2_4')
@@ -10834,7 +10844,7 @@ window.playerState = playerState;
         }
       }
 
-      playerState.gold += gold;
+      playerState.gold += Math.max(0, Math.round(gold * (typeof getCloverGoldMultiplier === 'function' ? getCloverGoldMultiplier() : 1)));
 
       [siriSprite, janggeumSprite, munyeahanaSprite].forEach((heroSprite, index) => {
         if (heroSprite) {
@@ -11026,7 +11036,7 @@ window.playerState = playerState;
         playerState.guardianSetEquipped = hasExplicitGuardianEquipState ? p.guardianSetEquipped : legacyFullGuardianSet;
         // 신규 파수꾼 개별 장비 데이터. 기존 세이브는 아래에서 기존 보유 부위를 실제 장비로 복원한다.
         playerState.guardianInventory = Array.isArray(p.guardianInventory) ? p.guardianInventory.filter(i => i && GUARDIAN_SET_PIECE_NAMES[i.piece] && GUARDIAN_RESIST_KEYS.includes(i.optionType)).map(i => ({
-          id: String(i.id), piece: i.piece, optionType: i.optionType, optionValue: Math.max(GUARDIAN_OPTION_MIN, Math.min(GUARDIAN_OPTION_MAX, Number(i.optionValue)||GUARDIAN_OPTION_MIN)), enhance: Math.max(0, Math.min(GUARDIAN_SET_ENHANCE_MAX, Number(i.enhance)||0))
+          id: String(i.id), piece: i.piece, optionType: i.optionType, optionValue: Math.max(GUARDIAN_OPTION_MIN, Math.min(GUARDIAN_OPTION_MAX, Number(i.optionValue)||GUARDIAN_OPTION_MIN)), enhance: Math.max(0, Math.min(GUARDIAN_SET_ENHANCE_MAX, Number(i.enhance)||0)), armorPotential: { defense: Math.max(80, Math.min(350, Number(i.armorPotential?.defense)|| (80 + Math.floor(Math.random()*271)))), slots: Math.max(1, Math.min(3, Number(i.armorPotential?.slots)||1)) }, armorEngraving: Array.isArray(i.armorEngraving) ? i.armorEngraving.slice(0,3).map(e => e && { id:String(e.id||''), value:Number(e.value)||0 }) : [null,null,null]
         })).slice(0, GUARDIAN_INVENTORY_MAX) : [];
         playerState.guardianInventoryNextId = Math.max(1, Number(p.guardianInventoryNextId) || playerState.guardianInventory.length + 1);
         // 구버전 세이브 호환: 기존에는 부위 보유 수량만 저장했으므로, 보유 수량만큼 개별 장비를 생성해 가방으로 옮긴다.
@@ -11925,10 +11935,10 @@ window.playerState = playerState;
                     playItemGetSfx();
 
                     if (currentCount === 0) {
-                      const optText = `${GUARDIAN_RESIST_LABELS[guardianItem.optionType]} +${Math.round(guardianItem.optionValue*100)}%`;
+                      const optText = `🛡️ 잠재력 방어력 +${guardianItem.potentialDef} · ✨ 각인 슬롯 ${guardianItem.engravingSlots}`;
                       showHealText(`🔥 파수꾼의 ${pieceName} 획득! ${optText}`, new THREE.Vector3(target.sprite.position.x, target.sprite.position.y + 0.6 + idx * 0.4, target.sprite.position.z));
                     } else {
-                      const optText = `${GUARDIAN_RESIST_LABELS[guardianItem.optionType]} +${Math.round(guardianItem.optionValue*100)}%`;
+                      const optText = `🛡️ 잠재력 방어력 +${guardianItem.potentialDef} · ✨ 각인 슬롯 ${guardianItem.engravingSlots}`;
                       showHealText(`🔥 파수꾼 ${pieceName} 추가 획득 · ${optText}`, new THREE.Vector3(target.sprite.position.x, target.sprite.position.y + 0.6 + idx * 0.4, target.sprite.position.z));
                     }
 
@@ -12216,6 +12226,20 @@ window.playerState = playerState;
     }
 
     loadGame();
+    // v17 방어력 세이브 보정: 이전 버전에서 파수꾼 방어력이 defensePower에 중복 누적되어
+    // 비정상적으로 커진 세이브를 1회 정상 기본 방어력으로 복구한다.
+    try {
+      if (!playerState._defenseV17Migrated) {
+        const cur = Number(playerState.defensePower) || 0;
+        if (cur > 20000) {
+          const jobDef = Number(getJobAppliedBonus(playerState.job)?.def) || 0;
+          const levelBase = Math.max(0, (Number(playerState.level)||1) - 1) * 30;
+          playerState.defensePower = Math.max(5, levelBase + jobDef);
+        }
+        playerState._defenseV17Migrated = true;
+        try { saveGame(); } catch(e) {}
+      }
+    } catch(e) {}
     updateUI();
     onWindowResize();
     animate();
@@ -12305,7 +12329,7 @@ function sync(){
    if(st.lastCraftedWeapon && st.lastCraftedWeapon.grade){ st.lastCraftedWeapon.name=N[st.lastCraftedWeapon.grade] || st.lastCraftedWeapon.name || ''; normalizeCraftWeapon(st.lastCraftedWeapon); }
    if(st.dismantleWeapon && st.dismantleWeapon.grade){ st.dismantleWeapon.name=N[st.dismantleWeapon.grade] || st.dismantleWeapon.name || ''; normalizeCraftWeapon(st.dismantleWeapon); }
      playerState.craftingMaterials=playerState.craftingMaterials||{
-       iron:0,wood:0,core:0,refined:0,boss:0,divine:0
+       iron:0,wood:0,core:0,refined:0,boss:0,divine:0,engravingStone:0
      };
    }else{
      st=Object.assign(st,JSON.parse(localStorage.getItem(KEY)||'{}'));
@@ -12331,11 +12355,11 @@ function save(){
 function mats(){
  if(window.playerState){
    playerState.craftingMaterials=playerState.craftingMaterials||{
-     iron:0,wood:0,core:0,refined:0,boss:0,divine:0
+     iron:0,wood:0,core:0,refined:0,boss:0,divine:0,engravingStone:0
    };
    return playerState.craftingMaterials;
  }
- return {iron:0,wood:0,core:0,refined:0,boss:0,divine:0};
+ return {iron:0,wood:0,core:0,refined:0,boss:0,divine:0,engravingStone:0};
 }
 
 function gold(){return Number(window.playerState?.gold||0);}
@@ -12345,7 +12369,7 @@ function spend(x){
  return true;
 }
 function matName(k){
- return({iron:'철광석',wood:'목재',core:'강화의 핵',refined:'정제철',boss:'보스의 혼',divine:'신수의 결정'})[k]||k;
+ return({iron:'철광석',wood:'목재',core:'강화의 핵',refined:'정제철',boss:'보스의 혼',divine:'신수의 결정',engravingStone:'각인석'})[k]||k;
 }
 function addMat(k,n){
  const inv=mats();
@@ -12472,7 +12496,9 @@ function craft(){
  }
 
  const q=roll(useDivine), rg=G[q];
- const newWeapon={class:'공통',grade:q,name:N[q],atk:rg.atk,enhance:0,jinEnhance:0};
+ const newWeapon={class:'공통',grade:q,name:N[q],atk:rg.atk,enhance:0,jinEnhance:0}; initWeaponPotential(newWeapon);
+ // 제작 결과는 장착 여부와 관계없이 제작무기 가방에도 1개 보관한다.
+ try{ if(typeof window.addWeaponToBag==='function') window.addWeaponToBag(newWeapon); }catch(e){ console.warn('제작무기 가방 자동보관 실패:',e); }
  const old=st.weapon;
 
  // 일반~신품은 기존처럼 자유롭게 교체한다.
@@ -12520,6 +12546,8 @@ function dismantle(){
  }
  const refund={normal:.95,high:.90,new:.85,fine:.80,masterpiece:.75}[w.grade]||.8;
  Object.entries(RECIPE.m).forEach(([k,v])=>addMat(k,Math.floor(v*refund)));
+ const ps=potentialSlotCount(w);
+ addMat('engravingStone', Math.max(0, ps + (gradeRank(w.grade)>=3?1:0)));
  const gradeName=G[w.grade]?.n||w.grade;
  const displayName=getWeaponDisplayName(w);
  st.hist.unshift(`♻ ${displayName} [${gradeName}] 해체 · 제작재료 ${(refund*100).toFixed(0)}% 환급`);
@@ -12876,7 +12904,7 @@ const N={iron:'철광석',wood:'목재',core:'강화의 핵',refined:'정제철'
 window.WC_MATERIAL_DROP_TABLE=T;
 window.addWeaponCraftDrop=function(stageId,isBoss,monster){
  if(!window.playerState)return[];
- window.playerState.craftingMaterials=window.playerState.craftingMaterials||{iron:0,wood:0,core:0,refined:0,boss:0,divine:0};
+ window.playerState.craftingMaterials=window.playerState.craftingMaterials||{iron:0,wood:0,core:0,refined:0,boss:0,divine:0,engravingStone:0};
  let s=Number(stageId);
  if(!(s>=1&&s<=8)&&monster){
    s=Number(monster.stageId??monster.stage);
@@ -12910,7 +12938,7 @@ window.addWeaponCraftDrop=function(stageId,isBoss,monster){
   function ensureMaterials(){
     if(typeof playerState==='undefined') return null;
     playerState.craftingMaterials=playerState.craftingMaterials||{
-      iron:0,wood:0,core:0,refined:0,boss:0,divine:0
+      iron:0,wood:0,core:0,refined:0,boss:0,divine:0,engravingStone:0
     };
     if(typeof playerState.craftingMaterials[MAT_KEY]!=='number')
       playerState.craftingMaterials[MAT_KEY]=Number(playerState.craftingMaterials[MAT_KEY])||0;
@@ -13117,7 +13145,7 @@ document.addEventListener('DOMContentLoaded',function(){
     if(!window.playerState)return {ok:false,reason:'게임 상태를 찾을 수 없습니다.'};
     const r=WC_PRACTICE_RECIPE;
     playerState.craftingMaterials=playerState.craftingMaterials||{
-      iron:0,wood:0,core:0,refined:0,boss:0,divine:0
+      iron:0,wood:0,core:0,refined:0,boss:0,divine:0,engravingStone:0
     };
     const inv=playerState.craftingMaterials;
     if((Number(inv.iron)||0)<r.materials.iron || (Number(inv.wood)||0)<r.materials.wood)
@@ -13325,20 +13353,542 @@ document.addEventListener('DOMContentLoaded',function(){
 .guardian-inv-item.equipped{border-color:#66bb6a;background:#f1f8e9}
 .guardian-inv-item button{border:1px solid #ffb74d;border-radius:6px;background:#fff8e1;padding:4px 6px;font-size:9px;font-weight:800;cursor:pointer}
 .guardian-inv-item button.danger{border-color:#ef9a9a;background:#ffebee;color:#b71c1c}
+.guardian-piece-tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:7px 0}
+.guardian-piece-tab{border:1px solid #ffcc80;border-radius:7px;background:#fff8e1;color:#6d4c41;padding:6px 2px;font-size:9px;font-weight:900;cursor:pointer}
+.guardian-piece-tab.active{background:#ffe0b2;border-color:#ff8a65;color:#bf360c;box-shadow:0 0 0 1px #ff8a65 inset}
+
 </style>
 <div id="guardian-inventory-modal" class="modal interactive" onclick="if(event.target===this)closeGuardianInventoryModal()">
   <div id="guardian-inventory-panel">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2>🎒 파수꾼 장비 가방</h2><button onclick="closeGuardianInventoryModal()" style="font-size:20px;border:0;background:none;cursor:pointer">×</button></div>
-    <div style="font-size:11px;color:#795548;margin-bottom:8px">드랍 시 🔥/❄️/🌪️ 중 1종의 저항 옵션이 2~4%로 랜덤 부여됩니다.</div>
+    <div style="font-size:11px;color:#795548;margin-bottom:8px">최대 30개 보관 · 드랍 시 🔥/❄️/🌪️ 중 1종의 저항 옵션이 2~4%로 랜덤 부여됩니다.</div>
     <div id="guardian-resist-summary" class="guardian-resist-summary"></div>
     <div id="guardian-inventory-list"></div>
   </div>
 </div>
 
 <style id="clover-system-css">#clover-modal{position:fixed!important;inset:0!important;z-index:10050!important;display:none;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;background:rgba(0,0,0,.38);transform:none!important}#clover-modal .clover-panel{width:min(360px,calc(100vw - 24px));max-height:min(72dvh,560px);overflow:hidden;display:flex;flex-direction:column;box-sizing:border-box;background:#fffdf7;border:3px solid #8bc34a;border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.28)}#clover-modal .clover-scroll{overflow-y:auto;overflow-x:hidden;flex:1 1 auto;min-height:0;padding:10px 12px 12px;-webkit-overflow-scrolling:touch;touch-action:pan-y}.clover-card{border:2px solid #d7ccc8;border-radius:12px;padding:10px;margin-bottom:8px;background:#fff}.clover-card h4{margin:0 0 4px;font-size:13px}.clover-card .desc{font-size:10px;color:#6d6258;line-height:1.45;margin-bottom:6px}.clover-card .owned{font-size:10px;color:#33691e;font-weight:800;margin-bottom:6px}.clover-card button{border:2px solid #9ccc65;border-radius:8px;padding:6px 9px;background:#f1f8e9;color:#33691e;font-weight:900;cursor:pointer}.clover-timer{padding:7px 10px;margin-bottom:8px;border-radius:10px;background:#f1f8e9;border:1px solid #aed581;text-align:center;color:#33691e;font-weight:900}@media(max-width:600px){#clover-modal{padding:8px}#clover-modal .clover-panel{width:min(340px,calc(100vw - 16px));max-height:68dvh;border-radius:14px}}</style>
-<div id="clover-modal" class="interactive" onclick="if(event.target===this) closeCloverModal()"><div class="clover-panel"><div style="padding:11px 12px 8px;border-bottom:1px solid #dcedc8;text-align:center;font-weight:900;color:#33691e;font-size:15px">🍀 클로버 보관함</div><div class="clover-scroll"><div id="clover-active-box" class="clover-timer">현재 활성 버프 없음</div><div class="clover-card"><h4>🍀 클로버 프리미엄</h4><div class="desc">아이템 드랍량 <b>2배</b> · 사냥 EXP <b>+5%</b> · 공격력/방어력 <b>+5%</b> · 제조 EXP <b>+5%</b><br>지속시간 60분</div><div class="owned">보유: <span id="clover-owned-premium">0</span>개</div><button onclick="useClover('premium')">사용</button></div><div class="clover-card"><h4>🌿 은빛 클로버</h4><div class="desc">아이템 드랍량 <b>3배</b> · 사냥 EXP <b>+10%</b> · 제조 EXP <b>+10%</b> · 공격력/방어력 <b>+10%</b><br>지속시간 60분</div><div class="owned">보유: <span id="clover-owned-silver">0</span>개</div><button onclick="useClover('silver')">사용</button></div><div class="clover-card"><h4>🏆 황금 클로버</h4><div class="desc">아이템 드랍량 <b>4배</b> · 사냥 EXP <b>+20%</b> · 제조 EXP <b>+20%</b> · 공격력/방어력 <b>+20%</b><br>지속시간 60분</div><div class="owned">보유: <span id="clover-owned-gold">0</span>개</div><button onclick="useClover('gold')">사용</button></div><div style="font-size:9px;color:#795548;line-height:1.5;padding:2px 2px 8px">획득처: 일반/하둠 일반 몬스터 → 🍀 프리미엄 · 하둠 정예 → 🌿 은빛/🏆 황금 · 하둠 보스 → 🌿 은빛/🏆 황금.</div></div><div style="padding:8px 12px;border-top:1px solid #dcedc8"><button class="btn-small" style="width:100%" onclick="closeCloverModal()">창 닫기</button></div></div></div>
+<div id="clover-modal" class="interactive" onclick="if(event.target===this) closeCloverModal()"><div class="clover-panel"><div style="padding:11px 12px 8px;border-bottom:1px solid #dcedc8;text-align:center;font-weight:900;color:#33691e;font-size:15px">🍀 클로버 보관함</div><div class="clover-scroll"><div id="clover-active-box" class="clover-timer">현재 활성 버프 없음</div><div class="clover-card"><h4>🍀 클로버 프리미엄</h4><div class="desc">아이템 드랍량 <b>2배</b> · 금화 획득량 <b>1.5배</b> · 사냥 EXP <b>+5%</b> · 공격력/방어력 <b>+5%</b> · 제조 EXP <b>+5%</b><br>지속시간 60분</div><div class="owned">보유: <span id="clover-owned-premium">0</span>개</div><button onclick="useClover('premium')">사용</button></div><div class="clover-card"><h4>🌿 은빛 클로버</h4><div class="desc">아이템 드랍량 <b>3배</b> · 사냥 EXP <b>+10%</b> · 제조 EXP <b>+10%</b> · 공격력/방어력 <b>+10%</b><br>지속시간 60분</div><div class="owned">보유: <span id="clover-owned-silver">0</span>개</div><button onclick="useClover('silver')">사용</button></div><div class="clover-card"><h4>🏆 황금 클로버</h4><div class="desc">아이템 드랍량 <b>4배</b> · 사냥 EXP <b>+20%</b> · 제조 EXP <b>+20%</b> · 공격력/방어력 <b>+20%</b><br>지속시간 60분</div><div class="owned">보유: <span id="clover-owned-gold">0</span>개</div><button onclick="useClover('gold')">사용</button></div><div style="font-size:9px;color:#795548;line-height:1.5;padding:2px 2px 8px">획득처: 일반/하둠 일반 몬스터 → 🍀 프리미엄 · 하둠 정예 → 🌿 은빛/🏆 황금 · 하둠 보스 → 🌿 은빛/🏆 황금.</div></div><div style="padding:8px 12px;border-top:1px solid #dcedc8"><button class="btn-small" style="width:100%" onclick="closeCloverModal()">창 닫기</button></div></div></div>
 
 <script id="clover-system-js">
-(function(){const T={premium:{name:'🍀 클로버 프리미엄',drop:2,exp:1.05,combat:.05,craft:1.05},silver:{name:'🌿 은빛 클로버',drop:3,exp:1.1,combat:.1,craft:1.1},gold:{name:'🏆 황금 클로버',drop:4,exp:1.2,combat:.2,craft:1.2}},O={premium:1,silver:2,gold:3};function e(){if(!window.playerState)return;playerState.cloverInventory={premium:0,silver:0,gold:0,...(playerState.cloverInventory||{})};playerState.cloverBuff={type:'',until:0,...(playerState.cloverBuff||{})};if(!T[playerState.cloverBuff.type]||Number(playerState.cloverBuff.until)<=Date.now())playerState.cloverBuff={type:'',until:0}}window.getActiveCloverType=()=>{e();return playerState.cloverBuff.type||''};window.getCloverDropMultiplier=()=>{e();return T[getActiveCloverType()]?.drop||1};window.getCloverExpMultiplier=()=>{e();return T[getActiveCloverType()]?.exp||1};window.getCloverCombatBonus=()=>{e();return T[getActiveCloverType()]?.combat||0};window.getCloverCraftExpMultiplier=()=>{e();return T[getActiveCloverType()]?.craft||1};window.grantCloverScaledLoot=n=>{e();const q=Math.max(0,Math.round(Number(n)||0)*getCloverDropMultiplier());playerState.talismanLoot=(Number(playerState.talismanLoot)||0)+q};window.grantClover=(t,n=1)=>{e();if(!T[t])return;playerState.cloverInventory[t]+=Math.max(1,Math.floor(Number(n)||1));if(typeof saveGame==='function')saveGame();if(typeof updateUI==='function')updateUI()};window.useClover=t=>{e();if(!T[t]||playerState.cloverInventory[t]<=0)return;const now=Date.now(),ot=getActiveCloverType(),rem=ot?Math.max(0,Number(playerState.cloverBuff.until)-now):0;let bt=(ot&&O[ot]>O[t])?ot:t;playerState.cloverInventory[t]--;playerState.cloverBuff={type:bt,until:now+rem+3600000};if(typeof saveGame==='function')saveGame();if(typeof updateUI==='function')updateUI();r()};const f=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};window.openCloverModal=()=>{e();r();const m=document.getElementById('clover-modal');if(m)m.style.display='flex'};window.closeCloverModal=()=>{const m=document.getElementById('clover-modal');if(m)m.style.display='none'};function r(){e();['premium','silver','gold'].forEach(k=>{const x=document.getElementById('clover-owned-'+k);if(x)x.textContent=playerState.cloverInventory[k].toLocaleString()});const b=document.getElementById('clover-active-box'),t=T[getActiveCloverType()];if(b)b.innerHTML=t?`${t.name} · <b>${f(playerState.cloverBuff.until-Date.now())}</b><br><small>드랍 ×${t.drop} · 사냥 EXP +${Math.round((t.exp-1)*100)}% · 공격/방어 +${Math.round(t.combat*100)}%</small>`:'현재 활성 버프 없음'}function drops(m){if(!m||m.isExperienceDungeon||m.isCraftGoldDungeon)return;if(!m.isBoss&&!m.isElite&&Math.random()<.0035)grantClover('premium');if(m.isElite&&m.isHadum&&!m.isBoss){if(Math.random()<.04)grantClover('gold');else if(Math.random()<.25)grantClover('silver')}if(m.isBoss&&m.isHadum){if(Math.random()<.08)grantClover('gold');else if(Math.random()<.30)grantClover('silver')}}function hook(){const o=window.applyDamage;if(typeof o==='function'&&!o.__cloverWrapped){const w=function(t,a){const alive=!!t?.alive,hp=Number(t?.hp||0),z=o.apply(this,arguments);if(alive&&t&&!t.alive&&hp>0)drops(t);return z};w.__cloverWrapped=true;window.applyDamage=w;return true}return false}window.addEventListener('load',()=>{e();hook();r()});setInterval(()=>{try{e();hook();const t=getActiveCloverType();if(t&&Number(playerState.cloverBuff.until)<=Date.now()){playerState.cloverBuff={type:'',until:0};if(typeof saveGame==='function')saveGame()}if(document.getElementById('clover-modal')?.style.display==='flex')r();const row=document.getElementById('clover-status-row'),v=document.getElementById('clover-status-val');if(row)row.style.display='flex';if(v)v.innerText=t?`${T[t].name} ${f(playerState.cloverBuff.until-Date.now())} · 드랍 ×${T[t].drop}`:'🍀 클로버: 없음'}catch(x){}},1000)})();
+(function(){const T={premium:{name:'🍀 클로버 프리미엄',drop:2,gold:1.5,exp:1.05,combat:.05,craft:1.05},silver:{name:'🌿 은빛 클로버',drop:3,gold:2.5,exp:1.1,combat:.1,craft:1.1},gold:{name:'🏆 황금 클로버',drop:4,gold:3.5,exp:1.2,combat:.2,craft:1.2}},O={premium:1,silver:2,gold:3};function e(){if(!window.playerState)return;playerState.cloverInventory={premium:0,silver:0,gold:0,...(playerState.cloverInventory||{})};playerState.cloverBuff={type:'',until:0,...(playerState.cloverBuff||{})};if(!T[playerState.cloverBuff.type]||Number(playerState.cloverBuff.until)<=Date.now())playerState.cloverBuff={type:'',until:0}}window.getActiveCloverType=()=>{e();return playerState.cloverBuff.type||''};window.getCloverDropMultiplier=()=>{e();return T[getActiveCloverType()]?.drop||1};window.getCloverGoldMultiplier=()=>{e();return T[getActiveCloverType()]?.gold||1};window.getCloverExpMultiplier=()=>{e();return T[getActiveCloverType()]?.exp||1};window.getCloverCombatBonus=()=>{e();return T[getActiveCloverType()]?.combat||0};window.getCloverCraftExpMultiplier=()=>{e();return T[getActiveCloverType()]?.craft||1};window.grantCloverScaledLoot=n=>{e();const q=Math.max(0,Math.round(Number(n)||0)*getCloverDropMultiplier());playerState.talismanLoot=(Number(playerState.talismanLoot)||0)+q};window.grantClover=(t,n=1)=>{e();if(!T[t])return;playerState.cloverInventory[t]+=Math.max(1,Math.floor(Number(n)||1));if(typeof saveGame==='function')saveGame();if(typeof updateUI==='function')updateUI()};window.useClover=t=>{e();if(!T[t]||playerState.cloverInventory[t]<=0)return;const now=Date.now(),ot=getActiveCloverType(),rem=ot?Math.max(0,Number(playerState.cloverBuff.until)-now):0;let bt=(ot&&O[ot]>O[t])?ot:t;playerState.cloverInventory[t]--;playerState.cloverBuff={type:bt,until:now+rem+3600000};if(typeof saveGame==='function')saveGame();if(typeof updateUI==='function')updateUI();r()};const f=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};window.openCloverModal=()=>{e();r();const m=document.getElementById('clover-modal');if(m)m.style.display='flex'};window.closeCloverModal=()=>{const m=document.getElementById('clover-modal');if(m)m.style.display='none'};function r(){e();['premium','silver','gold'].forEach(k=>{const x=document.getElementById('clover-owned-'+k);if(x)x.textContent=playerState.cloverInventory[k].toLocaleString()});const b=document.getElementById('clover-active-box'),t=T[getActiveCloverType()];if(b)b.innerHTML=t?`${t.name} · <b>${f(playerState.cloverBuff.until-Date.now())}</b><br><small>드랍 ×${t.drop} · 금화 ×${t.gold} · 사냥 EXP +${Math.round((t.exp-1)*100)}% · 공격/방어 +${Math.round(t.combat*100)}%</small>`:'현재 활성 버프 없음'}function drops(m){if(!m||m.isExperienceDungeon||m.isCraftGoldDungeon)return;if(!m.isBoss&&!m.isElite&&Math.random()<.0035)grantClover('premium');if(m.isElite&&m.isHadum&&!m.isBoss){if(Math.random()<.04)grantClover('gold');else if(Math.random()<.25)grantClover('silver')}if(m.isBoss&&m.isHadum){if(Math.random()<.08)grantClover('gold');else if(Math.random()<.30)grantClover('silver')}}function hook(){const o=window.applyDamage;if(typeof o==='function'&&!o.__cloverWrapped){const w=function(t,a){const alive=!!t?.alive,hp=Number(t?.hp||0),z=o.apply(this,arguments);if(alive&&t&&!t.alive&&hp>0)drops(t);return z};w.__cloverWrapped=true;window.applyDamage=w;return true}return false}window.addEventListener('load',()=>{e();hook();r()});setInterval(()=>{try{e();hook();const t=getActiveCloverType();if(t&&Number(playerState.cloverBuff.until)<=Date.now()){playerState.cloverBuff={type:'',until:0};if(typeof saveGame==='function')saveGame()}if(document.getElementById('clover-modal')?.style.display==='flex')r();const row=document.getElementById('clover-status-row'),v=document.getElementById('clover-status-val');if(row)row.style.display='flex';if(v)v.innerText=t?`${T[t].name} ${f(playerState.cloverBuff.until-Date.now())} · 드랍 ×${T[t].drop}`:'🍀 클로버: 없음'}catch(x){}},1000)})();
 </script>
+
+<style id="armor-potential-css">
+#appm-modal{position:fixed;inset:0;z-index:12001;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);padding:10px;touch-action:pan-y!important}
+#appm-panel{width:min(430px,94vw);height:min(720px,90vh);max-height:90vh;overflow:hidden;background:#121820;color:#eee;border:2px solid #42a5f5;border-radius:14px;box-shadow:0 18px 60px #000;font-family:inherit;display:flex;flex-direction:column}
+#appm-head{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid #30495f}#appm-head h2{margin:0;color:#90caf9;font-size:17px}#appm-close{background:#263544;color:#fff;border:1px solid #54718b;border-radius:7px;padding:4px 10px;font-size:18px}
+#appm-body{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-y!important;padding:10px}
+.appm-equip-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:8px}.appm-equip{border:1px solid #455a64;background:#1b242d;border-radius:8px;padding:6px 3px;text-align:center;cursor:pointer;font-size:9px}.appm-equip.active{border-color:#42a5f5;background:#172f45;box-shadow:0 0 0 1px #42a5f5 inset}.appm-icon{font-size:20px;line-height:1.1}.appm-name{font-weight:900;margin-top:2px}.appm-lv{color:#90caf9;font-size:8px}.appm-card{background:#1a222b;border:1px solid #354655;border-radius:9px;padding:9px;margin-bottom:8px}.appm-title{font-weight:900;color:#90caf9;font-size:12px;margin-bottom:5px}.appm-row{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid #2b3742;font-size:10px}.appm-row:last-child{border-bottom:0}.appm-good{color:#b3e5fc;font-weight:900}.appm-slot{border:1px solid #455a64;border-radius:7px;background:#141b22;padding:7px;margin:5px 0;cursor:pointer;touch-action:manipulation}.appm-slot.empty{cursor:default}.appm-slot-head{display:flex;justify-content:space-between;align-items:center;font-size:9px}.appm-btn{border:1px solid #42a5f5;background:#17334a;color:#e3f2fd;border-radius:6px;padding:5px 8px;font-size:9px;font-weight:900;cursor:pointer}.appm-btn:disabled{opacity:.4}.appm-note{font-size:8px;color:#9eabb5;line-height:1.45}.appm-cost{font-size:9px;color:#cfd8dc;margin:5px 0}.appm-empty{text-align:center;padding:18px;color:#9eabb5;font-size:10px}
+@media(max-width:600px){#appm-panel{width:calc(100vw - 18px);height:88vh;max-height:88vh}#appm-body{padding:8px}.appm-equip-grid{gap:4px}.appm-equip{padding:5px 2px}.appm-icon{font-size:18px}}
+</style>
+<div id="appm-modal" onclick="if(event.target===this)closeArmorPotentialModal()">
+ <div id="appm-panel"><div id="appm-head"><h2>🛡️ 방어구 잠재력 · 각인</h2><button id="appm-close" onclick="closeArmorPotentialModal()">×</button></div><div id="appm-body"></div></div>
+</div>
+<script>
+(function(){'use strict';
+const PIECES=[['helm','투구','🪖'],['armor','갑옷','🛡️'],['gloves','장갑','🧤'],['boots','신발','👢']];
+const ENG=[
+ {id:'defPct',name:'방어력',roll:()=>1+Math.floor(Math.random()*5),fmt:v=>'방어력 +'+v+'%'},
+ {id:'hp',name:'HP',roll:()=>500+Math.floor(Math.random()*3501),fmt:v=>'HP +'+Number(v).toLocaleString()},
+ {id:'mp',name:'MP',roll:()=>500+Math.floor(Math.random()*3501),fmt:v=>'MP +'+Number(v).toLocaleString()},
+ {id:'dmgRed',name:'피해 감소',roll:()=>1+Math.floor(Math.random()*3),fmt:v=>'피해 감소 +'+v+'%'},
+ {id:'fireRes',name:'화염 저항',roll:()=>1+Math.floor(Math.random()*4),fmt:v=>'화염 저항 +'+v+'%'},
+ {id:'iceRes',name:'빙결 저항',roll:()=>1+Math.floor(Math.random()*4),fmt:v=>'빙결 저항 +'+v+'%'},
+ {id:'windRes',name:'바람 저항',roll:()=>1+Math.floor(Math.random()*4),fmt:v=>'바람 저항 +'+v+'%'}
+];
+let selected='helm';
+function ps(){return window.playerState||null} function inv(){return ps()?.guardianInventory||[]}
+function item(piece){const id=ps()?.guardianEquippedItems?.[piece];return inv().find(x=>x&&x.id===id)||null}
+function ensure(i){
+ if(!i)return;
+ // 기존 데이터와 새 UI의 단일 데이터 구조를 사용: potentialDef / engravingSlots / engraving
+ if(!Number.isFinite(Number(i.potentialDef))) i.potentialDef=80+Math.floor(Math.random()*271);
+ i.potentialDef=Math.max(80,Math.min(350,Number(i.potentialDef)||80));
+ if(!Number.isFinite(Number(i.engravingSlots))) i.engravingSlots=1+Math.floor(Math.random()*3);
+ i.engravingSlots=Math.max(1,Math.min(3,Number(i.engravingSlots)||1));
+ if(!Array.isArray(i.engraving)) i.engraving=[];
+ while(i.engraving.length<i.engravingSlots)i.engraving.push(null);
+ if(i.engraving.length>i.engravingSlots)i.engraving.length=i.engravingSlots;
+ // 호환용 mirror를 유지하되 실제 슬롯 수는 engravingSlots가 기준
+ i.armorPotential={defense:i.potentialDef,slots:i.engravingSlots};
+ i.armorEngraving=i.engraving;
+}
+
+function save(){try{window.save?.()}catch(e){}try{window.saveGame?.(true)}catch(e){}try{window.updateUI?.()}catch(e){}}
+function fmt(e){const o=ENG.find(x=>x.id===e?.id);return o?o.fmt(Number(e.value)||0):'-'}
+function sync(){try{window.syncGuardianArmorDerivedStats?.()}catch(e){}}
+function render(){const box=document.getElementById('appm-body');if(!box)return;const p=ps();if(!p){box.innerHTML='<div class="appm-empty">캐릭터 정보를 불러올 수 없습니다.</div>';return}const items=PIECES.map(x=>[x,item(x[0])]);let h='<div class="appm-equip-grid">';items.forEach(([x,i])=>{const[pc,nm,ic]=x;h+='<div class="appm-equip '+(selected===pc?'active':'')+'" onclick="window.__APPM.select(\''+pc+'\')"><div class="appm-icon">'+ic+'</div><div class="appm-name">'+nm+'</div><div class="appm-lv">'+(i?('+'+(Number(i.enhance)||0)):'미착용')+'</div></div>'});h+='</div>';const it=item(selected);if(!it){h+='<div class="appm-empty">선택한 부위의 파수꾼 방어구를 현재 착용하고 있지 않습니다.</div>';box.innerHTML=h;return}ensure(it);const slots=Number(it.engravingSlots)||1;h+='<div class="appm-card"><div class="appm-title">'+PIECES.find(x=>x[0]===selected)[2]+' '+PIECES.find(x=>x[0]===selected)[1]+' · 현재 장착</div><div class="appm-row"><span>잠재력 · 방어력</span><span class="appm-good">+'+Number(it.potentialDef).toLocaleString()+'</span></div><div class="appm-row"><span>잠재력 · 각인 슬롯</span><span class="appm-good">'+slots+'칸</span></div></div>';h+='<div class="appm-card"><div class="appm-title">✨ 방어구 각인</div>';for(let i=0;i<slots;i++){const e=it.engraving[i];if(e)h+='<div class="appm-slot" onclick="window.__APPM.reset('+i+')"><div class="appm-slot-head"><span>슬롯 '+(i+1)+'</span><span class="appm-good">'+fmt(e)+'</span></div><div class="appm-note">터치하면 이 각인을 초기화합니다.</div></div>';else h+='<div class="appm-slot empty"><div class="appm-slot-head"><span>슬롯 '+(i+1)+' · 비어 있음</span><button class="appm-btn" onclick="event.stopPropagation();window.__APPM.engrave('+i+')" '+(Number(p.craftingMaterials?.engravingStone||0)>=1&&Number(p.gold||0)>=50000?'':'disabled')+'>각인하기</button></div><div class="appm-note">랜덤 옵션 7종 중 1종</div></div>'}h+='</div><div class="appm-card"><div class="appm-title">현재 각인 옵션</div>';const all=(it.engraving||[]).filter(Boolean);h+=all.length?all.map(e=>'<div class="appm-row"><span>'+e.id+'</span><span class="appm-good">'+fmt(e)+'</span></div>').join(''):'<div class="appm-note">아직 각인된 옵션이 없습니다.</div>';h+='</div>';box.innerHTML=h}
+window.__APPM={select:function(pc){selected=pc;render()},engrave:function(i){const p=ps(),it=item(selected);if(!p||!it)return;ensure(it);if(i<0||i>=Number(it.engravingSlots)||it.engraving[i])return;const m=p.craftingMaterials=p.craftingMaterials||{};if(Number(m.engravingStone||0)<1)return alert('각인석이 부족합니다. (1개 필요)');if(Number(p.gold||0)<50000)return alert('게임머니가 부족합니다. (50,000 G 필요)');m.engravingStone--;p.gold-=50000;const o=ENG[Math.floor(Math.random()*ENG.length)];it.engraving[i]={id:o.id,value:o.roll()};sync();save();render()},reset:function(i){const p=ps(),it=item(selected);if(!p||!it)return;ensure(it);if(!it.engraving[i])return;const m=p.craftingMaterials=p.craftingMaterials||{};if(Number(m.engravingStone||0)<2)return alert('각인석이 부족합니다. (2개 필요)');if(Number(p.gold||0)<100000)return alert('골드가 부족합니다. (100,000 G 필요)');if(!confirm('이 슬롯의 각인을 초기화할까요?\n\n각인석 2개 + 100,000 G가 소모됩니다.\n방어구 잠재력은 그대로 유지됩니다.'))return;m.engravingStone-=2;p.gold-=100000;it.engraving[i]=null;sync();save();render()},render:render};
+window.openArmorPotentialModal=function(){const m=document.getElementById('appm-modal');if(!m)return;m.style.display='flex';document.body.classList.add('modal-open');requestAnimationFrame(()=>{const b=document.getElementById('appm-body');if(b)b.scrollTop=0;render()})};window.closeArmorPotentialModal=function(){const m=document.getElementById('appm-modal');if(m)m.style.display='none';document.body.classList.remove('modal-open')};window.renderArmorPotential=render;
+setTimeout(()=>{try{sync();window.updateUI?.()}catch(e){}},0);
+})();
+</script>
+
+<style id="weapon-potential-css">
+#wpp-modal{position:fixed;inset:0;z-index:12000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);padding:10px}
+#wpp-panel{width:min(520px,96vw);max-height:92vh;overflow:auto;background:#15121a;color:#eee;border:2px solid #ab47bc;border-radius:14px;box-shadow:0 18px 60px #000;font-family:inherit}
+#wpp-head{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid #49334e}#wpp-head h2{margin:0;color:#e1bee7;font-size:18px}#wpp-close{background:#302431;color:#fff;border:1px solid #6a4a70;border-radius:7px;padding:4px 10px;font-size:18px}
+#wpp-body{padding:12px}.wpp-card{background:#201a23;border:1px solid #4d3a52;border-radius:10px;padding:10px;margin-bottom:9px}.wpp-title{font-weight:900;color:#ce93d8}.wpp-sub{font-size:10px;color:#aaa;margin-top:3px}.wpp-slots{display:grid;grid-template-columns:1fr;gap:7px;margin-top:8px}.wpp-slot{border:1px solid #55445a;border-radius:8px;padding:8px;background:#19151d}.wpp-row{display:flex;justify-content:space-between;gap:8px;align-items:center}.wpp-btn{border:1px solid #8e44a8;background:#321d39;color:#f3d9f6;border-radius:6px;padding:6px 8px;font-weight:800;font-size:10px}.wpp-btn:disabled{opacity:.4}.wpp-mats{font-size:10px;color:#bbb;line-height:1.5}.wpp-good{color:#d1c4e9;font-weight:800}.wpp-empty{text-align:center;padding:14px;color:#aaa;font-size:11px}
+</style>
+<div id="wpp-modal" onclick="if(event.target===this)closeWeaponPotentialModal()">
+ <div id="wpp-panel">
+  <div id="wpp-head"><h2>✨ 무기 잠재력 · 각인</h2><button id="wpp-close" onclick="closeWeaponPotentialModal()">×</button></div>
+  <div id="wpp-body"></div>
+ </div>
+</div>
+<script>
+/* 무기 잠재력/각인 v2 - 기존 게임 로직과 완전 분리 */
+(function(){
+'use strict';
+const POT=[{id:'atk',name:'공격력',roll:()=>20+Math.floor(Math.random()*61),fmt:v=>'공격력 +'+v},{id:'atkPct',name:'공격력 %',roll:()=>1+Math.floor(Math.random()*4),fmt:v=>'공격력 +'+v+'%'}];
+const ENG=[{id:'hadumDmg',name:'하둠 정벌',roll:()=>3+Math.floor(Math.random()*6),fmt:v=>'하둠 몬스터 피해 +'+v+'%'},{id:'atkPct',name:'검의 극의',roll:()=>2+Math.floor(Math.random()*4),fmt:v=>'공격력 +'+v+'%'},{id:'critDmg',name:'치명적인 일격',roll:()=>5+Math.floor(Math.random()*6),fmt:v=>'치명타 피해 +'+v+'%'}];
+function state(){return window.playerState||null}
+function weapon(){const ps=state();if(!ps)return null;return (ps.weaponCrafting&&ps.weaponCrafting.weapon)||ps.weapon||null}
+function slots(w){if(!w)return 0;return ({normal:0,high:0,new:1,fine:2,masterpiece:3})[String(w.grade||'normal')]??0}
+function ensure(w){if(!w)return;const n=slots(w);if(!Array.isArray(w.potential))w.potential=[];if(!Array.isArray(w.engraving))w.engraving=[];while(w.potential.length<n){const o=POT[Math.floor(Math.random()*POT.length)];w.potential.push({id:o.id,value:o.roll()})}if(w.potential.length>n)w.potential.length=n;while(w.engraving.length<n)w.engraving.push(null);if(w.engraving.length>n)w.engraving.length=n}
+function inv(){const ps=state();if(!ps)return {};ps.craftingMaterials=ps.craftingMaterials||{};const m=ps.craftingMaterials;if(!Number.isFinite(Number(m.engravingStone)))m.engravingStone=0;return m}
+function fmt(x){if(!x)return '-';const o=POT.concat(ENG).find(a=>a.id===x.id);return o?o.fmt(Number(x.value)||0):String(x.id||'옵션')+' '+String(x.value||0)}
+function grade(w){return ({normal:'일반',high:'고급',new:'신품',fine:'호품',masterpiece:'명품'})[w.grade]||w.grade||'무기'}
+function icon(w){try{return (window.G&&window.G[w.grade]&&window.G[w.grade].i)||'🗡️'}catch(e){return '🗡️'}}
+function save(){try{if(typeof window.save==='function')window.save()}catch(e){}try{if(typeof window.updateUI==='function')window.updateUI()}catch(e){}}
+function render(){const box=document.getElementById('wpp-body');if(!box)return;try{const w=weapon();if(!w){box.innerHTML='<div class="wpp-empty">현재 장착 중인 제작무기가 없습니다.</div>';return}ensure(w);const n=slots(w),m=inv();let h='<div class="wpp-card"><div class="wpp-title">'+icon(w)+' '+String(w.name||'제작무기')+' · '+grade(w)+'</div><div class="wpp-sub">현재 장착한 제작무기의 잠재력과 각인을 관리합니다.</div><div class="wpp-mats">🔹 각인석 '+Number(m.engravingStone||0).toLocaleString()+'</div></div>';if(!n){h+='<div class="wpp-empty">현재 무기 등급에는 잠재력 슬롯이 없습니다.<br>신품부터 잠재력 슬롯이 열립니다.</div>';box.innerHTML=h;return}h+='<div class="wpp-card"><div class="wpp-title">잠재력</div><div class="wpp-slots">';for(let i=0;i<n;i++)h+='<div class="wpp-slot"><div class="wpp-row"><span>슬롯 '+(i+1)+'</span><span class="wpp-good">'+fmt(w.potential[i])+'</span></div></div>';h+='</div></div><div class="wpp-card"><div class="wpp-title">각인</div><div class="wpp-sub">각인석 1개 + 50,000 G · 각인 완료 슬롯을 누르면 초기화</div><div class="wpp-slots">';const g=Number(state().gold||0);for(let i=0;i<n;i++){const e=w.engraving[i],can=!e&&Number(m.engravingStone||0)>=1&&g>=50000;let btn=e?'<span class="wpp-good">'+fmt(e)+'</span>':'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><button type="button" class="wpp-btn" onclick="window.__WPP.engrave('+i+')" '+(can?'':'disabled')+'>각인하기</button><small style="color:'+(can?'#9ccc65':'#aaa')+'">'+(can?'각인 가능':'각인석 1개 + 50,000 G 필요 · 초기화: 각인석 2개 + 100,000 G')+'</small></div>';h+='<div class="wpp-slot"><div class="wpp-row"><span>슬롯 '+(i+1)+'</span>'+btn+'</div></div>'}h+='</div></div>';box.innerHTML=h}catch(err){console.error('WPP render error:',err);box.innerHTML='<div class="wpp-empty">무기 정보를 불러오는 중 오류가 발생했습니다.<br>게임 플레이는 계속할 수 있습니다.</div>'}}
+window.__WPP={engrave:function(i){try{const w=weapon();if(!w)return;ensure(w);const n=slots(w),m=inv(),ps=state();if(i<0||i>=n||!w.potential[i])return;if(w.engraving[i])return alert('이미 각인된 슬롯입니다.');if(Number(m.engravingStone||0)<1)return alert('각인석이 부족합니다.');if(Number(ps.gold||0)<50000)return alert('게임머니가 부족합니다. (50,000 G 필요)');m.engravingStone=Number(m.engravingStone)-1;ps.gold=Number(ps.gold)-50000;const o=ENG[Math.floor(Math.random()*ENG.length)];w.engraving[i]={id:o.id,value:o.roll()};save();render()}catch(err){console.error('WPP engraving error:',err);alert('각인 처리 중 오류가 발생했습니다.')}},render:render};
+window.openWeaponPotentialModal=function(){const modal=document.getElementById('wpp-modal');if(!modal)return;modal.style.display='flex';try{window.requestAnimationFrame(function(){render()})}catch(e){render()}};
+window.closeWeaponPotentialModal=function(){const m=document.getElementById('wpp-modal');if(m)m.style.display='none'};
+window.initWeaponPotential=function(w){ensure(w)};
+window.getWeaponPotentialSummary=function(){const w=weapon();if(!w)return{flat:0,pct:0};ensure(w);let flat=0,pct=0,hadumDmg=0,critDmg=0;w.potential.concat(w.engraving).forEach(x=>{if(!x)return;if(x.id==='atk')flat+=Number(x.value)||0;if(x.id==='atkPct')pct+=(Number(x.value)||0)/100});return{flat,pct}};
+})();
+</script>
+
+
+
+<script id="weapon-engraving-reset-v9-final">
+(function(){
+'use strict';
+const STONE=2, GOLD=100000;
+function ps(){return window.playerState||null;}
+function weapon(){const p=ps();return p&&((p.weaponCrafting&&p.weaponCrafting.weapon)||p.weapon)||null;}
+function slots(w){return ({normal:0,high:0,new:1,fine:2,masterpiece:3})[String(w&&w.grade||'normal')]??0;}
+function ensure(w){if(!w)return;const n=slots(w);if(!Array.isArray(w.potential))w.potential=[];if(!Array.isArray(w.engraving))w.engraving=[];while(w.potential.length<n)w.potential.push(null);while(w.engraving.length<n)w.engraving.push(null);if(w.potential.length>n)w.potential.length=n;if(w.engraving.length>n)w.engraving.length=n;}
+function fmt(x){if(!x)return '-';if(x.id==='hadumDmg')return '하둠 몬스터 피해 +'+(Number(x.value)||0)+'%';if(x.id==='atkPct')return '공격력 +'+(Number(x.value)||0)+'%';if(x.id==='critDmg')return '치명타 피해 +'+(Number(x.value)||0)+'%';return String(x.id||'옵션')+' '+String(x.value||0);}
+function saveAll(){try{if(typeof window.save==='function')window.save();}catch(e){}try{if(typeof window.saveGame==='function')window.saveGame(true);}catch(e){}try{if(typeof window.updateUI==='function')window.updateUI();}catch(e){}}
+function reset(i){
+ const p=ps(),w=weapon();
+ if(!p||!w)return;
+ ensure(w);
+ const n=slots(w),m=p.craftingMaterials=p.craftingMaterials||{};
+ if(i<0||i>=n||!w.engraving[i])return;
+ if(Number(m.engravingStone||0)<STONE){alert('각인석이 부족합니다.\n필요: 각인석 2개');return;}
+ if(Number(p.gold||0)<GOLD){alert('골드가 부족합니다.\n필요: 100,000 G');return;}
+ if(!window.confirm('이 슬롯의 각인을 초기화할까요?\n\n각인석 2개 + 100,000 G가 소모됩니다.\n잠재력은 그대로 유지됩니다.'))return;
+ m.engravingStone=Number(m.engravingStone||0)-STONE;
+ p.gold=Number(p.gold||0)-GOLD;
+ w.engraving[i]=null;
+ saveAll();
+ if(window.__WPP&&typeof window.__WPP.render==='function')window.__WPP.render();
+}
+window.__WPP_RESET_V9=reset;
+function render(){
+ const box=document.getElementById('wpp-body');if(!box)return;
+ const w=weapon();
+ if(!w){box.innerHTML='<div class="wpp-empty">현재 장착 중인 제작무기가 없습니다.</div>';return;}
+ ensure(w);const n=slots(w),p=ps(),m=p.craftingMaterials=p.craftingMaterials||{};let h='';
+ h+='<div class="wpp-card"><div class="wpp-title">✨ '+String(w.name||'제작무기')+'</div><div class="wpp-sub">잠재력은 제작 시 랜덤 부여되며 초기화되지 않습니다.</div><div class="wpp-mats">🔹 각인석 '+Number(m.engravingStone||0).toLocaleString()+' · 💰 '+Number(p.gold||0).toLocaleString()+' G</div></div>';
+ if(!n){h+='<div class="wpp-empty">현재 무기 등급에는 잠재력/각인 슬롯이 없습니다.<br>신품부터 슬롯이 열립니다.</div>';box.innerHTML=h;return;}
+ h+='<div class="wpp-card"><div class="wpp-title">잠재력</div><div class="wpp-slots">';
+ for(let i=0;i<n;i++)h+='<div class="wpp-slot"><div class="wpp-row"><span>슬롯 '+(i+1)+'</span><span class="wpp-good">'+fmt(w.potential[i])+'</span></div></div>';
+ h+='</div></div><div class="wpp-card"><div class="wpp-title">각인</div><div class="wpp-sub">각인석 1개 + 50,000 G · 각인된 슬롯을 터치하면 초기화됩니다.</div><div class="wpp-slots">';
+ for(let i=0;i<n;i++){
+   const e=w.engraving[i];
+   if(e){
+     h+='<div class="wpp-slot" data-engraving-reset-slot="'+i+'" role="button" tabindex="0" style="cursor:pointer;touch-action:manipulation;user-select:none;"><div class="wpp-row"><span>슬롯 '+(i+1)+'</span><span class="wpp-good">'+fmt(e)+'</span></div><div style="text-align:right;margin-top:5px;font-size:9px;color:#c9a85d;pointer-events:none">👆 이 슬롯을 누르면 각인 초기화</div></div>';
+   }else{
+     const can=Number(m.engravingStone||0)>=1&&Number(p.gold||0)>=50000;
+     h+='<div class="wpp-slot"><div class="wpp-row"><span>슬롯 '+(i+1)+'</span><button type="button" class="wpp-btn" onclick="window.__WPP.engrave('+i+')" '+(can?'':'disabled')+'>각인하기</button></div><div style="text-align:right;margin-top:3px;font-size:9px;color:'+(can?'#9ccc65':'#aaa')+'">'+(can?'각인 가능':'각인석 1개 + 50,000 G 필요')+'</div></div>';
+   }
+ }
+ h+='</div></div>';box.innerHTML=h;
+}
+function bind(){
+ const box=document.getElementById('wpp-body');if(!box||box.__engravingResetBound)return;box.__engravingResetBound=true;
+ const activate=function(e){
+   const el=e.target.closest('[data-engraving-reset-slot]');
+   if(!el||!box.contains(el))return;
+   e.preventDefault();e.stopPropagation();
+   reset(Number(el.getAttribute('data-engraving-reset-slot')));
+ };
+ box.addEventListener('click',activate,true);
+ box.addEventListener('touchend',activate,true);
+ box.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){const el=e.target.closest('[data-engraving-reset-slot]');if(el){e.preventDefault();reset(Number(el.getAttribute('data-engraving-reset-slot')));}}},true);
+}
+function refresh(){render();bind();}
+if(window.__WPP){window.__WPP.render=refresh;}else{window.__WPP={render:refresh};}
+window.addEventListener('load',function(){setTimeout(bind,0);});
+})();
+</script>
+
+
+<style id="guardian-armor-potential-engraving-css">
+.guardian-eng-wrap{margin-top:6px;padding:6px;border-top:1px solid #ead7c8;background:#fffaf5;border-radius:6px;width:100%;box-sizing:border-box}
+.guardian-eng-slot{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 5px;margin:3px 0;border:1px solid #e0d0c5;border-radius:5px;font-size:9px;background:#fff}
+.guardian-eng-done{cursor:pointer;background:#f3e5f5;border-color:#ce93d8;color:#6a1b9a}
+.guardian-eng-done:hover{filter:brightness(.97)}
+</style>
+<script id="guardian-engraving-touch-handler">
+(function(){
+  function bind(){
+    const box=document.getElementById('guardian-inventory-list'); if(!box||box.__guardianEngBound)return; box.__guardianEngBound=true;
+    const go=e=>{const el=e.target.closest('[data-guardian-eng-reset]'); if(!el||!box.contains(el))return; e.preventDefault(); e.stopPropagation(); resetGuardianEngraving(el.getAttribute('data-guardian-eng-reset'),Number(el.getAttribute('data-slot')));};
+    box.addEventListener('click',go,true); box.addEventListener('touchend',go,true);
+  }
+  window.addEventListener('load',bind); setInterval(bind,1000);
+})();
+</script>
+window.addEventListener('load',()=>{setTimeout(()=>{try{(playerState.guardianInventory||[]).forEach(ensureGuardianArmorData);syncGuardianDerivedStats();}catch(e){}},0);});
 </body>
+<style id="weapon-bag-system-css">
+#wbag-modal{position:fixed;inset:0;z-index:11000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);padding:10px;box-sizing:border-box}
+#wbag-panel{width:min(760px,96vw);max-height:90vh;overflow:hidden;background:#101821;border:2px solid #8f6b32;border-radius:14px;color:#eee;box-shadow:0 15px 50px #000}
+#wbag-head{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-bottom:1px solid #394552}
+#wbag-head h2{margin:0;color:#ffd166;font-size:18px}
+#wbag-close{border:0;background:#333;color:#fff;border-radius:7px;width:34px;height:32px;font-size:19px}
+#wbag-body{padding:10px;max-height:calc(90vh - 55px);overflow:auto;-webkit-overflow-scrolling:touch}
+#wbag-info{font-size:11px;color:#aeb8c4;margin-bottom:8px}
+#wbag-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.wbag-item{background:#151e27;border:1px solid #394552;border-radius:9px;padding:7px;min-height:110px;box-sizing:border-box;text-align:center}
+.wbag-item.empty{opacity:.38;display:flex;align-items:center;justify-content:center;min-height:70px}
+.wbag-icon{font-size:32px;line-height:1.1}.wbag-name{font-weight:900;font-size:11px;margin-top:3px}.wbag-meta{font-size:9px;color:#aeb8c4;margin:3px 0 5px;line-height:1.3}
+.wbag-actions{display:flex;gap:3px;justify-content:center}.wbag-actions button{border:0;border-radius:5px;padding:5px 4px;font-size:9px;font-weight:900;background:#c9953e;color:#17110a}.wbag-actions button.red{background:#8e3e3e;color:#fff}
+#wbag-mats{margin-top:8px;background:#0b1118;border:1px solid #303b47;border-radius:8px;padding:7px;font-size:10px;color:#d7e0e8}
+@media(max-width:520px){#wbag-grid{grid-template-columns:repeat(3,1fr)}.wbag-item{min-height:105px;padding:5px}.wbag-icon{font-size:27px}}
+@media(max-width:360px){#wbag-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+<script id="weapon-bag-and-material-drop-system">
+(function(){
+  'use strict';
+
+  const BAG_KEY_PREFIX='weaponBag_v1_slot_';
+  const BAG_MAX=30;
+  const EMPTY_MATS={iron:0,wood:0,core:0,refined:0,boss:0,divine:0,engravingStone:0};
+  const GRADE_RANK={normal:0,high:1,new:2,fine:3,masterpiece:4};
+
+  function slot(){ return Number(window.activeCharacterSlot||1); }
+  function key(){ return BAG_KEY_PREFIX + slot(); }
+
+  function cloneWeapon(w){
+    if(!w || typeof w!=='object') return null;
+    const c=JSON.parse(JSON.stringify(w));
+    try{ if(typeof window.initWeaponPotential==='function') window.initWeaponPotential(c); }catch(e){}
+    return c;
+  }
+
+  function bag(){
+    try{
+      const raw=localStorage.getItem(key());
+      const parsed=raw?JSON.parse(raw):[];
+      if(!Array.isArray(parsed)) return [];
+      const arr=parsed.filter(x=>x&&typeof x==='object').slice(0,BAG_MAX);
+      let changed=false;
+      arr.forEach(w=>{
+        if(!w.__bagId){
+          w.__bagId='wb_'+Date.now()+'_'+Math.random().toString(36).slice(2,9);
+          changed=true;
+        }
+      });
+      if(changed){
+        try{localStorage.setItem(key(),JSON.stringify(arr));}catch(e){}
+      }
+      return arr;
+    }catch(e){ return []; }
+  }
+  function saveBag(arr){
+    try{localStorage.setItem(key(),JSON.stringify(arr.slice(0,BAG_MAX)));}catch(e){}
+    if(window.playerState) window.playerState.weaponBag=arr.slice(0,BAG_MAX);
+  }
+  function ensureMats(){
+    if(!window.playerState) return null;
+    window.playerState.craftingMaterials=Object.assign({},EMPTY_MATS,window.playerState.craftingMaterials||{});
+    return window.playerState.craftingMaterials;
+  }
+  function addMat(k,n){
+    const m=ensureMats(); if(!m)return;
+    m[k]=(Number(m[k])||0)+Math.max(0,Math.floor(Number(n)||0));
+  }
+  function persistMats(){
+    try{localStorage.setItem('weaponCraftingMaterials_v2',JSON.stringify(ensureMats()||{}));}catch(e){}
+    try{if(typeof window.saveGame==='function')window.saveGame();}catch(e){}
+    try{if(typeof window.renderCraftingBag==='function')window.renderCraftingBag();}catch(e){}
+  }
+  function weaponLabel(w){
+    if(typeof window.getWeaponDisplayName==='function'){
+      try{return window.getWeaponDisplayName(w)||w.name||'제작무기';}catch(e){}
+    }
+    return w.name||'제작무기';
+  }
+  function gradeName(w){
+    const g=window.G&&window.G[w.grade];
+    return g&&g.n ? g.n : (w.grade||'일반');
+  }
+  function icon(w){
+    if(typeof window.getWeaponDisplayIcon==='function'){
+      try{return window.getWeaponDisplayIcon(w)||'🗡️';}catch(e){}
+    }
+    return '🗡️';
+  }
+  function atk(w){return Number(w.atk)||0;}
+  function enhanceText(w){
+    const a=Number(w.enhance)||0, j=Number(w.jinEnhance)||0;
+    return j>0 ? `+${a} · 진 +${j}` : `+${a}`;
+  }
+
+  function addWeapon(w){
+    if(!w)return false;
+    const arr=bag();
+    if(arr.length>=BAG_MAX)return false;
+    const copy=cloneWeapon(w);
+    if(!copy)return false;
+    copy.__bagId='wb_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+    arr.unshift(copy);
+    saveBag(arr);
+    return true;
+  }
+
+  function removeWeapon(id){
+    const arr=bag();
+    const idx=arr.findIndex(w=>w.__bagId===id);
+    if(idx<0)return null;
+    const w=arr.splice(idx,1)[0];
+    saveBag(arr);
+    return w;
+  }
+
+  function openBag(){
+    ensureMats();
+    let modal=document.getElementById('wbag-modal');
+    if(!modal) createBagUI();
+    modal=document.getElementById('wbag-modal');
+    if(!modal)return;
+    modal.style.display='flex';
+    renderBag();
+  }
+  function closeBag(){
+    const m=document.getElementById('wbag-modal'); if(m)m.style.display='none';
+  }
+
+  function potentialText(w){
+    const p=Array.isArray(w.potential)?w.potential.filter(Boolean):[];
+    const e=Array.isArray(w.engraving)?w.engraving.filter(Boolean):[];
+    const a=[];
+    if(p.length)a.push(`잠재 ${p.length}`);
+    if(e.length)a.push(`각인 ${e.length}`);
+    return a.length?a.join(' · '):'잠재력 미개방';
+  }
+
+  function dismantleBagWeapon(id){
+    const w=removeWeapon(id);
+    if(!w)return;
+    const recipe=(window.RECIPE&&window.RECIPE.m)||{iron:0,wood:0,core:0,refined:0,boss:0,divine:0};
+    const refund={normal:.95,high:.90,new:.85,fine:.80,masterpiece:.75}[w.grade]||.8;
+    Object.entries(recipe).forEach(([k,v])=>addMat(k,Math.floor(Number(v)*refund)));
+    let slots=0;
+    try{slots=typeof window.potentialSlotCount==='function'?Number(window.potentialSlotCount(w))||0:0;}catch(e){}
+    addMat('engravingStone',Math.max(0,slots+(GRADE_RANK[w.grade]>=3?1:0)));
+    persistMats();
+    try{
+      if(window.playerState && Array.isArray(window.playerState.weaponCrafting?.hist)){
+        const h=window.playerState.weaponCrafting.hist;
+        h.unshift(`♻ ${weaponLabel(w)} [${gradeName(w)}] 무기 가방에서 해체`);
+        window.playerState.weaponCrafting.hist=h.slice(0,12);
+      }
+    }catch(e){}
+    alert(`♻️ ${gradeName(w)} ${weaponLabel(w)} 해체 완료\\n +${Math.max(0,slots*2+(GRADE_RANK[w.grade]>=3?2:0))}\\n각인석 +${Math.max(0,slots+(GRADE_RANK[w.grade]>=3?1:0))}`);
+    renderBag();
+  }
+
+  function equipBagWeapon(id){
+    const arr=bag();
+    const idx=arr.findIndex(w=>w.__bagId===id);
+    if(idx<0 || !window.playerState)return;
+    const selected=arr[idx];
+    let state=null;
+    try{state=typeof window.getWeaponCraftState==='function'?window.getWeaponCraftState():window.playerState.weaponCrafting;}catch(e){}
+    if(!state) state=window.playerState.weaponCrafting||{};
+    // 현재 장착무기는 가방으로 이동. 가방이 꽉 찼다면 교체를 막아 기존 무기를 잃지 않는다.
+    if(state.weapon){
+      if(arr.length>=BAG_MAX){
+        alert('무기 가방이 가득 찼습니다. 현재 장착 무기를 보관할 공간을 먼저 만들어 주세요.');
+        return;
+      }
+      const old=cloneWeapon(state.weapon);
+      old.__bagId='wb_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+      arr.splice(idx,1);
+      arr.unshift(old);
+    }else{
+      arr.splice(idx,1);
+    }
+    selected.__bagId=selected.__bagId||('wb_'+Date.now());
+    state.weapon=selected;
+    state.lastCraftedWeapon=null;
+    state.dismantleWeapon=null;
+    if(window.playerState)window.playerState.weaponCrafting=state;
+    saveBag(arr);
+    try{if(typeof window.saveGame==='function')window.saveGame();}catch(e){}
+    try{if(typeof window.updateCraftWeaponVisual==='function')window.updateCraftWeaponVisual();}catch(e){}
+    try{if(typeof window.updateUI==='function')window.updateUI();}catch(e){}
+    renderBag();
+  }
+
+  function renderBag(){
+    const grid=document.getElementById('wbag-grid');
+    const info=document.getElementById('wbag-info');
+    const mats=document.getElementById('wbag-mats');
+    if(!grid)return;
+    const arr=bag();
+    if(info)info.textContent=`제작무기 ${arr.length}/${BAG_MAX}칸 · 제작한 무기는 자동으로 보관됩니다. 장착 중인 무기는 제외됩니다.`;
+    grid.innerHTML='';
+    arr.forEach(w=>{
+      const div=document.createElement('div');
+      div.className='wbag-item';
+      const color=(window.G&&window.G[w.grade]&&window.G[w.grade].c)||'#ddd';
+      const id=String(w.__bagId);
+      div.innerHTML=
+        `<div class="wbag-icon">${icon(w)}</div>`+
+        `<div class="wbag-name" style="color:${color}">${gradeName(w)} ${weaponLabel(w)}</div>`+
+        `<div class="wbag-meta">공격력 ${atk(w).toLocaleString()}<br>${enhanceText(w)}<br>${potentialText(w)}</div>`+
+        `<div class="wbag-actions"><button type="button" data-wb-equip="${id}">장착</button><button type="button" class="red" data-wb-dismantle="${id}">해체</button></div>`;
+      grid.appendChild(div);
+    });
+    for(let i=arr.length;i<BAG_MAX;i++){
+      const d=document.createElement('div'); d.className='wbag-item empty'; d.innerHTML='<span>빈 슬롯</span>'; grid.appendChild(d);
+    }
+    const m=ensureMats();
+    if(mats)mats.innerHTML=`🔹 각인석 <b>${Number(m?.engravingStone||0).toLocaleString()}</b>`;
+  }
+
+  window.__WB={
+    equip:function(id){
+      try{ equipBagWeapon(String(id||'')); }catch(e){ console.error(e); alert('무기 장착 처리 중 오류가 발생했습니다.'); }
+    },
+    dismantle:function(id){
+      try{
+        const sid=String(id||'');
+        const w=bag().find(x=>String(x.__bagId)===sid);
+        if(!w){alert('해당 제작무기를 찾을 수 없습니다.');return;}
+        if(confirm('이 제작무기를 해체할까요?\n제작재료와 각인석을 회수합니다.')) dismantleBagWeapon(sid);
+      }catch(e){console.error(e);alert('무기 해체 처리 중 오류가 발생했습니다.');}
+    }
+  };
+
+  function createBagUI(){
+    const modal=document.createElement('div');
+    modal.id='wbag-modal';
+    modal.innerHTML=`<div id="wbag-panel">
+      <div id="wbag-head"><h2>🎒 제작무기 가방</h2><button id="wbag-close">×</button></div>
+      <div id="wbag-body"><div id="wbag-info"></div><div id="wbag-grid"></div><div id="wbag-mats"></div></div>
+    </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click',function(e){
+      if(e.target===modal || e.target.id==='wbag-close'){closeBag();return;}
+      const eq=e.target.closest('[data-wb-equip]');
+      if(eq){
+        e.preventDefault();
+        e.stopPropagation();
+        equipBagWeapon(String(eq.getAttribute('data-wb-equip')||''));
+        return;
+      }
+      const ds=e.target.closest('[data-wb-dismantle]');
+      if(ds){
+        e.preventDefault();
+        e.stopPropagation();
+        const id=String(ds.getAttribute('data-wb-dismantle')||'');
+        const w=bag().find(x=>String(x.__bagId)===id);
+        if(!w){alert('해당 제작무기를 찾을 수 없습니다.');return;}
+        if(confirm('이 제작무기를 해체할까요?\n제작재료와 각인석을 회수합니다.')) dismantleBagWeapon(id);
+      }
+    });
+  }
+
+  function injectButton(){
+    const actions=document.querySelector('.wc-actions');
+    if(actions && !document.getElementById('openWeaponBagBtn')){
+      const b=document.createElement('button');
+      b.type='button'; b.id='openWeaponBagBtn'; b.textContent='🎒 무기 가방';
+      b.style.background='#536779'; b.style.color='#fff';
+      b.onclick=openBag;
+      actions.appendChild(b);
+    }
+    // 제작 버튼이 화면에 따로 있을 경우에도 가방 버튼을 하나 제공한다.
+    if(!document.getElementById('openWeaponBagFloat')){
+      const b=document.createElement('button');
+      b.type='button'; b.id='openWeaponBagFloat'; b.textContent='🎒 무기 가방';
+      b.style.cssText='position:fixed;right:12px;bottom:58px;z-index:9998;display:none;padding:9px 12px;border:0;border-radius:8px;background:#536779;color:#fff;font-weight:900';
+      b.onclick=openBag;
+      document.body.appendChild(b);
+    }
+  }
+
+  // 필드 몬스터 처치 시 잠재/각인 재료를 추가한다.
+  function installMaterialDropHook(){
+    if(typeof window.addWeaponCraftDrop!=='function')return false;
+    if(window.__wbDropHookInstalled)return true;
+    const original=window.addWeaponCraftDrop;
+    window.addWeaponCraftDrop=function(stageId,isBoss,monster){
+      let got=[];
+      try{got=original(stageId,isBoss,monster)||[];}catch(e){console.warn('기존 제작재료 드랍 오류',e);}
+      try{
+        const m=ensureMats(); if(!m)return got;
+        const st=Number(stageId)||Number(monster?.stageId)||1;
+        const hadum=!!monster?.isHadum || !!window.currentHadum;
+        // 하둠 후반/엘리트에서 조금 더 잘 나오도록 설계.
+        const base=Math.max(0,Math.min(7,st-1));
+        let stone=(hadum?0.025:0.004)+base*0.003;
+        if(isBoss){stone*=3.0;}
+        const mult=typeof window.getCloverDropMultiplier==='function'?Math.max(1,Number(window.getCloverDropMultiplier())||1):1;
+        if(Math.random()<stone){
+          const qty=Math.max(1,Math.floor(mult*(isBoss?2:1)));
+          addMat('engravingStone',qty);
+          got.push(`각인석 ×${qty}`);
+        }
+        if(got.length){
+          persistMats();
+          try{
+            if(typeof window.showHealText==='function' && monster?.sprite){
+              window.showHealText(`🧪 ${got.filter(x=>/|각인석/.test(x)).join(' · ')}`,monster.sprite.position);
+            }
+          }catch(e){}
+        }
+      }catch(e){console.warn('잠재/각인 재료 드랍 오류',e);}
+      return got;
+    };
+    window.__wbDropHookInstalled=true;
+    return true;
+  }
+
+  function installCraftHook(){ return true; }
+
+  function boot(){
+    ensureMats();
+    try{
+      const arr=bag();
+      if(window.playerState)window.playerState.weaponBag=arr;
+    }catch(e){}
+    injectButton();
+    installMaterialDropHook();
+    installCraftHook();
+  }
+
+  window.openWeaponBag=openBag;
+  window.renderWeaponBag=renderBag;
+  window.getWeaponBag=bag;
+  window.addWeaponToBag=addWeapon;
+  window.addWeaponBagMaterial=function(k,n){addMat(k,n);persistMats();renderBag();};
+
+  document.addEventListener('DOMContentLoaded',boot);
+  window.addEventListener('load',boot);
+  setTimeout(boot,1000);
+  setInterval(function(){
+    try{injectButton();installMaterialDropHook();installCraftHook();}catch(e){}
+  },1000);
+})();
+</script>
