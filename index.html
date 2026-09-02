@@ -4636,7 +4636,7 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       talismanLoot: 0, enhanceCore: 0, experienceDungeonTickets: 0,
       talismanLevel: 0,
       baseAttackSpeed: 1000, attackSpeed: 1000,
-      weaponAtk: 0, defensePower: 5, baseDefensePower: 5, weaponEnhanceLv: 0,
+      weaponAtk: 0, baseAttackPower: 15, defensePower: 5, baseDefensePower: 5, weaponEnhanceLv: 0,
       lastAttackTime: 0, moveSpeed: 9, attackRange: 2.5,
       isAttacking: false, attackStage: 0, attackAnimTimer: 0,
       hasSiri: false, hasJanggeum: false, hasMunyeahana: false, hasRabbitGirl: false, rabbitForm: false,
@@ -5271,7 +5271,7 @@ window.playerState = playerState;
     }
 
     function getPlayerBaseAtk() {
-      return 15 + (playerState.level - 1) * 3 + playerState.weaponAtk + getEquippedSubWeaponAtk();
+      return Number(playerState.baseAttackPower || 15) + playerState.weaponAtk + getEquippedSubWeaponAtk();
     }
 
     function getPlayerAvgAtk() {
@@ -10826,7 +10826,11 @@ window.playerState = playerState;
         while (playerState.level < playerState.maxLevel && playerState.exp >= playerState.maxExp) {
           playerState.exp -= playerState.maxExp;
           playerState.level++;
-          playerState.defensePower += 5;
+          // 레벨업 기본 능력치: 공격력 +3 / 방어력 +5.
+          // 최종 계산에 사용되는 기준값(baseAttackPower/baseDefensePower)에 직접 반영한다.
+          playerState.baseAttackPower = Math.max(15, Number(playerState.baseAttackPower) || 15) + 3;
+          playerState.baseDefensePower = Math.max(5, Number(playerState.baseDefensePower) || 5) + 5;
+          playerState.defensePower = playerState.baseDefensePower;
           const levelHpGain = isShamanClass() ? 10 : 30;
           const levelMpGain = isShamanClass() ? 30 : 10;
           playerState.maxHp += levelHpGain;
@@ -10890,7 +10894,7 @@ window.playerState = playerState;
           exp: playerState.exp, maxExp: playerState.maxExp, gold: playerState.gold,
           talismanLoot: playerState.talismanLoot, talismanLevel: playerState.talismanLevel, enhanceCore: playerState.enhanceCore,
           baseAttackSpeed: playerState.baseAttackSpeed, attackSpeed: playerState.attackSpeed,
-          weaponAtk: playerState.weaponAtk, defensePower: playerState.defensePower, baseDefensePower: Number(playerState.baseDefensePower), weaponEnhanceLv: playerState.weaponEnhanceLv,
+          weaponAtk: playerState.weaponAtk, baseAttackPower: Number(playerState.baseAttackPower), defensePower: playerState.defensePower, baseDefensePower: Number(playerState.baseDefensePower), weaponEnhanceLv: playerState.weaponEnhanceLv,
           martialTrainingLv: playerState.martialTrainingLv, shamanStudyLv: playerState.shamanStudyLv,
           dailyCoreBought: playerState.dailyCoreBought, dailyResetDate: playerState.dailyResetDate,
           moveSpeed: playerState.moveSpeed, attackRange: playerState.attackRange,
@@ -10983,8 +10987,24 @@ window.playerState = playerState;
           };
         }
         if (p.craftingMaterials && typeof p.craftingMaterials === 'object') playerState.craftingMaterials = { iron:0, wood:0, core:0, refined:0, boss:0, divine:0, ...p.craftingMaterials };
-        const numericFields = ['level','maxLevel','tier','hp','maxHp','mp','maxMp','exp','maxExp','gold','talismanLoot','talismanLevel','enhanceCore','baseAttackSpeed','attackSpeed','weaponAtk','defensePower','weaponEnhanceLv','moveSpeed','attackRange','atkSpeedLv','firstSkillLv','martialTrainingLv','shamanStudyLv','dailyCoreBought','jobChangeCount','experienceDungeonTickets'];
+        const numericFields = ['level','maxLevel','tier','hp','maxHp','mp','maxMp','exp','maxExp','gold','talismanLoot','talismanLevel','enhanceCore','baseAttackSpeed','attackSpeed','weaponAtk','baseAttackPower','defensePower','weaponEnhanceLv','moveSpeed','attackRange','atkSpeedLv','firstSkillLv','martialTrainingLv','shamanStudyLv','dailyCoreBought','jobChangeCount','experienceDungeonTickets'];
         numericFields.forEach(k => { if (p[k] !== undefined && Number.isFinite(Number(p[k]))) playerState[k] = Number(p[k]); });
+        // 레벨업 기본 공격력/방어력 기준값 마이그레이션. 구버전 세이브에는 baseAttackPower가 없고,
+        // 리뉴얼17~20에서는 레벨업 방어력이 defensePower에만 누적되어 최종 계산에서 누락될 수 있었다.
+        const lvNow = Math.max(1, Math.min(300, Number(playerState.level) || 1));
+        const expectedBaseAtk = 15 + (lvNow - 1) * 3;
+        const expectedBaseDef = 5 + (lvNow - 1) * 5;
+        if (!Number.isFinite(Number(p.baseAttackPower))) {
+          playerState.baseAttackPower = expectedBaseAtk;
+        } else {
+          playerState.baseAttackPower = Math.max(expectedBaseAtk, Number(playerState.baseAttackPower) || 15);
+        }
+        // baseDefensePower가 구버전 기본값 5에 머물러 있으면 현재 레벨까지의 기본 방어력으로 복구한다.
+        const savedBaseDefForMigration = Number(p.baseDefensePower);
+        if (!Number.isFinite(savedBaseDefForMigration) || savedBaseDefForMigration < expectedBaseDef) {
+          playerState.baseDefensePower = expectedBaseDef;
+          playerState.defensePower = expectedBaseDef;
+        }
         // 방어력 기준값을 별도로 관리한다. 구버전에서 파수꾼 잠재력이 새로고침마다
         // defensePower에 누적되던 오염 세이브는 1회만 안전하게 복구한다.
         const savedBaseDef = Number(p.baseDefensePower);
