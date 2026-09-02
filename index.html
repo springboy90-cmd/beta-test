@@ -6942,7 +6942,6 @@ window.playerState = playerState;
           got.push(qty>1?`${names[k]} ×${qty}`:names[k]);
         }
       });
-      try { localStorage.setItem('weaponCraftingMaterials_v2', JSON.stringify(playerState.craftingMaterials)); } catch(e) {}
       if (typeof renderCraftingBag === 'function') { try { renderCraftingBag(); } catch(e) {} }
       return got;
     }
@@ -11250,7 +11249,26 @@ window.playerState = playerState;
       const ok = confirm('현재 선택된 캐릭터 슬롯의 레벨, 경험치, 골드, 장비, 스킬, 영웅 구매/레벨을 모두 초기화할까요?\n초기화 후에는 이전 저장 상태로 되돌릴 수 없습니다.');
       if (!ok) return;
       isResettingCharacter = true;
-      try { localStorage.removeItem(CHARACTER_SLOT_KEY_PREFIX + activeCharacterSlot); } catch (e) { console.warn(e); }
+      try {
+        // 캐릭터 슬롯 세이브뿐 아니라 제작 시스템이 별도로 보관하던
+        // 슬롯별 보조 데이터도 함께 삭제한다. 특히 제작 숙련도는
+        // weaponCraftProficiency_v1_slot_N에 별도 저장되어 있었기 때문에
+        // 캐릭터 세이브만 삭제하면 초기화 직후 다시 복원되는 버그가 있었다.
+        localStorage.removeItem(CHARACTER_SLOT_KEY_PREFIX + activeCharacterSlot);
+        localStorage.removeItem('weaponCraftProficiency_v1_slot_' + activeCharacterSlot);
+        localStorage.removeItem('weaponBag_v1_slot_' + activeCharacterSlot);
+        // 재료 데이터는 캐릭터 세이브가 단일 기준이므로 구형 전역 보조 저장값도 제거한다.
+        localStorage.removeItem('weaponCraftingMaterials_v2');
+      } catch (e) { console.warn(e); }
+      // 메모리상의 현재 캐릭터에도 초기화 상태를 반영한다.
+      try {
+        if (window.playerState) {
+          playerState.weaponCraftProficiency = {xp:0, level:1};
+          playerState.weaponCrafting = null;
+          playerState.weaponBag = [];
+          playerState.craftingMaterials = {iron:0,wood:0,core:0,refined:0,boss:0,divine:0,engravingStone:0};
+        }
+      } catch (e) { console.warn(e); }
       // location.reload()는 일부 브라우저(특히 file:// 로 연 로컬 파일)에서 캐시된 페이지 상태를
       // 그대로 복원해버려, localStorage는 지워졌는데도 화면의 레벨/골드 등은 새로고침 전 값이
       // 그대로 남아있는 것처럼 보일 수 있다. 현재 URL 뒤에 매번 다른 값을 붙여 완전히 새로운
@@ -12417,7 +12435,6 @@ function deductRecipe(){
 function saveMaterials(){
  try{
    const inv=mats();
-   localStorage.setItem('weaponCraftingMaterials_v2',JSON.stringify(inv));
  }catch(e){}
  if(typeof renderCraftingBag==='function'){
    try{renderCraftingBag();}catch(e){}
@@ -12562,6 +12579,15 @@ function craft(){
 }
 
 function dismantle(){
+ // 무기 해체는 1회 처리 중 재입력을 절대 허용하지 않는다.
+ // 빠르게 연속 클릭하거나 터치가 중복 발생해도 동일 무기를 여러 번 해체하여
+ // 재료가 복제되는 일이 없도록 한다.
+ if(window.__WC_DISMANTLE_LOCK) return;
+ window.__WC_DISMANTLE_LOCK=true;
+ const btn=document.getElementById('wc-dismantle');
+ const prevDisabled=btn ? !!btn.disabled : false;
+ if(btn) btn.disabled=true;
+ try{
  sync();
  const w=st.dismantleWeapon || st.weapon;
  const isProtectedHigh = !!st.weapon && gradeRank(st.weapon.grade)>=3 && !st.dismantleWeapon;
@@ -12590,6 +12616,12 @@ function dismantle(){
  saveMaterials(); save(); render();
  if(typeof updateCraftWeaponVisual==='function')updateCraftWeaponVisual();
  if(typeof updateUI==='function')updateUI();
+ } finally {
+   window.__WC_DISMANTLE_LOCK=false;
+   // render()가 최신 상태로 버튼을 다시 설정하지만, 오류가 나도 버튼이
+   // 영구 비활성화되지 않도록 원래 상태를 복구한다.
+   if(btn && !document.getElementById('wc-modal')?.matches('[style*="display: none"]')) btn.disabled=prevDisabled;
+ }
 }
 
 function upgrade(){
@@ -12836,7 +12868,7 @@ document.addEventListener('click',e=>{
  if(e.target.id==='wc-close')close();
  if(e.target.id==='wc-craft')craft();
  if(e.target.id==='wcUseDivine'){ render(); }
- if(e.target.id==='wc-dismantle')dismantle();
+ if(e.target.id==='wc-dismantle' && !window.__WC_DISMANTLE_LOCK)dismantle();
  if(e.target.id==='wc-upgrade')upgrade();
 });
 
@@ -12953,7 +12985,6 @@ window.addWeaponCraftDrop=function(stageId,isBoss,monster){
      got.push(qty>1?`${N[k]} ×${qty}`:N[k]);
    }
  });
- try{localStorage.setItem('weaponCraftingMaterials_v2',JSON.stringify(window.playerState.craftingMaterials));}catch(e){}
  if(typeof renderCraftingBag==='function')try{renderCraftingBag();}catch(e){}
  return got;
 };
@@ -13051,7 +13082,6 @@ window.addWeaponCraftDrop=function(stageId,isBoss,monster){
         if(use && m){
           // One crystal is reserved/consumed for this craft.
           m.divine-=1;
-          try{localStorage.setItem('weaponCraftingMaterials_v2',JSON.stringify(m));}catch(e){}
         }
 
         try{
@@ -13062,7 +13092,7 @@ window.addWeaponCraftDrop=function(stageId,isBoss,monster){
           // Refund on unexpected craft error.
           if(use && m){
             m.divine+=1;
-            try{localStorage.setItem('weaponCraftingMaterials_v2',JSON.stringify(m));}catch(_){}
+
           }
           throw e;
         }finally{
@@ -13197,8 +13227,7 @@ document.addEventListener('DOMContentLoaded',function(){
     addWeaponCraftProficiencyXP(r.xp);
 
     try{
-      localStorage.setItem('weaponCraftingMaterials_v2',JSON.stringify(inv));
-      localStorage.setItem(slotKey(),JSON.stringify(playerState.weaponCraftProficiency));
+         localStorage.setItem(slotKey(),JSON.stringify(playerState.weaponCraftProficiency));
     }catch(e){}
 
     return {ok:true,name:r.name,xp:r.xp,attack:r.attack};
@@ -13880,7 +13909,6 @@ setTimeout(repairSavedHPMP,500);
     m[k]=(Number(m[k])||0)+Math.max(0,Math.floor(Number(n)||0));
   }
   function persistMats(){
-    try{localStorage.setItem('weaponCraftingMaterials_v2',JSON.stringify(ensureMats()||{}));}catch(e){}
     try{if(typeof window.saveGame==='function')window.saveGame();}catch(e){}
     try{if(typeof window.renderCraftingBag==='function')window.renderCraftingBag();}catch(e){}
   }
@@ -13950,8 +13978,13 @@ setTimeout(repairSavedHPMP,500);
   }
 
   function dismantleBagWeapon(id){
-    const w=removeWeapon(id);
-    if(!w)return;
+    // 가방 해체도 동일한 아이템에 대한 중복 클릭/터치를 1회만 처리한다.
+    if(window.__WC_BAG_DISMANTLE_LOCK) return false;
+    window.__WC_BAG_DISMANTLE_LOCK=true;
+    try{
+    const sid=String(id||'');
+    const w=removeWeapon(sid);
+    if(!w)return false;
     const recipe=(window.RECIPE&&window.RECIPE.m)||{iron:0,wood:0,core:0,refined:0,boss:0,divine:0};
     const refund={normal:.95,high:.90,new:.85,fine:.80,masterpiece:.75}[w.grade]||.8;
     Object.entries(recipe).forEach(([k,v])=>addMat(k,Math.floor(Number(v)*refund)));
@@ -13968,6 +14001,10 @@ setTimeout(repairSavedHPMP,500);
     }catch(e){}
     alert(`♻️ ${gradeName(w)} ${weaponLabel(w)} 해체 완료\\n +${Math.max(0,slots*2+(GRADE_RANK[w.grade]>=3?2:0))}\\n각인석 +${Math.max(0,slots+(GRADE_RANK[w.grade]>=3?1:0))}`);
     renderBag();
+    return true;
+    } finally {
+      window.__WC_BAG_DISMANTLE_LOCK=false;
+    }
   }
 
   function equipBagWeapon(id){
@@ -14068,7 +14105,10 @@ setTimeout(repairSavedHPMP,500);
         const id=String(ds.getAttribute('data-wb-dismantle')||'');
         const w=bag().find(x=>String(x.__bagId)===id);
         if(!w){alert('해당 제작무기를 찾을 수 없습니다.');return;}
-        if(confirm('이 제작무기를 해체할까요?\n제작재료와 각인석을 회수합니다.')) dismantleBagWeapon(id);
+        if(confirm('이 제작무기를 해체할까요?\n제작재료와 각인석을 회수합니다.')) {
+          ds.disabled=true;
+          dismantleBagWeapon(id);
+        }
       }
     });
   }
