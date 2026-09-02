@@ -12579,48 +12579,90 @@ function craft(){
 }
 
 function dismantle(){
- // 무기 해체는 1회 처리 중 재입력을 절대 허용하지 않는다.
- // 빠르게 연속 클릭하거나 터치가 중복 발생해도 동일 무기를 여러 번 해체하여
- // 재료가 복제되는 일이 없도록 한다.
+ // [최종 해체 복제 방지]
+ // 해체 대상에 고유 ID를 부여하고, 한 번 소비된 ID는 다시 해체할 수 없게 한다.
+ // 단순한 클릭 Lock만으로는 render()/sync()가 실행된 뒤 다시 버튼이 살아나는
+ // 경우를 막을 수 없으므로 "이미 소비된 무기" 자체를 영구적으로 기록한다.
  if(window.__WC_DISMANTLE_LOCK) return;
  window.__WC_DISMANTLE_LOCK=true;
  const btn=document.getElementById('wc-dismantle');
- const prevDisabled=btn ? !!btn.disabled : false;
- if(btn) btn.disabled=true;
+ if(btn){ btn.disabled=true; btn.dataset.dismantling='1'; }
  try{
- sync();
- const w=st.dismantleWeapon || st.weapon;
- const isProtectedHigh = !!st.weapon && gradeRank(st.weapon.grade)>=3 && !st.dismantleWeapon;
- if(!w){
-   result('❌ 현재 해체할 제작무기가 없습니다.'); return;
- }
- // 호품/명품은 동일 또는 상위 등급 제작 성공으로 해체 대기 상태가 된 경우에만 해체 가능
- if(isProtectedHigh){
-   result(`🔒 현재 ${G[st.weapon.grade].n} 무기는 보호 중입니다. 동일 등급 또는 상위 등급 무기를 제작했을 때만 기존 무기를 해체할 수 있습니다.`);
-   return;
- }
- const refund={normal:.95,high:.90,new:.85,fine:.80,masterpiece:.75}[w.grade]||.8;
- Object.entries(RECIPE.m).forEach(([k,v])=>addMat(k,Math.floor(v*refund)));
- const ps=potentialSlotCount(w);
- addMat('engravingStone', Math.max(0, ps + (gradeRank(w.grade)>=3?1:0)));
- const gradeName=G[w.grade]?.n||w.grade;
- const displayName=getWeaponDisplayName(w);
- st.hist.unshift(`♻ ${displayName} [${gradeName}] 해체 · 제작재료 ${(refund*100).toFixed(0)}% 환급`);
- st.hist=st.hist.slice(0,12);
- if(st.dismantleWeapon){
-   st.dismantleWeapon=null;
- }else{
-   st.weapon=null;
- }
- result(`♻️ <b>${gradeName} ${displayName}</b>을 해체했습니다. 제작 재료의 <b>${Math.round(refund*100)}%</b>를 돌려받았습니다.`);
- saveMaterials(); save(); render();
- if(typeof updateCraftWeaponVisual==='function')updateCraftWeaponVisual();
- if(typeof updateUI==='function')updateUI();
- } finally {
+   sync();
+   const w=st.dismantleWeapon || st.weapon;
+   const isProtectedHigh=!!st.weapon && gradeRank(st.weapon.grade)>=3 && !st.dismantleWeapon;
+   if(!w){
+     result('❌ 현재 해체할 제작무기가 없습니다.');
+     return;
+   }
+   if(isProtectedHigh){
+     result(`🔒 현재 ${G[st.weapon.grade].n} 무기는 보호 중입니다. 동일 등급 또는 상위 등급 무기를 제작했을 때만 기존 무기를 해체할 수 있습니다.`);
+     return;
+   }
+
+   // 무기마다 해체용 고유 ID를 만든다.
+   w.__dismantleId=w.__dismantleId || ('dw_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10));
+   const consumedKey='weaponDismantledIds_v2';
+   let consumed=[];
+   try{ consumed=JSON.parse(localStorage.getItem(consumedKey)||'[]'); }catch(e){ consumed=[]; }
+   if(!Array.isArray(consumed)) consumed=[];
+   if(consumed.includes(String(w.__dismantleId))){
+     // 이미 재료를 지급한 무기라면 절대로 다시 지급하지 않는다.
+     if(st.dismantleWeapon===w) st.dismantleWeapon=null;
+     if(st.weapon===w) st.weapon=null;
+     if(window.playerState?.weaponCrafting){
+       if(window.playerState.weaponCrafting.dismantleWeapon===w) window.playerState.weaponCrafting.dismantleWeapon=null;
+       if(window.playerState.weaponCrafting.weapon===w) window.playerState.weaponCrafting.weapon=null;
+     }
+     save();
+     result('❌ 이미 해체된 제작무기입니다. 재료는 추가 지급되지 않습니다.');
+     return;
+   }
+
+   // 먼저 무기를 소비 상태로 확정한다. 이후 어떤 render/sync가 끼어도 같은 무기를 재처리할 수 없다.
+   consumed.push(String(w.__dismantleId));
+   if(consumed.length>300) consumed=consumed.slice(-300);
+   try{localStorage.setItem(consumedKey,JSON.stringify(consumed));}catch(e){}
+
+   const refund={normal:.95,high:.90,new:.85,fine:.80,masterpiece:.75}[w.grade]||.8;
+   const refundMaterials={};
+   Object.entries(RECIPE.m).forEach(([k,v])=>{
+     const amount=Math.floor(Number(v)*refund);
+     refundMaterials[k]=amount;
+     addMat(k,amount);
+   });
+   const ps=potentialSlotCount(w);
+   const stoneAmount=Math.max(0,ps+(gradeRank(w.grade)>=3?1:0));
+   addMat('engravingStone',stoneAmount);
+
+   const gradeName=G[w.grade]?.n||w.grade;
+   const displayName=getWeaponDisplayName(w);
+   st.hist.unshift(`♻ ${displayName} [${gradeName}] 해체 · 제작재료 ${(refund*100).toFixed(0)}% 환급`);
+   st.hist=st.hist.slice(0,12);
+
+   // 반드시 재료 지급과 동일한 처리 안에서 무기를 제거한다.
+   if(st.dismantleWeapon===w) st.dismantleWeapon=null;
+   if(st.weapon===w) st.weapon=null;
+   st.lastCraftedWeapon=null;
+   if(window.playerState?.weaponCrafting){
+     window.playerState.weaponCrafting=st;
+   }
+
+   result(`♻️ <b>${gradeName} ${displayName}</b>을 해체했습니다. 제작 재료의 <b>${Math.round(refund*100)}%</b>를 돌려받았습니다.`);
+   saveMaterials();
+   save();
+   render();
+   if(typeof updateCraftWeaponVisual==='function')updateCraftWeaponVisual();
+   if(typeof updateUI==='function')updateUI();
+ }catch(e){
+   console.error('weapon dismantle failed:',e);
+   result('❌ 무기 해체 처리 중 오류가 발생했습니다. 재료를 중복 지급하지 않았습니다.');
+ }finally{
    window.__WC_DISMANTLE_LOCK=false;
-   // render()가 최신 상태로 버튼을 다시 설정하지만, 오류가 나도 버튼이
-   // 영구 비활성화되지 않도록 원래 상태를 복구한다.
-   if(btn && !document.getElementById('wc-modal')?.matches('[style*="display: none"]')) btn.disabled=prevDisabled;
+   // 성공/실패 후 버튼 상태는 render()가 결정한다. 여기서 이전 disabled 상태로
+   // 되돌리지 않는다. 이전 코드의 "복구"가 반복 클릭 버그의 원인이 될 수 있었다.
+   const b=document.getElementById('wc-dismantle');
+   if(b) delete b.dataset.dismantling;
  }
 }
 
@@ -12772,7 +12814,7 @@ function render(){
  const d=document.getElementById('wc-dismantle');
  if(d){
    const protectedHigh=!!w && gradeRank(w.grade)>=3 && !st.dismantleWeapon;
-   d.disabled=!w && !st.dismantleWeapon;
+   d.disabled=(!w && !st.dismantleWeapon) || window.__WC_DISMANTLE_LOCK || d.dataset.dismantling==='1';
    d.textContent=st.dismantleWeapon ? `♻️ 이전 ${G[st.dismantleWeapon.grade]?.n||''} 무기 해체` : (protectedHigh ? '🔒 해체 조건 미충족' : '♻️ 무기 해체');
    d.title=protectedHigh ? '호품 이상은 동일 또는 상위 등급 제작 성공 시에만 기존 무기 해체 가능' : '';
  }
@@ -12859,6 +12901,10 @@ window.addWeaponCraftMaterial=function(k,n){
 
 /* 실제 하둠 재료 드랍은 기존 고정 드랍 테이블이 있으면 그것을 사용하도록 유지 */
 document.addEventListener('click',e=>{
+ if(e.target && e.target.id==='wc-dismantle'){
+   if(window.__WC_DISMANTLE_LOCK || e.target.dataset.dismantling==='1'){ e.preventDefault(); e.stopImmediatePropagation(); return; }
+   // 실제 처리는 아래 단일 핸들러에서만 수행한다.
+ }
  const b=e.target.closest('[data-wc-class]');
  if(b){
    st.class='공통';
