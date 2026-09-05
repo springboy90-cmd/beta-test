@@ -4636,7 +4636,7 @@ function drawSpearWeapon(ctx, x, y, angle, attackStage, isTier3 = false) {
       talismanLoot: 0, enhanceCore: 0, experienceDungeonTickets: 0,
       talismanLevel: 0,
       baseAttackSpeed: 1000, attackSpeed: 1000,
-      weaponAtk: 0, baseAttackPower: 15, defensePower: 5, baseDefensePower: 5, weaponEnhanceLv: 0,
+      weaponAtk: 0, baseAttackPower: 15, defensePower: 5, baseDefensePower: 5, shopAtkBonus: 0, shopDefBonus: 0, shopHpBonus: 0, shopMpBonus: 0, weaponEnhanceLv: 0,
       lastAttackTime: 0, moveSpeed: 9, attackRange: 2.5,
       isAttacking: false, attackStage: 0, attackAnimTimer: 0,
       hasSiri: false, hasJanggeum: false, hasMunyeahana: false, hasRabbitGirl: false, rabbitForm: false,
@@ -5271,7 +5271,7 @@ window.playerState = playerState;
     }
 
     function getPlayerBaseAtk() {
-      return Number(playerState.baseAttackPower || 15) + playerState.weaponAtk + getEquippedSubWeaponAtk();
+      return Number(playerState.baseAttackPower || 15) + Number(playerState.shopAtkBonus || 0) + playerState.weaponAtk + getEquippedSubWeaponAtk();
     }
 
     function getPlayerAvgAtk() {
@@ -5297,7 +5297,7 @@ window.playerState = playerState;
       // 최종 방어력은 단일 계산 경로에서만 산출한다.
       // playerState.defensePower에는 잠재력/강화값을 누적하지 않는다.
       const base = Number.isFinite(Number(playerState.baseDefensePower)) ? Number(playerState.baseDefensePower) : Number(playerState.defensePower || 0);
-      let def = Math.max(0, base);
+      let def = Math.max(0, base) + Number(playerState.shopDefBonus || 0);
       def += getGuardianEnhanceDef();
       let potentialDef = 0, defPct = 0;
       for (const item of (playerState.guardianInventory || [])) {
@@ -10054,12 +10054,35 @@ window.playerState = playerState;
       if (id === 'h1') { playerState.hasSiri = true; spawnSiriHero(); }
       else if (id === 'h2') { playerState.hasJanggeum = true; spawnJanggeumHero(); }
       else if (id === 'h3') { playerState.hasMunyeahana = true; spawnMunyeahanaHero(); }
-      else if (item.type === 'atk') playerState.weaponAtk += item.val;
-      else if (item.type === 'armor') { playerState.maxHp += item.valHp; playerState.hp += item.valHp; playerState.defensePower += item.valDef; }
-      else if (item.type === 'armorShaman') { playerState.maxMp += item.valMp; playerState.mp += item.valMp; playerState.defensePower += item.valDef; }
-      else if (item.type === 'maxMp') { playerState.maxMp += item.valMp; playerState.mp += item.valMp; }
+      else if (item.type === 'atk') {
+        // 저자거리 상점 공격력은 장비 weaponAtk가 아니라 영구 상점 보너스로 관리한다.
+        playerState.shopAtkBonus = Math.max(0, Number(playerState.shopAtkBonus) || 0) + Math.max(0, Number(item.val) || 0);
+      }
+      else if (item.type === 'armor') {
+        // 방어력은 defensePower에 누적하면 최종 방어력 계산기에서 누락될 수 있으므로 별도 영구 보너스로 저장한다.
+        const hp = Math.max(0, Number(item.valHp) || 0), def = Math.max(0, Number(item.valDef) || 0);
+        playerState.shopHpBonus = Math.max(0, Number(playerState.shopHpBonus) || 0) + hp;
+        playerState.shopDefBonus = Math.max(0, Number(playerState.shopDefBonus) || 0) + def;
+        playerState.maxHp = Math.max(1, Number(playerState.maxHp) || 1) + hp;
+        playerState.hp = Math.min(playerState.maxHp, Math.max(0, Number(playerState.hp) || 0) + hp);
+      }
+      else if (item.type === 'armorShaman') {
+        const mp = Math.max(0, Number(item.valMp) || 0), def = Math.max(0, Number(item.valDef) || 0);
+        playerState.shopMpBonus = Math.max(0, Number(playerState.shopMpBonus) || 0) + mp;
+        playerState.shopDefBonus = Math.max(0, Number(playerState.shopDefBonus) || 0) + def;
+        playerState.maxMp = Math.max(1, Number(playerState.maxMp) || 1) + mp;
+        playerState.mp = Math.min(playerState.maxMp, Math.max(0, Number(playerState.mp) || 0) + mp);
+      }
+      else if (item.type === 'maxMp') {
+        const mp = Math.max(0, Number(item.valMp) || 0);
+        playerState.shopMpBonus = Math.max(0, Number(playerState.shopMpBonus) || 0) + mp;
+        playerState.maxMp = Math.max(1, Number(playerState.maxMp) || 1) + mp;
+        playerState.mp = Math.min(playerState.maxMp, Math.max(0, Number(playerState.mp) || 0) + mp);
+      }
 
       updateUI();
+      // 상점 구매 스탯은 즉시 세이브하여 새로고침/재접속 시에도 유지한다.
+      try { if (typeof saveGame === 'function') saveGame(false); } catch (e) {}
       if (item.type === 'hero') {
         switchShopCategory('hero');
         closeShopModal();
@@ -10905,7 +10928,7 @@ window.playerState = playerState;
           exp: playerState.exp, maxExp: playerState.maxExp, gold: playerState.gold,
           talismanLoot: playerState.talismanLoot, talismanLevel: playerState.talismanLevel, enhanceCore: playerState.enhanceCore,
           baseAttackSpeed: playerState.baseAttackSpeed, attackSpeed: playerState.attackSpeed,
-          weaponAtk: playerState.weaponAtk, baseAttackPower: Number(playerState.baseAttackPower), defensePower: playerState.defensePower, baseDefensePower: Number(playerState.baseDefensePower), weaponEnhanceLv: playerState.weaponEnhanceLv,
+          weaponAtk: playerState.weaponAtk, baseAttackPower: Number(playerState.baseAttackPower), defensePower: playerState.defensePower, baseDefensePower: Number(playerState.baseDefensePower), shopAtkBonus: Number(playerState.shopAtkBonus || 0), shopDefBonus: Number(playerState.shopDefBonus || 0), shopHpBonus: Number(playerState.shopHpBonus || 0), shopMpBonus: Number(playerState.shopMpBonus || 0), weaponEnhanceLv: playerState.weaponEnhanceLv,
           martialTrainingLv: playerState.martialTrainingLv, shamanStudyLv: playerState.shamanStudyLv,
           dailyCoreBought: playerState.dailyCoreBought, dailyResetDate: playerState.dailyResetDate,
           moveSpeed: playerState.moveSpeed, attackRange: playerState.attackRange,
@@ -10998,7 +11021,7 @@ window.playerState = playerState;
           };
         }
         if (p.craftingMaterials && typeof p.craftingMaterials === 'object') playerState.craftingMaterials = { iron:0, wood:0, core:0, refined:0, boss:0, divine:0, ...p.craftingMaterials };
-        const numericFields = ['level','maxLevel','tier','hp','maxHp','mp','maxMp','exp','maxExp','gold','talismanLoot','talismanLevel','enhanceCore','baseAttackSpeed','attackSpeed','weaponAtk','baseAttackPower','defensePower','weaponEnhanceLv','moveSpeed','attackRange','atkSpeedLv','firstSkillLv','martialTrainingLv','shamanStudyLv','dailyCoreBought','jobChangeCount','experienceDungeonTickets'];
+        const numericFields = ['level','maxLevel','tier','hp','maxHp','mp','maxMp','exp','maxExp','gold','talismanLoot','talismanLevel','enhanceCore','baseAttackSpeed','attackSpeed','weaponAtk','baseAttackPower','defensePower','shopAtkBonus','shopDefBonus','shopHpBonus','shopMpBonus','weaponEnhanceLv','moveSpeed','attackRange','atkSpeedLv','firstSkillLv','martialTrainingLv','shamanStudyLv','dailyCoreBought','jobChangeCount','experienceDungeonTickets'];
         numericFields.forEach(k => { if (p[k] !== undefined && Number.isFinite(Number(p[k]))) playerState[k] = Number(p[k]); });
         // 레벨업 기본 공격력/방어력 기준값 마이그레이션. 구버전 세이브에는 baseAttackPower가 없고,
         // 리뉴얼17~20에서는 레벨업 방어력이 defensePower에만 누적되어 최종 계산에서 누락될 수 있었다.
@@ -13856,7 +13879,7 @@ const P=()=>window.playerState||null;
 function levelBase(p){
   const lv=Math.max(1,Number(p.level)||1);
   const sh=typeof window.isShamanClass==='function' ? window.isShamanClass() : (p.job==='무당'||p.job==='무녀');
-  return {hp:100+(lv-1)*(sh?10:30), mp:50+(lv-1)*(sh?30:10)};
+  return {hp:100+(lv-1)*(sh?10:30)+Math.max(0,Number(p.shopHpBonus)||0), mp:50+(lv-1)*(sh?30:10)+Math.max(0,Number(p.shopMpBonus)||0)};
 }
 function equippedArmorBonus(p,id){
   let total=0; const inv=Array.isArray(p.guardianInventory)?p.guardianInventory:[];
